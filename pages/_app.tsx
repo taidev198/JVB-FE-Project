@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import '@/styles/globals.css';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
@@ -8,6 +9,11 @@ import Head from 'next/head';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store } from '../store/store';
 import { persistor } from '@/store/store';
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+});
 
 function App({ Component, pageProps }: AppProps<{}>) {
   return (
@@ -21,7 +27,7 @@ function App({ Component, pageProps }: AppProps<{}>) {
       </Head>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <main>
+          <main className={plusJakartaSans.className}>
             <Toaster
               position="top-right"
               containerStyle={{
