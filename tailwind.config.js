@@ -22,6 +22,9 @@ module.exports = {
           white: '#ffffff',
         },
       },
+      backgroundImage: {
+        'custom-gradient': 'linear-gradient(261deg, #FEF2EB 0%, #F1F1F1 46.23%, #E4E0EA 99.82%)',
+      },
     },
   },
   plugins: [require('@tailwindcss/typography'), require('flowbite/plugin')],

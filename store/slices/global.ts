@@ -2,18 +2,24 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export interface State {
   showSidebar: boolean;
-  lightMode: boolean;
+  // lightMode: boolean;
 }
 
 const initialState: State = {
-  showSidebar: false,
-  lightMode: true,
+  showSidebar: true,
+  // lightMode: true,
 };
 
 export const globalSlice = createSlice({
   name: 'global',
   initialState,
-  reducers: {},
+  reducers: {
+    showSidebar: state => {
+      state.showSidebar = !state.showSidebar;
+    },
+  },
 });
+
+export const { showSidebar } = globalSlice.actions;
 
 export default globalSlice.reducer;
