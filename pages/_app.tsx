@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import '@/styles/globals.css';
 import { appWithTranslation } from 'next-i18next';
@@ -7,19 +6,36 @@ import { Toaster } from 'react-hot-toast';
 import { Provider } from 'react-redux';
 import Head from 'next/head';
 import { PersistGate } from 'redux-persist/integration/react';
+import { useRouter } from 'next/router';
 import { store } from '../store/store';
 import { persistor } from '@/store/store';
+
+// Layouts for different admin sections
+import AdminSystemLayout from '@/layouts/Admin/AdminSystemLayout';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
 });
 
-function App({ Component, pageProps }: AppProps<{}>) {
+// Function to choose layout based on the pathname
+const getLayout = (pathname: string) => {
+  if (pathname.startsWith('/admin/system')) {
+    return AdminSystemLayout;
+  }
+  {
+    // Default layout (or no layout if desired)
+    return ({ children }: { children: React.ReactNode }) => <>{children}</>;
+  }
+};
+
+function App({ Component, pageProps }: AppProps) {
+  const router = useRouter();
+  const Layout = getLayout(router.pathname); // Select the layout based on the pathname
+
   return (
     <>
       <Head>
-        <title>Base</title>
         <title>Base</title>
         <meta name="description" content="" />
         <meta name="viewport" content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no" />
@@ -35,7 +51,10 @@ function App({ Component, pageProps }: AppProps<{}>) {
                 right: 20,
               }}
             />
-            <Component {...pageProps} />
+            {/* Apply the layout dynamically based on pathname */}
+            <Layout>
+              <Component {...pageProps} />
+            </Layout>
           </main>
         </PersistGate>
       </Provider>
