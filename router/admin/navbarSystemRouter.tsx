@@ -7,14 +7,14 @@ export const litsNavbarSystemAdmin = [
   {
     id: 1,
     icon: <IconDashboard />,
-    url: '/admin/system',
+    url: '/admin/system/dashboard',
     label: 'Trang chủ',
   },
   {
     id: 2,
     icon: <IconGroup />,
     url: '/admin/system/company',
-    label: 'Doang Nghiệp',
+    label: 'Doanh Nghiệp',
   },
   {
     id: 3,

@@ -2,12 +2,12 @@ import { createSlice } from '@reduxjs/toolkit';
 
 export interface State {
   showSidebar: boolean;
-  // lightMode: boolean;
+  showBackdrop: boolean;
 }
 
 const initialState: State = {
   showSidebar: true,
-  // lightMode: true,
+  showBackdrop: false,
 };
 
 export const globalSlice = createSlice({
@@ -17,9 +17,12 @@ export const globalSlice = createSlice({
     showSidebar: state => {
       state.showSidebar = !state.showSidebar;
     },
+    toggleBackdrop: state => {
+      state.showBackdrop = !state.showBackdrop;
+    },
   },
 });
 
-export const { showSidebar } = globalSlice.actions;
+export const { showSidebar, toggleBackdrop } = globalSlice.actions;
 
 export default globalSlice.reducer;
