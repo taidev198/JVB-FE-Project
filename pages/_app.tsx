@@ -12,6 +12,7 @@ import { persistor } from '@/store/store';
 
 // Layouts for different admin sections
 import AdminSystemLayout from '@/layouts/Admin/AdminSystemLayout';
+import AdminSchoolLayout from '@/layouts/Admin/AdminSchoolLayout';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -22,6 +23,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 const getLayout = (pathname: string) => {
   if (pathname.startsWith('/admin/system')) {
     return AdminSystemLayout;
+  } else if (pathname.startsWith('/admin/school')) {
+    return AdminSchoolLayout;
   }
   {
     // Default layout (or no layout if desired)
