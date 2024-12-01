@@ -1,18 +1,18 @@
-/* eslint-disable no-console */
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import validationSchemaSchool from './validationSchemaSchool';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import Select from '@/components/Common/Select';
-import Text from '@/components/Common/Text';
+import TextEditor from '@/components/Common/TextEditor';
 
 interface FormDataRegisterSchool {
   university_name: string;
   university_code: string;
   email: string;
   password: string;
+  confirm_password: string;
   university_description: string;
   phone_number: string;
   ward_id: number;
@@ -32,13 +32,14 @@ const RegisterSchoolComponent = () => {
     resolver: yupResolver(validationSchemaSchool),
   });
 
-  const onSubmit: SubmitHandler<FormDataRegisterSchool> = data => {
-    console.log(data);
+  const onSubmit: SubmitHandler<FormDataRegisterSchool> = () => {
+    // const { confirm_password, ...payload } = data;
+    // console.log({ payload });
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-[550px]">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0">
       <h1 className="my-10 text-2xl font-bold">Đăng ký tài khoản Trường học</h1>
-      <div className="grid grid-cols-1 gap-x-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Name school */}
         <>
           <Input name="university_name" label="Tên trường học" placeholder="Nhập tên trường học" control={control} error={errors.university_name?.message} />
@@ -72,7 +73,14 @@ const RegisterSchoolComponent = () => {
         </>
         {/*Confirm Password */}
         <>
-          <Input type="password" name="repassword" label="Nhập lại mật khẩu" placeholder="Nhập lại mật khẩu" control={control} />
+          <Input
+            type="password"
+            name="confirm_password"
+            label="Xác nhận mật khẩu"
+            placeholder="Xác nhận mật khẩu"
+            control={control}
+            error={errors.confirm_password?.message}
+          />
         </>
         {/* Phone */}
         <>
@@ -87,20 +95,20 @@ const RegisterSchoolComponent = () => {
         </>
         {/* Establihed date */}
         <>
-          <Input type="date" name="establihed_date" label="Ngày thành lập" placeholder="" control={control} error={errors.establish_date?.message} />
+          <Input type="date" name="establish_date" label="Ngày thành lập" placeholder="" control={control} error={errors.establish_date?.message} />
         </>
       </div>
       {/* Địa chỉ */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <>
           <Select
             name="province_id"
             label="Tỉnh/ Thành phố"
             control={control}
             options={[
-              { value: 'technology', label: 'chọn' },
-              { value: 'health', label: 'Health' },
-              { value: 'finance', label: 'Finance' },
+              { value: '0', label: 'chọn' },
+              { value: '1', label: 'Health' },
+              { value: '2', label: 'Finance' },
             ]}
             error={errors.province_id?.message}
           />
@@ -111,9 +119,9 @@ const RegisterSchoolComponent = () => {
             label="Quận/ Huyện"
             control={control}
             options={[
-              { value: 'technology', label: 'chọn' },
-              { value: 'health', label: 'Health' },
-              { value: 'finance', label: 'Finance' },
+              { value: '0', label: 'chọn' },
+              { value: '1', label: 'Health' },
+              { value: '2', label: 'Finance' },
             ]}
             error={errors.district_id?.message}
           />
@@ -124,22 +132,39 @@ const RegisterSchoolComponent = () => {
             label="Xã/ Phường"
             control={control}
             options={[
-              { value: 'technology', label: 'chọn' },
-              { value: 'health', label: 'Health' },
-              { value: 'finance', label: 'Finance' },
+              { value: '0', label: 'chọn' },
+              { value: '1', label: 'Health' },
+              { value: '2', label: 'Finance' },
             ]}
             error={errors.ward_id?.message}
           />
         </>
       </div>
       {/* Number house */}
-      <>
-        <Input type="text" name="number_house" label="Số nhà, đường" placeholder="Nhập số nhà, đường" control={control} error={errors.number_house?.message} />
-      </>
-      {/* Description */}
-      <>
-        <Text name="university_description" label="Mô tả" placeholder="Nhập mô tả..." control={control} error={errors.university_description?.message} />
-      </>
+      <div className="mt-4 flex flex-col gap-4">
+        {' '}
+        <>
+          <Input
+            type="text"
+            name="number_house"
+            label="Số nhà, đường"
+            placeholder="Nhập số nhà, đường"
+            control={control}
+            error={errors.number_house?.message}
+          />
+        </>
+        {/* Description */}
+        <>
+          <Controller
+            name="university_description"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Mô tả" error={errors.university_description?.message} />
+            )}
+          />
+        </>
+      </div>
       <Button text="Đăng ký" full={true} type="submit" />
     </form>
   );

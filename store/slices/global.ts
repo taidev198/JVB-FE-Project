@@ -1,13 +1,18 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+export enum BackdropType {
+  General = 'GENERAL',
+  DeleteConfirmation = 'DELETE_CONFIRMATION',
+}
 
 export interface State {
   showSidebar: boolean;
-  showBackdrop: boolean;
+  backdropType: BackdropType | null;
 }
 
 const initialState: State = {
   showSidebar: true,
-  showBackdrop: false,
+  backdropType: null,
 };
 
 export const globalSlice = createSlice({
@@ -17,12 +22,12 @@ export const globalSlice = createSlice({
     showSidebar: state => {
       state.showSidebar = !state.showSidebar;
     },
-    toggleBackdrop: state => {
-      state.showBackdrop = !state.showBackdrop;
+    setBackdrop: (state, action: PayloadAction<BackdropType | null>) => {
+      state.backdropType = action.payload;
     },
   },
 });
 
-export const { showSidebar, toggleBackdrop } = globalSlice.actions;
+export const { showSidebar, setBackdrop } = globalSlice.actions;
 
 export default globalSlice.reducer;

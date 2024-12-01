@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import Image from 'next/image';
 import { HTMLProps } from 'react';
-import TriangleSvg from '@/assets/svg/triangle.svg';
+import TriangleSvg from '@/assets/icons/iconNavbar/dasboah.svg';
 
 type Position = 'left' | 'right' | 'bottom' | 'top';
 
@@ -27,7 +27,8 @@ export const ToolTip = ({ className, position, children }: Props) => {
         alt=""
         className={clsx('', position === 'top' && '-translate-y-[1px] -rotate-90', position === 'bottom' && 'translate-y-[1px] rotate-90')}
       />
-      <div className={clsx('rounded-[8px] bg-black p-[7px] text-[.75rem] ', position === 'top' && 'order-first', position === 'bottom' && 'order-last')}>
+      <div
+        className={clsx('rounded-[8px] bg-black p-[7px] text-[.75rem] text-white', position === 'top' && 'order-first', position === 'bottom' && 'order-last')}>
         {children}
       </div>
     </div>

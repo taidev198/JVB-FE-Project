@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 'use client';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import * as Yup from 'yup';
@@ -34,17 +33,21 @@ const Login = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const onSubmit: SubmitHandler<FormDataLogin> = data => {
-    console.log(data);
-  };
+  const onSubmit: SubmitHandler<FormDataLogin> = () => {};
 
   return (
     <AuthLayout type="login">
       <form onSubmit={handleSubmit(onSubmit)} className="w-[300px]">
         <h1 className="my-10 text-2xl font-bold">Đăng nhập</h1>
-        <Input name="email" label="Email" placeholder="Enter your Email" control={control} error={errors.email?.message} />
-        <Input type="password" name="password" label="Password" placeholder="Enter your Password" control={control} error={errors.password?.message} />
-        <Button text="Đăng nhập" full={true} type="submit" />
+        <div className="flex flex-col gap-4">
+          <>
+            <Input name="email" label="Email" placeholder="Enter your Email" control={control} error={errors.email?.message} />
+          </>
+          <>
+            <Input type="password" name="password" label="Password" placeholder="Enter your Password" control={control} error={errors.password?.message} />
+          </>
+          <Button text="Đăng nhập" full={true} type="submit" />
+        </div>
       </form>
     </AuthLayout>
   );
