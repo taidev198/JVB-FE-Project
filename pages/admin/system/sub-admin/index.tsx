@@ -5,10 +5,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Chip, IconButton, Pagination, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { useState } from 'react';
 
 import { Button as MyButton } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
-import { useState } from 'react';
 
 interface FormDataRegisterCompany {
   search_company: string;
