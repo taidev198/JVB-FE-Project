@@ -20,7 +20,7 @@ const AdminSystemLayout = ({ children }: { children: ReactNode }) => {
             <Navbar props={litsNavbarSystemAdmin} />
           </div>
         )}
-        <div className="h-screen  bg-[#EEEE] p-0 md:p-[20px] xl:w-[78.3%] xl:p-[30px]">{children}</div>
+        <div className="bg-[#EEEE] p-0 md:p-[20px] xl:w-[78.3%] xl:p-[20px]">{children}</div>
       </div>
     </>
   );

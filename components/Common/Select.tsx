@@ -4,16 +4,17 @@ import { Control, Controller } from 'react-hook-form';
 
 interface SelectProps {
   name: string;
-  label: string;
+  label?: string;
   options: { value: string; label: string }[];
   control: Control<any>;
   error?: string;
+  className?: string;
 }
 
-const Select = ({ name, label, options, control, error }: SelectProps) => {
+const Select = ({ name, label, options, control, error, className }: SelectProps) => {
   return (
-    <div className="mb-4">
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+    <div className={`${className}`}>
+      <label htmlFor={name} className="mb-1 block text-sm font-medium text-gray-700">
         {label}
       </label>
       <Controller
@@ -23,9 +24,11 @@ const Select = ({ name, label, options, control, error }: SelectProps) => {
           <select
             {...field}
             id={name}
-            className={`mt-2 block w-full cursor-pointer rounded-md border px-3 py-2 ${error ? 'border-red-500' : 'border-gray-300'}`}>
-            {options.map(option => (
-              <option key={option.value} value={option.value}>
+            className={`block w-full cursor-pointer rounded-md border px-3 py-2 text-sm ${
+              error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 placeholder:text-sm focus:border-gray-300'
+            } focus:outline-none focus:ring-0`}>
+            {options.map((option, index) => (
+              <option key={index} value={option.value} className="text-sm">
                 {option.label}
               </option>
             ))}

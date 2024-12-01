@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { useState } from 'react';
 import AuthLayout from '@/layouts/AuthLayout';
 import RegisterCompanyComponent from '@/components/auth/Company/RegisterCompanyComponent';
@@ -8,7 +7,6 @@ import RegisterSchoolComponent from '@/components/auth/School/RegisterSchoolComp
 
 const RegisterCompany = () => {
   const [registerSelect, setRegisterSelect] = useState('company');
-  console.log({ registerSelect });
 
   return (
     <AuthLayout type="register">

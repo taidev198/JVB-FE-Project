@@ -28,7 +28,7 @@ const SidebarContent: FC<NavbarProps> = ({ props }) => {
         {props.map(prop => (
           <Link key={prop.id} href={prop.url} className="p-3">
             <li className={`${prop.url === pathname ? 'bg-custom-gradient ' : ''} flex items-center gap-4 rounded-lg  p-3 transition-all hover:bg-slate-200`}>
-              <div className={`${prop.url === pathname ? 'text-[#34A853]' : ''} h-5 w-5 text-[#595959]`}>{prop.icon}</div>
+              <div className={`${prop.url === pathname ? 'text-[#34A853]' : 'text-[#595959]'} h-5 w-5`}>{prop.icon}</div>
               <p className={`text-lg text-gray-800 ${prop.url === pathname ? 'text-primary-black' : ''}`}>{prop.label}</p>
             </li>
           </Link>

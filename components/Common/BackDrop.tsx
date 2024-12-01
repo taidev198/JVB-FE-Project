@@ -16,7 +16,7 @@ export const BackDrop = ({ children, isCenter = false, className = '' }: Props):
         className={clsx(
           isCenter && 'items-center',
           showBackdrop && 'sm:[&>div]:ml-[260px]',
-          'fixed inset-0 !top-[0px] z-[60] flex items-start justify-center  bg-black/20 backdrop-blur-[5px] [&>div]:rounded-[8px] [&>div]:border-[1px] [&>div]:border-[#3c3c3c] [&>div]:bg-[#202123]',
+          'fixed inset-0 !top-[0px] z-[60] flex items-start justify-center  bg-black/20 backdrop-blur-[5px] [&>div]:rounded-[8px] [&>div]:border-[1px] [&>div]:border-[#ffffff] [&>div]:bg-[#ffffff]',
           className
         )}>
         {children}

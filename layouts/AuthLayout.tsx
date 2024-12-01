@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '@/components/Logo';
-import loginIcon from '@/assets/icons/login-image.svg';
+import loginIcon from '@/assets/images/login.jpg';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -11,11 +11,11 @@ interface AuthLayoutProps {
 
 const AuthLayout: FC<AuthLayoutProps> = ({ children, type }) => {
   return (
-    <div className="my-12 flex h-screen flex-wrap items-center justify-center gap-24">
+    <div className="my-10 flex flex-wrap items-center justify-center gap-14">
       {type === 'login' ? (
         <>
           <div className="hidden md:block">
-            <Image src={loginIcon} alt="icon login" width={350} />
+            <Image src={loginIcon} alt="icon login" width={350} height={400} />
           </div>
           <div>
             <Logo />
@@ -32,7 +32,7 @@ const AuthLayout: FC<AuthLayoutProps> = ({ children, type }) => {
         </>
       ) : (
         <>
-          <div>
+          <div className="w-[600px]">
             <div className="flex items-center justify-center">
               <Logo />
             </div>
@@ -47,7 +47,7 @@ const AuthLayout: FC<AuthLayoutProps> = ({ children, type }) => {
             </div>
           </div>
           <div className="hidden xl:block">
-            <Image src={loginIcon} alt="icon login" width={400} />
+            <Image src={loginIcon} alt="icon login" width={400} height={400} />
           </div>
         </>
       )}

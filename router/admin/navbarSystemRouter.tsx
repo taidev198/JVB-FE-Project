@@ -2,6 +2,7 @@ import IconSchool from '@/assets/icons/iconNavbar/school.svg';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
 import IconUser from '@/assets/icons/iconNavbar/user.svg';
 import IconGroup from '@/assets/icons/iconNavbar/group.svg';
+import IconWorkshop from '@/assets/icons/iconNavbar/workshop.svg';
 
 export const litsNavbarSystemAdmin = [
   {
@@ -27,5 +28,11 @@ export const litsNavbarSystemAdmin = [
     icon: <IconUser />,
     url: '/admin/system/sub-admin',
     label: 'Quản Trị Viên',
+  },
+  {
+    id: 5,
+    icon: <IconWorkshop />,
+    url: '/admin/system/workshop',
+    label: 'Quản lý WorkShop',
   },
 ];

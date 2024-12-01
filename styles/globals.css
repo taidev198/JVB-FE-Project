@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 html {
   height: 100%;
 }
@@ -20,6 +21,15 @@ body > div#__next > main {
 
 .text-sm {
   font-size: 14px;
+}
+
+input, select, textarea{
+  font-size: 14px;
+}
+
+select:not([size]), input[type="date"]{
+  font-size: 14px;
+  color: #6b7280 ;
 }
 
 @layer components {}
