@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
-// import 'quill/dist/quill.snow.css';
-// import 'quill/dist/quill.bubble.css';
+
 interface HomeProps {
   serverSideApiKeyIsSet: boolean;
 }

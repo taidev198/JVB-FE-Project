@@ -1,7 +1,7 @@
 import React from 'react';
 
-const AcademicOfficeManagement = () => {
-  return <div>academicOfficeManagement</div>;
+const index = () => {
+  return <div>index</div>;
 };
 
-export default AcademicOfficeManagement;
+export default index;
