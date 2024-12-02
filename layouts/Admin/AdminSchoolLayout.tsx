@@ -6,7 +6,7 @@ import { litsNavbarAdminSchoolRouter } from '@/router/admin/navbarAdminSchoolRou
 
 const AdminSchoolLayout = ({ children }: { children: ReactNode }) => {
   const theme = useTheme();
-  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('xl'));
   return (
     <>
       <Header isAdmin={true} />
@@ -16,11 +16,11 @@ const AdminSchoolLayout = ({ children }: { children: ReactNode }) => {
             <Navbar props={litsNavbarAdminSchoolRouter} />
           </div>
         ) : (
-          <div className={`w-[21.8%] bg-primary-white p-[30px]`}>
+          <div className={`w-[19%] bg-primary-white p-[30px]`}>
             <Navbar props={litsNavbarAdminSchoolRouter} />
           </div>
         )}
-        <div className="w-full bg-[#EEEE] p-[30px] xl:w-[78.3%]">{children}</div>
+        <div className="bg-[#EEEE] p-0 md:p-[20px] xl:w-[81%] xl:p-[20px]">{children}</div>
       </div>
     </>
   );
