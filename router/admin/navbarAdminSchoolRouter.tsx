@@ -34,7 +34,7 @@ export const litsNavbarAdminSchoolRouter = [
     id: 5,
     icon: <IconAcademic />,
     url: '/admin/school/academicOfficeManagement',
-    label: 'Quản Lý Viáo Vụ',
+    label: 'Quản Lý Giáo Vụ',
   },
   {
     id: 6,

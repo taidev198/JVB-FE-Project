@@ -19,7 +19,13 @@ const nextConfig = {
     API_SERVER_HOST: process.env.API_SERVER_HOST,
   },
   images: {
-    domains: [],
+    // domains: [],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+    ],
   },
 };
 

@@ -1,36 +1,27 @@
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useDispatch } from 'react-redux';
 import React, { useState } from 'react';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import SearchIcon from '@mui/icons-material/Search';
-import { IconButton, Tooltip, Pagination } from '@mui/material';
+import { IconButton, Tooltip, Pagination, TextField } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
-import { Button as MyButton } from '@/components/Common/Button';
-import Input from '@/components/Common/Input';
-import DeleteIcon from '@mui/icons-material/Delete';
-interface FormDataRegisterSchool {
-  search_school: string;
-}
-
-const validationSchema = Yup.object({
-  search_school: Yup.string().required('Tên khoa không được bỏ trống').max(100, 'Tên khoa không được quá 100 kí tự'),
-});
+import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import DescriptionIcon from '@mui/icons-material/Description';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
+import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import CloseIcon from '@mui/icons-material/Close';
+import { BackDrop } from '@/components/Common/BackDrop';
+import { Button, Button as MyButton } from '@/components/Common/Button';
+import { useAppSelector } from '@/store/hooks';
+import { BackdropType, setBackdrop } from '@/store/slices/global';
+import AddBussiness from '@/components/Admin/school/Business/AddBusiness';
 
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormDataRegisterSchool>({
-    resolver: yupResolver(validationSchema),
-  });
-
-  const onSubmit: SubmitHandler<FormDataRegisterSchool> = data => {
-    console.log(data);
-  };
+  const dispatch = useDispatch();
+  const backdropType = useAppSelector(state => state.global.backdropType);
 
   // Data giả lập
   const mockData = [
@@ -48,23 +39,13 @@ const BusinessManagement = () => {
   return (
     <>
       {/* Header */}
-      <form onSubmit={handleSubmit(onSubmit)} className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách quản ngành học</h1>
-        <div className="flex items-center gap-3 ">
-          <div className="w-[400px]">
-            <Input
-              type="text"
-              name="search_company"
-              placeholder="Tìm kiếm ngành học"
-              control={control}
-              error={errors.search_school?.message}
-              icon={<SearchIcon />}
-            />
-          </div>
-          <MyButton type="submit" text="Tìm kiếm" />
-          <MyButton type="submit" text="Thêm Khoa mới" />
+      <div className="rounded-t-md bg-white p-5 pb-5">
+        <h1 className="mb-5 font-bold">Danh sách quản ngành học</h1>
+        <div className="flex items-center justify-between gap-3 ">
+          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" />
+          <MyButton type="submit" text="Thêm mới" onClick={() => dispatch(setBackdrop(BackdropType.AddModal))} />
         </div>
-      </form>
+      </div>
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
@@ -92,8 +73,8 @@ const BusinessManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {mockData.map(item => (
-              <tr key={item.major_code} className="bg-[#F7F6FE]">
+            {mockData.map((item, index) => (
+              <tr key={item.major_code} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{item.major_code}</p>
                 </td>
@@ -112,27 +93,25 @@ const BusinessManagement = () => {
                 <td className="gap-2 px-2 py-4 sm:px-5 ">
                   <div className="flex items-center">
                     <p className="min-w-max">
-                      <Link href={`/admin/school/businessManagement/detalBusinessManagement`}>
-                        <Tooltip title="Xem chi tiết">
-                          <IconButton>
-                            <VisibilityIcon color="success" />
-                          </IconButton>
-                        </Tooltip>
-                      </Link>
+                      <Tooltip title="Xem chi tiết">
+                        <IconButton onClick={() => dispatch(setBackdrop(BackdropType.General))}>
+                          <VisibilityIcon color="success" />
+                        </IconButton>
+                      </Tooltip>
+
                       <Link href={`/admin/school/detalBusinessManagement/update`}>
-                        <Tooltip title="Sửa khoa">
+                        <Tooltip title="Sửa Ngành Học">
                           <IconButton>
                             <BorderColorIcon className="text-purple-500" />
                           </IconButton>
                         </Tooltip>
                       </Link>
-                      <Link href={`/admin/school/detalBusinessManagement/delete`}>
-                        <Tooltip title="Xóa khoa">
-                          <IconButton>
-                            <DeleteIcon className="text-red-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </Link>
+
+                      <Tooltip title="Xóa Ngành Học">
+                        <IconButton onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}>
+                          <DeleteIcon className="text-red-500" />
+                        </IconButton>
+                      </Tooltip>
                     </p>
                   </div>
                 </td>
@@ -142,6 +121,86 @@ const BusinessManagement = () => {
         </table>
       </div>
 
+      {backdropType === BackdropType.DeleteConfirmation && (
+        <BackDrop isCenter={true}>
+          <div className="max-w-[400px] rounded-md p-6">
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
+            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn ngành học khỏi hệ thống.</p>
+            <div className="mt-9 flex items-center gap-5">
+              <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Xác nhận" className="bg-red-800" full={true} />
+            </div>
+          </div>
+        </BackDrop>
+      )}
+      {/* Detail */}
+      {backdropType === BackdropType.General && (
+        <BackDrop isCenter={true}>
+          <div className="relative">
+            <IconButton onClick={() => dispatch(setBackdrop(null))} className="absolute right-0 mr-auto">
+              <CloseIcon />
+            </IconButton>
+
+            <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin quản lý ngành học </h1>
+            {/* Info */}
+            <div className="mx-auto max-w-[650px] rounded-[10px] p-7">
+              <div className="flex items-center gap-[30px] ">
+                <div>
+                  <Link href={'#'}>
+                    <p className="text-primary-gray">Chi tiết thông tin ngành học</p>
+                  </Link>
+                </div>
+              </div>
+              <ul className="">
+                <li className="mt-5 flex items-center gap-3">
+                  <StarBorderIcon sx={{ color: '#757575' }} />
+                  <div>
+                    <span className="mr-2 font-semibold">Mã ngành:</span> CNTT
+                  </div>
+                </li>
+                <li className="mt-5 flex items-center gap-3">
+                  <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
+                  <div>
+                    <span className="mr-2 font-semibold">Tên Ngành:</span> Công Nghệ Thông Tin
+                  </div>
+                </li>
+                <li className="mt-5 flex items-center gap-3">
+                  <CreditScoreIcon sx={{ color: '#757575' }} />
+                  <div>
+                    <span className="mr-2 font-semibold">Số Tín Chỉ :</span> 124
+                  </div>
+                </li>
+                <li className="mt-5 flex items-center gap-3">
+                  <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
+                  <div>
+                    <span className="mr-2 font-semibold">Số Sinh Viên:</span> 578
+                  </div>
+                </li>
+                <li className="mt-4 flex items-center  gap-3 ">
+                  <CameraOutdoorIcon sx={{ color: '#757575' }} />
+                  <div>
+                    <span className="mr-2 font-semibold">Khoa:</span> Công Nghệ Thông Tin
+                  </div>
+                </li>
+                <li className="mt-4 flex items-center  gap-3 ">
+                  <DescriptionIcon sx={{ color: '#757575' }} />
+                  <div>
+                    <span className="mr-2 font-semibold">Mô tả:</span>Khoa Công nghệ Thông tin (CNTT) là một đơn vị trong các trường đại học, cao đẳng chuyên
+                    đào tạo.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </BackDrop>
+      )}
+
+      {/* FormAdd*/}
+      {backdropType === BackdropType.AddModal && (
+        <BackDrop isCenter={true}>
+          <AddBussiness />
+        </BackDrop>
+      )}
       {/* Pagination */}
       <div className="flex justify-center bg-white p-5">
         <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
