@@ -1,8 +1,8 @@
 import IconSchool from '@/assets/icons/iconNavbar/school.svg';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
-import IconUser from '@/assets/icons/iconNavbar/user.svg';
 import IconGroup from '@/assets/icons/iconNavbar/group.svg';
 import IconWorkshop from '@/assets/icons/iconNavbar/workshop.svg';
+import IconChangePassword from '@/assets/icons/iconNavbar/password.svg';
 
 export const litsNavbarSystemAdmin = [
   {
@@ -25,14 +25,14 @@ export const litsNavbarSystemAdmin = [
   },
   {
     id: 4,
-    icon: <IconUser />,
-    url: '/admin/system/sub-admin',
-    label: 'Quản Trị Viên',
-  },
-  {
-    id: 5,
     icon: <IconWorkshop />,
     url: '/admin/system/workshop',
     label: 'Quản lý WorkShop',
+  },
+  {
+    id: 5,
+    icon: <IconChangePassword />,
+    url: '/admin/system/change-password',
+    label: 'Đổi mật khẩu',
   },
 ];
