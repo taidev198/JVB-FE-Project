@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Chip, IconButton, Tooltip, Pagination, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useAppSelector } from '@/store/hooks';
@@ -10,7 +9,6 @@ import { BackdropType, setBackdrop } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 
-// Data giả lập
 const mockData = [
   {
     id: 1,
@@ -66,11 +64,41 @@ const mockData = [
 
 const AdminSystemWorkshop = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(null);
+  const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
+
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleAction = (actionType: BackdropType, workshopId: number) => {
+    setSelectedWorkshopId(workshopId);
+    setSelectedAction(actionType);
+    dispatch(setBackdrop(actionType));
+  };
+
+  const handleConfirmAction = async () => {
+    if (selectedWorkshopId !== null && selectedAction) {
+      try {
+        switch (selectedAction) {
+          case BackdropType.ApproveConfirmation:
+            break;
+          case BackdropType.RefuseConfirmation:
+            break;
+          default:
+            throw new Error('Invalid action type');
+        }
+      } catch (error) {
+        console.error('Error performing action:', error);
+      } finally {
+        dispatch(setBackdrop(null));
+        setSelectedWorkshopId(null);
+        setSelectedAction(null);
+      }
+    }
   };
 
   return (
@@ -109,11 +137,9 @@ const AdminSystemWorkshop = () => {
               <th className="px-2 py-4 text-left">
                 <p className="min-w-max">Địa chỉ</p>
               </th>
-              <Tooltip title="Số lượng công ty ước tính">
-                <th className="px-2 py-4 text-left">
-                  <p className="min-w-max">Số lượng ..</p>
-                </th>
-              </Tooltip>
+              <th className="px-2 py-4 text-left">
+                <p className="w-[100px]">Số lượng công ty ước tính</p>
+              </th>
               <th className="px-2 py-4 text-left">
                 <p className="min-w-max">Trạng thái</p>
               </th>
@@ -123,8 +149,8 @@ const AdminSystemWorkshop = () => {
             </tr>
           </thead>
           <tbody>
-            {mockData.map(item => (
-              <tr key={item.id} className="bg-[#F7F6FE]">
+            {mockData.map((item, index) => (
+              <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                 <td className="px-4 py-4">
                   <p className="min-w-max">{item.id}</p>
                 </td>
@@ -154,18 +180,13 @@ const AdminSystemWorkshop = () => {
                 </td>
                 <td className="flex items-center gap-1 py-4">
                   <Tooltip title="Duyệt">
-                    <IconButton>
+                    <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, item.id)}>
                       <CheckCircleIcon color="success" />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Từ chối">
-                    <IconButton>
+                    <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, item.id)}>
                       <ClearIcon color="warning" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Xóa">
-                    <IconButton onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}>
-                      <DeleteIcon color="error" />
                     </IconButton>
                   </Tooltip>
                 </td>
@@ -174,23 +195,28 @@ const AdminSystemWorkshop = () => {
           </tbody>
         </table>
       </div>
-      {backdropType === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Khóa tài khoản Trường học</h3>
-            <p className="mt-1">Bạn có chắc chắn muốn khóa tài khoản trường học đại học này?</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-800" full={true} />
-            </div>
-          </div>
-        </BackDrop>
-      )}
       {/* Pagination */}
       <div className="flex justify-center bg-white p-5">
         <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
       </div>
       {backdropType === BackdropType.General && <DetailWorkshop />}
+
+      {/*  */}
+      {(backdropType === BackdropType.ApproveConfirmation || backdropType === BackdropType.RefuseConfirmation) && (
+        <BackDrop isCenter>
+          <div className="max-w-[400px] rounded-md p-6">
+            <h3 className="font-bold">
+              {selectedAction === BackdropType.ApproveConfirmation && 'Duyệt WorkShop'}
+              {selectedAction === BackdropType.RefuseConfirmation && 'Từ chối WorkShop'}
+            </h3>
+            <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+            <div className="mt-9 flex items-center gap-5">
+              <Button text="Hủy" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Xác nhận" className="bg-red-800" full={true} onClick={handleConfirmAction} />
+            </div>
+          </div>
+        </BackDrop>
+      )}
     </>
   );
 };

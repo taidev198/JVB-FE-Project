@@ -8,7 +8,7 @@ import IconWhiteMode from '@/assets/svg/icon_whitemode.svg';
 export const ChooseThemeSelect = (): JSX.Element => {
   return (
     <>
-      <Image width={32} src={IconWhiteMode} alt="icon white mode" className="cursor-pointer" />
+      <Image src={IconWhiteMode} width={32} alt="icon white mode" className="cursor-pointer" />
     </>
   );
 };
