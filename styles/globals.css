@@ -36,3 +36,22 @@ select:not([size]), input[type="date"]{
 
 @keyframes load {
 }
+
+/* Tùy chỉnh thanh cuộn cho toàn bộ trang */
+::-webkit-scrollbar {
+  width: 8px; /* Chiều rộng của thanh cuộn dọc */
+  height: 8px; /* Chiều cao của thanh cuộn ngang */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Màu nền của vùng track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b6b4b4; /* Màu của thanh cuộn */
+  border-radius: 10px; /* Độ bo tròn của thanh cuộn */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8f8e8e; /* Màu của thanh cuộn khi hover */
+}
