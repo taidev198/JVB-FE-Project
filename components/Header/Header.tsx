@@ -3,6 +3,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
+import Notification from '../Common/Notification';
 
 // import Container from '../Container';
 import Logo from '../Logo';
@@ -38,6 +39,7 @@ const Header = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             className="flex h-10 items-center gap-2 rounded-md border  bg-primary-main px-5 font-medium text-primary-white hover:bg-black">
             Đăng ký
           </Link>
+          <Notification />
         </div>
       </div>
       {/* </Container> */}

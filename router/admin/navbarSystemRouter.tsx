@@ -15,13 +15,13 @@ export const litsNavbarSystemAdmin = [
     id: 2,
     icon: <IconGroup />,
     url: '/admin/system/company',
-    label: 'Doanh Nghiệp',
+    label: 'Quản lý Doanh Nghiệp',
   },
   {
     id: 3,
     icon: <IconSchool />,
     url: '/admin/system/school',
-    label: 'Trường Học',
+    label: 'Quản lý Trường Học',
   },
   {
     id: 4,
