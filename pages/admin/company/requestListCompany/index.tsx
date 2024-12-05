@@ -5,9 +5,9 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Chip, IconButton, Tooltip, Pagination,FormControl, TextField, InputLabel, Select, MenuItem } from '@mui/material';
 import Link from 'next/link';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+// import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
+// import BorderColorIcon from '@mui/icons-material/BorderColor';
 
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -27,7 +27,7 @@ const validationSchema = Yup.object({
 });
 
 
-const workShopCompany = () => {
+const requestListCompany = () => {
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
@@ -286,6 +286,6 @@ const workShopCompany = () => {
 
     </>
   );
-};
+}
 
-export default workShopCompany;
+export default requestListCompany
