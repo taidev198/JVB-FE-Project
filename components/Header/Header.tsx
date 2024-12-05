@@ -12,7 +12,7 @@ import { showSidebar } from '@/store/slices/global';
 
 const Header = ({ isAdmin = false }: { isAdmin?: boolean }) => {
   const theme = useTheme();
-  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const dispatch = useDispatch();
   return (
     <header className={`border-b border-gray-400 border-opacity-20 bg-primary-white py-[30px] shadow-md ${isAdmin ? 'px-[20px]' : ''}`}>

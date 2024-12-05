@@ -1,11 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-export interface UserState {}
+export interface UserState {
+  accessToken: string | null;
+  user: any;
+  roleAccount: string | null;
+}
 
 /**
  * Default state object with initial values.
  */
-const initialState: Readonly<UserState> = {};
+const initialState: Readonly<UserState> = { accessToken: null, user: null, roleAccount: null };
 
 /**
  * Create a slice as a reducer containing actions.
@@ -17,7 +21,12 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    reset: () => {
+    login: (state, action) => {
+      state.accessToken = action.payload.accessToken;
+      state.user = action.payload.user;
+      state.roleAccount = action.payload.roleAccount;
+    },
+    logOut: () => {
       return initialState;
     },
   },
@@ -27,6 +36,6 @@ export const userSlice = createSlice({
 export const getUserState = (state: { user: UserState }) => state.user;
 
 // Exports all actions
-export const { reset } = userSlice.actions;
+export const { login, logOut } = userSlice.actions;
 
 export default userSlice.reducer;

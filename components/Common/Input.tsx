@@ -10,13 +10,16 @@ interface InputProps {
   control: Control<any>;
   error?: string;
   icon?: ReactNode;
+  startTime?: boolean;
 }
 
-const Input = ({ name, label, placeholder, control, error, type = 'text', icon }: InputProps) => {
+const Input = ({ name, label, placeholder, control, error, type = 'text', icon, startTime }: InputProps) => {
+  const today = new Date().toISOString().split('T')[0];
+
   return (
     <div className="">
       {label && (
-        <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+        <label htmlFor={name} className="block text-sm font-semibold text-gray-700">
           {label}
         </label>
       )}
@@ -35,6 +38,7 @@ const Input = ({ name, label, placeholder, control, error, type = 'text', icon }
                 error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 placeholder:text-sm focus:border-gray-300'
               } ${icon ? 'pl-10' : ''} focus:outline-none focus:ring-0`}
               type={type}
+              {...(startTime && type === 'date' ? { min: today } : {})}
             />
           )}
         />
