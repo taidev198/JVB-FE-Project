@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Chip, FormControl, IconButton, InputLabel, MenuItem, Pagination, Select, TextField, Tooltip } from '@mui/material';
+import { Checkbox, Chip, FormControl, IconButton, InputLabel, MenuItem, Pagination, Select, TextField, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -8,15 +8,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
-import AddDepartment from '@/components/Admin/school/Department/AddDepartment';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
+import AddStudent from '@/components/Admin/school/Student/AddStudent';
 
 const StudentsManagement = () => {
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
   const [studentStatus, setStudentStatus] = useState('');
+  const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
 
   // Data giả lập
   const mockData = [
@@ -185,6 +186,19 @@ const StudentsManagement = () => {
     setCurrentPage(page);
   };
 
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const allStudentIds = mockData.map(student => student.id);
+      setSelectedStudents(allStudentIds);
+    } else {
+      setSelectedStudents([]);
+    }
+  };
+
+  const handleSelectStudent = (id: number) => {
+    setSelectedStudents(prev => (prev.includes(id) ? prev.filter(studentId => studentId !== id) : [...prev, id]));
+  };
+
   return (
     <>
       {/* Header */}
@@ -203,14 +217,21 @@ const StudentsManagement = () => {
                 <MenuItem value="all">
                   <em>Tất cả</em>
                 </MenuItem>
-                <MenuItem value={'active'}>Hoạt động</MenuItem>
-                <MenuItem value={'disable'}>Tạm ngừng</MenuItem>
+                <MenuItem value={'active'}>In Progress</MenuItem>
+                <MenuItem value={'disable'}>Dropped Out</MenuItem>
+                <MenuItem value={'dropped out'}>Granduated</MenuItem>
               </Select>
             </FormControl>
             <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" />
           </div>
-          <div>
+          <div className="flex justify-items-center gap-5">
             <MyButton type="submit" text="Thêm mới" onClick={() => dispatch(setBackdrop(BackdropType.AddModal))} />
+            <MyButton
+              type="submit"
+              text="Xóa tất cả sinh viên đã chọn"
+              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              className="bg-red-custom"
+            />
           </div>
         </div>
       </div>
@@ -219,6 +240,16 @@ const StudentsManagement = () => {
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
+            <tr>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <Checkbox
+                  color="primary"
+                  checked={selectedStudents.length === mockData.length}
+                  indeterminate={selectedStudents.length > 0 && selectedStudents.length < mockData.length}
+                  onChange={handleSelectAll}
+                />
+              </th>
+            </tr>
             <tr>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">STT</p>
@@ -232,12 +263,12 @@ const StudentsManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Họ Và Tên Sinh Viên</p>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              {/* <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Email</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Điểm TB</p>
-              </th>
+              </th> */}
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Ngành</p>
               </th>
@@ -250,11 +281,17 @@ const StudentsManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Thao Tác</p>
               </th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <p className="min-w-max">Hành Động</p>
+              </th>
             </tr>
           </thead>
           <tbody>
             {mockData.map((item, index) => (
               <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                <td className="p-3 sm:px-5 sm:py-4">
+                  <Checkbox color="primary" checked={selectedStudents.includes(item.id)} onChange={() => handleSelectStudent(item.id)} />
+                </td>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{item.id}</p>
                 </td>
@@ -269,12 +306,12 @@ const StudentsManagement = () => {
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{item.fullName}</p>
                 </td>
-                <td className="p-3 sm:px-5 sm:py-4">
+                {/* <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{item.email}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{item.gpa}</p>
-                </td>
+                </td> */}
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{item.major.majorName}</p>
                 </td>
@@ -335,7 +372,7 @@ const StudentsManagement = () => {
           </tbody>
         </table>
       </div>
-      {/* Xóa Khoa */}
+      {/* Xóa Sinh viên */}
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
@@ -352,7 +389,7 @@ const StudentsManagement = () => {
       {/* FormAdd*/}
       {backdropType === BackdropType.AddModal && (
         <BackDrop isCenter={true}>
-          <AddDepartment />
+          <AddStudent />
         </BackDrop>
       )}
       {/* Pagination */}

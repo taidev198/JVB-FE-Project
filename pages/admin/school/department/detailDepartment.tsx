@@ -1,6 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
-
 import Link from 'next/link';
 import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
 import StarBorderIcon from '@mui/icons-material/StarBorder';

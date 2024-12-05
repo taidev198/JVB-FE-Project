@@ -55,6 +55,9 @@ select:not([size]), input[type="date"]{
 ::-webkit-scrollbar-thumb:hover {
   background: #8f8e8e; /* Màu của thanh cuộn khi hover */
 }
+/* index studentSchool */
+.bg-red-custom {
+  background-color: #F14336 !important;
 
 /* file styles.css */
 .ql-toolbar.ql-snow + .ql-container.ql-snow{

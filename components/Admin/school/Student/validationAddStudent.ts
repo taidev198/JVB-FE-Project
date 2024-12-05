@@ -24,7 +24,7 @@ const validationSchemaAddStudent = Yup.object({
       return /^[0-9]+(\.[0-9]{1,2})?$/.test(String(value)); // Kiểm tra số thập phân với tối đa 2 chữ số thập phân
     })
     .required('Điểm trung bình là bắt buộc'),
-  studentStatus: Yup.string().oneOf(['In Progress', 'Graduated', 'Dropped Out'], 'Trạng thái học tập không hợp lệ').required('Trạng thái học tập là bắt buộc'),
+  studentStatus: Yup.string().required('Trạng thái học tập là bắt buộc'),
   phoneNumber: Yup.string()
     .matches(/^[0-9]+$/, 'Số điện thoại chỉ có thể chứa các chữ số')
     .max(15, 'Số điện thoại không được vượt quá 15 ký tự')

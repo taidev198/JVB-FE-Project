@@ -1,6 +1,5 @@
 import IconDepartment from '@/assets/icons/iconNavbarAdminSchool/icon-department.svg';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
-
 import IconBusiness from '@/assets/icons/iconNavbarAdminSchool/icon-business.svg';
 import IconSchool from '@/assets/icons/iconNavbarAdminSchool/icon-school.svg';
 import IconStudent from '@/assets/icons/iconNavbarAdminSchool/icon-student.svg';
@@ -47,19 +46,19 @@ export const litsNavbarAdminSchoolRouter = [
     label: 'Quản Lý Sinh Viên',
   },
   {
-    id: 6,
+    id: 7,
     icon: <IconWorkshop />,
     url: '/admin/school/workshop',
     label: 'Quản Lý Work Shop',
   },
   {
-    id: 7,
+    id: 8,
     icon: <IconNotification />,
     url: '/admin/school/notification',
     label: 'Thông báo',
   },
   {
-    id: 8,
+    id: 9,
     icon: <IconChangePassword />,
     url: '/admin/school/changePassword',
     label: 'Đổi mật khẩu',
