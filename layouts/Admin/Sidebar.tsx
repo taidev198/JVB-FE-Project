@@ -32,7 +32,7 @@ const SidebarContent: FC<NavbarProps> = ({ props }) => {
                 pathname.startsWith(prop.url) ? 'bg-custom-gradient ' : ''
               } flex items-center gap-4 rounded-lg  p-3 transition-all hover:bg-slate-200`}>
               <div className={`${pathname.startsWith(prop.url) ? 'text-[#34A853]' : 'text-[#595959]'} h-5 w-5`}>{prop.icon}</div>
-              <p className={`text-lg text-gray-800 ${pathname.startsWith(prop.url) ? 'text-primary-black' : ''}`}>{prop.label}</p>
+              <p className={`text-[17px] text-gray-800 ${pathname.startsWith(prop.url) ? 'text-primary-black' : ''}`}>{prop.label}</p>
             </li>
           </Link>
         ))}
@@ -43,7 +43,7 @@ const SidebarContent: FC<NavbarProps> = ({ props }) => {
 
 const Sidebar: FC<NavbarProps> = ({ props }) => {
   const theme = useTheme();
-  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const isShowSidebar = useSelector((store: any) => store.global.showSidebar);
   const dispatch = useDispatch();
 

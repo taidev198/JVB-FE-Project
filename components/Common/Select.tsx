@@ -14,7 +14,7 @@ interface SelectProps {
 const Select = ({ name, label, options, control, error, className }: SelectProps) => {
   return (
     <div className={`${className}`}>
-      <label htmlFor={name} className="mb-1 block text-sm font-medium text-gray-700">
+      <label htmlFor={name} className="mb-1 block text-sm font-semibold text-gray-700">
         {label}
       </label>
       <Controller

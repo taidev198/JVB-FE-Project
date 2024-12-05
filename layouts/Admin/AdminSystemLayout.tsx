@@ -6,21 +6,21 @@ import { litsNavbarSystemAdmin } from '@/router/admin/navbarSystemRouter';
 
 const AdminSystemLayout = ({ children }: { children: ReactNode }) => {
   const theme = useTheme();
-  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   return (
     <>
       <Header isAdmin={true} />
       <div className={`${!isMobileAndTablet ? 'flex' : ''}`}>
         {isMobileAndTablet ? (
-          <div className={`hidden`}>
+          <div className={`hidden h-screen overflow-auto`}>
             <Navbar props={litsNavbarSystemAdmin} />
           </div>
         ) : (
-          <div className={`w-[19%] bg-primary-white p-[30px]`}>
+          <div className={`h-screen w-[19%] overflow-auto bg-primary-white p-[20px]`}>
             <Navbar props={litsNavbarSystemAdmin} />
           </div>
         )}
-        <div className="bg-[#EEEE] p-0 md:p-[20px] xl:w-[81%] xl:p-[20px]">{children}</div>
+        <div className="h-screen overflow-auto bg-[#EEEE] p-0 md:p-[20px] xl:w-[81%] xl:p-[20px]">{children}</div>
       </div>
     </>
   );
