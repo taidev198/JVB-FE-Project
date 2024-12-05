@@ -136,7 +136,7 @@ const BusinessManagement = () => {
       {/* Detail */}
       {backdropType === BackdropType.General && (
         <BackDrop isCenter={true}>
-          <div className="relative">
+          <div className="relative ">
             <IconButton onClick={() => dispatch(setBackdrop(null))} className="absolute right-0 mr-auto">
               <CloseIcon />
             </IconButton>

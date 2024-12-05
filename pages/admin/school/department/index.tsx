@@ -92,7 +92,7 @@ const Department = () => {
                         </IconButton>
                       </Tooltip>
 
-                      <Link href={`/admin/school/department/update`}>
+                      <Link href={`/admin/school/department/updateDepartment`}>
                         <Tooltip title="Sửa khoa">
                           <IconButton>
                             <BorderColorIcon className="text-purple-500" />
@@ -130,7 +130,7 @@ const Department = () => {
       {backdropType === BackdropType.General && (
         <BackDrop isCenter={true}>
           <div className="relative">
-            <IconButton onClick={() => dispatch(setBackdrop(null))} className="absolute right-0 mr-auto">
+            <IconButton onClick={() => dispatch(setBackdrop(null))} className="absolute right-0 top-0">
               <CloseIcon />
             </IconButton>
             <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin quản lý khoa </h1>

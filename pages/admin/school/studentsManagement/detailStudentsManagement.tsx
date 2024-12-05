@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
 import DomainIcon from '@mui/icons-material/Domain';
+import PhoneIcon from '@mui/icons-material/Phone';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import WcIcon from '@mui/icons-material/Wc';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
@@ -52,18 +53,7 @@ const DetailStudentsManagement = () => {
               <span className="mr-2 font-semibold">Email:</span> contact@gmail.com
             </div>
           </li>
-          <li className="mt-5 flex items-center gap-3">
-            <DeviceHubIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Số điện thoại:</span> (+85) 123 456 789
-            </div>
-          </li>
-          <li className="mt-5 flex items-center gap-3">
-            <DomainIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Địa chỉ:</span> 66 Tố Hữu, Nam Từ Liêm, Hà Nội
-            </div>
-          </li>
+
           <li className="mt-5 flex items-center gap-3">
             <EmojiEventsIcon sx={{ color: '#757575' }} />
             <div>
@@ -98,6 +88,18 @@ const DetailStudentsManagement = () => {
             <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Khoa:</span> Công Nghệ
+            </div>
+          </li>
+          <li className="mt-5 flex items-center gap-3">
+            <PhoneIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Số điện thoại:</span> (+85) 123 456 789
+            </div>
+          </li>
+          <li className="mt-5 flex items-center gap-3">
+            <DomainIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Địa chỉ:</span> 66 Tố Hữu, Nam Từ Liêm, Hà Nội
             </div>
           </li>
         </ul>
