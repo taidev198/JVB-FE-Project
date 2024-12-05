@@ -5,6 +5,10 @@ import IconBusiness from '@/assets/icons/iconNavbarAdminSchool/icon-business.svg
 import IconSchool from '@/assets/icons/iconNavbarAdminSchool/icon-school.svg';
 import IconStudent from '@/assets/icons/iconNavbarAdminSchool/icon-student.svg';
 import IconAcademic from '@/assets/icons/iconNavbarAdminSchool/icon-academic.svg';
+import IconChangePassword from '@/assets/icons/iconNavbar/password.svg';
+import IconNotification from '@/assets/icons/notification.svg';
+import IconWorkshop from '@/assets/icons/iconNavbar/workshop.svg';
+
 export const litsNavbarAdminSchoolRouter = [
   {
     id: 1,
@@ -41,5 +45,23 @@ export const litsNavbarAdminSchoolRouter = [
     icon: <IconStudent />,
     url: '/admin/school/studentsManagement',
     label: 'Quản Lý Sinh Viên',
+  },
+  {
+    id: 6,
+    icon: <IconWorkshop />,
+    url: '/admin/school/workshop',
+    label: 'Quản Lý Work Shop',
+  },
+  {
+    id: 7,
+    icon: <IconNotification />,
+    url: '/admin/school/notification',
+    label: 'Thông báo',
+  },
+  {
+    id: 8,
+    icon: <IconChangePassword />,
+    url: '/admin/school/changePassword',
+    label: 'Đổi mật khẩu',
   },
 ];

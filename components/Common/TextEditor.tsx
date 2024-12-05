@@ -19,8 +19,8 @@ const TextEditor: FC<QuillEditorProps> = ({ value, onChange, onBlur, label, erro
 
   return (
     <>
-      {label && <label className="block text-sm font-medium text-gray-700">{label}</label>}
-      <ReactQuill theme="snow" value={value} onChange={onChange} onBlur={onBlur} modules={modules} placeholder="Nhập mô tả..." className="h-[300px]" />
+      {label && <label className="mb-1 block text-sm font-semibold text-gray-700">{label}</label>}
+      <ReactQuill theme="snow" value={value} onChange={onChange} onBlur={onBlur} modules={modules} placeholder="Nhập mô tả..." className="h-full" />
       {error && <p className="top-full mt-[2px] text-[13px] text-red-500">{error}</p>}
     </>
   );
