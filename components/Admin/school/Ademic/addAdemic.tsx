@@ -3,11 +3,14 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import CloseIcon from '@mui/icons-material/Close';
 import { FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select } from '@mui/material';
 import { useDispatch } from 'react-redux';
+import { useState } from 'react';
+
 import validationSchemaAddAdemic from './validationAddAdemic';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import { setBackdrop } from '@/store/slices/global';
-import { useState } from 'react';
+
+import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 
 interface FormDataAddAdemic {
   full_name: string;
@@ -16,30 +19,22 @@ interface FormDataAddAdemic {
   confirm_password: string;
   phone_number: string;
   data_of_birth: string;
-  avatarUrl: File | null;
   gender: string;
   email: string;
 }
 
 const AddAdemic = () => {
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  image;
+
   const dispatch = useDispatch();
   const {
     control,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<FormDataAddAdemic>({
     resolver: yupResolver(validationSchemaAddAdemic),
   });
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.currentTarget.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setValue('avatarUrl', file); // Lưu file vào form
-      setImagePreview(URL.createObjectURL(file)); // Tạo URL và lưu vào state
-    }
-  };
   const onSubmit: SubmitHandler<FormDataAddAdemic> = () => {
     // console.log('Dữ liệu hợp lệ:', data);
     // Xử lý gửi dữ liệu ở đây
@@ -54,21 +49,7 @@ const AddAdemic = () => {
           </IconButton>
         </div>
         <h1 className="my-10 text-2xl font-bold">Thêm mới giáo vụ</h1>
-        <div>
-          <label>Ảnh đại diện</label>
-          <input
-            type="file"
-            name="avatarUrl"
-            accept="image/jpeg, image/png"
-            onChange={handleFileChange} // Sử dụng hàm xử lý mới
-          />
-          {imagePreview && (
-            <div className="mt-2">
-              <img src={imagePreview} alt="Preview" className="h-32 w-32 object-cover" />
-            </div>
-          )}
-          {errors.avatarUrl && <div className="text-red-500">{errors.avatarUrl.message}</div>}
-        </div>
+        <ImageUploaderOne image={image} setImage={setImage} />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             type="text"
@@ -105,17 +86,10 @@ const AddAdemic = () => {
             control={control}
             error={errors.confirm_password?.message}
           />
-          <Input
-            type="text"
-            name="phone_number"
-            label="Số điện thoại"
-            placeholder="Nhập số điện thoại"
-            control={control}
-            error={errors.phone_number?.message}
-          />
+
           <Input type="date" name="data_of_birth" label="Ngày sinh" placeholder="Nhập ngày sinh" control={control} error={errors.data_of_birth?.message} />
         </div>
-        <Button text="Thêm" full={true} type="submit" />
+        <Button text="Thêm" full={true} type="submit" className="mt-5" />
       </form>
     </div>
   );

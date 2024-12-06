@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export enum BackdropType {
   General = 'GENERAL',
   DeleteConfirmation = 'DELETE_CONFIRMATION',
+  UpdateConfirmation = 'UPDATE_CONFIRMATION',
   AddModal = 'ADD_MODAL',
   ApproveConfirmation = 'Approve_CONFIRMATION',
   RefuseConfirmation = 'Refuse_CONFIRMATION',

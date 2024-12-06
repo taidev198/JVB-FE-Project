@@ -12,11 +12,14 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+
+import UpdateDepartment from './UpdateDepartment';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
 import AddDepartment from '@/components/Admin/school/Department/AddDepartment';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
+
 const Department = () => {
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
@@ -92,13 +95,11 @@ const Department = () => {
                         </IconButton>
                       </Tooltip>
 
-                      <Link href={`/admin/school/department/updateDepartment`}>
-                        <Tooltip title="Sửa khoa">
-                          <IconButton>
-                            <BorderColorIcon className="text-purple-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </Link>
+                      <Tooltip title="Sửa khoa">
+                        <IconButton onClick={() => dispatch(setBackdrop(BackdropType.UpdateConfirmation))}>
+                          <BorderColorIcon className="text-purple-500" />
+                        </IconButton>
+                      </Tooltip>
 
                       <Tooltip title="Xóa khoa">
                         <IconButton onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}>
@@ -190,6 +191,12 @@ const Department = () => {
       {backdropType === BackdropType.AddModal && (
         <BackDrop isCenter={true}>
           <AddDepartment />
+        </BackDrop>
+      )}
+      {/* FormUpdate */}
+      {backdropType === BackdropType.UpdateConfirmation && (
+        <BackDrop isCenter={true}>
+          <UpdateDepartment />
         </BackDrop>
       )}
       {/* Pagination */}
