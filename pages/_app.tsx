@@ -16,7 +16,7 @@ import AdminSchoolLayout from '@/layouts/Admin/AdminSchoolLayout';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: ['400', '500', '600', '700'],
 });
 
 // Function to choose layout based on the pathname
