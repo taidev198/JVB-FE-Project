@@ -5,7 +5,7 @@ import { Control, Controller } from 'react-hook-form';
 interface SelectProps {
   name: string;
   label?: string;
-  options: { value: string; label: string }[];
+  options: { value: string | number; label: string }[];
   control: Control<any>;
   error?: string;
   className?: string;

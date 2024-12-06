@@ -12,6 +12,7 @@ import { Button } from '@/components/Common/Button';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { BackDrop } from '@/components/Common/BackDrop';
+import { useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
 
 const mockData = [
   {
@@ -73,6 +74,9 @@ const AdminSchoolWorkshop = () => {
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const dispatch = useDispatch();
+
+  const { data } = useGetAllWorShopsUniversityQuery();
+console.log({data});
 
   formatDate(startDate);
   formatDate(endDate);
