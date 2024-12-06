@@ -203,7 +203,7 @@ const StudentsManagement = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách quản lý sinh viên</h1>
+        <h1 className="mb-5 font-bold">Danh sách quản lý sinh viên</h1>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center">
             <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
