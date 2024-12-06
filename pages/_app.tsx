@@ -14,6 +14,7 @@ import { persistor } from '@/store/store';
 import AdminSystemLayout from '@/layouts/Admin/AdminSystemLayout';
 import AdminSchoolLayout from '@/layouts/Admin/AdminSchoolLayout';
 import AdminCompanyLayout from '@/layouts/Admin/AdminCompanyLayout';
+import ToastNotification from '@/components/Common/ToastNotification';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -26,7 +27,7 @@ const getLayout = (pathname: string) => {
     return AdminSystemLayout;
   } else if (pathname.startsWith('/admin/school')) {
     return AdminSchoolLayout;
-  }else if (pathname.startsWith('/admin/company')) {
+  } else if (pathname.startsWith('/admin/company')) {
     return AdminCompanyLayout;
   }
   {
@@ -59,6 +60,7 @@ function App({ Component, pageProps }: AppProps) {
             />
             {/* Apply the layout dynamically based on pathname */}
             <Layout>
+              <ToastNotification />
               <Component {...pageProps} />
             </Layout>
           </main>

@@ -225,7 +225,9 @@ const StudentsManagement = () => {
             <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" />
           </div>
           <div className="flex justify-items-center gap-5">
-            <MyButton type="submit" text="Thêm mới" onClick={() => dispatch(setBackdrop(BackdropType.AddModal))} />
+            <Link href={'/admin/school/studentsManagement/add'}>
+              <MyButton type="submit" text="Thêm mới" />
+            </Link>
             <MyButton
               type="submit"
               text="Xóa tất cả sinh viên đã chọn"
@@ -383,13 +385,6 @@ const StudentsManagement = () => {
               <Button text="Xác nhận" className="bg-red-800" full={true} />
             </div>
           </div>
-        </BackDrop>
-      )}
-
-      {/* FormAdd*/}
-      {backdropType === BackdropType.AddModal && (
-        <BackDrop isCenter={true}>
-          <AddStudent />
         </BackDrop>
       )}
       {/* Pagination */}

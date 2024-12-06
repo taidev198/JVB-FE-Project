@@ -13,11 +13,13 @@ export enum BackdropType {
 export interface State {
   showSidebar: boolean;
   backdropType: BackdropType | null;
+  isLoading: boolean;
 }
 
 const initialState: State = {
   showSidebar: true,
   backdropType: null,
+  isLoading: false,
 };
 
 export const globalSlice = createSlice({
@@ -30,9 +32,12 @@ export const globalSlice = createSlice({
     setBackdrop: (state, action: PayloadAction<BackdropType | null>) => {
       state.backdropType = action.payload;
     },
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
   },
 });
 
-export const { showSidebar, setBackdrop } = globalSlice.actions;
+export const { showSidebar, setBackdrop, setLoading } = globalSlice.actions;
 
 export default globalSlice.reducer;

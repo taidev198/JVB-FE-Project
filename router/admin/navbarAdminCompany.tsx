@@ -10,7 +10,7 @@ export const litsNavbarAdminSchoolRouter = [
   {
     id: 1,
     icon: <IconDashboard />,
-    url: '/admin/company',
+    url: '/admin/company/dashboard',
     label: 'Trang chủ',
   },
   {
@@ -39,7 +39,7 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 6,
-    icon: <IconNotice/>,
+    icon: <IconNotice />,
     url: '/admin/company/noticeCompany',
     label: 'Thông Báo',
   },
