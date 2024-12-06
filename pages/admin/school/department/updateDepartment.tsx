@@ -19,22 +19,17 @@ interface FormDataUpdateDepartment {
   facultyDescription?: string;
 }
 
-const UpdateDepartment = ({ departmentData }: { departmentData: FormDataUpdateDepartment }) => {
+const UpdateDepartment = () => {
   const dispatch = useDispatch();
   const {
     register,
     control,
     handleSubmit,
-    reset,
+
     formState: { errors },
   } = useForm<FormDataUpdateDepartment>({
     resolver: yupResolver(validationSchemaAddDepartment),
   });
-
-  // Reset form với dữ liệu hiện có khi component mount
-  React.useEffect(() => {
-    reset(departmentData);
-  }, [departmentData, reset]);
 
   const onSubmit: SubmitHandler<FormDataUpdateDepartment> = () => {};
 
