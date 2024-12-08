@@ -24,14 +24,6 @@ body > div#__next > main {
   font-size: 14px;
 }
 
-input, select, textarea{
-  font-size: 14px;
-}
-
-select:not([size]), input[type="date"]{
-  font-size: 14px;
-  color: #6b7280 ;
-}
 
 @layer components {}
 @layer components {
@@ -150,4 +142,8 @@ select:not([size]), input[type="date"]{
 /* file styles.css */
 .ql-toolbar.ql-snow + .ql-container.ql-snow{
   height: 250px;
+}
+
+[type='text']:focus, [type='search']:focus{
+  box-shadow: none;
 }

@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-const addWorkshopSchema = Yup.object({
+const updateWorkshopSchema = Yup.object({
   workshopTitle: Yup.string().required('Tên doanh nghiệp là bắt buộc').max(150, 'Tiêu đề tối đa 150 kí tự'),
   workshopDescription: Yup.string().required('Mô tả là bắt buộc'),
   startTime: Yup.string().nullable().typeError('Giá trị không hợp lệ').required('Thời gian bắt đầu là bắt buộc'),
@@ -20,12 +20,12 @@ const addWorkshopSchema = Yup.object({
     .positive('Số lượng công ty không được âm')
     .integer('Số lượng công ty phải là một số nguyên')
     .typeError('Vui lòng nhập một số hợp lệ'),
-  wardId: Yup.number().required('Xã/Phường là bắt buộc'),
-  districtId: Yup.number().required('Quận/Huyện là bắt buộc'),
-  provinceId: Yup.number().required('Tỉnh/Thành phố là bắt buộc'),
+  wardId: Yup.number().notRequired().nullable(), // Sửa lại đây
+  districtId: Yup.number().notRequired().nullable(), // Sửa lại đây
+  provinceId: Yup.number().notRequired().nullable(), // Sửa lại đây
   houseNumber: Yup.string().required('Chi tiết địa chỉ là bắt buộc'),
   agenda: Yup.string().required('Lịch trình là bắt buộc'),
-  fieldIds: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),
+  fields: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),
 });
 
-export default addWorkshopSchema;
+export default updateWorkshopSchema;

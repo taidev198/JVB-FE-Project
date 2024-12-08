@@ -3,12 +3,18 @@ interface Ward {
   wardName: string;
 }
 
+export interface WardResponse {
+  code: number;
+  message: string;
+  data: Ward[];
+}
+
 interface District {
   id: number;
   districtName: string;
 }
 
-export interface ProvinceDistricts {
+export interface DistrictsResponse {
   code: number;
   message: string;
   data: District[];
@@ -25,7 +31,7 @@ export interface ProvinceResponse {
   data: Province[];
 }
 
-export interface Address {
+export interface IAddress {
   houseNumber: string;
   ward: Ward;
   district: District;
