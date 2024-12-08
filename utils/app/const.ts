@@ -7,3 +7,16 @@ export const roles = {
   UNIVERSITY: 'UNIVERSITY',
   EMPLOYEE_UNIVERSITY: 'EMPLOYEE_UNIVERSITY',
 };
+
+export const statusTextWorkshop = (status: string | undefined): string => {
+  switch (status) {
+    case 'APPROVED':
+      return 'Đã duyệt';
+    case 'PENDING':
+      return 'Chờ duyệt';
+    case 'REJECTED':
+      return 'Từ chối';
+    default:
+      return 'Chưa xác định';
+  }
+};

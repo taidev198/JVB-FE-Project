@@ -1,81 +1,133 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// Select.tsx
 import { Control, Controller } from 'react-hook-form';
 import { useState } from 'react';
-import { useGetAllDistrictsQuery, useGetAllProvincesQuery } from '@/services/adminSystemApi';
+import Select from 'react-select';
+import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
+
+interface OptionType {
+  id: number | string; // Chấp nhận cả chuỗi và số
+  provinceName?: string;
+  districtName?: string;
+  wardName?: string;
+}
 
 interface SelectProps {
   name: string;
-  label?: string;
   control: Control<any>;
   error?: string;
   className?: string;
 }
 
-const Address = ({ name, label, control, error, className }: SelectProps) => {
-  const [provinceId, setProvinceId] = useState<number | undefined>(undefined);
+const Address = ({ name, control, error, className }: SelectProps) => {
+  const [provinceId, setProvinceId] = useState<number | null>(null);
+  const [districtId, setDistrictID] = useState<number | null>(null);
+
+  // Fetch data
   const { data: provinces } = useGetAllProvincesQuery();
-  const { data: districts } = useGetAllDistrictsQuery({ id: provinceId });
+  const { data: districts } = useGetAllDistrictsQuery({ id: provinceId }, { skip: !provinceId });
+  const { data: wards } = useGetAllWardsQuery({ id: districtId }, { skip: !districtId });
+
+  const handleSelectChange = (option: OptionType | null, setter: React.Dispatch<React.SetStateAction<number | null>>) => {
+    if (option && option.id) {
+      setter(Number(option.id)); // Chuyển đổi `id` sang `number`
+    } else {
+      setter(null); // Reset giá trị nếu không có lựa chọn
+    }
+  };
+
   return (
     <div className={`${className}`}>
       {/* Province */}
       <div>
-        <label htmlFor={name} className="mb-1 block text-sm font-semibold text-gray-700">
+        <label htmlFor={`${name}-province`} className="mb-1 block text-sm font-semibold text-gray-700">
           Tỉnh
         </label>
-        <select
-          id={name}
-          onChange={e => setProvinceId(Number(e.target.value))}
-          className={`block w-full cursor-pointer rounded-md border px-3 py-2 text-sm ${
-            error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 placeholder:text-sm focus:border-gray-300'
-          } focus:outline-none focus:ring-0`}>
-          {provinces?.data.map(province => (
-            <option key={province.id} value={province.id} className="text-sm">
-              {province.provinceName}
-            </option>
-          ))}
-        </select>
+        <Controller
+          name={`${name}.province`}
+          control={control}
+          defaultValue={null}
+          render={({ field }) => (
+            <Select
+              {...field}
+              options={
+                provinces?.data?.map((province: OptionType) => ({
+                  value: province.id.toString(), // Đảm bảo value là string
+                  label: province.provinceName || 'Chưa có tên tỉnh',
+                })) || []
+              }
+              getOptionLabel={(option: OptionType) => option.provinceName || ''}
+              getOptionValue={(option: OptionType) => option.id.toString()} // Đảm bảo id là string
+              className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
+              classNamePrefix="select"
+              placeholder="Chọn tỉnh"
+              onChange={(selectedOption: OptionType | null) => {
+                // Chuyển đổi value sang number
+                const provinceId = selectedOption ? Number(selectedOption.value) : null;
+                field.onChange(provinceId); // Gửi giá trị provinceId vào form
+                handleSelectChange(selectedOption, setProvinceId); // Gọi hàm thay đổi tỉnh
+                setDistrictID(null); // Reset huyện khi thay đổi tỉnh
+              }}
+              value={provinces?.data?.find((province: OptionType) => province.id === Number(field.value)) || null}
+            />
+          )}
+        />
+
+        {error && <p className="top-full mt-[2px] text-[13px] text-red-500">{error}</p>}
       </div>
 
-      {/* Districts */}
+      {/* District */}
       <div>
-        <label htmlFor={name} className="mb-1 block text-sm font-semibold text-gray-700">
-          Tỉnh
+        <label htmlFor={`${name}-district`} className="mb-1 block text-sm font-semibold text-gray-700">
+          Huyện
         </label>
-        <select
-          id={name}
-          onChange={e => setProvinceId(Number(e.target.value))}
-          className={`block w-full cursor-pointer rounded-md border px-3 py-2 text-sm ${
-            error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 placeholder:text-sm focus:border-gray-300'
-          } focus:outline-none focus:ring-0`}>
-          {provinces?.data.map(province => (
-            <option key={province.id} value={province.id} className="text-sm">
-              {province.provinceName}
-            </option>
-          ))}
-        </select>
+        <Controller
+          name={`${name}.district`}
+          control={control}
+          defaultValue={null}
+          render={({ field }) => (
+            <Select
+              {...field}
+              options={districts?.data || []}
+              getOptionLabel={(option: OptionType) => option.districtName || ''}
+              getOptionValue={(option: OptionType) => option.id.toString()}
+              className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
+              classNamePrefix="select"
+              placeholder="Chọn huyện"
+              isDisabled={!provinceId}
+              onChange={(selectedOption: OptionType | null) => {
+                field.onChange(selectedOption);
+                handleSelectChange(selectedOption, setDistrictID);
+              }}
+            />
+          )}
+        />
       </div>
-      {/*  */}
-      <label htmlFor={name} className="mb-1 block text-sm font-semibold text-gray-700">
-        {label}
-      </label>
-      <Controller
-        name={name}
-        control={control}
-        render={({ field }) => (
-          <select
-            {...field}
-            id={name}
-            className={`block w-full cursor-pointer rounded-md border px-3 py-2 text-sm ${
-              error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 placeholder:text-sm focus:border-gray-300'
-            } focus:outline-none focus:ring-0`}>
-            <option value="2" className="text-sm">
-              aa
-            </option>
-          </select>
-        )}
-      />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+
+      {/* Ward */}
+      <div>
+        <label htmlFor={`${name}-ward`} className="mb-1 block text-sm font-semibold text-gray-700">
+          Xã
+        </label>
+        <Controller
+          name={`${name}.ward`}
+          control={control}
+          defaultValue={null}
+          render={({ field }) => (
+            <Select
+              {...field}
+              options={wards?.data || []}
+              getOptionLabel={(option: OptionType) => option.wardName || ''}
+              getOptionValue={(option: OptionType) => option.id.toString()}
+              className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
+              classNamePrefix="select"
+              placeholder="Chọn xã"
+              isDisabled={!districtId}
+              onChange={(selectedOption: OptionType | null) => {
+                field.onChange(selectedOption);
+              }}
+            />
+          )}
+        />
+      </div>
     </div>
   );
 };
