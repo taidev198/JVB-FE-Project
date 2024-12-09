@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconButton, Tooltip, Pagination, TextField } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useDispatch } from 'react-redux';
 import CloseIcon from '@mui/icons-material/Close';
 import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
@@ -14,25 +13,22 @@ import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
 import UpdateDepartment from './UpdateDepartment';
-import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop } from '@/store/slices/global';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import AddDepartment from '@/components/Admin/school/Department/AddDepartment';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
+import { useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
 
 const Department = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
+
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
-
-  // Data giả lập
-  const mockData = [
-    { faculty_code: 'CNTT', faculty_name: 'Công Nghệ Thông Tin', name_dean: 'TS.Nguyễn Ánh Bích', established_year: 2000 },
-    { faculty_code: 'MKT', faculty_name: 'Marketing', name_dean: 'TS.Nguyễn Văn A', established_year: 20010 },
-    { faculty_code: 'TKDH', faculty_name: 'Thiết Kế Đồ Họa', name_dean: 'TS.Hồ Văn C', established_year: 2011 },
-    { faculty_code: 'TY', faculty_name: 'Thú Y', name_dean: 'TS.Ngô Văn Bình', established_year: 1992 },
-    { faculty_code: 'KCH', faculty_name: 'Khảo Cổ Học', name_dean: 'TS.Khổng Văn D', established_year: 1978 },
-  ];
+  const { data: departments, isLoading } = useGetAllDepartmentsQuery();
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [dispatch, isLoading]);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
@@ -72,19 +68,19 @@ const Department = () => {
             </tr>
           </thead>
           <tbody>
-            {mockData.map((item, index) => (
-              <tr key={item.faculty_code} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+            {departments?.data.map((item, index) => (
+              <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.faculty_code}</p>
+                  <p className="min-w-max">{item.facultyCode}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.faculty_name}</p>
+                  <p className="min-w-max">{item.facultyName}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.name_dean}</p>
+                  <p className="min-w-max">{item.nameDean}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.established_year}</p>
+                  <p className="min-w-max">{item.establishYear}</p>
                 </td>
                 <td className="gap-2 px-2 py-4 sm:px-5 ">
                   <div className="flex items-center">

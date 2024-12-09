@@ -21,7 +21,7 @@ const addWorkshopSchema = Yup.object({
     .integer('Số lượng công ty phải là một số nguyên')
     .typeError('Vui lòng nhập một số hợp lệ'),
   wardId: Yup.number().required('Xã/Phường là bắt buộc'),
-  districtIid: Yup.number().required('Quận/Huyện là bắt buộc'),
+  districtId: Yup.number().required('Quận/Huyện là bắt buộc'),
   provinceId: Yup.number().required('Tỉnh/Thành phố là bắt buộc'),
   houseNumber: Yup.string().required('Chi tiết địa chỉ là bắt buộc'),
   agenda: Yup.string().required('Lịch trình là bắt buộc'),
