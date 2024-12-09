@@ -7,7 +7,18 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-const DetailDepartment = () => {
+import { useEffect } from 'react';
+import { setLoading } from '@/store/slices/global';
+import { useAppDispatch } from '@/store/hooks';
+import { useDetailDepartmentsQuery } from '@/services/adminSchoolApi';
+
+const DetailDepartment = ({ id }: { id: string }) => {
+  const dispatch = useAppDispatch();
+  const { data: departments, isLoading } = useDetailDepartmentsQuery({ id: 6 });
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [dispatch, isLoading]);
+
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
       {/* Icon */}
@@ -39,7 +50,8 @@ const DetailDepartment = () => {
           <li className="mt-5 flex items-center gap-3">
             <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Tên khoa:</span> Công Nghệ Thông Tin
+              <span className="mr-2 font-semibold">Tên khoa:</span>
+              {departments?.facultyName || 'N/A'}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
