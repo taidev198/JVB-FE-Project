@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
+import { ApiResponse, IDepartment } from '@/types/departmentType';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
@@ -20,7 +21,18 @@ export const adminSchoolApi = createApi({
   tagTypes: ['Workshop'],
   endpoints: builder => {
     return {
-      // Get All Faculty
+      getAllDepartments: builder.query<ApiResponse<IDepartment[]>, void>({
+        query: () => ({
+          url: '/portal/faculties/get-all',
+        }),
+      }),
+
+      detailDepartments: builder.query<ApiResponse<IDepartment[]>, { id: number }>({
+        query: ({ id }) => ({
+          url: `/university/faculties/${id}`, // Sử dụng cú pháp template string đúng
+        }),
+      }),
+
       getAllFields: builder.query<FieldsResponse, void>({
         query: () => ({
           url: '/fields',
@@ -91,6 +103,8 @@ export const adminSchoolApi = createApi({
 });
 
 export const {
+  useGetAllDepartmentsQuery, 
+  useDetailDepartmentsQuery,
   useGetAllWorShopsUniversityQuery,
   useGetAllFieldsQuery,
   useGetDetailWorkshopQuery,
