@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
-import { ApiResponse, IDepartment } from '@/types/departmentType';
+import { ApiResponse, ApiResponseDetail } from '@/types/departmentType';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
@@ -18,27 +18,67 @@ export const adminSchoolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop'],
+  tagTypes: ['Workshop', 'Department'],
   endpoints: builder => {
     return {
-      getAllDepartments: builder.query<ApiResponse<IDepartment[]>, void>({
-        query: () => ({
-          url: '/portal/faculties/get-all',
-        }),
+      getAllDepartments: builder.query<ApiResponse, { page: number; size: number; keyword: string }>({
+        query: ({ page, size, keyword }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+
+          return `/university/faculties?${queryParams.toString()}`;
+        },
+        providesTags: result =>
+          result
+            ? [
+                { type: 'Department', id: 'list' }, // Liên kết tag này với getAllDepartments
+              ]
+            : [],
       }),
 
-      detailDepartments: builder.query<ApiResponse<IDepartment[]>, { id: number }>({
+      detailDepartments: builder.query<ApiResponseDetail, { id: number | null }>({
         query: ({ id }) => ({
           url: `/university/faculties/${id}`, // Sử dụng cú pháp template string đúng
         }),
       }),
 
+      deleteDepartment: builder.mutation({
+        query: (args: { id: number | null }) => ({
+          url: `/university/faculties/delete/${args.id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: [{ type: 'Department', id: 'list' }], // Chỉ invalidates tag danh sách, đảm bảo gọi lại getAllDepartments
+      }),
       getAllFields: builder.query<FieldsResponse, void>({
         query: () => ({
           url: '/fields',
         }),
       }),
-
+      AddDepartment: builder.mutation({
+        query: formData => ({
+          url: '/university/faculties/add',
+          method: 'POST',
+          body: formData,
+        }),
+        invalidatesTags: [{ type: 'Department' }],
+      }),
+      UpdateDepartment: builder.mutation({
+        query: (args: { formData: FormData; id: number | null }) => ({
+          url: `/university/faculties/update/${args.id}`,
+          method: 'PUT',
+          body: args.formData,
+        }),
+        invalidatesTags: (result, error, { id }) => {
+          return id !== null
+            ? [
+                { type: 'Department', id },
+                { type: 'Department', id: 'listDe' },
+              ] // Invalidates cả tag của workshop cụ thể và danh sách
+            : [{ type: 'Department', id: 'listDe' }]; // Nếu không có id, chỉ invalidates danh sách
+        },
+      }),
       getAllWorShopsUniversity: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; startDate: Date | null; endDate: Date | null }>({
         query: ({ page, size, keyword, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
@@ -103,7 +143,7 @@ export const adminSchoolApi = createApi({
 });
 
 export const {
-  useGetAllDepartmentsQuery, 
+  useGetAllDepartmentsQuery,
   useDetailDepartmentsQuery,
   useGetAllWorShopsUniversityQuery,
   useGetAllFieldsQuery,
@@ -111,4 +151,7 @@ export const {
   useAddWorkshopMutation,
   useUpdateWorkshopMutation,
   useDeleteWorkshopMutation,
+  useDeleteDepartmentMutation,
+  useAddDepartmentMutation,
+  useUpdateDepartmentMutation,
 } = adminSchoolApi;

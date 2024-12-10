@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-const validationSchemaAddDepartment = Yup.object({
+const validationSchemaUpdateDepartment = Yup.object({
   facultyName: Yup.string().required('Tên khoa là bắt buộc').max(50, 'Tên khoa không được quá 50 kí tự'),
   facultyCode: Yup.string().required('Mã khoa là bắt buộc').max(50, 'Mã khoa không được quá 50 kí tự'),
   establishYear: Yup.number()
@@ -14,4 +14,4 @@ const validationSchemaAddDepartment = Yup.object({
   address: Yup.string().required('Địa chỉ là bắt buộc').max(150, 'Địa chỉ không được quá 150 kí tự'),
 });
 
-export default validationSchemaAddDepartment;
+export default validationSchemaUpdateDepartment;

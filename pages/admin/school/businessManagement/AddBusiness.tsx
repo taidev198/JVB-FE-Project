@@ -3,7 +3,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
-import validationSchemaAddBusiness from './validationAddBusiness';
+import validationSchemaAddBusiness from '../../../../components/Admin/school/Business/validationAddBusiness';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import Text from '@/components/Common/Text';

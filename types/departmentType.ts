@@ -12,8 +12,20 @@ export interface IDepartment {
   isDelete: boolean;
 }
 
-export interface ApiResponse<T> {
+export interface ApiResponse {
   code: number;
   message: string;
-  data: T;
+  data: {
+    content: IDepartment[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}
+
+export interface ApiResponseDetail {
+  code: number;
+  message: string;
+  data: IDepartment;
 }
