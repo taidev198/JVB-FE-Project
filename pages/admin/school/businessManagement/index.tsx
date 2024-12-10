@@ -17,7 +17,7 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
-import AddBussiness from '@/components/Admin/school/Business/AddBusiness';
+import AddBussiness from '@/pages/admin/school/businessManagement/AddBusiness';
 
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);

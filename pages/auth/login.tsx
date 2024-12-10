@@ -67,9 +67,9 @@ const Login = () => {
       }
     }
     if (isError) {
-      dispatch(setToast({ message: error.data.message, type: 'error' }));
+      dispatch(setToast({ message: error?.data?.message, type: 'error' }));
     }
-  }, [isSuccess, dispatch, data?.data, isLoading, data?.message, isError, error?.data.message, data?.roleAccount]);
+  }, [isSuccess, dispatch, data?.data, isLoading, data?.message, isError, error?.data?.message, data?.roleAccount]);
 
   return (
     <AuthLayout type="login">
