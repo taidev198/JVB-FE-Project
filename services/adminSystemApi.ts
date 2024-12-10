@@ -16,6 +16,7 @@ export const adminSystemApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['Workshop'],
   endpoints: builder => {
     return {
       // Address
@@ -81,12 +82,62 @@ export const adminSystemApi = createApi({
 
           return `/admin/workshops?${queryParams.toString()}`;
         },
+        providesTags: [{ type: 'Workshop', id: 'LIST' }],
       }),
 
       getDetailWorkshop: builder.query<WorkshopDetailResponse, { id: number | null }>({
         query: ({ id }) => ({
           url: `/workshops/${id}`,
         }),
+        providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Workshop', id }] : []),
+      }),
+
+      // Approve workshop
+      approveWorkshop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/admin/workshops/approve/${id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: (result, error, { id }) => {
+          return id !== null
+            ? [
+                { type: 'Workshop', id },
+                { type: 'Workshop', id: 'LIST' },
+              ]
+            : [{ type: 'Workshop', id: 'LIST' }];
+        },
+      }),
+
+      // Reject workshop
+      rejectWorkshop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/admin/workshops/reject/${id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: (result, error, { id }) => {
+          return id !== null
+            ? [
+                { type: 'Workshop', id },
+                { type: 'Workshop', id: 'LIST' },
+              ]
+            : [{ type: 'Workshop', id: 'LIST' }];
+        },
+      }),
+
+      // Delete workshop
+      deleteWorkshop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/workshops/delete/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: (result, error, { id }) => {
+          return id !== null
+            ? [
+                { type: 'Workshop', id },
+                { type: 'Workshop', id: 'LIST' },
+              ]
+            : [{ type: 'Workshop', id: 'LIST' }];
+        },
       }),
     };
   },
@@ -103,4 +154,7 @@ export const {
   useGetAllWorkShopsAdminSystemQuery,
   useLazyGetAllWorkShopsAdminSystemQuery,
   useGetDetailWorkshopQuery,
+  useApproveWorkshopMutation,
+  useRejectWorkshopMutation,
+  useDeleteWorkshopMutation,
 } = adminSystemApi;

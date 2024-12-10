@@ -16,3 +16,7 @@ export const toISOString = (date: string): string => {
 export const formatDateSearch = (date: Date | null): string | null => {
   return date ? format(date, 'yyyy-MM-dd') : null;
 };
+
+export const formatDateDd_MM_yyyy = (date: string | null): string | null => {
+  return date ? format(date, 'dd/MM/yyyy') : null;
+};

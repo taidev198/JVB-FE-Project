@@ -1,52 +1,98 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Select from 'react-select';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 import validationSchemaSchool from './validationSchemaSchool';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
-import Select from '@/components/Common/Select';
 import TextEditor from '@/components/Common/TextEditor';
+import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery, useRegisterUniversityMutation } from '@/services/adminSystemApi';
+import SelectReact from '@/components/Common/SelectMui';
+import { typeUniversity } from '@/utils/app/const';
+import { setLoading } from '@/store/slices/global';
+import { setToast } from '@/store/slices/toastSlice';
+import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 
 interface FormDataRegisterSchool {
-  university_name: string;
-  university_code: string;
+  universityName: string;
+  universityCode: string;
   email: string;
   password: string;
   confirm_password: string;
-  university_description: string;
-  phone_number: string;
-  ward_id: number;
-  district_id: number;
-  province_id: number;
-  establish_date: string;
-  number_house: string;
-  type_university: string;
+  phoneNumber: string;
+  wardId: number;
+  districtId: number;
+  provinceId: number;
+  establishDate: string;
+  houseNumber: string;
+  universityType: string;
+  universityDescription: string;
 }
 
 const RegisterSchoolComponent = () => {
+  const dispatch = useDispatch();
   const {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<FormDataRegisterSchool>({
     resolver: yupResolver(validationSchemaSchool),
   });
-
-  const onSubmit: SubmitHandler<FormDataRegisterSchool> = () => {
-    // const { confirm_password, ...payload } = data;
-    // console.log({ payload });
+  const provinceSelect = watch('provinceId');
+  const districtSelect = watch('districtId');
+  // Fetch data
+  const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvincesQuery();
+  const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
+  const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
+  watch('wardId');
+  const [registerSchool, { data, isLoading: isLoadingRegister, isSuccess, isError, error }] = useRegisterUniversityMutation();
+  const onSubmit: SubmitHandler<FormDataRegisterSchool> = data => {
+    const { confirm_password, provinceId, districtId, establishDate, ...payload } = data;
+    const formattedDate = formatDateDd_MM_yyyy(establishDate);
+    registerSchool({ ...payload, establishDate: formattedDate });
   };
+
+  useEffect(() => {
+    if (isSuccess) {
+      dispatch(setToast({ message: data.message }));
+    }
+    if (isError) {
+      const errorMessages = error?.data?.data;
+
+      if (errorMessages && typeof errorMessages === 'object') {
+        // Lấy danh sách các lỗi, loại bỏ giá trị `null` hoặc `undefined`
+        const allErrors = Object.values(errorMessages).filter(msg => Boolean(msg));
+
+        // Hiển thị lỗi đầu tiên nếu có
+        if (allErrors.length > 0) {
+          dispatch(setToast({ message: allErrors[0], type: 'error' }));
+        }
+      } else if (error?.data?.message) {
+        // Trường hợp lỗi chỉ có 1 message thay vì object
+        dispatch(setToast({ message: error.data.message, type: 'error' }));
+      } else {
+        // Lỗi mặc định
+        dispatch(setToast({ message: 'Đã xảy ra lỗi, vui lòng thử lại.', type: 'error' }));
+      }
+    }
+
+    dispatch(setLoading(isLoadingDistricts || isLoadingProvinces || isLoadingWard || isLoadingRegister));
+  }, [dispatch, isLoadingDistricts, isLoadingProvinces, isLoadingWard, isLoadingRegister, data?.success, isSuccess]);
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0">
       <h1 className="my-10 text-2xl font-bold">Đăng ký tài khoản Trường học</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Name school */}
         <>
-          <Input name="university_name" label="Tên trường học" placeholder="Nhập tên trường học" control={control} error={errors.university_name?.message} />
+          <Input name="universityName" label="Tên trường học" placeholder="Nhập tên trường học" control={control} error={errors.universityName?.message} />
         </>
         {/* Code school */}
         <>
-          <Input name="university_code" label="Mã trường" placeholder="Nhập mã trường" control={control} error={errors.university_code?.message} />
+          <Input name="universityCode" label="Mã trường" placeholder="Nhập mã trường" control={control} error={errors.universityCode?.message} />
         </>
         {/* Email */}
         <>
@@ -54,17 +100,16 @@ const RegisterSchoolComponent = () => {
         </>
         {/* Type school */}
         <>
-          <Select
-            name="type_university"
+          <SelectReact
+            name="universityType"
             label="Loại trường"
+            placeholder="Chọn lĩnh vực"
+            options={(typeUniversity || []).map(type => ({
+              value: type.value,
+              label: type.label,
+            }))}
             control={control}
-            options={[
-              { value: 'technology', label: 'Chọn loại trường' },
-              { value: 'UNIVERSITY', label: 'Đại học' },
-              { value: 'ACADEMY', label: 'Học viện' },
-              { value: 'COLLEGE', label: 'Cao đẳng' },
-            ]}
-            error={errors.type_university?.message}
+            error={errors.universityType?.message}
           />
         </>
         {/* Password */}
@@ -84,83 +129,120 @@ const RegisterSchoolComponent = () => {
         </>
         {/* Phone */}
         <>
-          <Input
-            type="text"
-            name="phone_number"
-            label="Số điện thoại"
-            placeholder="Nhập số điện thoại"
-            control={control}
-            error={errors.phone_number?.message}
-          />
+          <Input type="text" name="phoneNumber" label="Số điện thoại" placeholder="Nhập số điện thoại" control={control} error={errors.phoneNumber?.message} />
         </>
         {/* Establihed date */}
         <>
-          <Input type="date" name="establish_date" label="Ngày thành lập" placeholder="" control={control} error={errors.establish_date?.message} />
+          <Input type="date" name="establishDate" label="Ngày thành lập" placeholder="" control={control} error={errors.establishDate?.message} />
         </>
       </div>
       {/* Địa chỉ */}
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <>
-          <Select
-            name="province_id"
-            label="Tỉnh/ Thành phố"
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
+            Tỉnh
+          </label>
+          <Controller
+            name="provinceId"
             control={control}
-            options={[
-              { value: '0', label: 'chọn' },
-              { value: '1', label: 'Health' },
-              { value: '2', label: 'Finance' },
-            ]}
-            error={errors.province_id?.message}
+            render={({ field }) => (
+              <Select
+                {...field}
+                className="basic-single"
+                classNamePrefix="select"
+                placeholder="Chọn Tỉnh/Thành phố"
+                isLoading={isLoadingProvinces}
+                options={provinces?.data || []}
+                getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
+                getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                onChange={(selectedOption: { id: any }) => {
+                  field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                }}
+                value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                ref={field.ref}
+              />
+            )}
           />
-        </>
-        <>
-          <Select
-            name="district_id"
-            label="Quận/ Huyện"
+          {errors.provinceId && <p className="mt-2 text-sm text-red-500">{errors.provinceId.message}</p>}
+        </div>
+
+        {/* Chọn Huyện */}
+        <div>
+          <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
+            Huyện
+          </label>
+          <Controller
+            name="districtId"
             control={control}
-            options={[
-              { value: '0', label: 'chọn' },
-              { value: '1', label: 'Health' },
-              { value: '2', label: 'Finance' },
-            ]}
-            error={errors.district_id?.message}
+            render={({ field }) => (
+              <Select
+                {...field}
+                className="basic-single"
+                classNamePrefix="select"
+                placeholder="Chọn Quận/Huyện"
+                isLoading={isLoadingDistricts}
+                options={districts?.data || []}
+                getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
+                getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                onChange={(selectedOption: { id: any }) => {
+                  field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                }}
+                value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                ref={field.ref}
+              />
+            )}
           />
-        </>
-        <>
-          <Select
-            name="ward_id"
-            label="Xã/ Phường"
+          {errors.districtId && <p className="mt-2 text-sm text-red-500">{errors.districtId.message}</p>}
+        </div>
+
+        {/* Chọn Xã */}
+        <div>
+          <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
+            Xã
+          </label>
+          <Controller
+            name="wardId"
             control={control}
-            options={[
-              { value: '0', label: 'chọn' },
-              { value: '1', label: 'Health' },
-              { value: '2', label: 'Finance' },
-            ]}
-            error={errors.ward_id?.message}
+            render={({ field }) => (
+              <Select
+                {...field}
+                className="basic-single"
+                classNamePrefix="select"
+                placeholder="Chọn Xã/Phường"
+                isLoading={isLoadingWard}
+                options={wards?.data || []}
+                getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
+                getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                onChange={(selectedOption: { id: any }) => {
+                  field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                }}
+                value={wards?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                ref={field.ref}
+              />
+            )}
           />
-        </>
+          {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
+        </div>
+        <div>
+          <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà, đường" control={control} error={errors.houseNumber?.message} />
+        </div>
       </div>
       {/* Number house */}
       <div className="mt-4 flex flex-col gap-4">
-        {' '}
-        <>
-          <Input
-            type="text"
-            name="number_house"
-            label="Số nhà, đường"
-            placeholder="Nhập số nhà, đường"
-            control={control}
-            error={errors.number_house?.message}
-          />
-        </>
         {/* Description */}
         <>
           <Controller
-            name="university_description"
+            name="universityDescription"
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Mô tả" error={errors.university_description?.message} />
+              <TextEditor
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                label="Mô tả chi tiết"
+                error={errors.universityDescription?.message}
+              />
             )}
           />
         </>
