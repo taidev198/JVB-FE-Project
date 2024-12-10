@@ -20,3 +20,22 @@ export const statusTextWorkshop = (status: string | undefined): string => {
       return 'Chưa xác định';
   }
 };
+
+export const typeUniversity = [
+  {
+    value: 'UNIVERSITY',
+    label: 'Đại học',
+  },
+  {
+    value: 'ACADEMY',
+    label: 'Học viện',
+  },
+  {
+    value: 'COLLEGE',
+    label: 'Cao đẳng',
+  },
+  {
+    value: 'OTHER',
+    label: 'Khác',
+  },
+];

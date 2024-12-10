@@ -117,23 +117,22 @@ body > div#__next > main {
 @keyframes load {
 }
 
-/* Tùy chỉnh thanh cuộn cho toàn bộ trang */
 ::-webkit-scrollbar {
-  width: 8px; /* Chiều rộng của thanh cuộn dọc */
-  height: 8px; /* Chiều cao của thanh cuộn ngang */
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Màu nền của vùng track */
+  background: #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b6b4b4; /* Màu của thanh cuộn */
-  border-radius: 10px; /* Độ bo tròn của thanh cuộn */
+  background: #d2d0d0;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8f8e8e; /* Màu của thanh cuộn khi hover */
+  background: #b6b5b5;
 }
 /* index studentSchool */
 .bg-red-custom {

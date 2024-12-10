@@ -4,6 +4,7 @@ import { ApiResponse, IDepartment } from '@/types/departmentType';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
+import { StudentResponse } from '@/types/studentType';
 
 export const adminSchoolApi = createApi({
   reducerPath: 'adminSchoolApi',
@@ -98,12 +99,19 @@ export const adminSchoolApi = createApi({
             : [{ type: 'Workshop', id: 'LIST' }]; // Nếu không có id, chỉ invalidates danh sách
         },
       }),
+
+      // Students
+      getAllStudents: builder.query<StudentResponse, { page: number; size: number; keyword: string }>({
+        query: () => ({
+          url: '/university/students',
+        }),
+      }),
     };
   },
 });
 
 export const {
-  useGetAllDepartmentsQuery, 
+  useGetAllDepartmentsQuery,
   useDetailDepartmentsQuery,
   useGetAllWorShopsUniversityQuery,
   useGetAllFieldsQuery,

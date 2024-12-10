@@ -6,19 +6,23 @@ import Select from 'react-select';
 interface SelectProps {
   name: string;
   label?: string;
-  options: { value: number; label: string | undefined }[]; // Mảng các lựa chọn với `value` là số và `label` là chuỗi
+  options: { value: number | string; label: string | undefined }[]; // Mảng các lựa chọn với `value` là số và `label` là chuỗi
   control: Control<any>;
   error?: string;
   className?: string;
   isMultiple?: boolean;
   placeholder: string;
-  value?: { value: number; label: string }[]; // Nếu muốn giá trị hiện tại từ bên ngoài
+  value?: { value: number | string; label: string }[]; // Nếu muốn giá trị hiện tại từ bên ngoài
 }
 
 const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, error, className, isMultiple = false, placeholder, value }) => {
   return (
-    <div className={`form-group ${className}`}>
-      {label && <label htmlFor={name}>{label}</label>}
+    <div className={`form-group mt-auto ${className}`}>
+      {label && (
+        <label htmlFor={name} className="block text-sm font-semibold text-gray-700">
+          {label}
+        </label>
+      )}
 
       <Controller
         name={name}
@@ -30,7 +34,7 @@ const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, err
             options={options}
             placeholder={placeholder}
             isMulti={isMultiple}
-            className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
+            className={`!basic-select p-1 shadow-none ${error ? 'is-invalid' : ''}`}
             classNamePrefix="select"
             value={
               isMultiple
