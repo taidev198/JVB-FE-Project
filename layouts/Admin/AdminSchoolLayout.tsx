@@ -3,12 +3,17 @@ import { useMediaQuery, useTheme } from '@mui/material';
 import Navbar from './Sidebar';
 import Header from '@/components/Header/Header';
 import { litsNavbarAdminSchoolRouter } from '@/router/admin/navbarAdminSchoolRouter';
+import { Loading } from '@/components/Common/Loading';
+import { useAppSelector } from '@/store/hooks';
 
 const AdminSchoolLayout = ({ children }: { children: ReactNode }) => {
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
+  const isLoading = useAppSelector(state => state.global.isLoading);
+
   return (
     <>
+      {isLoading && <Loading />}
       <Header isAdmin={true} />
       <div className={`${!isMobileAndTablet ? 'flex' : ''}`}>
         {isMobileAndTablet ? (

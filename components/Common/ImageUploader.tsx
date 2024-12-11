@@ -3,12 +3,11 @@ import { useCallback, useEffect, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import BackupIcon from '@mui/icons-material/Backup';
-
 interface ImageUploaderProps {
   images: File[];
   setImages: (files: File[]) => void;
-  existingImages?: string[]; // URL của ảnh đã lưu
-  removeExistingImage?: (url: string) => void; // Hàm xóa ảnh đã lưu
+  existingImages?: { id: number; imageUrl: string }[]; // Mảng đối tượng với id và imageUrl
+  removeExistingImage?: (id: number) => void; // Hàm xóa ảnh theo id
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ images, setImages, existingImages = [], removeExistingImage }) => {
@@ -32,7 +31,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, setImages, existi
     if (index < existingImages.length) {
       // Nếu là ảnh cũ
       const removedImage = existingImages[index];
-      removeExistingImage?.(removedImage); // Gọi hàm xóa ảnh đã lưu
+      removeExistingImage?.(removedImage.id); // Gọi hàm xóa ảnh đã lưu theo `id`
     } else {
       // Nếu là ảnh mới
       const adjustedIndex = index - existingImages.length;
@@ -77,9 +76,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, setImages, existi
 
       {/* Hiển thị ảnh */}
       <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-5">
-        {existingImages.map((url, index) => (
-          <div key={`existing-${index}`} className="text-center">
-            <img src={url} alt={`Existing ${index + 1}`} className="mx-auto mb-2 h-32 w-32 rounded border object-cover" />
+        {existingImages.map((img, index) => (
+          <div key={`existing-${img.id}`} className="text-center">
+            <img src={img.imageUrl} alt={`Existing ${index + 1}`} className="mx-auto mb-2 h-32 w-32 rounded border object-cover" />
             <Stack>
               <Chip label={`Ảnh đã lưu ${index + 1}`} onDelete={() => handleRemoveImage(index)} />
             </Stack>

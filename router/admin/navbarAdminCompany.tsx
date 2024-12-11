@@ -9,7 +9,7 @@ export const litsNavbarAdminSchoolRouter = [
   {
     id: 1,
     icon: <IconDashboard />,
-    url: '/admin/company',
+    url: '/admin/company/dashboard',
     label: 'Trang chủ',
   },
   {

@@ -7,7 +7,20 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { useEffect } from 'react';
+import { setLoading } from '@/store/slices/global';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useDetailDepartmentsQuery } from '@/services/adminSchoolApi';
+
 const DetailDepartment = () => {
+  const idDepartment = useAppSelector(state => state.global.id);
+  const dispatch = useAppDispatch();
+  const { data: departments, isLoading } = useDetailDepartmentsQuery({ id: idDepartment });
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [dispatch, isLoading]);
+  // console.log(departments);
+
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
       {/* Icon */}
@@ -33,37 +46,39 @@ const DetailDepartment = () => {
           <li className="mt-5 flex items-center gap-3">
             <StarBorderIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mã khoa:</span> CNTT
+              <span className="mr-2 font-semibold">Mã khoa:</span> {departments?.data.facultyCode}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Tên khoa:</span> Công Nghệ Thông Tin
+              <span className="mr-2 font-semibold">Tên khoa:</span>
+              {departments?.data.facultyName}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <AssignmentIndIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Tên trưởng khoa:</span> TS.Nguyễn Ánh Bích
+              <span className="mr-2 font-semibold">Tên trưởng khoa:</span> {departments?.data.nameDean}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <AccessTimeIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Năm thành lập:</span> 2000
+              <span className="mr-2 font-semibold">Năm thành lập:</span> {departments?.data.establishYear}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <CameraOutdoorIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Địa chỉ:</span> Mễ Trì,Nam Từ Liêm,Hà Nội
+              <span className="mr-2 font-semibold">Địa chỉ:</span> {departments?.data.address}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <DescriptionIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mô tả:</span>Khoa Công nghệ Thông tin (CNTT) là một đơn vị trong các trường đại học, cao đẳng chuyên đào tạo.
+              <span className="mr-2 font-semibold">Mô tả:</span>
+              {departments?.data.facultyDescription}
             </div>
           </li>
         </ul>

@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export enum BackdropType {
   General = 'GENERAL',
   DeleteConfirmation = 'DELETE_CONFIRMATION',
+  UpdateConfirmation = 'UPDATE_CONFIRMATION',
   AddModal = 'ADD_MODAL',
   ApproveConfirmation = 'Approve_CONFIRMATION',
   RefuseConfirmation = 'Refuse_CONFIRMATION',
@@ -13,11 +14,15 @@ export enum BackdropType {
 export interface State {
   showSidebar: boolean;
   backdropType: BackdropType | null;
+  isLoading: boolean;
+  id: number | null;
 }
 
 const initialState: State = {
   showSidebar: true,
   backdropType: null,
+  isLoading: false,
+  id: null,
 };
 
 export const globalSlice = createSlice({
@@ -30,9 +35,15 @@ export const globalSlice = createSlice({
     setBackdrop: (state, action: PayloadAction<BackdropType | null>) => {
       state.backdropType = action.payload;
     },
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
+    setId: (state, action: PayloadAction<number | null>) => {
+      state.id = action.payload;
+    },
   },
 });
 
-export const { showSidebar, setBackdrop } = globalSlice.actions;
+export const { showSidebar, setBackdrop, setLoading, setId } = globalSlice.actions;
 
 export default globalSlice.reducer;

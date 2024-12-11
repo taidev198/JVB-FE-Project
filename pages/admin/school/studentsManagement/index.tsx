@@ -225,7 +225,9 @@ const StudentsManagement = () => {
             <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" />
           </div>
           <div className="flex justify-items-center gap-5">
-            <MyButton type="submit" text="Thêm mới" onClick={() => dispatch(setBackdrop(BackdropType.AddModal))} />
+            <Link href={'/admin/school/studentsManagement/add'}>
+              <MyButton type="submit" text="Thêm mới" />
+            </Link>
             <MyButton
               type="submit"
               text="Xóa tất cả sinh viên đã chọn"
@@ -249,8 +251,6 @@ const StudentsManagement = () => {
                   onChange={handleSelectAll}
                 />
               </th>
-            </tr>
-            <tr>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">STT</p>
               </th>
@@ -263,12 +263,6 @@ const StudentsManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Họ Và Tên Sinh Viên</p>
               </th>
-              {/* <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Email</p>
-              </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Điểm TB</p>
-              </th> */}
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Ngành</p>
               </th>
@@ -278,9 +272,7 @@ const StudentsManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Trạng Thái</p>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Thao Tác</p>
-              </th>
+
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Hành Động</p>
               </th>
@@ -383,13 +375,6 @@ const StudentsManagement = () => {
               <Button text="Xác nhận" className="bg-red-800" full={true} />
             </div>
           </div>
-        </BackDrop>
-      )}
-
-      {/* FormAdd*/}
-      {backdropType === BackdropType.AddModal && (
-        <BackDrop isCenter={true}>
-          <AddStudent />
         </BackDrop>
       )}
       {/* Pagination */}

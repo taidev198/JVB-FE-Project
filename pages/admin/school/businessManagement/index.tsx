@@ -12,11 +12,12 @@ import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutli
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import CloseIcon from '@mui/icons-material/Close';
+import UpdateBusiness from './UpdateBusiness';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
-import AddBussiness from '@/components/Admin/school/Business/AddBusiness';
+import AddBussiness from '@/pages/admin/school/businessManagement/AddBusiness';
 
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -99,13 +100,11 @@ const BusinessManagement = () => {
                         </IconButton>
                       </Tooltip>
 
-                      <Link href={`/admin/school/detalBusinessManagement/update`}>
-                        <Tooltip title="Sửa Ngành Học">
-                          <IconButton>
-                            <BorderColorIcon className="text-purple-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </Link>
+                      <Tooltip title="Sửa Ngành Học">
+                        <IconButton onClick={() => dispatch(setBackdrop(BackdropType.UpdateConfirmation))}>
+                          <BorderColorIcon className="text-purple-500" />
+                        </IconButton>
+                      </Tooltip>
 
                       <Tooltip title="Xóa Ngành Học">
                         <IconButton onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}>
@@ -199,6 +198,12 @@ const BusinessManagement = () => {
       {backdropType === BackdropType.AddModal && (
         <BackDrop isCenter={true}>
           <AddBussiness />
+        </BackDrop>
+      )}
+      {/* FormUpdate */}
+      {backdropType === BackdropType.UpdateConfirmation && (
+        <BackDrop isCenter={true}>
+          <UpdateBusiness />
         </BackDrop>
       )}
       {/* Pagination */}

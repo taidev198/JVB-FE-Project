@@ -1,18 +1,18 @@
+import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
-import validationSchemaAddBusiness from './validationAddBusiness';
+import Text from '@/components/Common/Text';
+import { setBackdrop } from '@/store/slices/global';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
-import Text from '@/components/Common/Text';
+import SelectMui from '@/components/Common/SelectMui';
+import validationSchemaAddBusiness from '@/components/Admin/school/Business/validationAddBusiness';
 import Select from '@/components/Common/Select';
 
-import { setBackdrop } from '@/store/slices/global';
-import SelectMui from '@/components/Common/SelectMui';
-
-interface FormDataAddBusiness {
+interface FormDataUpdateBusiness {
   majorCode: string;
   majorName: string;
   creditRequirement: number;
@@ -22,54 +22,63 @@ interface FormDataAddBusiness {
   fieldIds: number[];
 }
 
-const AddBussiness = () => {
+const UpdateBusiness = () => {
   const dispatch = useDispatch();
   const {
+    register,
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormDataAddBusiness>({
+  } = useForm<FormDataUpdateBusiness>({
     resolver: yupResolver(validationSchemaAddBusiness),
-    defaultValues: {
-      fieldIds: [], // Đảm bảo fieldIds là một mảng rỗng ban đầu
-    },
   });
 
-  const onSubmit: SubmitHandler<FormDataAddBusiness> = () => {};
+  const onSubmit: SubmitHandler<FormDataUpdateBusiness> = () => {};
 
   return (
     <div className="p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0 ">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0">
         <div className="mb-4 flex justify-end">
           <IconButton onClick={() => dispatch(setBackdrop(null))}>
             <CloseIcon />
           </IconButton>
         </div>
-        <h1 className="my-10 text-2xl font-bold"> Thêm mới ngành học</h1>
+        <h1 className="my-10 text-2xl font-bold">Cập nhật ngành học</h1>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Các trường thông tin khác */}
-
-          <Input type="text" name="majorCode" label="Mã ngành học" placeholder="Nhập mã ngành học" control={control} error={errors.majorCode?.message} />
-          <Input type="text" name="majorName" label="Tên ngành học" placeholder="Nhập tên ngành học" control={control} error={errors.majorName?.message} />
+          <Input
+            type="text"
+            label="Mã ngành"
+            placeholder="Nhập mã ngành học"
+            control={control}
+            error={errors.majorCode?.message}
+            {...register('majorCode', { required: 'Mã ngành học là bắt buộc' })}
+          />
+          <Input
+            type="text"
+            label="Tên Ngành"
+            placeholder="Nhập tên ngành"
+            control={control}
+            error={errors.majorName?.message}
+            {...register('majorName', { required: 'Tên ngành học là bắt buộc' })}
+          />
           <Input
             type="number"
-            name="creditRequirement"
             label="Số tín chỉ"
             placeholder="Nhập số tín chỉ ngành học"
             control={control}
             error={errors.creditRequirement?.message}
+            {...register('creditRequirement', { required: 'Số tín chỉ là bắt buộc' })}
           />
 
           <Input
             type="number"
-            name="numberOfStudents"
             label="Số lượng sinh viên"
             placeholder="Nhập số lượng sinh viên"
             control={control}
             error={errors.numberOfStudents?.message}
+            {...register('numberOfStudents', { required: 'Số lượng sinh viên là bắt buộc' })}
           />
           <Select
-            name="facultyId"
             label="Khoa"
             control={control}
             options={[
@@ -79,9 +88,9 @@ const AddBussiness = () => {
               { value: '5', label: 'TY' },
             ]}
             error={errors.facultyId?.message}
+            {...register('facultyId', { required: 'Khoa là bắt buộc' })}
           />
           <SelectMui
-            name="fieldIds"
             label="Lĩnh vực"
             control={control}
             options={[
@@ -90,14 +99,23 @@ const AddBussiness = () => {
               { value: 3, label: 'Mạng máy tính' },
               { value: 4, label: 'Trí tuệ nhân tạo' },
             ]}
-            isMultiple={true} // Bật chế độ chọn nhiều
+            isMultiple={true}
             error={errors.fieldIds?.message}
+            {...register('fieldIds', { required: 'Lĩnh vực là bắt buộc' })}
           />
         </div>
-        <Text name="majorDescription" label="Mô tả ngành học" placeholder="Nhập mô tả ngành học" control={control} error={errors.majorDescription?.message} />
-        <Button text="Thêm " full={true} type="submit" />
+
+        <Text
+          label="Mô tả ngành học"
+          placeholder="Nhập mô tả ngành học"
+          control={control}
+          error={errors.majorDescription?.message}
+          {...register('majorDescription')}
+        />
+        <Button text="Cập nhật" full={true} type="submit" />
       </form>
     </div>
   );
 };
-export default AddBussiness;
+
+export default UpdateBusiness;

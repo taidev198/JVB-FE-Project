@@ -1,78 +1,47 @@
-import React, { useState } from 'react';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Chip, IconButton, Tooltip, Pagination, TextField, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Chip, IconButton, Tooltip, Pagination, TextField } from '@mui/material';
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
+import DeleteIcon from '@mui/icons-material/Delete';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
+import debounce from 'lodash.debounce';
 import { useAppSelector } from '@/store/hooks';
-import DetailWorkshop from '@/components/Admin/System/SystemWorkshop/DetailWorkshop';
-import { BackdropType, setBackdrop } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
+import {
+  useApproveWorkshopMutation,
+  useDeleteWorkshopMutation,
+  useGetAllWorkShopsAdminSystemQuery,
+  useRejectWorkshopMutation,
+} from '@/services/adminSystemApi';
+import { statusTextWorkshop } from '@/utils/app/const';
+import { setToast } from '@/store/slices/toastSlice';
 
-const mockData = [
-  {
-    id: 1,
-    workshopTitle: 'Khóa học ReactJS cơ bản',
-    schoolName: 'Trường Đại học Bách Khoa Hà Nội',
-    address: 'Hà Nội, Việt Nam',
-    startTime: '2024-12-01 09:00',
-    endTime: '2024-12-01 17:00',
-    estimateCompanyParticipants: 12,
-    moderation_status: 'Chờ duyệt',
-  },
-  {
-    id: 2,
-    workshopTitle: 'Workshop JavaScript nâng cao',
-    schoolName: 'Trường Đại học FPT',
-    address: 'Hồ Chí Minh, Việt Nam',
-    startTime: '2024-12-05 09:00',
-    endTime: '2024-12-05 17:00',
-    estimateCompanyParticipants: 20,
-    moderation_status: 'Đã duyệt',
-  },
-  {
-    id: 3,
-    workshopTitle: 'Khóa học VueJS',
-    schoolName: 'Trường Đại học Kinh tế TP.HCM',
-    address: 'Đà Nẵng, Việt Nam',
-    startTime: '2024-12-10 09:00',
-    endTime: '2024-12-10 17:00',
-    estimateCompanyParticipants: 8,
-    moderation_status: 'Từ chối',
-  },
-  {
-    id: 4,
-    workshopTitle: 'Khóa học Node.js cho người mới bắt đầu',
-    schoolName: 'Trường Đại học Ngoại Thương',
-    address: 'Hà Nội, Việt Nam',
-    startTime: '2024-12-15 09:00',
-    endTime: '2024-12-15 17:00',
-    estimateCompanyParticipants: 15,
-    moderation_status: 'Chờ duyệt',
-  },
-  {
-    id: 5,
-    workshopTitle: 'Khóa học Angular nâng cao',
-    schoolName: 'Trường Đại học Khoa học Tự nhiên',
-    address: 'TP.Hồ Chí Minh, Việt Nam',
-    startTime: '2024-12-20 09:00',
-    endTime: '2024-12-20 17:00',
-    estimateCompanyParticipants: 18,
-    moderation_status: 'Đã duyệt',
-  },
-];
+const animatedComponents = makeAnimated();
 
 const AdminSystemWorkshop = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
+  const [keyword, setKeyword] = useState('');
+  const [status, setStatus] = useState('');
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
-
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
+  const debouncedSearch = debounce((value: string) => {
+    setKeyword(value);
+  }, 500);
+
+  const { data: workshops, isLoading } = useGetAllWorkShopsAdminSystemQuery({
+    page,
+    size: 10,
+    keyword,
+    status,
+  });
 
   const handleAction = (actionType: BackdropType, workshopId: number) => {
     setSelectedWorkshopId(workshopId);
@@ -80,13 +49,22 @@ const AdminSystemWorkshop = () => {
     dispatch(setBackdrop(actionType));
   };
 
+  const [approveWorkshop, { isLoading: isLoadingApprove, data: dataApprove, isSuccess: isSuccessApprove }] = useApproveWorkshopMutation();
+  const [rejectWorkshop, { isLoading: isLoadingReject, data: dataReject, isSuccess: isSuccessReject }] = useRejectWorkshopMutation();
+  const [deleteWorkshop, { isLoading: isLoadingDelete, data: dataDelete, isSuccess: isSuccessDelete }] = useDeleteWorkshopMutation();
+
   const handleConfirmAction = async () => {
     if (selectedWorkshopId !== null && selectedAction) {
       try {
         switch (selectedAction) {
           case BackdropType.ApproveConfirmation:
+            approveWorkshop({ id: selectedWorkshopId });
             break;
           case BackdropType.RefuseConfirmation:
+            rejectWorkshop({ id: selectedWorkshopId });
+            break;
+          case BackdropType.DeleteConfirmation:
+            deleteWorkshop({ id: selectedWorkshopId });
             break;
           default:
             throw new Error('Invalid action type');
@@ -101,24 +79,55 @@ const AdminSystemWorkshop = () => {
     }
   };
 
+  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
+    setPage(page);
+  };
+
+  useEffect(() => {
+    if (isSuccessApprove) {
+      dispatch(setToast({ message: dataApprove?.message }));
+    }
+    if (isSuccessReject) {
+      dispatch(setToast({ message: dataReject?.message }));
+    }
+    if (isSuccessDelete) {
+      dispatch(setToast({ message: dataDelete?.message }));
+    }
+    dispatch(setLoading(isLoading || isLoadingApprove || isLoadingReject || isLoadingDelete));
+  }, [
+    isLoading,
+    isLoadingApprove,
+    isLoadingReject,
+    dispatch,
+    dataApprove?.message,
+    isSuccessApprove,
+    isSuccessReject,
+    dataReject?.message,
+    isLoadingDelete,
+    dataDelete?.message,
+    isSuccessDelete,
+  ]);
+
   return (
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách Workshop</h1>
         <div className="flex items-center gap-3">
-          <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
-            <InputLabel id="demo-select-small-label">Trạng thái</InputLabel>
-            <Select labelId="demo-select-small-label" id="demo-select-small" value={'all'} label="Age">
-              <MenuItem value="all">
-                <em>Tất cả</em>
-              </MenuItem>
-              <MenuItem value={10}>Đã duyệt</MenuItem>
-              <MenuItem value={20}>Chờ duyệt</MenuItem>
-              <MenuItem value={30}>Từ chối</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" />
+          <Select
+            placeholder="Trạng thái"
+            closeMenuOnSelect={true}
+            components={animatedComponents}
+            options={[
+              { value: '', label: 'Tất cả' },
+              { value: 'APPROVED', label: 'Đã duyệt' },
+              { value: 'PENDING', label: 'Chờ duyệt' },
+              { value: 'REJECTED', label: 'Từ chối' },
+            ]}
+            onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
+            className="w-[160px] cursor-pointer"
+          />
+          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
         </div>
       </div>
 
@@ -149,70 +158,102 @@ const AdminSystemWorkshop = () => {
             </tr>
           </thead>
           <tbody>
-            {mockData.map((item, index) => (
-              <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                <td className="px-4 py-4">
-                  <p className="min-w-max">{item.id}</p>
-                </td>
-                <td className="cursor-pointer px-2 py-4 hover:text-primary-main" onClick={() => dispatch(setBackdrop(BackdropType.General))}>
-                  <p className="sm:[250px] w-[220px]">{item.workshopTitle}</p>
-                </td>
-                <td className="px-2 py-4">
-                  <p className="sm:[250px] w-[220px]"> {item.schoolName}</p>
-                </td>
-                <td className="px-2 py-4">
-                  <p className="sm:[250px] w-[220px]"> {item.address}</p>
-                </td>
-                <td className="px-2 py-4">{item.estimateCompanyParticipants}</td>
-                <td className="px-2 py-4">
-                  <Chip
-                    label={item.moderation_status}
-                    color={
-                      item.moderation_status === 'Đã duyệt'
-                        ? 'success'
-                        : item.moderation_status === 'Chờ duyệt'
-                        ? 'warning'
-                        : item.moderation_status === 'Từ chối'
-                        ? 'error'
-                        : 'default'
-                    }
-                  />
-                </td>
-                <td className="flex items-center gap-1 py-4">
-                  <Tooltip title="Duyệt">
-                    <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, item.id)}>
-                      <CheckCircleIcon color="success" />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="Từ chối">
-                    <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, item.id)}>
-                      <ClearIcon color="warning" />
-                    </IconButton>
-                  </Tooltip>
+            {workshops?.data.content.length !== 0 ? (
+              workshops?.data.content.map((workshop, index) => (
+                <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                  <td className="px-4 py-4">
+                    <p className="min-w-max">{index + 1}</p>
+                  </td>
+                  <Link href={`/admin/system/workshop/${workshop.id}`}>
+                    <td className="cursor-pointer px-2 py-4 hover:text-primary-main">
+                      <p className="sm:[250px] w-[220px]">{workshop.workshopTitle}</p>
+                    </td>
+                  </Link>
+                  <td className="px-2 py-4">
+                    <p className="sm:[250px] w-[220px]"> {workshop.university.universityName}</p>
+                  </td>
+                  <td className="px-2 py-4">
+                    <p className="sm:[250px] w-[220px]">
+                      {workshop.address.houseNumber}, {workshop.address.ward.wardName}, {workshop.address.district.districtName},
+                      {workshop.address.province.provinceName}
+                    </p>
+                  </td>
+                  <td className="px-2 py-4">{workshop.estimateCompanyParticipants}</td>
+                  <td className="px-2 py-4">
+                    <Chip
+                      label={statusTextWorkshop(workshop.moderationStatus)}
+                      color={
+                        workshop.moderationStatus === 'APPROVED'
+                          ? 'success'
+                          : workshop.moderationStatus === 'PENDING'
+                          ? 'warning'
+                          : workshop.moderationStatus === 'REJECTED'
+                          ? 'error'
+                          : 'default'
+                      }
+                    />
+                  </td>
+                  <td className="flex items-center gap-1 py-4">
+                    {workshop.moderationStatus === 'PENDING' && (
+                      <>
+                        <Tooltip title="Duyệt">
+                          <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, workshop.id)}>
+                            <CheckCircleIcon color="success" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Từ chối">
+                          <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, workshop.id)}>
+                            <ClearIcon color="warning" />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+
+                    {workshop.moderationStatus !== 'PENDING' && (
+                      <>
+                        <Tooltip title="Xóa">
+                          <IconButton onClick={() => handleAction(BackdropType.DeleteConfirmation, workshop.id)}>
+                            <DeleteIcon color="error" />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base text-red-500">
+                  <p>Không có dữ liệu workshop nào</p>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
+      <div className="flex items-center justify-center bg-white p-5">
+        <Pagination count={workshops?.data.totalPages} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
+        <p className="text-sm">
+          ({workshops?.data.currentPage} / {workshops?.data.totalPages})
+        </p>
       </div>
-      {backdropType === BackdropType.General && <DetailWorkshop />}
 
       {/*  */}
-      {(backdropType === BackdropType.ApproveConfirmation || backdropType === BackdropType.RefuseConfirmation) && (
+      {(backdropType === BackdropType.ApproveConfirmation ||
+        backdropType === BackdropType.RefuseConfirmation ||
+        backdropType === BackdropType.DeleteConfirmation) && (
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">
             <h3 className="font-bold">
-              {selectedAction === BackdropType.ApproveConfirmation && 'Duyệt WorkShop'}
-              {selectedAction === BackdropType.RefuseConfirmation && 'Từ chối WorkShop'}
+              {selectedAction === BackdropType.ApproveConfirmation && 'Duyệt Workshop'}
+              {selectedAction === BackdropType.RefuseConfirmation && 'Từ chối Workshop'}
+              {selectedAction === BackdropType.DeleteConfirmation && 'Xóa Workshop'}
             </h3>
             <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-800" full={true} onClick={handleConfirmAction} />
+              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
             </div>
           </div>
         </BackDrop>

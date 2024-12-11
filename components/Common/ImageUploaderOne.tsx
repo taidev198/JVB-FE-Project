@@ -38,7 +38,7 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
   });
 
   return (
-    <div className=" ml-5 w-[160px]">
+    <div className="w-[160px]">
       <div
         {...getRootProps({
           className: 'border rounded-full w-[160px] h-[160px] text-center bg-slate-100 cursor-pointer flex items-center justify-center',
@@ -63,5 +63,4 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
     </div>
   );
 };
-
 export default ImageUploaderOne;
