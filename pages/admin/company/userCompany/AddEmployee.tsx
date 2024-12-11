@@ -13,38 +13,38 @@ import Select from '@/components/Common/Select';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 
 interface FormDataWorkShop {
-  employee_code: string;
-  full_name: string;
-  phone_number: string;
-  email: string;
-  gender: string;
-  employee_position: string;
-  salary: number;
-  status_account: string;
-  wardName: number;
-  districtName: number;
-  provinceName: number;
-  houseNumber: string;
-  // fieldIds: number[];
-  data_of_birth: Date;
-  password: string;
-  confirmPassword: string;
-  // address: string;
-}
+    employee_code: string;
+    full_name: string;
+    phone_number: string;
+    email: string;
+    gender: string;
+    employee_position: string;
+    salary: number;
+    status_account: string;
+    wardName: number;
+    districtName: number;
+    provinceName: number;
+    houseNumber: string;
+    // fieldIds: number[];
+    data_of_birth: Date;
+    password: string;
+    confirmPassword: string;
+    // address: string;
+  }
 
-const detailProfileCompany = () => {
-  const [image, setImage] = useState<File[]>([]);
-  const {
-  control,
-  handleSubmit,
-  formState: { errors },
-} = useForm<FormDataWorkShop>({
-  resolver: yupResolver(addWorkshopSchema),
-});
+const AddEmployee = () => {
+    const [image, setImage] = useState<File[]>([]);
+    const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDataWorkShop>({
+    resolver: yupResolver(addWorkshopSchema),
+  });
 
-const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
-  ({ data, image });
-};
+  const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
+    ({ data, image });
+  };
   return (
     <div className="">
     {/* Icon */}
@@ -206,4 +206,4 @@ const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
   )
 }
 
-export default detailProfileCompany
+export default AddEmployee

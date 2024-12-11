@@ -63,5 +63,4 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
     </div>
   );
 };
-
 export default ImageUploaderOne;

@@ -12,39 +12,55 @@ import SelectMui from '@/components/Common/SelectMui';
 import Select from '@/components/Common/Select';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 
+
 interface FormDataWorkShop {
-  employee_code: string;
-  full_name: string;
-  phone_number: string;
-  email: string;
-  gender: string;
-  employee_position: string;
-  salary: number;
-  status_account: string;
-  wardName: number;
-  districtName: number;
-  provinceName: number;
-  houseNumber: string;
-  // fieldIds: number[];
-  data_of_birth: Date;
-  password: string;
-  confirmPassword: string;
-  // address: string;
+    employee_code: string;
+    full_name: string;
+    phone_number: string;
+    email: string;
+    gender: string;
+    employee_position: string;
+    salary: number;
+    status_account: string;
+    wardName: number;
+    districtName: number;
+    provinceName: number;
+    houseNumber: string;
+    data_of_birth: Date;
+    password: string;
+    confirmPassword: string;
+
 }
 
-const detailProfileCompany = () => {
-  const [image, setImage] = useState<File[]>([]);
-  const {
-  control,
-  handleSubmit,
-  formState: { errors },
-} = useForm<FormDataWorkShop>({
-  resolver: yupResolver(addWorkshopSchema),
-});
 
-const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
-  ({ data, image });
-};
+
+const UpdateEmployee = () => {
+    const [image, setImage] = useState<File[]>([]);
+    const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDataWorkShop>({
+    resolver: yupResolver(addWorkshopSchema),
+  });
+
+  const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
+    ({ data, image });
+  };
+
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([
+    'https://via.placeholder.com/150/0000FF',
+    'https://via.placeholder.com/150/FF0000',
+    'https://via.placeholder.com/150/FFFF00',
+  ]);
+
+  // Hàm xử lý xóa ảnh đã lưu
+  const handleRemoveExistingImage = (url: string) => {
+    setExistingImageUrls(existingImageUrls.filter(imageUrl => imageUrl !== url));
+    // Có thể thêm logic xóa ảnh trên server nếu cần
+    console.log(`Đã xóa ảnh: ${url}`);
+  };
+
   return (
     <div className="">
     {/* Icon */}
@@ -55,13 +71,13 @@ const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
         </IconButton>
       </Link>
       Trở về
-      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm mới Nhân Viên </h1>
+      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Cập nhập thông tin Nhân Viên </h1>
     </div>
 
       {/* Block 2 */}
       <div className="grid grid-cols-1 gap-4 rounded-lg bg-primary-white ">
         {/* Image */}
-        <ImageUploaderOne images={image} setImages={setImage} />
+        <ImageUploaderOne images={image} setImages={setImage} existingImages={existingImageUrls} removeExistingImage={handleRemoveExistingImage} />
       </div>
 
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -158,7 +174,6 @@ const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
         </div>
       </div>
 
-      {/* Block 3 */}
 
       {/* Block 4 */}
       <div className="mt-4 grid grid-cols-1 gap-4 rounded-lg bg-primary-white p-5 sm:grid-cols-2">
@@ -199,11 +214,11 @@ const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
         <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
       </div>
       <div className="flex justify-end bg-primary-white p-5">
-        <Button text="Thêm mới" type="submit" />
+        <Button text="Cập nhật" type="submit" />
       </div>
     </form>
   </div>
   )
 }
 
-export default detailProfileCompany
+export default UpdateEmployee

@@ -93,7 +93,7 @@ const jobCompany = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách bài đăng tuyển</h1>
         <div className="flex items-center gap-3 justify-between ">
-          <div className="w-[900px]">
+          <div className="w-[200px]">
             <Input
               type="text"
               name="search_employee"
