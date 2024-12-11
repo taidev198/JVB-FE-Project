@@ -9,13 +9,7 @@ import registerValidateCompany from './validation';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import TextEditor from '@/components/Common/TextEditor';
-import {
-  useGetAllDistrictsQuery,
-  useGetAllProvincesQuery,
-  useGetAllWardsQuery,
-  useRegisterCompanyMutation,
-  useRegisterUniversityMutation,
-} from '@/services/adminSystemApi';
+import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery, useRegisterCompanyMutation } from '@/services/adminSystemApi';
 import { setLoading } from '@/store/slices/global';
 import { setToast } from '@/store/slices/toastSlice';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';

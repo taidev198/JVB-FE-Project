@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
-import { ApiResponse, ApiResponseDetail } from '@/types/departmentType';
+import { ApiResponse, ApiResponseDetail, DepartmentResponsePortal } from '@/types/departmentType';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
@@ -39,6 +39,12 @@ export const adminSchoolApi = createApi({
             : [],
       }),
 
+      getAllDepartmentsPortal: builder.query<DepartmentResponsePortal, void>({
+        query: () => ({
+          url: '/portal/faculties/get-all',
+        }),
+      }),
+
       detailDepartments: builder.query<ApiResponseDetail, { id: number | null }>({
         query: ({ id }) => ({
           url: `/university/faculties/${id}`, // Sử dụng cú pháp template string đúng
@@ -52,11 +58,13 @@ export const adminSchoolApi = createApi({
         }),
         invalidatesTags: [{ type: 'Department', id: 'list' }], // Chỉ invalidates tag danh sách, đảm bảo gọi lại getAllDepartments
       }),
+
       getAllFields: builder.query<FieldsResponse, void>({
         query: () => ({
           url: '/fields',
         }),
       }),
+
       AddDepartment: builder.mutation({
         query: formData => ({
           url: '/university/faculties/add',
@@ -65,6 +73,7 @@ export const adminSchoolApi = createApi({
         }),
         invalidatesTags: [{ type: 'Department' }],
       }),
+
       UpdateDepartment: builder.mutation({
         query: (args: { formData: FormData; id: number | null }) => ({
           url: `/university/faculties/update/${args.id}`,
@@ -80,7 +89,12 @@ export const adminSchoolApi = createApi({
             : [{ type: 'Department', id: 'listDe' }]; // Nếu không có id, chỉ invalidates danh sách
         },
       }),
-      getAllWorShopsUniversity: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; startDate: Date | null; endDate: Date | null }>({
+
+      // Workshop
+      getAllWorShopsUniversity: builder.query<
+        WorkshopResponse,
+        { page: number | null; size: number | null; keyword: string; startDate: Date | null; endDate: Date | null }
+      >({
         query: ({ page, size, keyword, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
@@ -141,9 +155,33 @@ export const adminSchoolApi = createApi({
       }),
 
       // Students
-      getAllStudents: builder.query<StudentResponse, { page: number; size: number; keyword: string }>({
-        query: () => ({
-          url: '/university/students',
+      getAllStudents: builder.query<
+        StudentResponse,
+        {
+          page: number | null | undefined;
+          size: number | null | undefined;
+          keyword: string | null | undefined;
+          majorId: number | null | undefined;
+          facultyId: number | null | undefined;
+        }
+      >({
+        query: ({ page, size, keyword, majorId, facultyId }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (keyword) queryParams.append('majorId', String(majorId));
+          if (keyword) queryParams.append('facultyId', String(facultyId));
+
+          return `/university/students?${queryParams.toString()}`;
+        },
+      }),
+
+      addStudent: builder.mutation({
+        query: formData => ({
+          url: '/university/students/add',
+          method: 'POST',
+          body: formData,
         }),
       }),
     };
@@ -152,6 +190,7 @@ export const adminSchoolApi = createApi({
 
 export const {
   useGetAllDepartmentsQuery,
+  useGetAllDepartmentsPortalQuery,
   useDetailDepartmentsQuery,
   useGetAllWorShopsUniversityQuery,
   useGetAllFieldsQuery,
@@ -162,4 +201,6 @@ export const {
   useDeleteDepartmentMutation,
   useAddDepartmentMutation,
   useUpdateDepartmentMutation,
+  useGetAllStudentsQuery,
+  useAddStudentMutation,
 } = adminSchoolApi;
