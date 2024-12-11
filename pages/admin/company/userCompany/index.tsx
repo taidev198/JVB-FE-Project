@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
+import AddIcon from '@mui/icons-material/Add';
 
 
 interface FormDataRegisterCompany {
@@ -58,7 +59,7 @@ const userCompany = () => {
       full_name: 'Matt Dickerson', 
       email: 'Dickerson@gmail.com', 
       create_at: '22/05/2022', 
-      role_name: 'Quản lý', 
+      employee_position: 'Quản lý', 
       phone_number: '0123456789', 
       status_account: 'Đang làm',
       gender: 'MALE',
@@ -73,7 +74,7 @@ const userCompany = () => {
       full_name: 'Wiktoria', 
       email: 'Wiktoria@gmail.com', 
       create_at: '13/05/2022', 
-      role_name: 'Nhân viên', 
+      employee_position: 'Nhân viên', 
       phone_number: '0123456789', 
       status_account: 'Nghỉ việc',
       gender: 'MALE',
@@ -88,7 +89,7 @@ const userCompany = () => {
       full_name: 'Matt Dickerson', 
       email: 'Dickerson@gmail.com', 
       create_at: '13/05/2022', 
-      role_name: 'Quản lý', 
+      employee_position: 'Quản lý', 
       phone_number: '0123456789', 
       status_account: 'Đang làm',
       gender: 'MALE',
@@ -103,7 +104,7 @@ const userCompany = () => {
       full_name: 'Wiktoria', 
       email: 'Wiktoria@gmail.com', 
       create_at: '22/05/2022', 
-      role_name: 'Nhân viên', 
+      employee_position: 'Nhân viên', 
       phone_number: '0123456789', 
       status_account: 'Nghỉ việc',
       gender: 'MALE',
@@ -118,7 +119,7 @@ const userCompany = () => {
       full_name: 'Matt Dickerson', 
       email: 'Dickerson@gmail.com', 
       create_at: '13/05/2022', 
-      role_name: 'Quản lý', 
+      employee_position: 'Quản lý', 
       phone_number: '0123456789', 
       status_account: 'Đang làm',
       gender: 'MALE',
@@ -139,7 +140,7 @@ const userCompany = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách tài khoản nhân viên</h1>
         <div className="flex items-center gap-3 justify-between ">
-          <div className="w-[900px]">
+          <div className="w-[220px]">
             <Input
               type="text"
               name="search_employee"
@@ -150,7 +151,10 @@ const userCompany = () => {
             />
           </div>
           <div className='flex items-center gap-5'>
+            <Link href={'/admin/company/userCompany/AddEmployee'}>
             <MyButton type="submit" text="Thêm nhân viên" />
+            </Link>
+            
             <MyButton type="submit" text="Xóa tất cả nhân viên" className='bg-red-600' />
           </div>
         </div>
@@ -191,7 +195,7 @@ const userCompany = () => {
                 <td className="px-5 py-4">{item.full_name}</td>
                 <td className="px-5 py-4">{item.email}</td>
                 <td className="px-5 py-4">{item.create_at}</td>
-                <td className="px-5 py-4">{item.role_name}</td>
+                <td className="px-5 py-4">{item.employee_position}</td>
                 <td className="px-5 py-4">{item.phone_number}</td>
                 <td className="px-5 py-4">
                   <Chip
@@ -211,11 +215,13 @@ const userCompany = () => {
                   </Tooltip>
                   </Link>
 
+                  <Link href={'/admin/company/userCompany/UpdateEmployee'}>
                   <Tooltip title="Sửa">
                     <IconButton>
                       <BorderColorIcon className='text-purple-500' />
                     </IconButton>
                   </Tooltip>
+                  </Link>
                   <Tooltip title="Xóa">
                     <IconButton onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}>
                       <DeleteIcon color="error" />
