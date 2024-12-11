@@ -14,7 +14,7 @@ export interface IStudent {
   major: IMajor;
   gpa: number;
   dateOfBirth: string;
-  studentStatus: number;
+  studentStatus: string;
 }
 
 export interface StudentResponse {

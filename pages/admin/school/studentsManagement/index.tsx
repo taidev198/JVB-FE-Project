@@ -1,186 +1,36 @@
 import React, { useState } from 'react';
-import { Checkbox, Chip, FormControl, IconButton, InputLabel, MenuItem, Pagination, Select, TextField, Tooltip } from '@mui/material';
+import { Checkbox, Chip, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
+import Select from 'react-select';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
+import { useGetAllDepartmentsPortalQuery, useGetAllStudentsQuery } from '@/services/adminSchoolApi';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
-import AddStudent from '@/components/Admin/school/Student/AddStudent';
+import { StatusStudent } from '@/utils/app/const';
 
 const StudentsManagement = () => {
   const dispatch = useDispatch();
+  const [keyword, setKeyword] = useState('');
+  const [department, setDepartment] = useState<number | null>();
+  const [major, setMajor] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
-  const [studentStatus, setStudentStatus] = useState('');
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
 
-  // Data giả lập
-  const mockData = [
-    {
-      id: 1,
-      studentCode: 'STU029',
-      fullName: 'Trần Minh Anh',
-      avatarUrl: 'https://res.cloudinary.com/dumvp2ixi//image/upload/v1731915716/default0',
-      email: 'student29@example.com',
-      gender: 'MALE',
-      phoneNumber: '0903456789',
-      yearOfEnrollment: 2020,
-      address: {
-        houseNumber: 'Nhà số 29',
-        ward: {
-          id: 29,
-          wardName: 'Phường Tràng Tiền',
-        },
-        district: {
-          id: 2,
-          districtName: 'Quận Hoàn Kiếm',
-        },
-        province: {
-          id: 1,
-          provinceName: ' Hà Nội',
-        },
-      },
-      major: {
-        id: 29,
-        majorName: 'Kỹ thuật Dân dụng',
-        majorCode: 'MAJ029',
-        creditRequirement: 120,
-        majorDescription: 'Ngành học đào tạo về các lĩnh vực nghiên cứu kỹ thuật dân dụng, hạ tầng và các công trình giao thông công cộng.',
-        numberOfStudents: 400,
-        faculty: {
-          id: 1,
-          facultyCode: 'FAC001',
-          facultyName: 'Khoa Kỹ thuật',
-          establishYear: 1990,
-          nameDean: 'Nguyễn Mạnh Cường',
-          address: 'Tầng 1, Phòng 101, Trường Đại học Bách Khoa Hà Nội',
-          facultyDescription: 'Khoa Kỹ thuật chuyên đào tạo các ngành kỹ thuật cơ khí, xây dựng và công nghệ thông tin.',
-          university: {
-            id: 1,
-            universityCode: 'HUST',
-            universityName: 'Đại học Bách Hà Nội',
-          },
-          isDelete: false,
-        },
-        majorFields: [],
-        isDelete: false,
-      },
-      gpa: 3.2,
-      dateOfBirth: '2001-07-25',
-      studentStatus: 'GRADUATED',
-    },
-    {
-      id: 2,
-      studentCode: 'ph54029',
-      fullName: 'Trần Văn B',
-      avatarUrl: 'https://res.cloudinary.com/dumvp2ixi//image/upload/v1731915716/default0',
-      email: 'student29@example.com',
-      gender: 'MALE',
-      phoneNumber: '0903456789',
-      yearOfEnrollment: 2020,
-      address: {
-        houseNumber: 'Nhà số 29',
-        ward: {
-          id: 29,
-          wardName: 'Phường Tràng Tiền',
-        },
-        district: {
-          id: 2,
-          districtName: 'Quận Hoàn Kiếm',
-        },
-        province: {
-          id: 1,
-          provinceName: ' Hà Nội',
-        },
-      },
-      major: {
-        id: 29,
-        majorName: 'Kỹ thuật Dân dụng',
-        majorCode: 'MAJ029',
-        creditRequirement: 120,
-        majorDescription: 'Ngành học đào tạo về các lĩnh vực nghiên cứu kỹ thuật dân dụng, hạ tầng và các công trình giao thông công cộng.',
-        numberOfStudents: 400,
-        faculty: {
-          id: 1,
-          facultyCode: 'FAC001',
-          facultyName: 'Khoa Kỹ thuật',
-          establishYear: 1990,
-          nameDean: 'Nguyễn Mạnh Cường',
-          address: 'Tầng 1, Phòng 101, Trường Đại học Bách Khoa Hà Nội',
-          facultyDescription: 'Khoa Kỹ thuật chuyên đào tạo các ngành kỹ thuật cơ khí, xây dựng và công nghệ thông tin.',
-          university: {
-            id: 1,
-            universityCode: 'HUST',
-            universityName: 'Đại học Bách Hà Nội',
-          },
-          isDelete: false,
-        },
-        majorFields: [],
-        isDelete: false,
-      },
-      gpa: 3.5,
-      dateOfBirth: '2001-07-25',
-      studentStatus: 'Dropped Out',
-    },
-    {
-      id: 3,
-      studentCode: 'Ph75832',
-      fullName: 'Nguyễn Văn C',
-      avatarUrl: 'https://res.cloudinary.com/dumvp2ixi//image/upload/v1731915716/default0',
-      email: 'student29@example.com',
-      gender: 'MALE',
-      phoneNumber: '0903456789',
-      yearOfEnrollment: 2020,
-      address: {
-        houseNumber: 'Nhà số 29',
-        ward: {
-          id: 29,
-          wardName: 'Phường Tràng Tiền',
-        },
-        district: {
-          id: 2,
-          districtName: 'Quận Hoàn Kiếm',
-        },
-        province: {
-          id: 1,
-          provinceName: ' Hà Nội',
-        },
-      },
-      major: {
-        id: 29,
-        majorName: 'Kỹ thuật Dân dụng',
-        majorCode: 'MAJ029',
-        creditRequirement: 120,
-        majorDescription: 'Ngành học đào tạo về các lĩnh vực nghiên cứu kỹ thuật dân dụng, hạ tầng và các công trình giao thông công cộng.',
-        numberOfStudents: 400,
-        faculty: {
-          id: 1,
-          facultyCode: 'FAC001',
-          facultyName: 'Khoa Kỹ thuật',
-          establishYear: 1990,
-          nameDean: 'Nguyễn Mạnh Cường',
-          address: 'Tầng 1, Phòng 101, Trường Đại học Bách Khoa Hà Nội',
-          facultyDescription: 'Khoa Kỹ thuật chuyên đào tạo các ngành kỹ thuật cơ khí, xây dựng và công nghệ thông tin.',
-          university: {
-            id: 1,
-            universityCode: 'HUST',
-            universityName: 'Đại học Bách Hà Nội',
-          },
-          isDelete: false,
-        },
-        majorFields: [],
-        isDelete: false,
-      },
-      gpa: 3.5,
-      dateOfBirth: '2001-07-25',
-      studentStatus: 'In Progress',
-    },
-  ];
+  const debouncedSearch = debounce((value: string) => {
+    setKeyword(value);
+  }, 500);
+
+  // Call api
+  const { data: dataDepartment } = useGetAllDepartmentsPortalQuery();
+  const { data: students } = useGetAllStudentsQuery({ page: currentPage, size: 10, keyword: keyword, majorId: major, facultyId: department });
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
@@ -205,24 +55,30 @@ const StudentsManagement = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý sinh viên</h1>
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center">
-            <FormControl sx={{ m: 1, minWidth: 150 }} size="small">
-              <InputLabel id="demo-select-small-label">Trạng thái</InputLabel>
-              <Select
-                labelId="demo-select-small-label"
-                id="demo-select-small"
-                value={studentStatus}
-                label="Chọn"
-                onChange={e => setStudentStatus(e.target.value)}>
-                <MenuItem value="all">
-                  <em>Tất cả</em>
-                </MenuItem>
-                <MenuItem value={'active'}>In Progress</MenuItem>
-                <MenuItem value={'disable'}>Dropped Out</MenuItem>
-                <MenuItem value={'dropped out'}>Granduated</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" />
+          <div className="flex items-center gap-3">
+            <Select
+              placeholder="Chọn khoa"
+              closeMenuOnSelect={true}
+              options={(dataDepartment?.data || []).map(department => ({
+                value: department.id,
+                label: department.facultyName,
+              }))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setDepartment(Number(selectedOption.value))}
+              className="w-[160px] cursor-pointer"
+            />
+            <Select
+              placeholder="Chọn ngành"
+              closeMenuOnSelect={true}
+              options={[
+                { value: '', label: 'Tất cả' },
+                { value: 'APPROVED', label: 'Đã duyệt' },
+                { value: 'PENDING', label: 'Chờ duyệt' },
+                { value: 'REJECTED', label: 'Từ chối' },
+              ]}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setMajor(Number(selectedOption.value))}
+              className="w-[160px] cursor-pointer"
+            />
+            <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
           </div>
           <div className="flex justify-items-center gap-5">
             <Link href={'/admin/school/studentsManagement/add'}>
@@ -246,8 +102,8 @@ const StudentsManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <Checkbox
                   color="primary"
-                  checked={selectedStudents.length === mockData.length}
-                  indeterminate={selectedStudents.length > 0 && selectedStudents.length < mockData.length}
+                  checked={selectedStudents.length === students?.data.content.length}
+                  indeterminate={selectedStudents.length > 0 && selectedStudents.length < students?.data.content.length}
                   onChange={handleSelectAll}
                 />
               </th>
@@ -279,55 +135,55 @@ const StudentsManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {mockData.map((item, index) => (
-              <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+            {students?.data.content.map((student, index) => (
+              <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <Checkbox color="primary" checked={selectedStudents.includes(item.id)} onChange={() => handleSelectStudent(item.id)} />
+                  <Checkbox color="primary" checked={selectedStudents.includes(student.id)} onChange={() => handleSelectStudent(student.id)} />
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.id}</p>
+                  <p className="min-w-max">{student.id}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">
-                    <Image src={item.avatarUrl} alt="anh" width={50} height={50} />
+                    <Image src={student.avatarUrl} alt="anh" width={50} height={50} />
                   </p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.major.faculty.facultyCode}</p>
+                  <p className="min-w-max">{student.major.faculty.facultyCode}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.fullName}</p>
+                  <p className="min-w-max">{student.fullName}</p>
                 </td>
                 {/* <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{item.email}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.gpa}</p>
+<p className="min-w-max">{item.gpa}</p>
                 </td> */}
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.major.majorName}</p>
+                  <p className="min-w-max">{student.major.majorName}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.major.faculty.facultyName}</p>
+                  <p className="min-w-max">{student.major.faculty.facultyName}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <Chip
-                    label={item.studentStatus}
+                    label={StatusStudent(student.studentStatus)}
                     sx={{
                       backgroundColor:
-                        item.studentStatus === 'GRADUATED'
+                        student.studentStatus === 'GRADUATED'
                           ? '#EBF9F1'
-                          : item.studentStatus === 'Dropped Out'
+                          : student.studentStatus === 'DROPPED_OUT'
                           ? '#FFF4E5'
-                          : item.studentStatus === 'In Progress'
+                          : student.studentStatus === 'IN_PROGRESS'
                           ? '#FFFAE5'
                           : '#FEE5E5',
                       color:
-                        item.studentStatus === 'GRADUATED'
+                        student.studentStatus === 'GRADUATED'
                           ? '#1F9254'
-                          : item.studentStatus === 'Dropped Out'
+                          : student.studentStatus === 'DROPPED_OUT'
                           ? '#FFA726'
-                          : item.studentStatus === 'In Progress'
+                          : student.studentStatus === 'IN_PROGRESS'
                           ? '#FFB800'
                           : '#F44336',
                     }}

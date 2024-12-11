@@ -69,7 +69,7 @@ const PortalHeader = () => {
                           </Link>
                         </li>
                         <li className="navigation__menu--item relative">
-                          <Link href="#" className="mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px]">
+                          <Link href="" className="mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px]">
                             Công Ty
                           </Link>
                         </li>
@@ -84,7 +84,7 @@ const PortalHeader = () => {
                 {!isLoggedIn ? (
                   <>
                     <Link
-                      href="#"
+                      href="/auth/login"
                       className="mp_button_small mp_transition_4 mp_no_fill_button hidden items-center justify-center gap-2 rounded-md text-sm sm:flex"
                       aria-label="Login Button"
                       data-bs-toggle="modal"
@@ -93,7 +93,7 @@ const PortalHeader = () => {
                       <span>Đăng nhập</span>
                     </Link>
                     <Link
-                      href="employer-dash-jobpost.html"
+                      href="/auth/Register"
                       className="mp_button_small mp_transition_4 mp_fill_button hidden rounded-md text-sm sm:flex"
                       aria-label="Job Posting Button">
                       <span>Đăng ký</span>

@@ -1,46 +1,97 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
+import Select from 'react-select';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
-import validationSchemaAddStudent from '@/components/Admin/School/Student/validationAddStudent';
-import Select from '@/components/Common/Select';
 import Text from '@/components/Common/Text';
+import validationSchemaAddStudent from '@/components/Admin/school/Student/validationAddStudent';
+import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
+import SelectReact from '@/components/Common/SelectMui';
+import { gender } from '@/utils/app/const';
+import { useAddStudentMutation } from '@/services/adminSchoolApi';
 
 interface FormDataAddStudent {
   studentCode: string;
   fullName: string;
   avatarUrl: string;
   email: string;
-  gender?: string;
+  gender: string | null;
   phoneNumber: string;
   yearOfEnrollment: number;
-  address: string;
+  houseNumber: string;
   gpa: number;
-  dateOfBirth: string;
-  studentStatus?: string;
+  dateOfBirth: string | null;
+  studentStatus: string;
   majorId: number;
-  province_id: number;
-  district_id: number;
-  ward_id: string;
+  provinceId: number;
+  districtId: number;
+  wardId: string;
 }
 
 const AddStudent = () => {
+  const [image, setImage] = useState<File | null>(null);
   const {
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<FormDataAddStudent>({
     resolver: yupResolver(validationSchemaAddStudent),
+    defaultValues: {
+      yearOfEnrollment: undefined,
+      gender: '',
+    },
   });
 
-  const onSubmit: SubmitHandler<FormDataAddStudent> = () => {};
+  const provinceSelect = watch('provinceId');
+  const districtSelect = watch('districtId');
+  // Fetch data
+  const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvincesQuery();
+  const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
+  const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
 
-  const [image, setImage] = useState<File | null>(null);
+  const [addStudent] = useAddStudentMutation();
+
+  const onSubmit: SubmitHandler<FormDataAddStudent> = data => {
+    const formData = new FormData();
+
+    // Append dữ liệu JSON dưới dạng chuỗi
+    const studentRequest = {
+      studentCode: data.studentCode,
+      fullName: data.fullName,
+      email: data.email,
+      gender: data.gender,
+      yearOfEnrollment: data.yearOfEnrollment,
+      addressRequest: {
+        houseNumber: data.houseNumber,
+        wardId: data.wardId,
+      },
+      gpa: data.gpa,
+      dateOfBirth: data.dateOfBirth,
+      studentStatus: data.studentStatus,
+      phoneNumber: data.phoneNumber,
+      majorId: data.majorId,
+    };
+
+    // Chuyển đổi đối tượng studentRequest thành chuỗi JSON và append vào FormData
+    formData.append('studentRequest', new Blob([JSON.stringify(studentRequest)], { type: 'application/json' }));
+    // Append file vào FormData
+
+    if (!image) {
+      console.error('Image is required');
+      return;
+    }
+    formData.append('file', image as File);
+
+    // Gửi yêu cầu với FormData chứa cả file và JSON
+    addStudent(formData);
+  };
 
   return (
     <div className="bg-primary-white px-10">
@@ -62,94 +113,156 @@ const AddStudent = () => {
             <Input type="text" name="studentCode" label="Mã sinh viên" placeholder="Nhập mã sinh viên" control={control} error={errors.studentCode?.message} />
             {/* Student name */}
             <Input type="text" name="fullName" label="Tên sinh viên" placeholder="Nhập tên sinh viên" control={control} error={errors.fullName?.message} />
+            {/* Phone */}
+            <Input
+              type="text"
+              name="phoneNumber"
+              label="Số điện thoại"
+              placeholder="Nhập số điện thoại"
+              control={control}
+              error={errors.phoneNumber?.message}
+            />
             {/* Email */}
             <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} />
-
             {/* Year Of Enrollment */}
             <Input
               type="number"
-              name="fullName"
+              name="yearOfEnrollment"
               label="Năm nhập học"
               placeholder="Nhập năm nhập học"
               control={control}
               error={errors.yearOfEnrollment?.message}
             />
             {/* Date Of Birth */}
-            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="" control={control} error={errors.dateOfBirth?.message} />
+            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="" control={control} />
             {/* GPA */}
             <Input type="number" name="gpa" label="Điểm GPA" placeholder="Nhập Điểm GPA" control={control} error={errors.gpa?.message} />
             {/* Student status */}
-            <Select
+            <SelectReact
               name="studentStatus"
               label="Trạng thái"
-              control={control}
+              placeholder="Chọn trạng thái"
               options={[
                 { value: 'IN_PROGRESS', label: 'Đang học' },
                 { value: 'GRADUATED', label: 'Đã tốt nghiệp' },
                 { value: 'DROPPED_OUT', label: 'Bỏ học' },
               ]}
+              control={control}
               error={errors.studentStatus?.message}
             />
             {/* Major */}
-            <Select
+            <SelectReact
               name="majorId"
-              label="Ngành"
-              control={control}
+              label="Ngành học"
+              placeholder="Chọn ngành học"
               options={[
-                { value: 1, label: 'Kinh tế' },
-                { value: 2, label: 'Công nghệ thông tin' },
-                { value: 3, label: 'Bỏ học' },
+                { value: 2, label: 'Kinh tế' },
+                { value: 1, label: 'Công nghệ' },
+                { value: 5, label: 'Thú y' },
               ]}
+              control={control}
               error={errors.majorId?.message}
             />
             {/* Gender */}
-            <Select
+            <SelectReact
               name="gender"
               label="Giới tính"
+              placeholder="Chọn giới tính"
+              options={gender.map(item => ({
+                value: item.value,
+                label: item.label,
+              }))}
               control={control}
-              options={[
-                { value: 'FEMALE', label: 'Nữ' },
-                { value: 'MALE', label: 'Nam' },
-                { value: 'DROPPED_OUT', label: 'Khác' },
-              ]}
-              error={errors.gender?.message}
             />
-            <Select
-              name="province_id"
-              label="Tỉnh/ Thành phố"
-              control={control}
-              options={[
-                { value: 0, label: 'Chọn' },
-                { value: 1, label: 'Health' },
-                { value: 2, label: 'Finance' },
-              ]}
-              error={errors.province_id?.message}
-            />
-            <Select
-              name="district_id"
-              label="Quận/ Huyện"
-              control={control}
-              options={[
-                { value: 0, label: 'Chọn' },
-                { value: 1, label: 'Health' },
-                { value: 2, label: 'Finance' },
-              ]}
-              error={errors.district_id?.message}
-            />
-            <Select
-              name="ward_id"
-              label="Xã/ Phường"
-              control={control}
-              options={[
-                { value: 0, label: 'Chọn' },
-                { value: 1, label: 'Health' },
-                { value: 2, label: 'Finance' },
-              ]}
-              error={errors.ward_id?.message}
-            />
-            {/* Address */}
+
+            {/* Tỉnh */}
+            <div>
+              <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
+                Tỉnh
+              </label>
+              <Controller
+                name="provinceId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    className="basic-single"
+                    classNamePrefix="select"
+                    placeholder="Chọn Tỉnh/Thành phố"
+                    isLoading={isLoadingProvinces}
+                    options={provinces?.data || []}
+                    getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
+                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    onChange={(selectedOption: { id: any }) => {
+                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                    }}
+                    value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                    ref={field.ref}
+                  />
+                )}
+              />
+              {errors.provinceId && <p className="mt-2 text-sm text-red-500">{errors.provinceId.message}</p>}
+            </div>
+
+            {/* Chọn Huyện */}
+            <div>
+              <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
+                Huyện
+              </label>
+              <Controller
+                name="districtId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    className="basic-single"
+                    classNamePrefix="select"
+                    placeholder="Chọn Quận/Huyện"
+                    isLoading={isLoadingDistricts}
+                    options={districts?.data || []}
+                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
+                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    onChange={(selectedOption: { id: any }) => {
+                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                    }}
+                    value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                    ref={field.ref}
+                  />
+                )}
+              />
+              {errors.districtId && <p className="mt-2 text-sm text-red-500">{errors.districtId.message}</p>}
+            </div>
+
+            {/* Chọn Xã */}
+            <div>
+              <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
+                Xã
+              </label>
+              <Controller
+                name="wardId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    {...field}
+                    className="basic-single"
+                    classNamePrefix="select"
+                    placeholder="Chọn Xã/Phường"
+                    isLoading={isLoadingWard}
+                    options={wards?.data || []}
+                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
+                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    onChange={(selectedOption: { id: any }) => {
+                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                    }}
+                    value={wards?.data?.find(option => option.id === Number(field.value))} // Giữ giá trị name (tên tỉnh) khi chọn
+                    ref={field.ref}
+                  />
+                )}
+              />
+              {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
+            </div>
           </div>
-          <Text type="text" name="address" label="Địa chỉ cụ thể" placeholder="Nhập địa chỉ cụ thể" control={control} error={errors.address?.message} />
+          <Text type="text" name="houseNumber" label="Địa chỉ cụ thể" placeholder="Nhập địa chỉ cụ thể" control={control} error={errors.houseNumber?.message} />
         </div>
 
         <div className="ml-auto w-fit py-5">

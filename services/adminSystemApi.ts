@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { DistrictsResponse, ProvinceResponse, WardResponse } from '@/types/addressesTypes';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
+import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 
 export const adminSystemApi = createApi({
   reducerPath: 'adminSystemApi',
@@ -16,7 +17,7 @@ export const adminSystemApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop'],
+  tagTypes: ['Workshop', 'Company'],
   endpoints: builder => {
     return {
       // Address
@@ -68,6 +69,13 @@ export const adminSystemApi = createApi({
           url: '/account/change-password',
           method: 'PUT',
           body: payload,
+        }),
+      }),
+
+      confirmRegister: builder.query<{ code: number; message: string; data: null }, { uuid: string }>({
+        query: ({ uuid }) => ({
+          url: `/auth/confirm/${uuid}`,
+          method: 'GET',
         }),
       }),
 
@@ -139,6 +147,42 @@ export const adminSystemApi = createApi({
             : [{ type: 'Workshop', id: 'LIST' }];
         },
       }),
+
+      // Company
+      getAllAccountCompany: builder.query<ICompanyAllResponse, { page: number; size: number; keyword: string; status: string }>({
+        query: ({ page, size, keyword, status }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+
+          return `/admin/get-all-companies?${queryParams.toString()}`;
+        },
+        providesTags: ['Company'],
+      }),
+
+      getDetailAccountCompany: builder.query<ICompanyDetailResponse, { id: number | null }>({
+        query: ({ id }) => ({
+          url: `/portal/company/${id}`,
+        }),
+        providesTags: result => (result ? [{ type: 'Company', id: result.data.id }] : [{ type: 'Company' }]),
+      }),
+
+      rejectAccountCompany: builder.mutation({
+        query: ({ id }) => ({
+          url: `/admin/reject/account/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Company', id }, { type: 'Company' }],
+      }),
+
+      banActive: builder.mutation({
+        query: ({ id }) => ({
+          url: `/admin/reject/account/${id}`,
+          method: 'DELETE',
+        }),
+      }),
     };
   },
 });
@@ -151,10 +195,14 @@ export const {
   useRegisterCompanyMutation,
   useLoginMutation,
   useChangePasswordMutation,
+  useConfirmRegisterQuery,
   useGetAllWorkShopsAdminSystemQuery,
   useLazyGetAllWorkShopsAdminSystemQuery,
   useGetDetailWorkshopQuery,
   useApproveWorkshopMutation,
   useRejectWorkshopMutation,
   useDeleteWorkshopMutation,
+  useGetAllAccountCompanyQuery,
+  useGetDetailAccountCompanyQuery,
+  useRejectAccountCompanyMutation,
 } = adminSystemApi;
