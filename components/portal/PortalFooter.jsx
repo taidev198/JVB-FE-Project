@@ -56,13 +56,13 @@ const PortalFooter = () => {
             <ul className="mb-3 text-lg text-primary-gray">
               <li className="">
                 <Link href="#" className="mp_footer_link mp_transition_4 mb-2 flex items-center gap-2">
-                  <i class="fa-solid fa-location-dot"></i>
+                  <i className="fa-solid fa-location-dot"></i>
                   <span> 2715 Ash Dr. San Jose,USA</span>
                 </Link>
               </li>
               <li>
                 <Link href="callto:+880171234578" className="mp_footer_link mp_transition_4 mb-2 flex items-center gap-2">
-                  <i class="fa-solid fa-phone"></i>
+                  <i className="fa-solid fa-phone"></i>
                   <span> +(61) 545-432-234</span>
                 </Link>
               </li>
