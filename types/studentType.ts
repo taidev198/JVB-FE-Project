@@ -28,3 +28,9 @@ export interface StudentResponse {
     currentPage: number;
   };
 }
+
+export interface StudentDetailResponse {
+  code: number;
+  message: string;
+  data: IStudent;
+}

@@ -16,6 +16,7 @@ export interface State {
   backdropType: BackdropType | null;
   isLoading: boolean;
   id: number | null;
+  name: string | null;
 }
 
 const initialState: State = {
@@ -23,6 +24,7 @@ const initialState: State = {
   backdropType: null,
   isLoading: false,
   id: null,
+  name: null,
 };
 
 export const globalSlice = createSlice({
@@ -41,9 +43,12 @@ export const globalSlice = createSlice({
     setId: (state, action: PayloadAction<number | null>) => {
       state.id = action.payload;
     },
+    setName: (state, action: PayloadAction<string | null>) => {
+      state.name = action.payload;
+    },
   },
 });
 
-export const { showSidebar, setBackdrop, setLoading, setId } = globalSlice.actions;
+export const { showSidebar, setBackdrop, setLoading, setId, setName } = globalSlice.actions;
 
 export default globalSlice.reducer;

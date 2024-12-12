@@ -1,4 +1,9 @@
 export const API_SERVER_HOST = process.env.OPENAI_API_HOST || 'https://api.openai.com';
+interface AccountStatus {
+  title: string;
+  color: string;
+  bg: string;
+}
 
 export const roles = {
   ADMIN: 'ADMIN',
@@ -14,6 +19,19 @@ export const gender = [
   { value: 'FEMALE', label: 'Nữ' },
   { value: 'THREE_GENDER', label: 'Khác' },
 ];
+
+export const genderTitle = (gender: string | undefined): string => {
+  switch (gender) {
+    case 'MALE':
+      return 'Nam';
+    case 'FEMALE':
+      return 'Nữ';
+    case 'THREE_GENDER':
+      return 'Khác';
+    default:
+      return 'Chưa xác định';
+  }
+};
 
 export const statusTextWorkshop = (status: string | undefined): string => {
   switch (status) {
@@ -43,6 +61,10 @@ export const StatusStudent = (status: string | undefined): string => {
 
 export const typeUniversity = [
   {
+    value: '',
+    label: 'Tất cả',
+  },
+  {
     value: 'UNIVERSITY',
     label: 'Đại học',
   },
@@ -60,11 +82,20 @@ export const typeUniversity = [
   },
 ];
 
-interface AccountStatus {
-  title: string;
-  color: string;
-  bg: string;
-}
+export const typeUniversityTitle = (status: string): AccountStatus => {
+  switch (status) {
+    case 'UNIVERSITY':
+      return { title: 'Đại học', color: '#fff', bg: '#ed6c02' };
+    case 'ACADEMY':
+      return { title: 'Học viện', color: '#fff', bg: '#2e7d32' };
+    case 'COLLEGE':
+      return { title: 'Cao đẳng', color: '#d32f2f', bg: '#FFE5E5' };
+    case 'OTHER':
+      return { title: 'Khác', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
 
 export const typeAccount = (status: string): AccountStatus => {
   switch (status) {

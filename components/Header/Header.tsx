@@ -1,23 +1,36 @@
-import { IconButton, useMediaQuery, useTheme } from '@mui/material';
+import { Avatar, IconButton, Menu, useMediaQuery, useTheme, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Image from 'next/image';
+import { memo, use, useState } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
+import LogoutIcon from '@mui/icons-material/Logout';
 import Notification from '../Common/Notification';
 
 // import Container from '../Container';
 import Logo from '../Logo';
-import iconSignIn from '@/public/icons/icon-signIn.svg';
 import { showSidebar } from '@/store/slices/global';
+import { useAppSelector } from '@/store/hooks';
+import { logOut } from '@/store/slices/user';
 
-const Header = ({ isAdmin = false }: { isAdmin?: boolean }) => {
+const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const dispatch = useDispatch();
+  const user = useAppSelector(state => state.user);
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
   return (
     <header className={`border-b border-gray-400 border-opacity-20 bg-primary-white py-[30px] shadow-md ${isAdmin ? 'px-[20px]' : ''}`}>
-      {/* <Container> */}
-      <div className={`flex items-center justify-between `}>
+      <div className="flex items-center justify-between">
         {!isMobileAndTablet ? (
           <Logo />
         ) : (
@@ -25,25 +38,55 @@ const Header = ({ isAdmin = false }: { isAdmin?: boolean }) => {
             <MenuIcon />
           </IconButton>
         )}
-        {/* login */}
-        <div className="flex items-center gap-4">
-          <Link
-            href={'/auth/login'}
-            className="flex h-10 items-center gap-2 rounded-md border border-primary-main px-5 font-medium text-primary-main hover:border-black hover:bg-black hover:text-primary-white">
-            <Image src={iconSignIn} alt="" className="text-primary-main hover:text-primary-white" />
-            Đăng nhập
-          </Link>
 
-          <Link
-            href={'/auth/Register'}
-            className="flex h-10 items-center gap-2 rounded-md border  bg-primary-main px-5 font-medium text-primary-white hover:bg-black">
-            Đăng ký
-          </Link>
-          <Notification />
-        </div>
+        {/* login */}
+        {!user.token ? (
+          <div className="flex items-center gap-4">
+            <Link
+              href={'/auth/login'}
+              className="flex h-10 items-center gap-2 rounded-md border border-primary-main px-5 font-medium text-primary-main hover:border-black hover:bg-black hover:text-primary-white">
+              Đăng nhập
+            </Link>
+
+            <Link
+              href={'/auth/Register'}
+              className="flex h-10 items-center gap-2 rounded-md border bg-primary-main px-5 font-medium text-primary-white hover:bg-black">
+              Đăng ký
+            </Link>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <span className="text-primary-black">Xin chào {user.user.fullName}</span>
+
+            <IconButton onClick={handleMenuOpen}>
+              <Avatar src="" />
+            </IconButton>
+
+            {/* Menu cho Avatar */}
+            <Menu
+              open={!!anchorEl}
+              anchorEl={anchorEl}
+              onClose={handleMenuClose}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}>
+              <MenuItem>Trang Admin</MenuItem>
+              <MenuItem onClick={() => dispatch(logOut())}>
+                Đăng xuất <LogoutIcon />
+              </MenuItem>
+            </Menu>
+
+            <Notification />
+          </div>
+        )}
       </div>
-      {/* </Container> */}
     </header>
   );
-};
+});
+
 export default Header;

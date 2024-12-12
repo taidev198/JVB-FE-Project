@@ -88,15 +88,29 @@ const RegisterSchoolComponent = () => {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Name school */}
         <>
-          <Input name="universityName" label="Tên trường học" placeholder="Nhập tên trường học" control={control} error={errors.universityName?.message} />
+          <Input
+            name="universityName"
+            label="Tên trường học"
+            placeholder="Nhập tên trường học"
+            control={control}
+            error={errors.universityName?.message}
+            required={true}
+          />
         </>
         {/* Code school */}
         <>
-          <Input name="universityCode" label="Mã trường" placeholder="Nhập mã trường" control={control} error={errors.universityCode?.message} />
+          <Input
+            name="universityCode"
+            label="Mã trường"
+            placeholder="Nhập mã trường"
+            control={control}
+            error={errors.universityCode?.message}
+            required={true}
+          />
         </>
         {/* Email */}
         <>
-          <Input name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} />
+          <Input name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} required={true} />
         </>
         {/* Type school */}
         <>
@@ -110,11 +124,20 @@ const RegisterSchoolComponent = () => {
             }))}
             control={control}
             error={errors.universityType?.message}
+            required={true}
           />
         </>
         {/* Password */}
         <>
-          <Input type="password" name="password" label="Mật khẩu" placeholder="Nhập Mật khẩu" control={control} error={errors.password?.message} />
+          <Input
+            type="password"
+            name="password"
+            label="Mật khẩu"
+            placeholder="Nhập Mật khẩu"
+            control={control}
+            error={errors.password?.message}
+            required={true}
+          />
         </>
         {/*Confirm Password */}
         <>
@@ -125,22 +148,39 @@ const RegisterSchoolComponent = () => {
             placeholder="Xác nhận mật khẩu"
             control={control}
             error={errors.confirm_password?.message}
+            required={true}
           />
         </>
         {/* Phone */}
         <>
-          <Input type="text" name="phoneNumber" label="Số điện thoại" placeholder="Nhập số điện thoại" control={control} error={errors.phoneNumber?.message} />
+          <Input
+            type="text"
+            name="phoneNumber"
+            label="Số điện thoại"
+            placeholder="Nhập số điện thoại"
+            control={control}
+            error={errors.phoneNumber?.message}
+            required={true}
+          />
         </>
         {/* Establihed date */}
         <>
-          <Input type="date" name="establishDate" label="Ngày thành lập" placeholder="" control={control} error={errors.establishDate?.message} />
+          <Input
+            type="date"
+            name="establishDate"
+            label="Ngày thành lập"
+            placeholder=""
+            control={control}
+            error={errors.establishDate?.message}
+            required={true}
+          />
         </>
       </div>
       {/* Địa chỉ */}
       <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-            Tỉnh
+            Tỉnh <span className="text-red-600">*</span>
           </label>
           <Controller
             name="provinceId"
@@ -160,6 +200,12 @@ const RegisterSchoolComponent = () => {
                 }}
                 value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
                 ref={field.ref}
+                styles={{
+                  placeholder: (provided: any) => ({
+                    ...provided,
+                    fontSize: '14px',
+                  }),
+                }}
               />
             )}
           />
@@ -169,7 +215,7 @@ const RegisterSchoolComponent = () => {
         {/* Chọn Huyện */}
         <div>
           <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-            Huyện
+            Huyện <span className="text-red-600">*</span>
           </label>
           <Controller
             name="districtId"
@@ -189,6 +235,12 @@ const RegisterSchoolComponent = () => {
                 }}
                 value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
                 ref={field.ref}
+                styles={{
+                  placeholder: (provided: any) => ({
+                    ...provided,
+                    fontSize: '14px',
+                  }),
+                }}
               />
             )}
           />
@@ -198,7 +250,7 @@ const RegisterSchoolComponent = () => {
         {/* Chọn Xã */}
         <div>
           <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-            Xã
+            Xã <span className="text-red-600">*</span>
           </label>
           <Controller
             name="wardId"
@@ -218,17 +270,31 @@ const RegisterSchoolComponent = () => {
                 }}
                 value={wards?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
                 ref={field.ref}
+                styles={{
+                  placeholder: (provided: any) => ({
+                    ...provided,
+                    fontSize: '14px',
+                  }),
+                }}
               />
             )}
           />
           {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
         </div>
         <div>
-          <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà, đường" control={control} error={errors.houseNumber?.message} />
+          <Input
+            type="text"
+            name="houseNumber"
+            label="Số nhà, đường"
+            placeholder="Nhập số nhà, đường"
+            control={control}
+            error={errors.houseNumber?.message}
+            required={true}
+          />
         </div>
       </div>
       {/* Number house */}
-      <div className="mt-4 flex flex-col gap-4">
+      <div className="mt-4 flex flex-col">
         {/* Description */}
         <>
           <Controller
@@ -242,12 +308,13 @@ const RegisterSchoolComponent = () => {
                 onBlur={field.onBlur}
                 label="Mô tả chi tiết"
                 error={errors.universityDescription?.message}
+                required={true}
               />
             )}
           />
         </>
       </div>
-      <Button text="Đăng ký" full={true} type="submit" />
+      <Button text="Đăng ký" full={true} type="submit" className="mt-5" />
     </form>
   );
 };

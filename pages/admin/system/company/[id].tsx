@@ -11,6 +11,7 @@ import WidgetsIcon from '@mui/icons-material/Widgets';
 
 import { useAppSelector } from '@/store/hooks';
 import { useGetDetailAccountCompanyQuery } from '@/services/adminSystemApi';
+import { typeAccount } from '@/utils/app/const';
 
 const AdminSystemDetailCompany = () => {
   const id = useAppSelector(state => state.global.id);
@@ -77,12 +78,14 @@ const AdminSystemDetailCompany = () => {
             <div>
               <div className="flex items-center gap-3">
                 <WidgetsIcon sx={{ color: '#757575' }} />
-                <span className="mr-2 font-semibold">Lĩnh vực:</span>{' '}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {AccountCompanyDetail?.data.fields.map(field => (
-                  <Chip label={field.fieldName} key={field.id} variant="outlined" />
-                ))}
+                <span className="mr-2 font-semibold">Lĩnh vực:</span>
+                <Chip
+                  label={typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').title}
+                  style={{
+                    backgroundColor: typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').bg,
+                    color: typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').color,
+                  }}
+                />
               </div>
             </div>
           </li>

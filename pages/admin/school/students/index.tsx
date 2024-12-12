@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Checkbox, Chip, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -9,8 +9,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop } from '@/store/slices/global';
-import { useGetAllDepartmentsPortalQuery, useGetAllStudentsQuery } from '@/services/adminSchoolApi';
+import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
+import { useDeleteStudentOneMutation, useGetAllDepartmentsPortalQuery, useGetAllStudentsQuery } from '@/services/adminSchoolApi';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { StatusStudent } from '@/utils/app/const';
@@ -23,14 +23,20 @@ const StudentsManagement = () => {
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
-
+  const idStudent = useAppSelector(state => state.global.id);
   const debouncedSearch = debounce((value: string) => {
     setKeyword(value);
   }, 500);
 
   // Call api
-  const { data: dataDepartment } = useGetAllDepartmentsPortalQuery();
-  const { data: students } = useGetAllStudentsQuery({ page: currentPage, size: 10, keyword: keyword, majorId: major, facultyId: department });
+  const { data: dataDepartment, isLoading: isLoadingGetAllDepartment } = useGetAllDepartmentsPortalQuery();
+  const { data: students, isLoading: isLoadingGetAllSt } = useGetAllStudentsQuery({
+    page: currentPage,
+    size: 10,
+    keyword: keyword,
+    majorId: major,
+    facultyId: department,
+  });
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
@@ -38,8 +44,8 @@ const StudentsManagement = () => {
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const allStudentIds = mockData.map(student => student.id);
-      setSelectedStudents(allStudentIds);
+      const allStudentIds = students?.data.content.map(student => student.id);
+      setSelectedStudents(allStudentIds ?? []);
     } else {
       setSelectedStudents([]);
     }
@@ -49,6 +55,14 @@ const StudentsManagement = () => {
     setSelectedStudents(prev => (prev.includes(id) ? prev.filter(studentId => studentId !== id) : [...prev, id]));
   };
 
+  const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteStudentOneMutation();
+  const handleDelete = () => {
+    deleteOne({ id: idStudent });
+  };
+
+  useEffect(() => {
+    dispatch(setLoading(isLoadingDeleteOne || isLoadingGetAllDepartment || isLoadingGetAllSt));
+  }, [dispatch, isLoadingDeleteOne, isLoadingGetAllDepartment, isLoadingGetAllSt]);
   return (
     <>
       {/* Header */}
@@ -81,7 +95,7 @@ const StudentsManagement = () => {
             <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
           </div>
           <div className="flex justify-items-center gap-5">
-            <Link href={'/admin/school/studentsManagement/add'}>
+            <Link href={'/admin/school/students/add'}>
               <MyButton type="submit" text="Thêm mới" />
             </Link>
             <MyButton
@@ -103,7 +117,7 @@ const StudentsManagement = () => {
                 <Checkbox
                   color="primary"
                   checked={selectedStudents.length === students?.data.content.length}
-                  indeterminate={selectedStudents.length > 0 && selectedStudents.length < students?.data.content.length}
+                  indeterminate={selectedStudents.length > 0 && selectedStudents.length < (students?.data.content || []).length}
                   onChange={handleSelectAll}
                 />
               </th>
@@ -154,12 +168,6 @@ const StudentsManagement = () => {
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{student.fullName}</p>
                 </td>
-                {/* <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.email}</p>
-                </td>
-                <td className="p-3 sm:px-5 sm:py-4">
-<p className="min-w-max">{item.gpa}</p>
-                </td> */}
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{student.major.majorName}</p>
                 </td>
@@ -192,23 +200,27 @@ const StudentsManagement = () => {
                 <td className="gap-2 px-2 py-4 sm:px-5 ">
                   <div className="flex items-center">
                     <p className="min-w-max">
-                      <Link href={`/admin/school/studentsManagement/detailStudentsManagement`}>
+                      <Link href={`/admin/school/students/${student.id}`}>
                         <Tooltip title="Xem chi tiết">
-                          <IconButton>
+                          <IconButton onClick={() => dispatch(setId(student.id))}>
                             <VisibilityIcon color="success" />
                           </IconButton>
                         </Tooltip>
                       </Link>
-                      <Link href={`/admin/school/studentManagement/update`}>
-                        <Tooltip title="Sửa khoa">
-                          <IconButton>
+                      <Link href={`/admin/school/students/update${student.id}`}>
+                        <Tooltip title="Sửa sinh viên">
+                          <IconButton onClick={() => dispatch(setId(student.id))}>
                             <BorderColorIcon className="text-purple-500" />
                           </IconButton>
                         </Tooltip>
                       </Link>
 
                       <Tooltip title="Xóa sinh viên">
-                        <IconButton onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}>
+                        <IconButton
+                          onClick={() => {
+                            dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                            dispatch(setId(student.id));
+                          }}>
                           <DeleteIcon className="text-red-500" />
                         </IconButton>
                       </Tooltip>
@@ -228,7 +240,7 @@ const StudentsManagement = () => {
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-800" full={true} />
+              <Button text="Xác nhận" className="bg-red-800" full={true} onClick={handleDelete} />
             </div>
           </div>
         </BackDrop>

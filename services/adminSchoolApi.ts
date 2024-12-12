@@ -4,7 +4,8 @@ import { ApiResponse, ApiResponseDetail, DepartmentResponsePortal } from '@/type
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
-import { StudentResponse } from '@/types/studentType';
+import { StudentDetailResponse, StudentResponse } from '@/types/studentType';
+import { IMajorByUniversityResponse } from '@/types/majorType';
 
 export const adminSchoolApi = createApi({
   reducerPath: 'adminSchoolApi',
@@ -19,7 +20,7 @@ export const adminSchoolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Department'],
+  tagTypes: ['Workshop', 'Department', 'Student'],
   endpoints: builder => {
     return {
       getAllDepartments: builder.query<ApiResponse, { page: number; size: number; keyword: string }>({
@@ -87,6 +88,13 @@ export const adminSchoolApi = createApi({
                 { type: 'Department', id: 'listDe' },
               ] // Invalidates cả tag của workshop cụ thể và danh sách
             : [{ type: 'Department', id: 'listDe' }]; // Nếu không có id, chỉ invalidates danh sách
+        },
+      }),
+
+      // Majors
+      getAllMajors: builder.query<IMajorByUniversityResponse, void>({
+        query: () => {
+          return 'university/majors/get-all';
         },
       }),
 
@@ -175,6 +183,15 @@ export const adminSchoolApi = createApi({
 
           return `/university/students?${queryParams.toString()}`;
         },
+        providesTags: ['Student'],
+      }),
+
+      getDetailStudent: builder.query<StudentDetailResponse, { id: number | null }>({
+        query: ({ id }) => {
+          return {
+            url: `university/students/${id}`,
+          };
+        },
       }),
 
       addStudent: builder.mutation({
@@ -182,6 +199,14 @@ export const adminSchoolApi = createApi({
           url: '/university/students/add',
           method: 'POST',
           body: formData,
+        }),
+        invalidatesTags: ['Student'],
+      }),
+
+      deleteStudentOne: builder.mutation({
+        query: ({ id }) => ({
+          url: `university/student/delete/${id}`,
+          method: 'DELETE',
         }),
       }),
     };
@@ -192,6 +217,7 @@ export const {
   useGetAllDepartmentsQuery,
   useGetAllDepartmentsPortalQuery,
   useDetailDepartmentsQuery,
+  useGetAllMajorsQuery,
   useGetAllWorShopsUniversityQuery,
   useGetAllFieldsQuery,
   useGetDetailWorkshopQuery,
@@ -202,5 +228,7 @@ export const {
   useAddDepartmentMutation,
   useUpdateDepartmentMutation,
   useGetAllStudentsQuery,
+  useGetDetailStudentQuery,
   useAddStudentMutation,
+  useDeleteStudentOneMutation,
 } = adminSchoolApi;
