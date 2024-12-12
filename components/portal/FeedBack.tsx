@@ -11,7 +11,7 @@ const FeedBack = () => {
           <h3 className="rts__section__title mp_section_title mb-[13px]">Khách Hàng Nói Gì Về Chúng Tôi</h3>
           <p className="rts__section__desc mp_section_des">Tìm kiếm cơ hội nghề nghiệp tiếp theo của bạn?</p>
         </div>
-        <div className=" flex items-center justify-center overflow-hidden">
+        <div className="flex items-center justify-center overflow-hidden">
           {/* Nút Prev */}
           <div
             className="rts__slide__next slider__btn"

@@ -2,7 +2,7 @@ import React from 'react';
 import Image from 'next/image';
 import { SelectChangeEvent } from '@mui/material';
 
-import CustomSelect from '@/components/portal/common/CustomSelect';
+import CustomSelect from '@/components/Portal/common/CustomSelect';
 const Banner = () => {
   const [location, setLocation] = React.useState<string[]>([]);
   const [jobType, setJobType] = React.useState<string[]>([]);

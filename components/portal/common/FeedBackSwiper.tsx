@@ -10,7 +10,7 @@ export default function FeedBackSwiper({ swiperRef }) {
   return (
     <Swiper
       ref={swiperRef} // Truyền tham chiếu đến Swiper instance
-      direction={'vertical'}
+      direction={'horizontal'}
       pagination={{
         clickable: true,
         type: 'fraction',
@@ -31,7 +31,7 @@ export default function FeedBackSwiper({ swiperRef }) {
             JobLink chính là giải pháp. Khác với những nền tảng thông thường, chúng tôi mang đến sự kết nối thực chất giữa doanh nghiệp và trường học, mở ra cơ
             hội nghề nghiệp thực tiễn và chất lượng.
           </p>
-          <div className="flex items-center justify-center gap-6 pt-[40px]">
+          <div className="flex items-center justify-center gap-6 pb-[20px] pt-[40px]">
             <Image src="/images/avt.jpg" alt="Image 1" width={60} height={60} className="rounded-full"></Image>
             <div className="flex flex-col items-start">
               <p className="text-center text-[18px] font-bold text-primary-black lg:text-[20px]">Nguyễn Thanh Tùng</p>
@@ -47,7 +47,7 @@ export default function FeedBackSwiper({ swiperRef }) {
             JobLink chính là giải pháp. Khác với những nền tảng thông thường, chúng tôi mang đến sự kết nối thực chất giữa doanh nghiệp và trường học, mở ra cơ
             hội nghề nghiệp thực tiễn và chất lượng.
           </p>
-          <div className="flex items-center justify-center gap-6 pt-[40px]">
+          <div className="flex items-center justify-center gap-6 pb-[20px] pt-[40px]">
             <Image src="/images/avt.jpg" alt="Image 1" width={60} height={60} className="rounded-full"></Image>
             <div className="flex flex-col items-start">
               <p className="text-center text-[18px] font-bold text-primary-black lg:text-[20px]">Nguyễn Thanh Tùng</p>
@@ -63,7 +63,7 @@ export default function FeedBackSwiper({ swiperRef }) {
             JobLink chính là giải pháp. Khác với những nền tảng thông thường, chúng tôi mang đến sự kết nối thực chất giữa doanh nghiệp và trường học, mở ra cơ
             hội nghề nghiệp thực tiễn và chất lượng.
           </p>
-          <div className="flex items-center justify-center gap-6 pt-[40px]">
+          <div className="flex items-center justify-center gap-6 pb-[20px] pt-[40px]">
             <Image src="/images/avt.jpg" alt="Image 1" width={60} height={60} className="rounded-full"></Image>
             <div className="flex flex-col items-start">
               <p className="text-center text-[18px] font-bold text-primary-black lg:text-[20px]">Nguyễn Thanh Tùng</p>
