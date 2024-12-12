@@ -11,7 +11,7 @@ const PortalFooter = () => {
           <div className="rts__footer__widget max-320">
             <Link href="/" className="footer__logo flex items-end " aria-label="logo">
               <Logo />
-              <h2 className="ml-2 font-logo text-3xl font-medium">
+              <h2 className="ml-2 font-logo text-3xl font-semibold">
                 <span className="text-primary-main">Job</span>Link
               </h2>
             </Link>

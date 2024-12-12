@@ -25,7 +25,6 @@ const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
         loop={true} // Quay vòng vô hạn
         autoplay={{
           delay: 3000, // Tự động chuyển mỗi 2 giây
-          disableOnInteraction: false, // Tiếp tục autoplay khi người dùng tương tác
         }}
         speed={1000} // Tốc độ chuyển slide
         slidesPerView={1}
