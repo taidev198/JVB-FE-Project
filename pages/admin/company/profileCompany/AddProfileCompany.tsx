@@ -8,48 +8,43 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '@/components/Common/Button';
 import addWorkshopSchema from '@/validation/companyEmployee/validationAddEmployee';
 import Input from '@/components/Common/Input';
-import SelectMui from '@/components/Common/SelectMui';
 import Select from '@/components/Common/Select';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 
-interface FormDataWorkShop {
-    employee_code: string;
-    full_name: string;
-    phone_number: string;
+interface FormDataProfile {
+    companyCode: string;
+    companyName: string;
+    phoneNumber: string;
+    linkWebsite: string;
+    establishedDate: string;
     email: string;
-    gender: string;
-    employee_position: string;
-    salary: number;
-    status_account: string;
+    logoUrl: string;
     wardName: number;
     districtName: number;
     provinceName: number;
     houseNumber: string;
-    // fieldIds: number[];
-    data_of_birth: Date;
-    password: string;
-    confirmPassword: string;
+    fieldIds: number[];
     // address: string;
   }
-
-const AddEmployee = () => {
+const AddProfileCompany = () => {
     const [image, setImage] = useState<File[]>([]);
     const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormDataWorkShop>({
+  } = useForm<FormDataProfile>({
     resolver: yupResolver(addWorkshopSchema),
   });
 
-  const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
+  const onSubmit: SubmitHandler<FormDataProfile> = data => {
     ({ data, image });
   };
+
   return (
     <div className="">
     {/* Icon */}
     <div className="rounded-t-lg bg-white p-5">
-      <Link href={'/admin/company/userCompany'}>
+      <Link href={'/admin/company/profileCompany'}>
         <IconButton>
           <ArrowBackIcon />
         </IconButton>
@@ -67,92 +62,56 @@ const AddEmployee = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       {/* Block 1 */}
       <div className="rounded-b-lg bg-primary-white p-5">
-        <Input name="employee_code" control={control} error={errors.employee_code?.message} placeholder="Mã nhân viên" label="Mã nhân viên" />
         <div>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Input 
+              name="companyCode" 
+              control={control} 
+              error={errors.companyCode?.message} 
+              placeholder="Mã công ty" 
+              label="Mã công ty" 
+            />
+
             {/*  */}
             <Input 
-              name="full_name" 
+              name="companyName" 
               control={control} 
-              error={errors.full_name?.message} 
-              placeholder="Tên nhân viên" 
-              label="Tên nhân viên" />
+              error={errors.companyName?.message} 
+              placeholder="Tên công ty" 
+              label="Tên công ty" />
             {/*  */}
-            
-            <Input 
-              type='date'
-              name="data_of_birth" 
-              control={control} 
-              error={errors.data_of_birth?.message} 
-              placeholder="Ngày sinh" 
-              label="Ngày sinh" />
 
             <Input
               // type="number"
-              name="phone_number"
+              name="phoneNumber"
               label="Số điện thoại"
               placeholder="Số điện thoại"
               control={control}
-              error={errors.phone_number?.message}
+              error={errors.phoneNumber?.message}
             />
             <Input
+              name="linkWebsite"
+              label="linkWeb"
+              placeholder="linkWebsite"
+              control={control}
+              error={errors.linkWebsite?.message}
+            />
+
+            <Input
               name="email"
-              label="Email"
+              label="email"
               placeholder="email"
               control={control}
               error={errors.email?.message}
-            />
-          {/* Trường giới tính */}
-          <Input
-              name="gender"
-              label="Giới tính"
-              placeholder="gender"
-              control={control}
-              error={errors.gender?.message}
-            />
+            /> 
 
             <Input
-              name="employee_position"
-              label="Vị trí công việc"
-              placeholder="vị trí công việc"
+              name="logoUrl"
+              label="logoUrl"
+              placeholder="logoUrl"
               control={control}
-              error={errors.employee_position?.message}
+              error={errors.logoUrl?.message}
             />
-            <Input
-              type='number'
-              name="salary"
-              label="Mức lương"
-              placeholder="mức lương"
-              control={control}
-              error={errors.salary?.message}
-            />
-              <SelectMui
-                name="status_account"
-                label="Trạng thái"
-                control={control}
-                options={[
-                  { value: 1, label: 'Đang làm' },
-                  { value: 2, label: 'Nghỉ việc' },
-                ]}
-                isMultiple={true} // Bật chế độ chọn nhiều
-                error={errors.status_account?.message}
-              />
-
-            <Input
-              name="password"
-              label="Mật khẩu"
-              placeholder="Mật khẩu"
-              control={control}
-              error={errors.password?.message}
-            />   
-            <Input
-              name="confirmPassword"
-              label="Nhập lại mật khẩu"
-              placeholder="Nhập lại mật khẩu"
-              control={control}
-              error={errors.confirmPassword?.message}
-            />   
-
           </div>
 
         </div>
@@ -206,4 +165,4 @@ const AddEmployee = () => {
   )
 }
 
-export default AddEmployee
+export default AddProfileCompany
