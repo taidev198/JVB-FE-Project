@@ -11,7 +11,7 @@ const Job = () => {
           <p className="rts__section__desc mp_section_des">Từ vị trí mới bắt đầu đến cấp quản lý, khám phá ngay những cơ hội phù hợp với bạn!</p>
         </div>
 
-        <div className=" grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3 2xl:gap-[40px]">
+        <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3 2xl:gap-[40px]">
           {/* single job */}
 
           <div className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px] ">
