@@ -51,7 +51,6 @@ const Login = () => {
     dispatch(setLoading(isLoading));
     if (isSuccess) {
       dispatch(logIn(data.data));
-      dispatch(setToast({ message: data.message }));
       switch (data?.data.roleAccount) {
         case roles.ADMIN:
           router.push('/admin/system/dashboard');
@@ -66,10 +65,14 @@ const Login = () => {
           break;
       }
     }
+
     if (isError) {
-      dispatch(setToast({ message: error?.data?.message, type: 'error' }));
+      if ('status' in error) {
+        const errMsg = 'error' in error ? error.error : JSON.stringify(error.data.message);
+        dispatch(setToast({ message: errMsg, type: 'error' }));
+      }
     }
-  }, [isSuccess, dispatch, data?.data, isLoading, data?.message, isError, error?.data?.message, data?.roleAccount]);
+  }, [isSuccess, isError, data?.data]);
 
   return (
     <AuthLayout type="login">
@@ -77,10 +80,18 @@ const Login = () => {
         <h1 className="my-10 text-2xl font-bold">Đăng nhập</h1>
         <div className="flex flex-col gap-4">
           <>
-            <Input name="email" label="Email" placeholder="Enter your Email" control={control} error={errors.email?.message} />
+            <Input name="email" label="Email" placeholder="Nhập email" control={control} error={errors.email?.message} required={true} />
           </>
           <>
-            <Input type="password" name="password" label="Password" placeholder="Enter your Password" control={control} error={errors.password?.message} />
+            <Input
+              type="password"
+              name="password"
+              label="Mật khẩu"
+              placeholder="Nhập mật khẩu"
+              control={control}
+              error={errors.password?.message}
+              required={true}
+            />
           </>
           <Button text="Đăng nhập" full={true} type="submit" />
         </div>

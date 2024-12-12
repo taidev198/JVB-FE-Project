@@ -8,13 +8,14 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
-import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
-import { useGetAllAccountCompanyQuery, useRejectAccountCompanyMutation } from '@/services/adminSystemApi';
+import { useBanAndActiveMutation, useGetAllAccountCompanyQuery, useRejectAccountCompanyMutation } from '@/services/adminSystemApi';
 import { typeAccount } from '@/utils/app/const';
 import { setToast } from '@/store/slices/toastSlice';
+import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 
 const AdminSystemCompany = () => {
   const [page, setPage] = useState(1);
@@ -24,15 +25,17 @@ const AdminSystemCompany = () => {
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const dispatch = useDispatch();
+  const name = useAppSelector(state => state.global.name);
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setPage(page);
   };
 
-  const handleAction = (actionType: BackdropType, companyId: number) => {
+  const handleAction = (actionType: BackdropType, companyId: number, companyName: string) => {
     setSelectedCompanyId(companyId);
     setSelectedAction(actionType);
     dispatch(setBackdrop(actionType));
+    dispatch(setName(companyName));
   };
   const debouncedSearch = debounce((value: string) => {
     setKeyword(value);
@@ -40,12 +43,31 @@ const AdminSystemCompany = () => {
 
   const { data: companis, isLoading: isLoadingDetAll } = useGetAllAccountCompanyQuery({ page, size: 10, keyword, status });
   const [rejectAccount, { isLoading: isLoadingReject }] = useRejectAccountCompanyMutation();
+  const [banAndActiveAccount] = useBanAndActiveMutation();
   const handleConfirmAction = async () => {
     if (selectedCompanyId !== null && selectedAction) {
       try {
         switch (selectedAction) {
-          case BackdropType.ApproveConfirmation:
+          case BackdropType.ApproveConfirmation || BackdropType.UnlockConfirmation: {
+            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
+            if (response.code === 200) {
+              dispatch(setToast({ message: response.message }));
+            }
+            if (response.code === 400) {
+              dispatch(setToast({ message: response.message, type: 'error' }));
+            }
             break;
+          }
+          case BackdropType.UnlockConfirmation: {
+            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
+            if (response.code === 200) {
+              dispatch(setToast({ message: response.message }));
+            }
+            if (response.code === 400) {
+              dispatch(setToast({ message: response.message, type: 'error' }));
+            }
+            break;
+          }
           case BackdropType.RefuseConfirmation: {
             const response = await rejectAccount({ id: selectedCompanyId }).unwrap();
             if (response.code === 200) {
@@ -56,10 +78,16 @@ const AdminSystemCompany = () => {
             }
             break;
           }
-          case BackdropType.LockConfirmation:
+          case BackdropType.LockConfirmation: {
+            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'BAN' }).unwrap();
+            if (response.code === 200) {
+              dispatch(setToast({ message: response.message }));
+            }
+            if (response.code === 400) {
+              dispatch(setToast({ message: response.message, type: 'error' }));
+            }
             break;
-          case BackdropType.UnlockConfirmation:
-            break;
+          }
           default:
             throw new Error('Invalid action type');
         }
@@ -94,20 +122,28 @@ const AdminSystemCompany = () => {
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
-            <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm tên, mã"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+            />
           </div>
         </div>
       </div>
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
-        <table className="h-[100vh] w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
+        <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
               <th className="px-5 py-4 text-left">STT</th>
+              <th className="px-5 py-4 text-left">Mã công ty</th>
               <th className="px-5 py-4 text-left">Tên Công Ty</th>
               <th className="px-5 py-4 text-left">Email</th>
-              <th className="px-5 py-4 text-left">Mã công ty</th>
+              <th className="px-5 py-4 text-left">Ngày đăng ký</th>
               <th className="px-5 py-4 text-left">Trạng Thái</th>
               <th className="px-5 py-4 text-left">Thao Tác</th>
             </tr>
@@ -115,14 +151,15 @@ const AdminSystemCompany = () => {
           <tbody>
             {companis?.data.content.map((company, index) => (
               <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                <td className="px-5 py-4">{index}</td>
+                <td className="px-5 py-4">{index + 1}</td>
+                <td className="px-5 py-4">{company.companyCode}</td>
                 <td className="px-5 py-4">
                   <Link href={`/admin/system/company/${company.id}`} className=" hover:text-primary-main" onClick={() => dispatch(setId(company.id))}>
                     {company.companyName}
                   </Link>
                 </td>
                 <td className="px-5 py-4">{company.account.email}</td>
-                <td className="px-5 py-4">{company.companyCode}</td>
+                <td className="px-5 py-4">{formatDateDd_MM_yyyy(company.createAt)}</td>
                 <td className="px-5 py-4">
                   <Chip
                     label={typeAccount(company?.account?.statusAccount)?.title}
@@ -136,12 +173,12 @@ const AdminSystemCompany = () => {
                   {company?.account?.statusAccount === 'PENDING' && (
                     <>
                       <Tooltip title="Duyệt tài khoản">
-                        <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, company.account.id)}>
+                        <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, company.account.id, company.companyName)}>
                           <CheckBoxIcon color="success" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Từ chối">
-                        <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, company.account.id)}>
+                        <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, company.account.id, company.companyName)}>
                           <ClearIcon color="warning" />
                         </IconButton>
                       </Tooltip>
@@ -149,14 +186,14 @@ const AdminSystemCompany = () => {
                   )}
                   {company?.account?.statusAccount === 'ACTIVE' && (
                     <Tooltip title="Khóa tài khoản">
-                      <IconButton onClick={() => handleAction(BackdropType.LockConfirmation, company.account.id)}>
+                      <IconButton onClick={() => handleAction(BackdropType.LockConfirmation, company.account.id, company.companyName)}>
                         <LockIcon color="error" />
                       </IconButton>
                     </Tooltip>
                   )}
                   {company?.account?.statusAccount === 'BAN' && (
                     <Tooltip title="Mở khóa tài khoản">
-                      <IconButton onClick={() => handleAction(BackdropType.UnlockConfirmation, company.account.id)}>
+                      <IconButton onClick={() => handleAction(BackdropType.UnlockConfirmation, company.account.id, company.companyName)}>
                         <LockOpenIcon color="success" />
                       </IconButton>
                     </Tooltip>
@@ -169,23 +206,26 @@ const AdminSystemCompany = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
+      <div className="flex items-center justify-center bg-white p-5">
+        <Pagination count={companis?.data.totalPages} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
+        <p className="text-sm">
+          ({companis?.data.currentPage} / {companis?.data.totalPages})
+        </p>
       </div>
       {/* Backdrops */}
       {showBackdrop && (
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">
             <h3 className="font-bold">
-              {selectedAction === BackdropType.ApproveConfirmation && 'Duyệt tài khoản doanh nghiệp'}
-              {selectedAction === BackdropType.RefuseConfirmation && 'Từ chối tài khoản doanh nghiệp'}
-              {selectedAction === BackdropType.LockConfirmation && 'Khóa tài khoản doanh nghiệp'}
-              {selectedAction === BackdropType.UnlockConfirmation && 'Mở khóa tài khoản doanh nghiệp'}
+              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt tài khoản doanh nghiệp ${name}`}
+              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối tài khoản doanh nghiệp ${name}`}
+              {selectedAction === BackdropType.LockConfirmation && `Khóa tài khoản doanh nghiệp ${name}`}
+              {selectedAction === BackdropType.UnlockConfirmation && `Mở khóa tài doanh nghiệp khoản ${name}`}
             </h3>
             <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-800" full={true} onClick={handleConfirmAction} />
+              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
             </div>
           </div>
         </BackDrop>

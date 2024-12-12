@@ -21,7 +21,6 @@ const validationSchemaAddStudent = Yup.object({
     .required('Điểm trung bình là bắt buộc')
     .typeError('Vui lòng nhập một số hợp lệ')
     .positive('Điểm trung bình không được âm')
-    .integer('Điểm trung bình phải là số nguyên')
     .min(0.0, 'Điểm trung bình không được nhỏ hơn 0.0')
     .max(10.0, 'Điểm trung bình không được lớn hơn 10.0')
     .test(

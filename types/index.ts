@@ -8,3 +8,9 @@ export interface University {
   universityCode: string;
   universityName: string;
 }
+
+export interface IAccount {
+  id: number;
+  email: string;
+  statusAccount: string;
+}

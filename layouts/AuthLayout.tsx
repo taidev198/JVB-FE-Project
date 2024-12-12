@@ -42,7 +42,7 @@ const AuthLayout: FC<AuthLayoutProps> = ({ children, type }) => {
               <Logo />
             </div>
             <div>{children}</div>
-            <div className="mt-4 flex items-center justify-center">
+            <div className="mt-4 flex items-center justify-center pb-6">
               <p>
                 Bạn đã tài khoản?{' '}
                 <Link href={'/auth/login'} className="text-primary-main">

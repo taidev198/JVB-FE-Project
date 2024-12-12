@@ -42,7 +42,7 @@ export const litsNavbarAdminSchoolRouter = [
   {
     id: 6,
     icon: <IconStudent />,
-    url: '/admin/school/studentsManagement',
+    url: '/admin/school/students',
     label: 'Quản lý sinh viên',
   },
   {

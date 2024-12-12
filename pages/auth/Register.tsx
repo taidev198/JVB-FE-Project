@@ -17,7 +17,9 @@ const RegisterCompany = () => {
           Doanh nghiệp
         </div>
         <div
-          className={`cursor-pointer rounded px-8 py-4 text-[#7e8188] ${registerSelect === 'school' ? 'bg-primary-main text-primary-white' : 'bg-[#f1f1f1]'}`}
+          className={`w-[170px] cursor-pointer rounded px-8 py-4 text-center text-[#7e8188] ${
+            registerSelect === 'school' ? ' bg-primary-main text-primary-white' : 'bg-[#f1f1f1]'
+          }`}
           onClick={() => setRegisterSelect('school')}>
           Trường học
         </div>

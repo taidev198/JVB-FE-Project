@@ -1,4 +1,5 @@
-import { Address } from 'cluster';
+import { IAddress } from './addressesTypes';
+import { IAccount } from '.';
 
 export interface IUniversity {
   id: number;
@@ -12,7 +13,20 @@ export interface IUniversity {
   phoneNumber: string;
   establishedDate: string;
   universityType: string;
-  address: Address;
+  address: IAddress;
+  account: IAccount;
   numberOfStudents: number;
   numberOfGraduates: number;
+}
+
+export interface UniversityResponse {
+  code: number;
+  message: string;
+  data: {
+    content: IUniversity[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
 }

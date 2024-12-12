@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { DistrictsResponse, ProvinceResponse, WardResponse } from '@/types/addressesTypes';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
+import { UniversityResponse } from '@/types/university';
 
 export const adminSystemApi = createApi({
   reducerPath: 'adminSystemApi',
@@ -166,7 +168,7 @@ export const adminSystemApi = createApi({
         query: ({ id }) => ({
           url: `/portal/company/${id}`,
         }),
-        providesTags: result => (result ? [{ type: 'Company', id: result.data.id }] : [{ type: 'Company' }]),
+        providesTags: result => (result ? [{ type: 'Company', id: result.data.account.id }] : [{ type: 'Company' }]),
       }),
 
       rejectAccountCompany: builder.mutation({
@@ -177,11 +179,35 @@ export const adminSystemApi = createApi({
         invalidatesTags: (result, error, { id }) => [{ type: 'Company', id }, { type: 'Company' }],
       }),
 
-      banActive: builder.mutation({
-        query: ({ id }) => ({
-          url: `/admin/reject/account/${id}`,
-          method: 'DELETE',
+      banAndActive: builder.mutation<
+        {
+          code: number;
+          message: string;
+          data: any;
+        },
+        { id: number; statusAccount: string }
+      >({
+        query: ({ id, statusAccount }) => ({
+          url: `/admin/update-account-status/${id}`,
+          method: 'PUT',
+          body: { statusAccount },
         }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Company', id }, { type: 'Company' }],
+      }),
+
+      // Account School
+      getAllAccountSchool: builder.query<UniversityResponse, { page: number; size: number; keyword: string; status: string; universityType: string }>({
+        query: ({ page, size, keyword, status, universityType }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+          if (universityType) queryParams.append('universityType', universityType);
+
+          return `/admin/get-university?${queryParams.toString()}`;
+        },
+        providesTags: ['Company'],
       }),
     };
   },
@@ -205,4 +231,6 @@ export const {
   useGetAllAccountCompanyQuery,
   useGetDetailAccountCompanyQuery,
   useRejectAccountCompanyMutation,
+  useBanAndActiveMutation,
+  useGetAllAccountSchoolQuery,
 } = adminSystemApi;

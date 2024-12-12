@@ -1,12 +1,11 @@
+import WorkIcon from '@mui/icons-material/Work';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
 import IconProfile from '@/assets/icons/iconNavbarAdminCompany/icon-profileCompany.svg';
 
-import IconRecruitment from '@/assets/icons/iconNavbarAdminCompany/icon-recruitmentCompany.svg';
 import IconWorkShop from '@/assets/icons/iconNavbarAdminCompany/icon-workShopCompany.svg';
 import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
 import IconNotice from '@/assets/icons/iconNavbarAdminCompany/icon-noticeCompany.svg';
 import IconChangePass from '@/assets/icons/iconNavbarAdminCompany/icon-changeCompany.svg';
-import WorkIcon from '@mui/icons-material/Work';
 export const litsNavbarAdminSchoolRouter = [
   {
     id: 1,
@@ -52,7 +51,7 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 7,
-    icon: <IconNotice/>,
+    icon: <IconNotice />,
     url: '/admin/company/noticeCompany',
     label: 'Thông Báo',
   },

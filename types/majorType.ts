@@ -9,3 +9,12 @@ export interface IMajor {
   numberOfStudents: number;
   faculty: IFaculty;
 }
+
+export interface IMajorByUniversityResponse {
+  code: number;
+  message: string;
+  data: {
+    id: number;
+    majorName: string;
+  }[];
+}

@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
+import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -14,7 +15,10 @@ import validationSchemaAddStudent from '@/components/Admin/school/Student/valida
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
-import { useAddStudentMutation } from '@/services/adminSchoolApi';
+import { useAddStudentMutation, useGetDetailStudentQuery } from '@/services/adminSchoolApi';
+import { setToast } from '@/store/slices/toastSlice';
+import { setLoading } from '@/store/slices/global';
+import { useAppSelector } from '@/store/hooks';
 
 interface FormDataAddStudent {
   studentCode: string;
@@ -34,13 +38,15 @@ interface FormDataAddStudent {
   wardId: string;
 }
 
-const AddStudent = () => {
+const UpdateStudent = () => {
   const [image, setImage] = useState<File | null>(null);
+  const dispatch = useDispatch();
   const {
     control,
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
   } = useForm<FormDataAddStudent>({
     resolver: yupResolver(validationSchemaAddStudent),
     defaultValues: {
@@ -48,6 +54,9 @@ const AddStudent = () => {
       gender: '',
     },
   });
+  const id = useAppSelector(state => state.global.id);
+  const { data: detailStudent } = useGetDetailStudentQuery({ id });
+  console.log(detailStudent);
 
   const provinceSelect = watch('provinceId');
   const districtSelect = watch('districtId');
@@ -56,7 +65,7 @@ const AddStudent = () => {
   const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
 
-  const [addStudent] = useAddStudentMutation();
+  const [addStudent, { data, isLoading, isSuccess, isError, error }] = useAddStudentMutation();
 
   const onSubmit: SubmitHandler<FormDataAddStudent> = data => {
     const formData = new FormData();
@@ -88,15 +97,28 @@ const AddStudent = () => {
       return;
     }
     formData.append('file', image as File);
-
-    // Gửi yêu cầu với FormData chứa cả file và JSON
     addStudent(formData);
   };
+
+  useEffect(() => {
+    if (detailStudent?.data) {
+      reset(detailStudent?.data);
+    }
+    if (isSuccess && data?.message) {
+      dispatch(setToast({ message: data.message }));
+    }
+
+    if (isError && error?.data?.message) {
+      dispatch(setToast({ message: error.data.message, type: 'error' }));
+    }
+
+    dispatch(setLoading(isLoading));
+  }, [isSuccess, isError, isLoading, data?.message, error?.data?.message, dispatch]);
 
   return (
     <div className="bg-primary-white px-10">
       <div className="rounded-t-lg p-5">
-        <Link href={'/admin/school/workshop'}>
+        <Link href={'/admin/school/students'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
@@ -273,4 +295,4 @@ const AddStudent = () => {
   );
 };
 
-export default AddStudent;
+export default UpdateStudent;
