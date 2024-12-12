@@ -10,6 +10,7 @@ export interface IDepartment {
   facultyDescription: string;
   university: University;
   isDelete: boolean;
+  account: { id: number; email: string; createAt: string; updateAt: string; statusAccount: string };
 }
 
 export interface ApiResponse {

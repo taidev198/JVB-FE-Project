@@ -8,9 +8,17 @@ import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import Text from '@/components/Common/Text';
 import Select from '@/components/Common/Select';
-
-import { setBackdrop } from '@/store/slices/global';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { setBackdrop, setLoading } from '@/store/slices/global';
 import SelectMui from '@/components/Common/SelectMui';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { setToast } from '@/store/slices/toastSlice';
+import SelectReact from '@/components/Common/SelectMui';
+import { useAddBusinessMutation, useAddDepartmentMutation, useGetAllFieldsQuery, useGetAllMajorByQuery } from '@/services/adminSchoolApi';
+import Link from 'next/link';
+import { Faculty } from '@/types';
+import { log } from 'console';
 
 interface FormDataAddBusiness {
   majorCode: string;
@@ -30,23 +38,39 @@ const AddBussiness = () => {
     formState: { errors },
   } = useForm<FormDataAddBusiness>({
     resolver: yupResolver(validationSchemaAddBusiness),
-    defaultValues: {
-      fieldIds: [], // Đảm bảo fieldIds là một mảng rỗng ban đầu
-    },
+    defaultValues: {},
   });
+  const { data: majores, isLoading: isLoadingMajor } = useGetAllMajorByQuery();
+  const [addBusiness, { data, isLoading: isLoadingAddBusiness, isSuccess }] = useAddBusinessMutation();
+  const router = useRouter();
+  console.log(errors);
+  const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();
+  const onSubmit: SubmitHandler<FormDataAddBusiness> = data => {
+    console.log({ data });
 
-  const onSubmit: SubmitHandler<FormDataAddBusiness> = () => {};
+    addBusiness(data);
+    router.push('/admin/school/businessManagement');
+  };
+  useEffect(() => {
+    if (isSuccess) {
+      dispatch(setToast({ message: data.message }));
+    }
+    dispatch(setLoading(isLoadingMajor || isLoadingAddBusiness || isLoadingFaculies));
+  }, [dispatch, isLoadingAddBusiness, isLoadingMajor, isLoadingFaculies, data?.message, isSuccess]);
 
   return (
-    <div className="p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0 ">
-        <div className="mb-4 flex justify-end">
-          <IconButton onClick={() => dispatch(setBackdrop(null))}>
-            <CloseIcon />
+    <div className="bg-primary-white p-6">
+      <div className="rounded-t-lg bg-white p-5">
+        <Link href={'/admin/school/businessManagement'}>
+          <IconButton>
+            <ArrowBackIcon />
           </IconButton>
-        </div>
-        <h1 className="my-10 text-2xl font-bold"> Thêm mới ngành học</h1>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        </Link>
+        Trở về
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-primary-white px-5 sm:px-0 ">
+        <h1 className="my-10 ml-5  text-2xl font-bold"> Thêm mới ngành học</h1>
+        <div className="ml-5 mr-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Các trường thông tin khác */}
 
           <Input type="text" name="majorCode" label="Mã ngành học" placeholder="Nhập mã ngành học" control={control} error={errors.majorCode?.message} />
@@ -68,32 +92,33 @@ const AddBussiness = () => {
             control={control}
             error={errors.numberOfStudents?.message}
           />
-          <Select
+
+          <SelectReact
             name="facultyId"
             label="Khoa"
+            placeholder="Chọn khoa"
+            options={(majores?.data || []).map(major => ({
+              value: major.id,
+              label: major.facultyName,
+            }))}
             control={control}
-            options={[
-              { value: '0', label: 'Chọn' },
-              { value: '3', label: 'CNTT' },
-              { value: '4', label: 'TKDH' },
-              { value: '5', label: 'TY' },
-            ]}
+            isMultiple={true}
             error={errors.facultyId?.message}
           />
-          <SelectMui
+          <SelectReact
             name="fieldIds"
             label="Lĩnh vực"
+            placeholder="Chọn lĩnh vực"
+            options={(faculties?.data || []).map(faculty => ({
+              value: faculty.id,
+              label: faculty.fieldName,
+            }))}
             control={control}
-            options={[
-              { value: 1, label: 'Kỹ thuật phần mềm' },
-              { value: 2, label: 'Hệ thống thông tin' },
-              { value: 3, label: 'Mạng máy tính' },
-              { value: 4, label: 'Trí tuệ nhân tạo' },
-            ]}
-            isMultiple={true} // Bật chế độ chọn nhiều
+            isMultiple={true}
             error={errors.fieldIds?.message}
           />
         </div>
+
         <Text name="majorDescription" label="Mô tả ngành học" placeholder="Nhập mô tả ngành học" control={control} error={errors.majorDescription?.message} />
         <Button text="Thêm " full={true} type="submit" />
       </form>

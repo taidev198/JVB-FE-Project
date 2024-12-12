@@ -1,16 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import Text from '@/components/Common/Text';
-import { setBackdrop } from '@/store/slices/global';
+import { setBackdrop, setLoading } from '@/store/slices/global';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
-import SelectMui from '@/components/Common/SelectMui';
-import validationSchemaAddBusiness from '@/components/Admin/school/Business/validationAddBusiness';
-import Select from '@/components/Common/Select';
+import { useRouter } from 'next/router';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useAppSelector } from '@/store/hooks';
+import SelectReact from '@/components/Common/SelectMui';
+import { useGetAllFieldsQuery, useGetAllMajorByQuery, useGetDetailBusinessQuery, useUpdateBusinessMutation } from '@/services/adminSchoolApi';
+import { setToast } from '@/store/slices/toastSlice';
+import ValidationSchemaUpdateBusiness from '@/components/Admin/school/Business/validationUpdateBusiness ';
+import Link from 'next/link';
 
 interface FormDataUpdateBusiness {
   majorCode: string;
@@ -23,26 +28,57 @@ interface FormDataUpdateBusiness {
 }
 
 const UpdateBusiness = () => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const {
     register,
     control,
+    reset,
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataUpdateBusiness>({
-    resolver: yupResolver(validationSchemaAddBusiness),
+    resolver: yupResolver(ValidationSchemaUpdateBusiness),
   });
+  const { data: majores, isLoading: isLoadingMajor } = useGetAllMajorByQuery();
+  const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();
+  const idBusiness = useAppSelector(state => state.global.id);
+  const [updateBusiness] = useUpdateBusinessMutation();
+  const { data: business, isLoading: isLoadingDetailBusiness, isSuccess } = useGetDetailBusinessQuery({ id: idBusiness });
+  const onSubmit: SubmitHandler<FormDataUpdateBusiness> = async data => {
+    if (idBusiness) {
+      try {
+        const response = await updateBusiness({ formData: data, id: idBusiness }).unwrap();
+        if (response) {
+          router.push('/admin/school/businessManagement');
+        }
+      } catch (error) {
+        console.error('businessManagement ID is missing');
+      }
+    }
+  };
 
-  const onSubmit: SubmitHandler<FormDataUpdateBusiness> = () => {};
+  useEffect(() => {
+    if (business?.data) {
+      reset(business?.data);
+    }
+    if (isSuccess) {
+      dispatch(setToast({ message: business.message }));
+    }
+
+    dispatch(setLoading(isLoadingDetailBusiness || isLoadingFaculies || isLoadingMajor));
+  }, [dispatch, isLoadingDetailBusiness, isLoadingMajor, isLoadingFaculies, reset, business, business?.message, isSuccess]);
 
   return (
-    <div className="p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0">
-        <div className="mb-4 flex justify-end">
-          <IconButton onClick={() => dispatch(setBackdrop(null))}>
-            <CloseIcon />
+    <div className="bg-primary-white p-6">
+      <div className="rounded-t-lg bg-white p-5">
+        <Link href={'/admin/school/businessManagement'}>
+          <IconButton>
+            <ArrowBackIcon />
           </IconButton>
-        </div>
+        </Link>
+        Trở về
+      </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-primary-white px-5 sm:px-0">
         <h1 className="my-10 text-2xl font-bold">Cập nhật ngành học</h1>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
@@ -53,6 +89,7 @@ const UpdateBusiness = () => {
             error={errors.majorCode?.message}
             {...register('majorCode', { required: 'Mã ngành học là bắt buộc' })}
           />
+
           <Input
             type="text"
             label="Tên Ngành"
@@ -78,30 +115,29 @@ const UpdateBusiness = () => {
             error={errors.numberOfStudents?.message}
             {...register('numberOfStudents', { required: 'Số lượng sinh viên là bắt buộc' })}
           />
-          <Select
+          <SelectReact
+            name="facultyId"
             label="Khoa"
+            placeholder="Chọn khoa"
+            options={(majores?.data || []).map(major => ({
+              value: major.id,
+              label: major.facultyName,
+            }))}
             control={control}
-            options={[
-              { value: '0', label: 'Chọn' },
-              { value: '3', label: 'CNTT' },
-              { value: '4', label: 'TKDH' },
-              { value: '5', label: 'TY' },
-            ]}
+            isMultiple={true}
             error={errors.facultyId?.message}
-            {...register('facultyId', { required: 'Khoa là bắt buộc' })}
           />
-          <SelectMui
+          <SelectReact
+            name="fieldIds"
             label="Lĩnh vực"
+            placeholder="Chọn lĩnh vực"
+            options={(faculties?.data || []).map(faculty => ({
+              value: faculty.id,
+              label: faculty.fieldName,
+            }))}
             control={control}
-            options={[
-              { value: 1, label: 'Kỹ thuật phần mềm' },
-              { value: 2, label: 'Hệ thống thông tin' },
-              { value: 3, label: 'Mạng máy tính' },
-              { value: 4, label: 'Trí tuệ nhân tạo' },
-            ]}
             isMultiple={true}
             error={errors.fieldIds?.message}
-            {...register('fieldIds', { required: 'Lĩnh vực là bắt buộc' })}
           />
         </div>
 
