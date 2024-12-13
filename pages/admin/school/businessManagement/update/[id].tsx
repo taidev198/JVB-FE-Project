@@ -140,15 +140,16 @@ const UpdateBusiness = () => {
             error={errors.fieldIds?.message}
           />
         </div>
-
-        <Text
-          label="Mô tả ngành học"
-          placeholder="Nhập mô tả ngành học"
-          control={control}
-          error={errors.majorDescription?.message}
-          {...register('majorDescription')}
-        />
-        <Button text="Cập nhật" full={true} type="submit" />
+        <div className="mt-5">
+          <Text
+            label="Mô tả ngành học"
+            placeholder="Nhập mô tả ngành học"
+            control={control}
+            error={errors.majorDescription?.message}
+            {...register('majorDescription')}
+          />
+          <Button text="Cập nhật" full={true} type="submit" />
+        </div>
       </form>
     </div>
   );

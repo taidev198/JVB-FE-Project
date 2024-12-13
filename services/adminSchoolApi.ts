@@ -49,6 +49,7 @@ export const adminSchoolApi = createApi({
         query: () => ({
           url: '/portal/faculties/get-all',
         }),
+        providesTags: [{ type: 'Department' }],
       }),
 
       detailDepartments: builder.query<ApiResponseDetail, { id: number | null }>({
@@ -57,17 +58,6 @@ export const adminSchoolApi = createApi({
         }),
         providesTags: result => (result ? [{ type: 'Department', id: result.data.id }] : [{ type: 'Department' }]),
       }),
-
-      // UpdateDepartment: builder.mutation({
-      //   query: (args: { formData: FormData; id: number | null }) => ({
-      //     url: `/university/faculties/update/${args.id}`,
-      //     method: 'PUT',
-      //     body: args.formData,
-      //   }),
-      //   // Invalidates the cache for 'Department' list to trigger a refetch of the data
-      //   invalidatesTags: (result, error, { id }) => [{ type: 'Department', id }, { type: 'Department' }],
-      // }),
-
       deleteDepartment: builder.mutation({
         query: (args: { id: number | null }) => ({
           url: `/university/faculties/delete/${args.id}`,
@@ -85,6 +75,7 @@ export const adminSchoolApi = createApi({
         query: () => ({
           url: '/university/faculties/get-all',
         }),
+        providesTags: [{ type: 'Department' }],
       }),
 
       AddDepartment: builder.mutation({
@@ -94,6 +85,17 @@ export const adminSchoolApi = createApi({
           body: formData,
         }),
         invalidatesTags: [{ type: 'Department', id: 'list' }],
+      }),
+      UpdateDepartment: builder.mutation({
+        query: (args: { formData: FormData; id: number | null }) => ({
+          url: `/university/faculties/update/${args.id}`,
+          method: 'PUT',
+          body: args.formData,
+        }),
+        invalidatesTags: (result, error, { id }) => [
+          { type: 'Department', id }, // Invalidates the updated department
+          { type: 'Department', id: 'list' }, // Invalidates the department list
+        ],
       }),
 
       //business
@@ -137,21 +139,7 @@ export const adminSchoolApi = createApi({
             : [{ type: 'Business', id: 'listBu' }]; // Nếu không có id, chỉ invalidates danh sách
         },
       }),
-      UpdateDepartment: builder.mutation({
-        query: (args: { formData: FormData; id: number | null }) => ({
-          url: `/university/faculties/update/${args.id}`,
-          method: 'PUT',
-          body: args.formData,
-        }),
-        invalidatesTags: (result, error, { id }) => {
-          return id !== null
-            ? [
-                { type: 'Business', id },
-                { type: 'Business', id: 'listBu' },
-              ] // Invalidates cả tag của workshop cụ thể và danh sách
-            : [{ type: 'Business', id: 'listBu' }]; // Nếu không có id, chỉ invalidates danh sách
-        },
-      }),
+
       deleteBusiness: builder.mutation({
         query: (args: { id: number | null }) => ({
           url: `/university/majors/delete/${args.id}`,

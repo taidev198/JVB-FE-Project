@@ -89,53 +89,61 @@ const BusinessManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {business?.data.content.map((item, index) => (
-              <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.majorCode}</p>
-                </td>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.majorName}</p>
-                </td>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.creditRequirement}</p>
-                </td>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.numberOfStudents}</p>
-                </td>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{item.faculty.facultyName}</p>
-                </td>
+            {business?.data?.content && business.data.content.length > 0 ? (
+              business.data.content.map((item, index) => (
+                <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{item.majorCode}</p>
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{item.majorName}</p>
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{item.creditRequirement}</p>
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{item.numberOfStudents}</p>
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{item.faculty.facultyName}</p>
+                  </td>
 
-                <td className="gap-2 px-2 py-4 sm:px-5 ">
-                  <div className="flex items-center">
-                    <p className="min-w-max">
-                      <Link href={`/admin/school/businessManagement/${item.id}`}>
-                        <Tooltip title="Xem chi tiết">
-                          <IconButton onClick={() => dispatch(setId(item.id))}>
-                            <VisibilityIcon color="success" />
+                  <td className="gap-2 px-2 py-4 sm:px-5">
+                    <div className="flex items-center">
+                      <p className="min-w-max">
+                        <Link href={`/admin/school/businessManagement/${item.id}`}>
+                          <Tooltip title="Xem chi tiết">
+                            <IconButton onClick={() => dispatch(setId(item.id))}>
+                              <VisibilityIcon color="success" />
+                            </IconButton>
+                          </Tooltip>
+                        </Link>
+
+                        <Tooltip title="Sửa Ngành Học">
+                          <Link href={`/admin/school/businessManagement/update/${item.id}`} onClick={() => dispatch(setId(item.id))}>
+                            <IconButton>
+                              <BorderColorIcon className="text-purple-500" />
+                            </IconButton>
+                          </Link>
+                        </Tooltip>
+
+                        <Tooltip title="Xóa Ngành Học">
+                          <IconButton onClick={() => handleOpenConfirm(item.id)}>
+                            <DeleteIcon className="text-red-500" />
                           </IconButton>
                         </Tooltip>
-                      </Link>
-
-                      <Tooltip title="Sửa Ngành Học">
-                        <Link href={`/admin/school/businessManagement/update/${item.id}`} onClick={() => dispatch(setId(item.id))}>
-                          <IconButton>
-                            <BorderColorIcon className="text-purple-500" />
-                          </IconButton>
-                        </Link>
-                      </Tooltip>
-
-                      <Tooltip title="Xóa Ngành Học">
-                        <IconButton onClick={() => handleOpenConfirm(item.id)}>
-                          <DeleteIcon className="text-red-500" />
-                        </IconButton>
-                      </Tooltip>
-                    </p>
-                  </div>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base text-red-500">
+                  <p>Không có dữ liệu nào</p>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

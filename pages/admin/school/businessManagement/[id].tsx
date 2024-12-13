@@ -87,9 +87,9 @@ const DetalBusinessManagement = () => {
             </div>
           </li>
 
-          <li className="mt-4 flex items-center  gap-3 ">
+          <li className="mt-5 flex  items-center gap-3 ">
             <DescriptionIcon sx={{ color: '#757575' }} />
-            <div>
+            <div className="mt-5">
               <span className="mr-2 font-semibold">Mô tả:</span>
               {business?.data.majorDescription}
             </div>

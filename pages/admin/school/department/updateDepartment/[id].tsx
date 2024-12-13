@@ -27,8 +27,8 @@ const UpdateDepartment = () => {
   const IdDepartment = useAppSelector(state => state.global.id);
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data: department, isLoading: isLoadingDetailDepartment, isSuccess } = useDetailDepartmentsQuery({ id: IdDepartment });
-  const [updateDepartment] = useUpdateDepartmentMutation();
+  const { data: department, isLoading: isLoadingDetailDepartment } = useDetailDepartmentsQuery({ id: IdDepartment });
+  const [updateDepartment, { isSuccess }] = useUpdateDepartmentMutation();
 
   const {
     register,
@@ -45,11 +45,11 @@ const UpdateDepartment = () => {
       try {
         const response = await updateDepartment({ formData: data, id: IdDepartment }).unwrap();
         if (response) {
-          // refetch();
+          await refetch();
           router.push('/admin/school/department');
         }
       } catch (error) {
-        console.error('Department ID is missing');
+        console.error('Department ID is missing', error);
       }
     }
   };
@@ -58,11 +58,16 @@ const UpdateDepartment = () => {
     if (department?.data) {
       reset(department?.data);
     }
+
     if (isSuccess) {
-      dispatch(setToast({ message: department.message }));
+      dispatch(setToast({ message: department?.message || 'Cập nhật thành công!' }));
     }
+
     dispatch(setLoading(isLoadingDetailDepartment));
-  }, [dispatch, isLoadingDetailDepartment, reset, department, department?.message, isSuccess]);
+  }, [dispatch, isLoadingDetailDepartment, reset, department, isSuccess]);
+
+  const { refetch } = useDetailDepartmentsQuery({ id: IdDepartment });
+
   return (
     <div className="p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-white px-5 sm:px-0">
@@ -76,7 +81,7 @@ const UpdateDepartment = () => {
           Trở về
         </div>
         <h1 className="my-10 ml-5 text-2xl font-bold">Cập nhật khoa</h1>
-        <div className="ml-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="ml-5 mr-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             type="text"
             label="Mã khoa"
@@ -110,7 +115,7 @@ const UpdateDepartment = () => {
             {...register('nameDean', { required: 'Tên trưởng khoa là bắt buộc' })}
           />
         </div>
-        <div className="ml-5 bg-white">
+        <div className="ml-5 mr-5 bg-white">
           <Input
             type="text"
             label="Địa chỉ"
@@ -119,6 +124,7 @@ const UpdateDepartment = () => {
             error={errors.address?.message}
             {...register('address', { required: 'Địa chỉ là bắt buộc' })}
           />
+
           <Text
             label="Mô tả khoa"
             placeholder="Nhập mô tả khoa"
