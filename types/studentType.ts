@@ -14,7 +14,7 @@ export interface IStudent {
   major: IMajor;
   gpa: number;
   dateOfBirth: string;
-  studentStatus: number;
+  studentStatus: string;
 }
 
 export interface StudentResponse {
@@ -27,4 +27,10 @@ export interface StudentResponse {
     pageSize: number;
     currentPage: number;
   };
+}
+
+export interface StudentDetailResponse {
+  code: number;
+  message: string;
+  data: IStudent;
 }

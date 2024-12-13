@@ -1,12 +1,12 @@
-import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
-import IconProfile from '@/assets/icons/iconNavbarAdminCompany/icon-profileCompany.svg';
-
-import IconRecruitment from '@/assets/icons/iconNavbarAdminCompany/icon-recruitmentCompany.svg';
-import IconWorkShop from '@/assets/icons/iconNavbarAdminCompany/icon-workShopCompany.svg';
-import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
-import IconNotice from '@/assets/icons/iconNavbarAdminCompany/icon-noticeCompany.svg';
-import IconChangePass from '@/assets/icons/iconNavbarAdminCompany/icon-changeCompany.svg';
 import WorkIcon from '@mui/icons-material/Work';
+import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
+import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
+import WorkIcon from '@mui/icons-material/Work';
+import HomeIcon from '@mui/icons-material/Home';
+import SaveAsIcon from '@mui/icons-material/SaveAs';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
+
 export const litsNavbarAdminSchoolRouter = [
   {
     id: 1,
@@ -16,7 +16,7 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 2,
-    icon: <IconProfile />,
+    icon: <SaveAsIcon />,
     url: '/admin/company/profileCompany',
     label: 'Hồ Sơ Công Ty',
   },
@@ -28,7 +28,7 @@ export const litsNavbarAdminSchoolRouter = [
   // },
   {
     id: 3,
-    icon: <IconWorkShop />,
+    icon: <HomeIcon />,
     url: '/admin/company/workShopCompany',
     label: 'Quản Lý Workshop',
   },
@@ -52,13 +52,13 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 7,
-    icon: <IconNotice/>,
+    icon: <NotificationsIcon/>,
     url: '/admin/company/noticeCompany',
     label: 'Thông Báo',
   },
   {
     id: 8,
-    icon: <IconChangePass />,
+    icon: <LockOpenIcon />,
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',
   },

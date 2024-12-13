@@ -19,3 +19,11 @@ export interface MajorResponse {
   message: 'Thành công!';
   data: IMajores[];
 }
+export interface IMajorByUniversityResponse {
+  code: number;
+  message: string;
+  data: {
+    id: number;
+    majorName: string;
+  }[];
+}

@@ -17,6 +17,7 @@ export interface Faculty {
   address: string;
   facultyDescription: string;
 }
+
 export interface IAccount {
   id: number;
   email: string;

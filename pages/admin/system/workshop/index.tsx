@@ -31,6 +31,7 @@ const AdminSystemWorkshop = () => {
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
+  const name = useAppSelector(state => state.global.name);
 
   const debouncedSearch = debounce((value: string) => {
     setKeyword(value);
@@ -84,13 +85,13 @@ const AdminSystemWorkshop = () => {
   };
 
   useEffect(() => {
-    if (isSuccessApprove) {
+    if (isSuccessApprove && dataApprove?.message) {
       dispatch(setToast({ message: dataApprove?.message }));
     }
-    if (isSuccessReject) {
+    if (isSuccessReject && dataReject?.message) {
       dispatch(setToast({ message: dataReject?.message }));
     }
-    if (isSuccessDelete) {
+    if (isSuccessDelete && dataDelete?.message) {
       dispatch(setToast({ message: dataDelete?.message }));
     }
     dispatch(setLoading(isLoading || isLoadingApprove || isLoadingReject || isLoadingDelete));
@@ -246,9 +247,9 @@ const AdminSystemWorkshop = () => {
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">
             <h3 className="font-bold">
-              {selectedAction === BackdropType.ApproveConfirmation && 'Duyệt Workshop'}
-              {selectedAction === BackdropType.RefuseConfirmation && 'Từ chối Workshop'}
-              {selectedAction === BackdropType.DeleteConfirmation && 'Xóa Workshop'}
+              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt Workshop ${name}`}
+              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối Workshop ${name}`}
+              {selectedAction === BackdropType.DeleteConfirmation && `Xóa Workshop ${name}`}
             </h3>
             <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div className="mt-9 flex items-center gap-5">

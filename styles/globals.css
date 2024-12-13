@@ -72,7 +72,7 @@ body > div#__next > main {
   }
 
   .mp_section_title {
-    @apply text-[48px] font-bold text-primary-black tracking-[-2px];
+    @apply text-[28px] font-bold text-primary-black tracking-[-1px] md:text-[30px] xl:text-[40px] 2xl:text-[48px];
   }
 
   .mp_section_des{ 
@@ -145,4 +145,9 @@ body > div#__next > main {
 
 [type='text']:focus, [type='search']:focus{
   box-shadow: none;
+}
+
+[type='date']{
+  color: #8e8a8a;
+  font-size: 14px;
 }

@@ -13,9 +13,10 @@ interface InputProps {
   error?: string;
   icon?: ReactNode;
   startTime?: boolean;
+  required?: boolean;
 }
 
-const Input = ({ name, label, placeholder, control, error, type = 'text', icon, startTime }: InputProps) => {
+const Input = ({ name, label, placeholder, control, error, type = 'text', icon, startTime, required = false }: InputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const today = new Date().toISOString().split('T')[0];
 
@@ -26,7 +27,7 @@ const Input = ({ name, label, placeholder, control, error, type = 'text', icon, 
     <div className="">
       {label && (
         <label htmlFor={name} className="block text-sm font-semibold text-gray-700">
-          {label}
+          {label} {required && <span className="text-red-600">*</span>}
         </label>
       )}
       <div className={`relative mt-1`}>

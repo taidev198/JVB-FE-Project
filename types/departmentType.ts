@@ -30,3 +30,9 @@ export interface ApiResponseDetail {
   message: string;
   data: IDepartment;
 }
+
+export interface DepartmentResponsePortal {
+  code: number;
+  message: string;
+  data: IDepartment[];
+}

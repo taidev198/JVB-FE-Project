@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { memo, ReactNode } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Navbar from './Sidebar';
 import Header from '@/components/Header/Header';
@@ -6,7 +6,7 @@ import { litsNavbarSystemAdmin } from '@/router/admin/navbarSystemRouter';
 import { useAppSelector } from '@/store/hooks';
 import { Loading } from '@/components/Common/Loading';
 
-const AdminSystemLayout = ({ children }: { children: ReactNode }) => {
+const AdminSystemLayout = memo(({ children }: { children: ReactNode }) => {
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const isLoading = useAppSelector(state => state.global.isLoading);
@@ -29,6 +29,6 @@ const AdminSystemLayout = ({ children }: { children: ReactNode }) => {
       </div>
     </>
   );
-};
+});
 
 export default AdminSystemLayout;
