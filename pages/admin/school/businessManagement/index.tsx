@@ -7,7 +7,7 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import AddIcon from '@mui/icons-material/Add';
 import { setToast } from '@/store/slices/toastSlice';
 import { debounce } from 'lodash';
@@ -17,7 +17,7 @@ const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
   const [keyword, setKeyword] = useState('');
-
+  const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
 
@@ -128,7 +128,12 @@ const BusinessManagement = () => {
                         </Tooltip>
 
                         <Tooltip title="Xóa Ngành Học">
-                          <IconButton onClick={() => handleOpenConfirm(item.id)}>
+                          <IconButton
+                            onClick={() => {
+                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                              dispatch(setId(item.id));
+                              dispatch(setName(item.majorName));
+                            }}>
                             <DeleteIcon className="text-red-500" />
                           </IconButton>
                         </Tooltip>
@@ -151,7 +156,7 @@ const BusinessManagement = () => {
       {showBackdrop === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa ngành học {name} này kh?</h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn ngành học khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />

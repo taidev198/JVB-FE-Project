@@ -172,28 +172,50 @@ export const adminSchoolApi = createApi({
         }),
         providesTags: (result, error, { id }) => (id !== null ? [{ type: 'AcademicOfficeManagement', id }] : []),
       }),
-      deleteAcademicOfficeManagement: builder.mutation({
-        query: (args: { id: number | null }) => ({
-          url: `/university/university-employees/delete/${args.id}`,
-          method: 'PUT',
+      // deleteAcademicOfficeManagement: builder.mutation({
+      //   query: (args: { id: number | null }) => ({
+      //     url: `/university/university-employees/delete/${args.id}`,
+      //     method: 'PUT',
+      //   }),
+      //   invalidatesTags: (result, error, { id }) => {
+      //     return id !== null
+      //       ? [
+      //           { type: 'AcademicOfficeManagement', id },
+      //           { type: 'AcademicOfficeManagement', id: 'listAc' },
+      //         ] // Invalidates cả tag của AcademicOfficeManagement cụ thể và danh sách
+      //       : [{ type: 'AcademicOfficeManagement', id: 'listAc' }]; // Nếu không có id, chỉ invalidates danh sách
+      //   },
+      // }),
+      addAcademicOfficeManagement: builder.mutation({
+        query: formData => ({
+          url: '/university/university-employees/add',
+          method: 'POST',
+          body: formData,
         }),
-        invalidatesTags: (result, error, { id }) => {
-          return id !== null
-            ? [
-                { type: 'AcademicOfficeManagement', id },
-                { type: 'AcademicOfficeManagement', id: 'listAc' },
-              ] // Invalidates cả tag của AcademicOfficeManagement cụ thể và danh sách
-            : [{ type: 'AcademicOfficeManagement', id: 'listAc' }]; // Nếu không có id, chỉ invalidates danh sách
-        },
+        invalidatesTags: [{ type: 'AcademicOfficeManagement' }],
       }),
-
       // Majors
       getAllMajors: builder.query<IMajorByUniversityResponse, void>({
         query: () => {
           return 'university/majors/get-all';
         },
       }),
+      deleteAdemicOne: builder.mutation({
+        query: ({ id }) => ({
+          url: `/university/university-employees/delete/${id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'AcademicOfficeManagement', id }, { type: 'AcademicOfficeManagement' }],
+      }),
 
+      deleteAdemicMultiple: builder.mutation<any, { ids: number[] }>({
+        query: ({ ids }) => ({
+          url: `/university/university-employees/delete-multiple`,
+          method: 'PUT',
+          body: { ids },
+        }),
+        invalidatesTags: () => [{ type: 'AcademicOfficeManagement' }],
+      }),
       // Workshop
       getAllWorShopsUniversity: builder.query<
         WorkshopResponse,
@@ -343,9 +365,12 @@ export const {
   useAddBusinessMutation,
   useGetAllAcademicOfficeManagementQuery,
   useGetDetailAcademicOfficeManagementQuery,
-  useDeleteAcademicOfficeManagementMutation,
+  // useDeleteAcademicOfficeManagementMutation,
   useGetDetailStudentQuery,
   useAddStudentMutation,
   useDeleteStudentOneMutation,
   useDeleteStudentMultipleMutation,
+  useAddAcademicOfficeManagementMutation,
+  useDeleteAdemicMultipleMutation,
+  useDeleteAdemicOneMutation,
 } = adminSchoolApi;

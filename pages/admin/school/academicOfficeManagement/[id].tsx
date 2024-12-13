@@ -78,7 +78,7 @@ const DetailAdemicOfficeManagement = () => {
             <MailIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Email:</span>
-              {academicOfficeManagement?.data.acount?.email}
+              {academicOfficeManagement?.data.account?.email}
             </div>
           </li>
           <li className="mt-4 flex items-center gap-3">

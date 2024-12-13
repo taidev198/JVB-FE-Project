@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { debounce } from 'lodash';
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
@@ -18,7 +18,7 @@ import { setToast } from '@/store/slices/toastSlice';
 const Department = () => {
   const dispatch = useAppDispatch();
   const [keyword, setKeyword] = useState('');
-
+  const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [deleteDepartment, { isLoading: isLoadingDelete, isSuccess, data }] = useDeleteDepartmentMutation();
@@ -127,8 +127,9 @@ const Department = () => {
                         <Tooltip title="Xóa khoa">
                           <IconButton
                             onClick={() => {
-                              handleOpenConfirm(item.id);
                               dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                              dispatch(setId(item.id));
+                              dispatch(setName(item.facultyName));
                             }}>
                             <DeleteIcon className="text-red-500" />
                           </IconButton>
@@ -152,7 +153,7 @@ const Department = () => {
       {showBackdrop === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa khoa {name} này không?</h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn khoa khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
