@@ -8,12 +8,12 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
-import AddAdemic from '@/components/Admin/school/Ademic/addAdemic';
+import AddAdemic from '@/pages/admin/school/academicOfficeManagement/addAdemic';
 import { setToast } from '@/store/slices/toastSlice';
-import { useDeleteAcademicOfficeManagementMutation, useGetAllAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
+import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
 import { debounce } from 'lodash';
 
 const AcademicOfficeManagement = () => {
@@ -21,12 +21,10 @@ const AcademicOfficeManagement = () => {
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
-  const [deleteAcademicOfficeManagement, { isLoading: isLoadingDelete, data }] = useDeleteAcademicOfficeManagementMutation();
+  // const [deleteAcademicOfficeManagement, { isLoading: isLoadingDelete, data }] = useDeleteAcademicOfficeManagementMutation();
 
-  const handleSelectAdemic = (id: number) => {
-    setSelectedAdemic(prev => (prev.includes(id) ? prev.filter(ademicId => ademicId !== id) : [...prev, id]));
-  };
-
+  const idAdemic = useAppSelector(state => state.global.id);
+  const name = useAppSelector(state => state.global.name);
   const [keyword, setKeyword] = useState('');
 
   const [selectId, setSelectId] = useState<number | null>(null);
@@ -42,10 +40,23 @@ const AcademicOfficeManagement = () => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
-  // const [deleteBusiness, { isLoading: isLoadingDelete, isSuccess, data }] = useDeleteBusinessMutation();
-  const handleConfirmAction = () => {
-    deleteAcademicOfficeManagement({ id: selectId });
+
+  // const handleConfirmAction = () => {
+  //   deleteAcademicOfficeManagement({ id: selectId });
+  // };
+  const [deleteOne, { isLoading: isLoadingDeleteOne, isSuccess: isSuccessDeleteOne, data: dataDeleteOne }] = useDeleteAdemicOneMutation();
+  const [deleteMultiple, { isLoading: isLoadingMultiple, isSuccess: isSuccessDeleteMultiple, data: dataDeleteMultiple, isError, error }] =
+    useDeleteAdemicMultipleMutation();
+  const handleDelete = () => {
+    if (selectedAdemic.length > 0) {
+      deleteMultiple({ ids: selectedAdemic });
+    } else {
+      deleteOne({ id: idAdemic });
+    }
+    dispatch(setBackdrop(null));
   };
+  console.log(selectedAdemic);
+
   const {
     data: academicOfficeManagement,
     isLoading,
@@ -64,13 +75,21 @@ const AcademicOfficeManagement = () => {
       setSelectedAdemic([]);
     }
   };
+  const handleSelectAdemic = (id: number) => {
+    setSelectedAdemic(prev => (prev.includes(id) ? prev.filter(ademicId => ademicId !== id) : [...prev, id]));
+  };
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccessDeleteOne) {
+      dispatch(setToast({ message: dataDeleteOne?.message }));
+    } else if (isSuccessDeleteMultiple) {
+      dispatch(setToast({ message: dataDeleteMultiple?.message }));
+    }
+    if (isSuccessDeleteOne) {
       dispatch(setToast({ message: data?.message }));
       dispatch(setBackdrop(null));
     }
-    dispatch(setLoading(isLoading || isLoadingDelete));
-  }, [isLoading, dispatch, isLoadingDelete, data?.message, isSuccess]);
+    dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
+  }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne, data?.message, isSuccess]);
   return (
     <>
       {/* Header */}
@@ -79,7 +98,9 @@ const AcademicOfficeManagement = () => {
         <div className="flex items-center justify-between gap-3">
           <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
           <div className="flex gap-5">
-            <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            <Link href={'/admin/school/academicOfficeManagement/addAdemic'}>
+              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            </Link>
             <MyButton
               type="submit"
               text="Xóa tất cả giáo vụ đã chọn"
@@ -131,8 +152,8 @@ const AcademicOfficeManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">{item.gender}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.dateOfBirth}</td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <Tooltip title={item?.acount?.email}>
-                      <span className="cursor-pointer">{item?.acount?.email}</span>
+                    <Tooltip title={item?.account?.email}>
+                      <span className="cursor-pointer">{item?.account?.email}</span>
                     </Tooltip>
                   </td>
                   <td className="gap-2 px-2 py-4 sm:px-5">
@@ -152,7 +173,12 @@ const AcademicOfficeManagement = () => {
                         </Tooltip>
                       </Link>
                       <Tooltip title="Xóa giáo vụ">
-                        <IconButton onClick={() => handleOpenConfirm(item.id)}>
+                        <IconButton
+                          onClick={() => {
+                            dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                            dispatch(setId(item.id));
+                            dispatch(setName(item.fullName));
+                          }}>
                           <DeleteIcon className="text-red-500" />
                         </IconButton>
                       </Tooltip>
@@ -169,11 +195,11 @@ const AcademicOfficeManagement = () => {
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa {name}?</h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn giáo vụ khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
+              <Button text="Xác nhận" full={true} onClick={handleDelete} />
             </div>
           </div>
         </BackDrop>

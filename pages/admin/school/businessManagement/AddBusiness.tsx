@@ -118,8 +118,9 @@ const AddBussiness = () => {
             error={errors.fieldIds?.message}
           />
         </div>
-
-        <Text name="majorDescription" label="Mô tả ngành học" placeholder="Nhập mô tả ngành học" control={control} error={errors.majorDescription?.message} />
+        <div className="ml-5 mt-5">
+          <Text name="majorDescription" label="Mô tả ngành học" placeholder="Nhập mô tả ngành học" control={control} error={errors.majorDescription?.message} />
+        </div>
         <Button text="Thêm " full={true} type="submit" />
       </form>
     </div>

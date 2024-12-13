@@ -36,13 +36,10 @@ const AddDepartment = () => {
   const [addDepartment, { data, isLoading: isLoadingAddDepartment, isSuccess }] = useAddDepartmentMutation();
   const router = useRouter();
   const onSubmit: SubmitHandler<FormDataAddDepartment> = data => {
-    // Thêm trường universityId vào data
     const updatedData = { ...data, universityId: 12 };
 
-    // Gọi hàm addDepartment với dữ liệu mới
     addDepartment(updatedData);
 
-    // Chuyển hướng tới trang department
     router.push('/admin/school/department');
   };
 
@@ -84,9 +81,8 @@ const AddDepartment = () => {
         <div className="mr-5 ">
           <Input type="text" name="address" label="Địa chỉ" placeholder="Nhập địa chỉ" control={control} error={errors.address?.message} />
           <Text name="facultyDescription" label="Mô tả khoa" placeholder="Nhập mô tả khoa" control={control} />
-
-          <Button text="Thêm " full={true} type="submit" />
         </div>
+        <Button text="Thêm " full={true} type="submit" />
       </form>
     </div>
   );

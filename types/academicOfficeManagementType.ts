@@ -11,7 +11,7 @@ export interface IAcademicOfficeManagement {
   gender: string;
   dateOfBirth: string;
   university: University;
-  acount: IAccount;
+  account: IAccount;
 }
 export interface ApiResponseAcademicOfficeManagement {
   code: number;
