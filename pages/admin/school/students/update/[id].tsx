@@ -124,7 +124,7 @@ const UpdateStudent = () => {
           </IconButton>
         </Link>
         Trở về
-        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm mới sinh viên </h1>
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Cập nhật sinh viên</h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">

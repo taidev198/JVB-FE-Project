@@ -6,32 +6,43 @@ import Select from 'react-select';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
-import { useDeleteStudentOneMutation, useGetAllDepartmentsPortalQuery, useGetAllStudentsQuery } from '@/services/adminSchoolApi';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
+import {
+  useDeleteStudentMultipleMutation,
+  useDeleteStudentOneMutation,
+  useGetAllDepartmentsPortalQuery,
+  useGetAllMajorsQuery,
+  useGetAllStudentsQuery,
+} from '@/services/adminSchoolApi';
+import { StatusStudent } from '@/utils/app/const';
+import { setToast } from '@/store/slices/toastSlice';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
-import { StatusStudent } from '@/utils/app/const';
 
 const StudentsManagement = () => {
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState('');
-  const [department, setDepartment] = useState<number | null>();
+  const [size, setSize] = useState<number>(10);
+  const [department, setDepartment] = useState<number | null>(null);
   const [major, setMajor] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const idStudent = useAppSelector(state => state.global.id);
+  const name = useAppSelector(state => state.global.name);
   const debouncedSearch = debounce((value: string) => {
     setKeyword(value);
   }, 500);
 
   // Call api
+  const { data: dataMajor } = useGetAllMajorsQuery();
   const { data: dataDepartment, isLoading: isLoadingGetAllDepartment } = useGetAllDepartmentsPortalQuery();
   const { data: students, isLoading: isLoadingGetAllSt } = useGetAllStudentsQuery({
-    page: currentPage,
+    page,
     size: 10,
     keyword: keyword,
     majorId: major,
@@ -39,7 +50,7 @@ const StudentsManagement = () => {
   });
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
+    setPage(page);
   };
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,52 +66,88 @@ const StudentsManagement = () => {
     setSelectedStudents(prev => (prev.includes(id) ? prev.filter(studentId => studentId !== id) : [...prev, id]));
   };
 
-  const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteStudentOneMutation();
+  const [deleteOne, { isLoading: isLoadingDeleteOne, isSuccess: isSuccessDeleteOne, data: dataDeleteOne }] = useDeleteStudentOneMutation();
+  const [deleteMultiple, { isLoading: isLoadingMultiple, isSuccess: isSuccessDeleteMultiple, data: dataDeleteMultiple, isError, error }] =
+    useDeleteStudentMultipleMutation();
   const handleDelete = () => {
-    deleteOne({ id: idStudent });
+    if (selectedStudents.length > 0) {
+      deleteMultiple({ ids: selectedStudents });
+    } else {
+      deleteOne({ id: idStudent });
+    }
+    dispatch(setBackdrop(null));
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoadingDeleteOne || isLoadingGetAllDepartment || isLoadingGetAllSt));
-  }, [dispatch, isLoadingDeleteOne, isLoadingGetAllDepartment, isLoadingGetAllSt]);
+    if (isSuccessDeleteOne) {
+      dispatch(setToast({ message: dataDeleteOne?.message }));
+    } else if (isSuccessDeleteMultiple) {
+      dispatch(setToast({ message: dataDeleteMultiple?.message }));
+    }
+    if (isError && error?.data?.message) {
+      dispatch(setToast({ message: error.data.message, type: 'error' }));
+    }
+    dispatch(setLoading(isLoadingDeleteOne || isLoadingGetAllDepartment || isLoadingGetAllSt || isLoadingMultiple));
+  }, [
+    dispatch,
+    isLoadingDeleteOne,
+    isLoadingGetAllDepartment,
+    isLoadingGetAllSt,
+    isLoadingMultiple,
+    dataDeleteMultiple?.message,
+    dataDeleteOne?.message,
+    isSuccessDeleteMultiple,
+    isSuccessDeleteOne,
+    error?.data.message,
+    isError,
+  ]);
   return (
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý sinh viên</h1>
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <TextField id="filled-search" label="Tìm kiếm tên" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
             <Select
               placeholder="Chọn khoa"
               closeMenuOnSelect={true}
-              options={(dataDepartment?.data || []).map(department => ({
-                value: department.id,
-                label: department.facultyName,
-              }))}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setDepartment(Number(selectedOption.value))}
-              className="w-[160px] cursor-pointer"
+              options={[
+                { value: null, label: 'Tất cả' },
+                ...(dataDepartment?.data || []).map(department => ({
+                  value: department.id,
+                  label: department.facultyName,
+                })),
+              ]}
+              onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
+                setDepartment(selectedOption.value ? Number(selectedOption.value) : null);
+              }}
+              className="w-full cursor-pointer"
             />
             <Select
               placeholder="Chọn ngành"
               closeMenuOnSelect={true}
               options={[
-                { value: '', label: 'Tất cả' },
-                { value: 'APPROVED', label: 'Đã duyệt' },
-                { value: 'PENDING', label: 'Chờ duyệt' },
-                { value: 'REJECTED', label: 'Từ chối' },
+                { value: null, label: 'Tất cả' },
+                ...(dataMajor?.data || []).map(major => ({
+                  value: major.id,
+                  label: major.majorName,
+                })),
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setMajor(Number(selectedOption.value))}
-              className="w-[160px] cursor-pointer"
+              onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
+                setMajor(selectedOption.value ? Number(selectedOption.value) : null);
+              }}
+              className="w-full cursor-pointer"
             />
-            <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
           </div>
-          <div className="flex justify-items-center gap-5">
+          <div className="ml-auto flex justify-items-center gap-5">
             <Link href={'/admin/school/students/add'}>
-              <MyButton type="submit" text="Thêm mới" />
+              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
             </Link>
             <MyButton
               type="submit"
-              text="Xóa tất cả sinh viên đã chọn"
+              text="Xóa sinh viên đã chọn"
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
               className="bg-red-custom"
             />
@@ -123,9 +170,6 @@ const StudentsManagement = () => {
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">STT</p>
-              </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Ảnh đại diện</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Mã Sinh Viên</p>
@@ -155,18 +199,16 @@ const StudentsManagement = () => {
                   <Checkbox color="primary" checked={selectedStudents.includes(student.id)} onChange={() => handleSelectStudent(student.id)} />
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{student.id}</p>
-                </td>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">
-                    <Image src={student.avatarUrl} alt="anh" width={50} height={50} />
-                  </p>
+                  <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{student.major.faculty.facultyCode}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <p className="min-w-max">{student.fullName}</p>
+                  <div className="flex min-w-max items-center">
+                    <Image src={student?.avatarUrl} alt="anh" width={50} height={50} />
+                    {student.fullName}
+                  </div>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{student.major.majorName}</p>
@@ -207,7 +249,7 @@ const StudentsManagement = () => {
                           </IconButton>
                         </Tooltip>
                       </Link>
-                      <Link href={`/admin/school/students/update${student.id}`}>
+                      <Link href={`/admin/school/students/update/${student.id}`}>
                         <Tooltip title="Sửa sinh viên">
                           <IconButton onClick={() => dispatch(setId(student.id))}>
                             <BorderColorIcon className="text-purple-500" />
@@ -220,6 +262,7 @@ const StudentsManagement = () => {
                           onClick={() => {
                             dispatch(setBackdrop(BackdropType.DeleteConfirmation));
                             dispatch(setId(student.id));
+                            dispatch(setName(student.fullName));
                           }}>
                           <DeleteIcon className="text-red-500" />
                         </IconButton>
@@ -236,7 +279,7 @@ const StudentsManagement = () => {
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa sinh viên {name}? </h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
@@ -247,7 +290,7 @@ const StudentsManagement = () => {
       )}
       {/* Pagination */}
       <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
+        <Pagination count={3} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
       </div>
     </>
   );

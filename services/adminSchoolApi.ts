@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ApiResponse, ApiResponseDetail, DepartmentResponsePortal } from '@/types/departmentType';
@@ -273,11 +274,11 @@ export const adminSchoolApi = createApi({
       getAllStudents: builder.query<
         StudentResponse,
         {
-          page: number | null | undefined;
-          size: number | null | undefined;
-          keyword: string | null | undefined;
-          majorId: number | null | undefined;
-          facultyId: number | null | undefined;
+          page: number | null;
+          size: number | null;
+          keyword: string | null;
+          majorId: number | null;
+          facultyId: number | null;
         }
       >({
         query: ({ page, size, keyword, majorId, facultyId }) => {
@@ -285,8 +286,8 @@ export const adminSchoolApi = createApi({
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
-          if (keyword) queryParams.append('majorId', String(majorId));
-          if (keyword) queryParams.append('facultyId', String(facultyId));
+          if (majorId) queryParams.append('majorId', String(majorId)); // Sửa ở đây
+          if (facultyId) queryParams.append('facultyId', String(facultyId)); // Sửa ở đây
 
           return `/university/students?${queryParams.toString()}`;
         },
@@ -312,9 +313,19 @@ export const adminSchoolApi = createApi({
 
       deleteStudentOne: builder.mutation({
         query: ({ id }) => ({
-          url: `university/student/delete/${id}`,
-          method: 'DELETE',
+          url: `/university/students/delete/${id}`,
+          method: 'PUT',
         }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Student', id }, { type: 'Student' }],
+      }),
+
+      deleteStudentMultiple: builder.mutation<any, { ids: number[] }>({
+        query: ({ ids }) => ({
+          url: `/university/students/delete-multiple`,
+          method: 'PUT',
+          body: { ids },
+        }),
+        invalidatesTags: () => [{ type: 'Student' }],
       }),
     };
   },
@@ -348,4 +359,5 @@ export const {
   useGetDetailStudentQuery,
   useAddStudentMutation,
   useDeleteStudentOneMutation,
+  useDeleteStudentMultipleMutation,
 } = adminSchoolApi;
