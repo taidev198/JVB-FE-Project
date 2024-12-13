@@ -15,7 +15,7 @@ interface QuillEditorProps {
 
 const TextEditor: FC<QuillEditorProps> = ({ value, onChange, onBlur, label, error, required = false }) => {
   const modules = {
-    toolbar: [[{ header: [1, 2, 3, 4, 5, 6, false] }], ['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link', 'image']],
+    toolbar: [[{ header: [1, 2, 3, 4, 5, 6, false] }], ['bold', 'italic', 'underline'], [{ list: 'ordered' }, { list: 'bullet' }], ['link']],
   };
 
   return (
@@ -25,7 +25,7 @@ const TextEditor: FC<QuillEditorProps> = ({ value, onChange, onBlur, label, erro
           {label} {required && <span className="text-red-600">*</span>}
         </label>
       )}
-      <ReactQuill theme="snow" value={value} onChange={onChange} onBlur={onBlur} modules={modules} placeholder="Nhập mô tả..." className="h-full" />
+      <ReactQuill theme="snow" value={value} onChange={onChange} onBlur={onBlur} modules={modules} placeholder="Nhập mô tả..." className="h-full rounded-md" />
       {error && <p className="top-full mt-[2px] text-[13px] text-red-500">{error}</p>}
     </>
   );
