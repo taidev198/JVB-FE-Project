@@ -129,7 +129,7 @@ const AddWorkshop = () => {
               />
               <SelectReact
                 name="fieldIds"
-                label="Lĩn vực"
+                label="Lĩnh vực"
                 placeholder="Chọn lĩnh vực"
                 options={(faculties?.data || []).map(faculty => ({
                   value: faculty.id,

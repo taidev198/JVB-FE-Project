@@ -5,9 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Chip, IconButton, Tooltip, Pagination,FormControl, TextField, InputLabel, Select, MenuItem } from '@mui/material';
 import Link from 'next/link';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
 
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -110,7 +108,7 @@ const workShopCompany = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Quản lý yêu cầu workShop</h1>
         <div className="flex items-center gap-3 justify-between">
-        <div className="w-full">
+        <div className="w-[220px]">
             <Input
               type="text"
               name="search_employee"

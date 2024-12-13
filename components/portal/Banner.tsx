@@ -1,35 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
-import { SelectChangeEvent } from '@mui/material';
 
-import CustomSelect from '@/components/portal/common/CustomSelect';
+import CustomSelect from '@/components/Portal/common/CustomSelect';
 const Banner = () => {
-  const [location, setLocation] = React.useState<string[]>([]);
-  const [jobType, setJobType] = React.useState<string[]>([]);
+  const [location, setLocation] = useState<string[]>([]);
+  const [jobType, setJobType] = useState<string[]>([]);
 
-  const locations = [
-    'Hà Nội',
-    'Quảng Ninhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh',
-    'Sài Gòn',
-    'Sài Gòn',
-    'Sài Gòn',
-    'Sài Gòn',
-    'Sài Gòn',
-    'Sài Gòn',
-    'Sài Gòn',
-    'Sài Gòn',
-  ]; // Data location
-  const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance']; // Data job type
+  const locations = ['Hà Nội', 'Quảng Ninh', 'Sài Gòn', 'Hà Nội', 'Đà Nẵng'];
 
-  const handleLocationChange = (event: SelectChangeEvent<typeof location>) => {
-    setLocation(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
+  const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance'];
+
+  const handleLocationChange = (selected: string[]) => {
+    setLocation(selected);
   };
 
-  const handleJobTypeChange = (event: SelectChangeEvent<typeof jobType>) => {
-    setJobType(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
+  const handleJobTypeChange = (selected: string[]) => {
+    setJobType(selected);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
   };
   return (
-    <section className="rts__banner relative overflow-hidden pt-[150px] lg:pt-[180px] xl:pt-[260px]">
+    <section className="rts__banner relative pt-[150px] lg:pt-[180px] xl:pt-[260px]">
       <div className="rts__banner__background absolute left-0 top-0 h-full w-full bg-header-banner-bg-mobile lg:bg-header-banner-bg">
         <div className="shape__home__one absolute left-[-3%] top-0 hidden lg:block">
           <Image src="/images/banner-shape.svg" alt="Banner Shape" width={502} height={495} />
@@ -50,13 +43,13 @@ const Banner = () => {
               dẫn và nền tảng kết nối tối ưu.
             </p>
             <div className="rts__job__search shadow-[0_30px_30px_rgba(175, 175, 175, 0.16)] relative z-[99] rounded-2xl bg-primary-white px-[20px] py-[22px]">
-              <form action="#" className="flex flex-col  justify-between gap-6 xl:flex-row xl:items-center xl:gap-4">
+              <form onSubmit={handleSearch} className="flex flex-col  justify-between gap-6 xl:flex-row xl:items-center xl:gap-4">
                 <div className="input-group relative flex w-full flex-col items-stretch gap-6 sm:flex-row">
                   <div className="single__input relative flex w-full flex-col xl:min-w-[190px]">
                     <label htmlFor="location " className="mb-3 text-xl font-medium capitalize tracking-[-1px] text-primary-black">
                       Vị trí
                     </label>
-                    <CustomSelect label="Location" value={location} items={locations} onChange={handleLocationChange} />
+                    <CustomSelect label="Vị trí" value={location} items={locations} onChange={handleLocationChange} />
                   </div>
                   <div className="hidden w-[1px] bg-[rgb(125,128,135,0.2)] sm:block" />
                   <div className="single__input relative flex w-full  flex-col xl:min-w-[190px]">

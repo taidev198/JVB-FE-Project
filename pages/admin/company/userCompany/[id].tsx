@@ -15,8 +15,23 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useGetDetailEmployeeQuery } from '@/services/adminCompanyApi';
+import { useEffect } from 'react';
+import { setLoading } from '@/store/slices/global';
 
 const DetailUserCompany = () => {
+  const idEmployee = useAppSelector(state => state.global.id);
+  // console.log(idEmployee);
+  
+  const dispatch = useAppDispatch();
+  const { data: employee, isLoading } = useGetDetailEmployeeQuery({ id: idEmployee });
+  // console.log(employee);
+  
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [dispatch, isLoading]);
+
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
       {/* Icon */}
@@ -42,55 +57,55 @@ const DetailUserCompany = () => {
           <li className="mt-5 flex items-center gap-3">
             <StarBorderIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mã ngành:</span> #2046
+              <span className="mr-2 font-semibold">Mã ngành:</span> {employee?.data.employeePosition}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Tên đầy đủ:</span> MattDickerson
+              <span className="mr-2 font-semibold">Tên đầy đủ:</span> {employee?.data.fullName}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <CreditScoreIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Email :</span> Dickerson@gmail.com
+              <span className="mr-2 font-semibold">Email :</span> {employee?.data.account.email}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <CameraOutdoorIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Chức vụ:</span> Quản lý
+              <span className="mr-2 font-semibold">Chức vụ:</span> {employee?.data.employeePosition}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <PhoneIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Số điện thoại:</span> 01234567
+              <span className="mr-2 font-semibold">Số điện thoại:</span> {employee?.data.phoneNumber}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <PersonOutlineIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Giới tính:</span> Nam
+              <span className="mr-2 font-semibold">Giới tính:</span> {employee?.data.gender}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <DateRangeIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Ngày sinh:</span> 01/01/1990
+              <span className="mr-2 font-semibold">Ngày sinh:</span> {employee?.data.dateOfBirth}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <PaymentsIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Lương(VND):</span> 50000000
+              <span className="mr-2 font-semibold">Lương(VND):</span> {employee?.data.salary}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <AddLocationAltIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Địa chỉ:</span> 123 Đường ABC, QUận XYZ, TP. Hồ Chí Minh
+              <span className="mr-2 font-semibold">Địa chỉ:</span> {employee?.data.address.houseNumber},{employee?.data.address.ward.wardName},{employee?.data.address.district.districtName},{employee?.data.address.province.provinceName}
             </div>
           </li>
         </ul>

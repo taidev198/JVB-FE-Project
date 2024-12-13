@@ -41,7 +41,6 @@ const Department = () => {
   };
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
-    dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
 
   const handleConfirmAction = () => {
@@ -156,8 +155,8 @@ const Department = () => {
             <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn khoa khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-800" full={true} onClick={handleConfirmAction} />
+              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
             </div>
           </div>
         </BackDrop>

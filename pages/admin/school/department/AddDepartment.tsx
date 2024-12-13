@@ -36,11 +36,16 @@ const AddDepartment = () => {
   const [addDepartment, { data, isLoading: isLoadingAddDepartment, isSuccess }] = useAddDepartmentMutation();
   const router = useRouter();
   const onSubmit: SubmitHandler<FormDataAddDepartment> = data => {
-    // console.log({ data });
-    // addDepartment(data);
-    addDepartment(data);
+    // Thêm trường universityId vào data
+    const updatedData = { ...data, universityId: 12 };
+
+    // Gọi hàm addDepartment với dữ liệu mới
+    addDepartment(updatedData);
+
+    // Chuyển hướng tới trang department
     router.push('/admin/school/department');
   };
+
   useEffect(() => {
     if (isSuccess) {
       dispatch(setToast({ message: data.message }));
@@ -49,8 +54,8 @@ const AddDepartment = () => {
   }, [dispatch, isLoadingAddDepartment, data?.message, isSuccess]);
   return (
     <div className="bg-primary-white">
-      <div className="rounded-t-lg bg-white p-5">
-        <Link href={'/admin/school/department/dashboard'}>
+      <div className="rounded-t-lg">
+        <Link href={'/admin/school/department'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
@@ -60,8 +65,8 @@ const AddDepartment = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="ml-5 mr-10 w-full bg-primary-white px-5 sm:px-0  ">
         {/* Icon */}
 
-        <h1 className="my-10 bg-primary-white text-2xl font-bold "> Thêm mới khoa</h1>
-        <div className="grid grid-cols-1 gap-4 bg-primary-white sm:grid-cols-2">
+        <h1 className="my-10 text-2xl font-bold "> Thêm mới khoa</h1>
+        <div className="mr-5 grid grid-cols-1 gap-4 bg-primary-white sm:grid-cols-2">
           {/* Các trường thông tin khác */}
 
           <Input type="text" name="facultyCode" label="Mã khoa" placeholder="Nhập mã khoa" control={control} error={errors.facultyCode?.message} />
@@ -76,11 +81,12 @@ const AddDepartment = () => {
           />
           <Input type="text" name="nameDean" label="Tên trưởng khoa" placeholder="Nhập tên trưởng khoa" control={control} error={errors.nameDean?.message} />
         </div>
-        <div className="bg-primary-white">
+        <div className="mr-5 ">
           <Input type="text" name="address" label="Địa chỉ" placeholder="Nhập địa chỉ" control={control} error={errors.address?.message} />
           <Text name="facultyDescription" label="Mô tả khoa" placeholder="Nhập mô tả khoa" control={control} />
+
+          <Button text="Thêm " full={true} type="submit" />
         </div>
-        <Button text="Thêm " full={true} type="submit" />
       </form>
     </div>
   );

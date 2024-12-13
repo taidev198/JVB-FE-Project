@@ -18,22 +18,35 @@ export interface ICompany {
   updateAt: string;
 }
 
+export interface ICompanyEmploy {
+  id: number;
+  employeeCode: string;
+  account: {
+    id: number;
+    email: string;
+  };
+  avatarUrl: string;
+  phoneNumber: string;
+  fullName: string;
+  address: IAddress;
+  employeePosition: string;
+  dateOfBirth: string;
+  employeeStatus: string;
+  gender: string;
+  salary: number;
+  company: {
+    id: number;
+    companyCode: string;
+    companyName: string;
+  };
+  isDelete: false;
+}
+
 export interface ICompanyAllResponse {
   code: number;
   message: string;
   data: {
-    content: {
-      id: number;
-      companyName: string;
-      companyCode: string;
-      account: {
-        id: number;
-        email: string;
-        statusAccount: string;
-      };
-      createAt: string;
-      updateAt: string;
-    }[];
+    content: ICompanyEmploy[];
     totalPages: number;
     totalElements: number;
     pageSize: number;
@@ -44,5 +57,5 @@ export interface ICompanyAllResponse {
 export interface ICompanyDetailResponse {
   code: number;
   message: string;
-  data: ICompany;
+  data: ICompanyEmploy;
 }

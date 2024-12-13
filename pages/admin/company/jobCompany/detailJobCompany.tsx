@@ -1,9 +1,22 @@
-import { IconButton } from '@mui/material';
+import { Chip, IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Link from 'next/link';
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setLoading } from '@/store/slices/global';
+import { useGetDetailCompanyJobQuery } from '@/services/adminCompanyApi';
 
 const detailJobCompany = () => {
+  const idJobCompany = useAppSelector(state => state.global.id);
+  // console.log(idEmployee);
+  
+  const dispatch = useAppDispatch();
+  const { data: jobCompany, isLoading } = useGetDetailCompanyJobQuery({ id: idJobCompany });
+  // console.log(employee);
+  
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [dispatch, isLoading]);
     return (
         <div className="rounded-2xl bg-white pb-[90px]">
           {/* Icon */}
@@ -18,76 +31,76 @@ const detailJobCompany = () => {
           <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Chi tiết công việc</h1>
           {/* Info */}
           <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
-            {/* <div className="flex items-center gap-[30px] ">
-              <div>
-                <Link href={'#'}>
-                  <p className="text-primary-gray">Chi tiết nhân viên</p>
-                </Link>
-              </div>
-            </div> */}
             <ul className="">
               <li className="mt-5 flex items-center gap-3">
                 <div>
-                  <span className="mr-2 font-semibold">Tiêu đề:</span> Lập trình viên Backend
+                  <span className="mr-2 font-semibold">Tiêu đề:</span> {jobCompany?.data.jobTitle}
                 </div>
               </li>
               <li className="mt-5 flex items-center gap-3">
                 <div>
-                  <span className="mr-2 font-semibold">Trách nhiệm:</span> 
-                  <ul className='list-disc pl-5 space-y-2'>
-                    <li>Phát triển và duy trì các API</li>
-                    <li>Thiết kế cơ sở dữ liệu và tối ưu hóa truy vấn</li>
-                    <li>Tham gia phân tích yêu cầu và đóng góp ý kiến cho dự án</li>
-                  </ul>
+                  <span className="mr-2 font-semibold">Yêu cầu:</span> {jobCompany?.data.requirements}
                 </div>
               </li>
               <li className="mt-5 flex items-center gap-3">
                 <div>
-                  <span className="mr-2 font-semibold">Yêu cầu:</span> 
-                  <ul className='list-disc pl-5 space-y-2'>
-                    <li>Hiểu biết về Node.js, Python hoặc Java</li>
-                    <li>Kiến thức về RESTful API và database (MySQL, MongoDB)</li>
-                  </ul>
+                  <span className="mr-2 font-semibold">Hình thức:</span> {jobCompany?.data.jobType}
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Mức lương:</span> 20,000,000 - 30,000,000
+                  <span className="mr-2 font-semibold">Thời gian làm việc:</span> {jobCompany?.data.workTime}
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Thời gian làm việc:</span> Thứ 2 - Thứ 6
+                  <span className="mr-2 font-semibold">Phúc lợi:</span> {jobCompany?.data.benifits}
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Phúc lợi:</span> 
-                  <ul className='list-disc pl-5 space-y-2'>
-                    <li>Bảo hiểm đầy đủ</li>
-                    <li>Làm việc từ xa 2 ngày/ tuần</li>
-                    <li>Du lịch công ty hàng năm</li>
-                  </ul>
+                  <span className="mr-2 font-semibold">Cấp bậc:</span> {jobCompany?.data.jobLevel}
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Cấp bậc:</span> Junior
+                  <span className="mr-2 font-semibold">Số lượng cần tuyển:</span> {jobCompany?.data.memberOfCandidate}
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Số lượng cần tuyển:</span> 2
+                  <span className="mr-2 font-semibold">Ngày hết hạn:</span> {jobCompany?.data.expirationDate}
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Ngày hết hạn:</span> 2024-12-31
+                  <span className="mr-2 font-semibold">Trạng Thái:</span> {jobCompany?.data.status}
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Loại công việc:</span> Full-time
+                  <span className="mr-2 font-semibold">Loại Lương:</span> {jobCompany?.data.salaryType}
+                </div>
+              </li>
+              <li className="mt-4 flex items-center  gap-3 ">
+                <div>
+                  <span className="mr-2 font-semibold">Lương:</span> {jobCompany?.data.maxSalary} - {jobCompany?.data.minSalary}
+                </div>
+              </li>
+              <li className="mt-4 flex items-center  gap-3 ">
+                <div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+                  <span className="mr-2 font-semibold" style={{ fontWeight: 'bold' }}>Loại công việc:</span>
+                    {jobCompany?.data.fields.map((field) => (
+                      <Chip
+                        key={field.id}
+                        label={field.fieldName}
+                        color="primary"
+                        variant="outlined"
+                        style={{ fontSize: '14px' }}
+                      />
+                   ))}
+                  </div>
                 </div>
               </li>
             </ul>
