@@ -27,7 +27,7 @@ const AdminSystemDetailSchool = () => {
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
           <div className="rounded-[50%] bg-[#F1F1F1] p-6">
-            <Image src={avatar} alt="name" width={75} height={75} />
+            <Image src={avatar ?? ''} alt="name" width={75} height={75} />
           </div>
           <div>
             <h2 className="text-xl font-bold">Đại học ABC</h2>

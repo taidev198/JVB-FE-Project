@@ -17,7 +17,7 @@ export const roles = {
 export const gender = [
   { value: 'MALE', label: 'Nam' },
   { value: 'FEMALE', label: 'Nữ' },
-  { value: 'THREE_GENDER', label: 'Khác' },
+  { value: 'OTHER', label: 'Khác' },
 ];
 
 export const genderTitle = (gender: string | undefined): string => {
@@ -26,7 +26,7 @@ export const genderTitle = (gender: string | undefined): string => {
       return 'Nam';
     case 'FEMALE':
       return 'Nữ';
-    case 'THREE_GENDER':
+    case 'OTHER':
       return 'Khác';
     default:
       return 'Chưa xác định';

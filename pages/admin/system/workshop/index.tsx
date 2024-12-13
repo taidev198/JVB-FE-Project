@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -19,7 +20,6 @@ import {
   useRejectWorkshopMutation,
 } from '@/services/adminSystemApi';
 import { statusTextWorkshop } from '@/utils/app/const';
-import { setToast } from '@/store/slices/toastSlice';
 
 const animatedComponents = makeAnimated();
 
@@ -50,9 +50,9 @@ const AdminSystemWorkshop = () => {
     dispatch(setBackdrop(actionType));
   };
 
-  const [approveWorkshop, { isLoading: isLoadingApprove, data: dataApprove, isSuccess: isSuccessApprove }] = useApproveWorkshopMutation();
-  const [rejectWorkshop, { isLoading: isLoadingReject, data: dataReject, isSuccess: isSuccessReject }] = useRejectWorkshopMutation();
-  const [deleteWorkshop, { isLoading: isLoadingDelete, data: dataDelete, isSuccess: isSuccessDelete }] = useDeleteWorkshopMutation();
+  const [approveWorkshop, { isLoading: isLoadingApprove, data: dataApprove, isSuccess: isSuccessApprove, reset: resetApprove }] = useApproveWorkshopMutation();
+  const [rejectWorkshop, { isLoading: isLoadingReject, data: dataReject, isSuccess: isSuccessReject, reset: resetReject }] = useRejectWorkshopMutation();
+  const [deleteWorkshop, { isLoading: isLoadingDelete, data: dataDelete, isSuccess: isSuccessDelete, reset: resetDelete }] = useDeleteWorkshopMutation();
 
   const handleConfirmAction = async () => {
     if (selectedWorkshopId !== null && selectedAction) {
@@ -86,14 +86,18 @@ const AdminSystemWorkshop = () => {
 
   useEffect(() => {
     if (isSuccessApprove && dataApprove?.message) {
-      dispatch(setToast({ message: dataApprove?.message }));
+      toast.success(dataApprove?.message);
+      resetApprove(); // Gọi reset để làm sạch trạng thái approve
     }
     if (isSuccessReject && dataReject?.message) {
-      dispatch(setToast({ message: dataReject?.message }));
+      toast.success(dataReject?.message);
+      resetReject(); // Gọi reset để làm sạch trạng thái reject
     }
     if (isSuccessDelete && dataDelete?.message) {
-      dispatch(setToast({ message: dataDelete?.message }));
+      toast.success(dataDelete?.message);
+      resetDelete(); // Gọi reset để làm sạch trạng thái delete
     }
+
     dispatch(setLoading(isLoading || isLoadingApprove || isLoadingReject || isLoadingDelete));
   }, [
     isLoading,
@@ -107,6 +111,9 @@ const AdminSystemWorkshop = () => {
     isLoadingDelete,
     dataDelete?.message,
     isSuccessDelete,
+    resetApprove,
+    resetReject,
+    resetDelete,
   ]);
 
   return (

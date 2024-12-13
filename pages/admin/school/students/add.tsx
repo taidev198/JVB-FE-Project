@@ -89,11 +89,6 @@ const AddStudent = () => {
     // Chuyển đổi đối tượng studentRequest thành chuỗi JSON và append vào FormData
     formData.append('studentRequest', new Blob([JSON.stringify(studentRequest)], { type: 'application/json' }));
     // Append file vào FormData
-
-    if (!image) {
-      console.error('Image is required');
-      return;
-    }
     formData.append('file', image as File);
     addStudent(formData);
   };

@@ -1,7 +1,6 @@
 import WorkIcon from '@mui/icons-material/Work';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
 import IconProfile from '@/assets/icons/iconNavbarAdminCompany/icon-profileCompany.svg';
-
 import IconWorkShop from '@/assets/icons/iconNavbarAdminCompany/icon-workShopCompany.svg';
 import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
 import IconNotice from '@/assets/icons/iconNavbarAdminCompany/icon-noticeCompany.svg';

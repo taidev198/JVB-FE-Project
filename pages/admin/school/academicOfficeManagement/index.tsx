@@ -123,7 +123,7 @@ const AcademicOfficeManagement = () => {
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">{index + 1}</td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <Image src={item.avatarUrl} alt="ảnh" width={50} height={50} />
+                    <Image src={item?.avatarUrl} alt="ảnh" width={50} height={50} />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.employee_code}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.full_name}</td>
