@@ -11,7 +11,7 @@ const PortalFooter = () => {
           <div className="rts__footer__widget max-320">
             <Link href="/" className="footer__logo flex items-end " aria-label="logo">
               <Logo />
-              <h2 className="ml-2 font-logo text-3xl font-medium">
+              <h2 className="ml-2 font-logo text-3xl font-semibold">
                 <span className="text-primary-main">Job</span>Link
               </h2>
             </Link>
@@ -56,13 +56,13 @@ const PortalFooter = () => {
             <ul className="mb-3 text-lg text-primary-gray">
               <li className="">
                 <Link href="#" className="mp_footer_link mp_transition_4 mb-2 flex items-center gap-2">
-                  <i class="fa-solid fa-location-dot"></i>
+                  <i className="fa-solid fa-location-dot"></i>
                   <span> 2715 Ash Dr. San Jose,USA</span>
                 </Link>
               </li>
               <li>
                 <Link href="callto:+880171234578" className="mp_footer_link mp_transition_4 mb-2 flex items-center gap-2">
-                  <i class="fa-solid fa-phone"></i>
+                  <i className="fa-solid fa-phone"></i>
                   <span> +(61) 545-432-234</span>
                 </Link>
               </li>
