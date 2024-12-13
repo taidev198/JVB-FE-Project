@@ -4,6 +4,10 @@ import { ApiResponse, ApiResponseDetail, DepartmentResponsePortal } from '@/type
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
+import { ApiResponseBusiness, ApiResponseDetailBusiness } from '@/types/businesTypes';
+import UpdateBusiness from '@/pages/admin/school/businessManagement/update/[id]';
+import { MajorResponse } from '@/types/majorType';
+import { ApiResponseAcademicOfficeManagement, ApiResponseDetailAdemicOfficeManagement } from '@/types/academicOfficeManagementType';
 import { StudentDetailResponse, StudentResponse } from '@/types/studentType';
 import { IMajorByUniversityResponse } from '@/types/majorType';
 
@@ -20,7 +24,7 @@ export const adminSchoolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Department', 'Student'],
+  tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement'],
   endpoints: builder => {
     return {
       getAllDepartments: builder.query<ApiResponse, { page: number; size: number; keyword: string }>({
@@ -48,9 +52,20 @@ export const adminSchoolApi = createApi({
 
       detailDepartments: builder.query<ApiResponseDetail, { id: number | null }>({
         query: ({ id }) => ({
-          url: `/university/faculties/${id}`, // Sử dụng cú pháp template string đúng
+          url: `/university/faculties/${id}`,
         }),
+        providesTags: result => (result ? [{ type: 'Department', id: result.data.id }] : [{ type: 'Department' }]),
       }),
+
+      // UpdateDepartment: builder.mutation({
+      //   query: (args: { formData: FormData; id: number | null }) => ({
+      //     url: `/university/faculties/update/${args.id}`,
+      //     method: 'PUT',
+      //     body: args.formData,
+      //   }),
+      //   // Invalidates the cache for 'Department' list to trigger a refetch of the data
+      //   invalidatesTags: (result, error, { id }) => [{ type: 'Department', id }, { type: 'Department' }],
+      // }),
 
       deleteDepartment: builder.mutation({
         query: (args: { id: number | null }) => ({
@@ -65,6 +80,11 @@ export const adminSchoolApi = createApi({
           url: '/fields',
         }),
       }),
+      getAllMajorBy: builder.query<MajorResponse, void>({
+        query: () => ({
+          url: '/university/faculties/get-all',
+        }),
+      }),
 
       AddDepartment: builder.mutation({
         query: formData => ({
@@ -72,9 +92,50 @@ export const adminSchoolApi = createApi({
           method: 'POST',
           body: formData,
         }),
-        invalidatesTags: [{ type: 'Department' }],
+        invalidatesTags: [{ type: 'Department', id: 'list' }],
       }),
 
+      //business
+      getAllBusiness: builder.query<ApiResponseBusiness, { page: number; size: number; keyword: string }>({
+        query: ({ page, size, keyword }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+
+          return `/university/majors?${queryParams.toString()}`;
+        },
+        providesTags: [{ type: 'Business', id: 'listBu' }],
+      }),
+      getDetailBusiness: builder.query<ApiResponseDetailBusiness, { id: number | null }>({
+        query: ({ id }) => ({
+          url: `/university/majors/${id}`,
+        }),
+        providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Business', id }] : []),
+      }),
+      addBusiness: builder.mutation({
+        query: formData => ({
+          url: '/university/majors/add',
+          method: 'POST',
+          body: formData,
+        }),
+        invalidatesTags: [{ type: 'Business', id: 'listBu' }],
+      }),
+      UpdateBusiness: builder.mutation({
+        query: (args: { formData: FormData; id: number | null }) => ({
+          url: `/university/majors/update/${args.id}`,
+          method: 'PUT',
+          body: args.formData,
+        }),
+        invalidatesTags: (result, error, { id }) => {
+          return id !== null
+            ? [
+                { type: 'Business', id },
+                { type: 'Business', id: 'listBu' },
+              ] // Invalidates cả tag của workshop cụ thể và danh sách
+            : [{ type: 'Business', id: 'listBu' }]; // Nếu không có id, chỉ invalidates danh sách
+        },
+      }),
       UpdateDepartment: builder.mutation({
         query: (args: { formData: FormData; id: number | null }) => ({
           url: `/university/faculties/update/${args.id}`,
@@ -84,10 +145,56 @@ export const adminSchoolApi = createApi({
         invalidatesTags: (result, error, { id }) => {
           return id !== null
             ? [
-                { type: 'Department', id },
-                { type: 'Department', id: 'listDe' },
+                { type: 'Business', id },
+                { type: 'Business', id: 'listBu' },
               ] // Invalidates cả tag của workshop cụ thể và danh sách
-            : [{ type: 'Department', id: 'listDe' }]; // Nếu không có id, chỉ invalidates danh sách
+            : [{ type: 'Business', id: 'listBu' }]; // Nếu không có id, chỉ invalidates danh sách
+        },
+      }),
+      deleteBusiness: builder.mutation({
+        query: (args: { id: number | null }) => ({
+          url: `/university/majors/delete/${args.id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: (result, error, { id }) => {
+          return id !== null
+            ? [
+                { type: 'Business', id },
+                { type: 'Business', id: 'listBu' },
+              ] // Invalidates cả tag của workshop cụ thể và danh sách
+            : [{ type: 'Business', id: 'listBu' }]; // Nếu không có id, chỉ invalidates danh sách
+        },
+      }),
+      //academicOfficeManagement
+      getAllAcademicOfficeManagement: builder.query<ApiResponseAcademicOfficeManagement, { page: number; size: number; keyword: string }>({
+        query: ({ page, size, keyword }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+
+          return `/university/university-employees?${queryParams.toString()}`;
+        },
+        providesTags: [{ type: 'AcademicOfficeManagement', id: 'listAc' }],
+      }),
+      getDetailAcademicOfficeManagement: builder.query<ApiResponseDetailAdemicOfficeManagement, { id: number | null }>({
+        query: ({ id }) => ({
+          url: `/university/university-employees/${id}`,
+        }),
+        providesTags: (result, error, { id }) => (id !== null ? [{ type: 'AcademicOfficeManagement', id }] : []),
+      }),
+      deleteAcademicOfficeManagement: builder.mutation({
+        query: (args: { id: number | null }) => ({
+          url: `/university/university-employees/delete/${args.id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: (result, error, { id }) => {
+          return id !== null
+            ? [
+                { type: 'AcademicOfficeManagement', id },
+                { type: 'AcademicOfficeManagement', id: 'listAc' },
+              ] // Invalidates cả tag của AcademicOfficeManagement cụ thể và danh sách
+            : [{ type: 'AcademicOfficeManagement', id: 'listAc' }]; // Nếu không có id, chỉ invalidates danh sách
         },
       }),
 
@@ -228,6 +335,16 @@ export const {
   useAddDepartmentMutation,
   useUpdateDepartmentMutation,
   useGetAllStudentsQuery,
+  useGetAllBusinessQuery,
+  useUpdateBusinessMutation,
+  useGetDetailBusinessQuery,
+  useDeleteBusinessMutation,
+  useGetAllMajorByQuery,
+  useLazyDetailDepartmentsQuery,
+  useAddBusinessMutation,
+  useGetAllAcademicOfficeManagementQuery,
+  useGetDetailAcademicOfficeManagementQuery,
+  useDeleteAcademicOfficeManagementMutation,
   useGetDetailStudentQuery,
   useAddStudentMutation,
   useDeleteStudentOneMutation,

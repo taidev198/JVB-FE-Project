@@ -1,7 +1,6 @@
 import WorkIcon from '@mui/icons-material/Work';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
 import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
-import WorkIcon from '@mui/icons-material/Work';
 import HomeIcon from '@mui/icons-material/Home';
 import SaveAsIcon from '@mui/icons-material/SaveAs';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -52,7 +51,7 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 7,
-    icon: <NotificationsIcon/>,
+    icon: <NotificationsIcon />,
     url: '/admin/company/noticeCompany',
     label: 'Thông Báo',
   },

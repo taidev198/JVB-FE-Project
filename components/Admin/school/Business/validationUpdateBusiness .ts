@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-const validationSchemaAddBusiness = Yup.object({
+const ValidationSchemaUpdateBusiness = Yup.object({
   majorName: Yup.string().required('Tên ngành học là bắt buộc').max(50, 'Tên ngành học không được quá 50 kí tự'),
   majorCode: Yup.string().required('Mã ngành học là bắt buộc').max(50, 'Mã ngành học không được quá 50 kí tự'),
   creditRequirement: Yup.number()
@@ -22,4 +22,4 @@ const validationSchemaAddBusiness = Yup.object({
   fieldIds: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),
 });
 
-export default validationSchemaAddBusiness;
+export default ValidationSchemaUpdateBusiness;

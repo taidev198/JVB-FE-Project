@@ -1,25 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
 import { IconButton } from '@mui/material';
-
 import Link from 'next/link';
-import validationSchemaAddDepartment from '../../../../../components/Admin/school/Department/validationAddDepartment';
+import { useRouter } from 'next/router';
 import Text from '@/components/Common/Text';
-
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
-import { useDetailDepartmentsQuery, useGetAllDepartmentsQuery, useUpdateDepartmentMutation } from '@/services/adminSchoolApi';
+import { useDetailDepartmentsQuery, useUpdateDepartmentMutation } from '@/services/adminSchoolApi';
 import validationSchemaUpdateDepartment from '@/components/Admin/school/Department/validationUpdateDepartment';
-import { useAppSelector } from '@/store/hooks';
-import { useRouter } from 'next/router';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { setLoading } from '@/store/slices/global';
+import { setToast } from '@/store/slices/toastSlice';
 
 interface FormDataUpdateDepartment {
   facultyCode: string;
   facultyName: string;
-  establishYear: string;
+  establishYear: number;
   nameDean: string;
   address: string;
   facultyDescription?: string;
@@ -28,24 +26,43 @@ interface FormDataUpdateDepartment {
 const UpdateDepartment = () => {
   const IdDepartment = useAppSelector(state => state.global.id);
   const router = useRouter();
-
-  const { data: department, isLoading: isLoadingDetailDepartment } = useDetailDepartmentsQuery({ id: IdDepartment });
+  const dispatch = useAppDispatch();
+  const { data: department, isLoading: isLoadingDetailDepartment, isSuccess } = useDetailDepartmentsQuery({ id: IdDepartment });
   const [updateDepartment] = useUpdateDepartmentMutation();
+
   const {
     register,
     control,
     handleSubmit,
-
+    reset,
     formState: { errors },
   } = useForm<FormDataUpdateDepartment>({
     resolver: yupResolver(validationSchemaUpdateDepartment),
   });
 
-  const onSubmit: SubmitHandler<FormDataUpdateDepartment> = data => {
-    updateDepartment(data);
-    router.push('/admin/school/updateDepartment');
+  const onSubmit: SubmitHandler<FormDataUpdateDepartment> = async data => {
+    if (IdDepartment) {
+      try {
+        const response = await updateDepartment({ formData: data, id: IdDepartment }).unwrap();
+        if (response) {
+          // refetch();
+          router.push('/admin/school/department');
+        }
+      } catch (error) {
+        console.error('Department ID is missing');
+      }
+    }
   };
 
+  useEffect(() => {
+    if (department?.data) {
+      reset(department?.data);
+    }
+    if (isSuccess) {
+      dispatch(setToast({ message: department.message }));
+    }
+    dispatch(setLoading(isLoadingDetailDepartment));
+  }, [dispatch, isLoadingDetailDepartment, reset, department, department?.message, isSuccess]);
   return (
     <div className="p-6">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-white px-5 sm:px-0">
@@ -77,12 +94,12 @@ const UpdateDepartment = () => {
             {...register('facultyName', { required: 'Tên khoa là bắt buộc' })}
           />
           <Input
-            type="date"
+            type="number"
+            name="establishYear"
             label="Năm thành lập"
-            placeholder="Năm thành lập"
+            placeholder="Nhập năm thành lập"
             control={control}
             error={errors.establishYear?.message}
-            {...register('establishYear', { required: 'Năm thành lập là bắt buộc' })}
           />
           <Input
             type="text"

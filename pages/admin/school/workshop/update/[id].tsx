@@ -289,9 +289,8 @@ const UpdateWorkshop = () => {
           </div>
           <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
         </div>
-        <div className="flex justify-end bg-primary-white p-5">
-          <Button text="Cập nhật" type="submit" />
-        </div>
+
+        <Button text="Cập nhật" type="submit" />
       </form>
     </div>
   );
