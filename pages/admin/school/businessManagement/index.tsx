@@ -120,7 +120,7 @@ const BusinessManagement = () => {
 
                       <Tooltip title="Sửa Ngành Học">
                         <Link href={`/admin/school/businessManagement/update/${item.id}`} onClick={() => dispatch(setId(item.id))}>
-                          <IconButton onClick={() => handleOpenConfirm(item.id)}>
+                          <IconButton>
                             <BorderColorIcon className="text-purple-500" />
                           </IconButton>
                         </Link>

@@ -42,8 +42,8 @@ const UpdateBusiness = () => {
   const { data: majores, isLoading: isLoadingMajor } = useGetAllMajorByQuery();
   const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();
   const idBusiness = useAppSelector(state => state.global.id);
-  const [updateBusiness] = useUpdateBusinessMutation();
-  const { data: business, isLoading: isLoadingDetailBusiness, isSuccess } = useGetDetailBusinessQuery({ id: idBusiness });
+  const [updateBusiness, { isSuccess }] = useUpdateBusinessMutation();
+  const { data: business, isLoading: isLoadingDetailBusiness } = useGetDetailBusinessQuery({ id: idBusiness });
   const onSubmit: SubmitHandler<FormDataUpdateBusiness> = async data => {
     if (idBusiness) {
       try {
