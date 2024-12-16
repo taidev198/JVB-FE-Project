@@ -1,6 +1,6 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useEffect, useState } from 'react';
-import { IconButton, Tooltip, Pagination, TextField } from '@mui/material';
+import { IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
@@ -9,9 +9,10 @@ import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import AddIcon from '@mui/icons-material/Add';
-import { setToast } from '@/store/slices/toastSlice';
 import { debounce } from 'lodash';
-import { useDeleteBusinessMutation, useGetAllBusinessQuery } from '@/services/adminSchoolApi';
+import { useDeleteBusinessMultipleMutation, useDeleteBusinessOneMutation, useGetAllBusinessQuery } from '@/services/adminSchoolApi';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,7 +21,7 @@ const BusinessManagement = () => {
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
-
+  const [selectedBusiness, setSelectedBusiness] = useState<number[]>([]);
   const debouncedSearch = debounce((value: string) => {
     setKeyword(value);
   }, 500);
@@ -31,24 +32,51 @@ const BusinessManagement = () => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
-  const [deleteBusiness, { isLoading: isLoadingDelete, isSuccess, data }] = useDeleteBusinessMutation();
-  const handleConfirmAction = () => {
-    deleteBusiness({ id: selectId });
-  };
+
   const { data: business, isLoading } = useGetAllBusinessQuery({
     page: currentPage,
     size: 10,
     keyword,
   });
+  const idBusiness = useAppSelector(state => state.global.id);
   console.log(business);
-
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data?.message }));
+  const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteBusinessOneMutation();
+  const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteBusinessMultipleMutation();
+  const handleConfirmAction = async () => {
+    try {
+      if (selectedBusiness.length > 0) {
+        const response = await deleteMultiple({ ids: selectedBusiness }).unwrap();
+        toast.success(response.message);
+      } else {
+        const response = await deleteOne({ id: idBusiness }).unwrap();
+        toast.success(response.message);
+      }
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
       dispatch(setBackdrop(null));
     }
-    dispatch(setLoading(isLoading || isLoadingDelete));
-  }, [isLoading, dispatch, isLoadingDelete, data?.message, isSuccess]);
+  };
+  console.log(selectedBusiness);
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const allAdemicIds = business?.data.content.map(ademic => ademic.id);
+      setSelectedBusiness(allAdemicIds ?? []);
+    } else {
+      setSelectedBusiness([]);
+    }
+  };
+  const handleSelectBusiness = (id: number) => {
+    setSelectedBusiness(prev => (prev.includes(id) ? prev.filter(ademicId => ademicId !== id) : [...prev, id]));
+  };
+  useEffect(() => {
+    dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
+  }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
       {/* Header */}
@@ -56,9 +84,18 @@ const BusinessManagement = () => {
         <h1 className="mb-5 font-bold">Danh sách quản ngành học</h1>
         <div className="flex items-center justify-between gap-3 ">
           <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
-          <Link href={'/admin/school/businessManagement/AddBusiness'}>
-            <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
-          </Link>
+          <div className="flex items-center gap-5">
+            <Link href={'/admin/school/businessManagement/AddBusiness'}>
+              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            </Link>
+            <MyButton
+              type="submit"
+              text="Xóa ngành học đã chọn"
+              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              className="bg-red-custom"
+              disabled={!selectedBusiness.length}
+            />
+          </div>
         </div>
       </div>
 
@@ -67,6 +104,15 @@ const BusinessManagement = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <Checkbox
+                  color="primary"
+                  checked={selectedBusiness.length === business?.data.content.length}
+                  indeterminate={selectedBusiness.length > 0 && selectedBusiness.length < (business?.data.content || []).length}
+                  onChange={handleSelectAll}
+                  size="small"
+                />
+              </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Mã Ngành</p>
               </th>
@@ -92,6 +138,9 @@ const BusinessManagement = () => {
             {business?.data?.content && business.data.content.length > 0 ? (
               business.data.content.map((item, index) => (
                 <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <Checkbox color="primary" checked={selectedBusiness.includes(item.id)} onChange={() => handleSelectBusiness(item.id)} size="small" />
+                  </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.majorCode}</p>
                   </td>

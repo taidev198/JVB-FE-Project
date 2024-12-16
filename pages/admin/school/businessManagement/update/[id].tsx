@@ -16,6 +16,8 @@ import { useGetAllFieldsQuery, useGetAllMajorByQuery, useGetDetailBusinessQuery,
 import { setToast } from '@/store/slices/toastSlice';
 import ValidationSchemaUpdateBusiness from '@/components/Admin/school/Business/validationUpdateBusiness ';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataUpdateBusiness {
   majorCode: string;
@@ -42,31 +44,42 @@ const UpdateBusiness = () => {
   const { data: majores, isLoading: isLoadingMajor } = useGetAllMajorByQuery();
   const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();
   const idBusiness = useAppSelector(state => state.global.id);
-  const [updateBusiness, { isSuccess }] = useUpdateBusinessMutation();
+  const [updateBusiness] = useUpdateBusinessMutation();
   const { data: business, isLoading: isLoadingDetailBusiness } = useGetDetailBusinessQuery({ id: idBusiness });
   const onSubmit: SubmitHandler<FormDataUpdateBusiness> = async data => {
     if (idBusiness) {
       try {
         const response = await updateBusiness({ formData: data, id: idBusiness }).unwrap();
+        toast.success(response.message);
         if (response) {
           router.push('/admin/school/businessManagement');
         }
       } catch (error) {
-        console.error('businessManagement ID is missing');
+        if (isFetchBaseQueryError(error)) {
+          const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+          toast.error(errMsg);
+        } else if (isErrorWithMessage(error)) {
+          toast.error(error.message);
+        }
       }
     }
   };
 
   useEffect(() => {
     if (business?.data) {
-      reset(business?.data);
-    }
-    if (isSuccess) {
-      dispatch(setToast({ message: business.message }));
+      reset({
+        majorCode: business.data.majorCode,
+        majorName: business.data.majorName,
+        creditRequirement: business.data.creditRequirement,
+        majorDescription: business.data.majorDescription,
+        numberOfStudents: business.data.numberOfStudents,
+        facultyId: business.data.faculty.id,
+        fieldIds: business.data.majorFields.map(field => field.id),
+      });
     }
 
     dispatch(setLoading(isLoadingDetailBusiness || isLoadingFaculies || isLoadingMajor));
-  }, [dispatch, isLoadingDetailBusiness, isLoadingMajor, isLoadingFaculies, reset, business, business?.message, isSuccess]);
+  }, [dispatch, isLoadingDetailBusiness, isLoadingMajor, isLoadingFaculies, reset]);
 
   return (
     <div className="bg-primary-white p-6">
@@ -124,7 +137,6 @@ const UpdateBusiness = () => {
               label: major.facultyName,
             }))}
             control={control}
-            isMultiple={true}
             error={errors.facultyId?.message}
           />
           <SelectReact

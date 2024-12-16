@@ -45,7 +45,7 @@ const DetailAdemicOfficeManagement = () => {
             <Image src={academicOfficeManagement?.data.avatarUrl ?? ''} alt="name" width={75} height={75} />
           </div>
           <div>
-            <h2 className="text-xl font-bold">{academicOfficeManagement?.data.employeeCode}</h2>
+            <h2 className="text-xl font-bold">{academicOfficeManagement?.data.fullName}</h2>
           </div>
         </div>
         <ul className="">
