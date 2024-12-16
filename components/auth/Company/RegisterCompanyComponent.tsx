@@ -1,34 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Select from 'react-select';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 
-import registerValidateCompany from './validation';
+import registerValidateCompany, { FormDataRegisterSchool } from './validation';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import TextEditor from '@/components/Common/TextEditor';
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery, useRegisterCompanyMutation } from '@/services/adminSystemApi';
 import { setLoading } from '@/store/slices/global';
-import { setToast } from '@/store/slices/toastSlice';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
-
-interface FormDataRegisterSchool {
-  companyName: string;
-  companyCode: string;
-  companyDescription: string;
-  phoneNumber: string;
-  houseNumber: string;
-  wardId: number;
-  email: string;
-  password: string;
-  confirm_password: string;
-  districtId: number;
-  provinceId: number;
-  establishDate: string;
-  taxCode: string;
-}
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 const RegisterCompanyComponent = () => {
   const dispatch = useDispatch();
@@ -40,7 +27,6 @@ const RegisterCompanyComponent = () => {
   } = useForm<FormDataRegisterSchool>({
     resolver: yupResolver(registerValidateCompany),
   });
-
   const provinceSelect = watch('provinceId');
   const districtSelect = watch('districtId');
   // Fetch data
@@ -48,39 +34,27 @@ const RegisterCompanyComponent = () => {
   const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
   watch('wardId');
-  const [registerSchool, { data, isLoading: isLoadingRegister, isSuccess, isError, error }] = useRegisterCompanyMutation();
-  const onSubmit: SubmitHandler<FormDataRegisterSchool> = data => {
+
+  const [registerSchool, { data, isLoading: isLoadingRegister, isSuccess }] = useRegisterCompanyMutation();
+  const onSubmit: SubmitHandler<FormDataRegisterSchool> = async data => {
     const { confirm_password, provinceId, districtId, establishDate, ...payload } = data;
     const formattedDate = formatDateDd_MM_yyyy(establishDate);
-    registerSchool({ ...payload, establishDate: formattedDate });
+    try {
+      const response = await registerSchool({ ...payload, establishDate: formattedDate }).unwrap();
+      toast.success(response?.message);
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string }).message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data.message }));
-    }
-    if (isError) {
-      const errorMessages = error?.data?.data;
-
-      if (errorMessages && typeof errorMessages === 'object') {
-        // Lấy danh sách các lỗi, loại bỏ giá trị `null` hoặc `undefined`
-        const allErrors = Object.values(errorMessages).filter(msg => Boolean(msg));
-
-        // Hiển thị lỗi đầu tiên nếu có
-        if (allErrors.length > 0) {
-          dispatch(setToast({ message: allErrors[0], type: 'error' }));
-        }
-      } else if (error?.data?.message) {
-        // Trường hợp lỗi chỉ có 1 message thay vì object
-        dispatch(setToast({ message: error.data.message, type: 'error' }));
-      } else {
-        // Lỗi mặc định
-        dispatch(setToast({ message: 'Đã xảy ra lỗi, vui lòng thử lại.', type: 'error' }));
-      }
-    }
-
     dispatch(setLoading(isLoadingDistricts || isLoadingProvinces || isLoadingWard || isLoadingRegister));
-  }, [dispatch, isLoadingDistricts, isLoadingProvinces, isLoadingWard, isLoadingRegister, data?.success, isSuccess]);
+  }, [dispatch, isLoadingDistricts, isLoadingProvinces, isLoadingWard, isLoadingRegister]);
   return (
     <>
       <h1 className="my-6 px-6 text-xl font-bold md:mx-5 md:px-0 md:text-2xl">Đăng ký tài khoản doanh nghiệp</h1>

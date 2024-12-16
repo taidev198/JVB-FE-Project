@@ -1,13 +1,14 @@
 'use client';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useRouter } from 'next/router';
 import { Checkbox } from '@mui/material';
 import toast from 'react-hot-toast';
-import Link from 'next/link';
 
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import AuthLayout from '@/layouts/AuthLayout';
@@ -27,7 +28,7 @@ const validationSchema = Yup.object({
   email: Yup.string()
     .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không hợp lệ')
     .required('Email không được bỏ trống')
-    .max(50, 'Email không được quá 50 kí tự'),
+    .max(255, 'Email không được quá 255 kí tự'),
   password: Yup.string().required('Mật khẩu không được bỏ trống').min(6, 'Mật khẩu phải có ít nhất 8 ký tự'),
   // .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt'),
 });
@@ -43,10 +44,20 @@ const Login = () => {
   } = useForm<FormDataLogin>({
     resolver: yupResolver(validationSchema),
   });
-  const [login, { isLoading, isSuccess, data, isError, error }] = useLoginMutation();
+  const [login, { isLoading, isSuccess, data, isError }] = useLoginMutation();
 
-  const onSubmit: SubmitHandler<FormDataLogin> = data => {
-    login(data);
+  const onSubmit: SubmitHandler<FormDataLogin> = async data => {
+    try {
+      const response = await login(data).unwrap();
+      toast.success(response?.message);
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
@@ -67,14 +78,7 @@ const Login = () => {
           break;
       }
     }
-
-    if (isError) {
-      if ('status' in error) {
-        const errMsg = 'error' in error ? error.error : JSON.stringify(error.data.message);
-        toast.error(errMsg);
-      }
-    }
-  }, [isSuccess, isError, data?.data]);
+  }, [isSuccess, isError, data?.data, dispatch, isLoading, router]);
 
   return (
     <AuthLayout type="login">

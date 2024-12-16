@@ -98,9 +98,6 @@ const UpdateWorkshop = () => {
     } catch (err) {
       console.error('Error creating workshop:', err);
     }
-    // formData.forEach((value, key) => {
-    //   console.log(key, value);
-    // });
   };
 
   // Hàm xử lý xóa ảnh đã lưu

@@ -8,6 +8,7 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import QrCodeIcon from '@mui/icons-material/QrCode';
 import WidgetsIcon from '@mui/icons-material/Widgets';
+import TrafficIcon from '@mui/icons-material/Traffic';
 
 import { useAppSelector } from '@/store/hooks';
 import { useGetDetailAccountCompanyQuery } from '@/services/adminSystemApi';
@@ -37,7 +38,7 @@ const AdminSystemDetailCompany = () => {
           <div>
             <h2 className="text-xl font-bold">{AccountCompanyDetail?.data.companyName}</h2>
             <Link href={'#'}>
-              <p className="text-primary-gray">Chi tiết thông tin công ty</p>
+              <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin công ty</p>
             </Link>
           </div>
         </div>
@@ -74,11 +75,11 @@ const AdminSystemDetailCompany = () => {
               <span className="mr-2 font-semibold">Ngày thành lập:</span> {AccountCompanyDetail?.data.establishedDate}
             </div>
           </li>
-          <li className="mt-4 flex items-center  gap-3 ">
+          <li className="mt-4 flex items-center gap-3">
             <div>
               <div className="flex items-center gap-3">
-                <WidgetsIcon sx={{ color: '#757575' }} />
-                <span className="mr-2 font-semibold">Lĩnh vực:</span>
+                <TrafficIcon sx={{ color: '#757575' }} />
+                <span className="mr-2 font-semibold">Trạng thái:</span>
                 <Chip
                   label={typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').title}
                   style={{
@@ -87,6 +88,17 @@ const AdminSystemDetailCompany = () => {
                   }}
                 />
               </div>
+            </div>
+          </li>
+          <li className="mt-4">
+            <div className="mb-3 flex flex-wrap items-center gap-3">
+              <WidgetsIcon sx={{ color: '#757575' }} />
+              <p className="mr-2 w-fit font-semibold">Lĩnh vực:</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {AccountCompanyDetail?.data.fields.map(field => (
+                <Chip label={field?.fieldName ?? ''} key={field.id} variant="outlined" color="success" />
+              ))}
             </div>
           </li>
         </ul>

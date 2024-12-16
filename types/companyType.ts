@@ -59,3 +59,21 @@ export interface ICompanyDetailResponse {
   message: string;
   data: ICompanyEmploy;
 }
+
+export interface IAccountCompanyAllResponse {
+  code: number;
+  message: string;
+  data: {
+    content: ICompany[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}
+
+export interface IAccountCompanyDetailResponse {
+  code: number;
+  message: string;
+  data: ICompany;
+}

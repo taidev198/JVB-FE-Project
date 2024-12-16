@@ -1,5 +1,21 @@
 import * as Yup from 'yup';
 
+export interface FormDataRegisterSchool {
+  companyName: string;
+  companyCode: string;
+  companyDescription: string;
+  phoneNumber: string;
+  houseNumber: string;
+  wardId: number;
+  email: string;
+  password: string;
+  confirm_password: string;
+  districtId: number;
+  provinceId: number;
+  establishDate: string;
+  taxCode: string;
+}
+
 const registerValidateCompany = Yup.object({
   companyName: Yup.string().required('Tên doanh nghiệp là bắt buộc').max(50, 'Tên doanh nghiệp không được quá 50 kí tự'),
   companyCode: Yup.string().required('Mã doanh nghiệp là bắt buộc').max(30, 'Mã doanh nghiệp không được quá 30 kí tự'),

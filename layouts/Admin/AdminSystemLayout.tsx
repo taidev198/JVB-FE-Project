@@ -1,6 +1,5 @@
 import React, { memo, ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import toast from 'react-hot-toast';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Navbar from './Sidebar';
 import Header from '@/components/Header/Header';
@@ -17,7 +16,6 @@ const AdminSystemLayout = memo(({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (roleAccount !== 'ADMIN') {
       router.push('/auth/login');
-      toast.error('Bạn không có quyền vào admin');
     }
   }, [roleAccount, router]);
   return (
