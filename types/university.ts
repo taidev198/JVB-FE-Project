@@ -30,3 +30,9 @@ export interface UniversityResponse {
     currentPage: number;
   };
 }
+
+export interface UniversityDetailResponse {
+  code: number;
+  message: string;
+  data: IUniversity;
+}

@@ -1,11 +1,14 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import toast from 'react-hot-toast';
 import { yupResolver } from '@hookform/resolvers/yup';
 import Select from 'react-select';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
-import validationSchemaSchool from './validationSchemaSchool';
+import validationSchemaSchool, { FormDataRegisterSchool } from './validationSchemaSchool';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import TextEditor from '@/components/Common/TextEditor';
@@ -13,24 +16,8 @@ import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery, 
 import SelectReact from '@/components/Common/SelectMui';
 import { typeUniversity } from '@/utils/app/const';
 import { setLoading } from '@/store/slices/global';
-import { setToast } from '@/store/slices/toastSlice';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
-
-interface FormDataRegisterSchool {
-  universityName: string;
-  universityCode: string;
-  email: string;
-  password: string;
-  confirm_password: string;
-  phoneNumber: string;
-  wardId: number;
-  districtId: number;
-  provinceId: number;
-  establishDate: string;
-  houseNumber: string;
-  universityType: string;
-  universityDescription: string;
-}
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 const RegisterSchoolComponent = () => {
   const dispatch = useDispatch();
@@ -49,39 +36,26 @@ const RegisterSchoolComponent = () => {
   const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
   watch('wardId');
-  const [registerSchool, { data, isLoading: isLoadingRegister, isSuccess, isError, error }] = useRegisterUniversityMutation();
-  const onSubmit: SubmitHandler<FormDataRegisterSchool> = data => {
+  const [registerSchool, { isLoading: isLoadingRegister }] = useRegisterUniversityMutation();
+  const onSubmit: SubmitHandler<FormDataRegisterSchool> = async data => {
     const { confirm_password, provinceId, districtId, establishDate, ...payload } = data;
     const formattedDate = formatDateDd_MM_yyyy(establishDate);
-    registerSchool({ ...payload, establishDate: formattedDate });
+    try {
+      const response = await registerSchool({ ...payload, establishDate: formattedDate }).unwrap();
+      toast.success(response?.message);
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string }).message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data.message }));
-    }
-    if (isError) {
-      const errorMessages = error?.data?.data;
-
-      if (errorMessages && typeof errorMessages === 'object') {
-        // Lấy danh sách các lỗi, loại bỏ giá trị `null` hoặc `undefined`
-        const allErrors = Object.values(errorMessages).filter(msg => Boolean(msg));
-
-        // Hiển thị lỗi đầu tiên nếu có
-        if (allErrors.length > 0) {
-          dispatch(setToast({ message: allErrors[0], type: 'error' }));
-        }
-      } else if (error?.data?.message) {
-        // Trường hợp lỗi chỉ có 1 message thay vì object
-        dispatch(setToast({ message: error.data.message, type: 'error' }));
-      } else {
-        // Lỗi mặc định
-        dispatch(setToast({ message: 'Đã xảy ra lỗi, vui lòng thử lại.', type: 'error' }));
-      }
-    }
-
     dispatch(setLoading(isLoadingDistricts || isLoadingProvinces || isLoadingWard || isLoadingRegister));
-  }, [dispatch, isLoadingDistricts, isLoadingProvinces, isLoadingWard, isLoadingRegister, data?.success, isSuccess]);
+  }, [dispatch, isLoadingDistricts, isLoadingProvinces, isLoadingWard, isLoadingRegister]);
   return (
     <>
       <h1 className="my-6 px-6 text-xl font-bold md:mx-5 md:px-0 md:text-2xl">Đăng ký tài khoản trường học</h1>
@@ -264,12 +238,12 @@ const RegisterSchoolComponent = () => {
                   placeholder="Chọn Xã/Phường"
                   isLoading={isLoadingWard}
                   options={wards?.data || []}
-                  getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
-                  getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                  getOptionLabel={(option: { wardName: any }) => option.wardName || ''}
+                  getOptionValue={(option: { id: any }) => option.id}
                   onChange={(selectedOption: { id: any }) => {
-                    field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                    field.onChange(selectedOption ? selectedOption.id : null);
                   }}
-                  value={wards?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                  value={wards?.data?.find(option => option.id === field.value)}
                   ref={field.ref}
                   styles={{
                     placeholder: (provided: any) => ({

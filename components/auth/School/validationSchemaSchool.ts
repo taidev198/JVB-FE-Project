@@ -1,5 +1,21 @@
 import * as Yup from 'yup';
 
+export interface FormDataRegisterSchool {
+  universityName: string;
+  universityCode: string;
+  email: string;
+  password: string;
+  confirm_password: string;
+  phoneNumber: string;
+  wardId: number;
+  districtId: number;
+  provinceId: number;
+  establishDate: string;
+  houseNumber: string;
+  universityType: string;
+  universityDescription: string;
+}
+
 const validationSchemaSchool = Yup.object({
   universityName: Yup.string().required('Tên trường học là bắt buộc').max(50, 'Tên trường học không được quá 50 kí tự'),
   universityCode: Yup.string().required('Mã trường học là bắt buộc').max(30, 'Mã trường học không được quá 30 kí tự'),

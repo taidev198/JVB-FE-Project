@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Chip, IconButton, Tooltip, Pagination, TextField } from '@mui/material';
 import Select from 'react-select';
@@ -10,7 +10,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import debounce from 'lodash.debounce';
 import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import {
@@ -20,29 +20,37 @@ import {
   useRejectWorkshopMutation,
 } from '@/services/adminSystemApi';
 import { statusTextWorkshop } from '@/utils/app/const';
+import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 const animatedComponents = makeAnimated();
 
 const AdminSystemWorkshop = () => {
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState('');
-  const [status, setStatus] = useState('');
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
+  const { page, keyword, size, status } = useAppSelector(state => state.filter);
 
-  const debouncedSearch = debounce((value: string) => {
-    setKeyword(value);
-  }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
 
-  const { data: workshops, isLoading } = useGetAllWorkShopsAdminSystemQuery({
-    page,
-    size: 10,
-    keyword,
-    status,
-  });
+  const { data: workshops, isLoading } = useGetAllWorkShopsAdminSystemQuery(
+    {
+      page,
+      size,
+      keyword,
+      status,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   const handleAction = (actionType: BackdropType, workshopId: number) => {
     setSelectedWorkshopId(workshopId);
@@ -58,20 +66,31 @@ const AdminSystemWorkshop = () => {
     if (selectedWorkshopId !== null && selectedAction) {
       try {
         switch (selectedAction) {
-          case BackdropType.ApproveConfirmation:
-            approveWorkshop({ id: selectedWorkshopId });
+          case BackdropType.ApproveConfirmation: {
+            const response = await approveWorkshop({ id: selectedWorkshopId }).unwrap();
+            toast.success(response?.message);
             break;
-          case BackdropType.RefuseConfirmation:
-            rejectWorkshop({ id: selectedWorkshopId });
+          }
+          case BackdropType.RefuseConfirmation: {
+            const response = await rejectWorkshop({ id: selectedWorkshopId }).unwrap();
+            toast.success(response?.message);
             break;
-          case BackdropType.DeleteConfirmation:
-            deleteWorkshop({ id: selectedWorkshopId });
+          }
+          case BackdropType.DeleteConfirmation: {
+            const response = await deleteWorkshop({ id: selectedWorkshopId }).unwrap();
+            toast.success(response?.message);
             break;
+          }
           default:
             throw new Error('Invalid action type');
         }
       } catch (error) {
-        console.error('Error performing action:', error);
+        if (isFetchBaseQueryError(error)) {
+          const errMsg = (error.data as { message?: string }).message || 'Đã xảy ra lỗi';
+          toast.error(errMsg);
+        } else if (isErrorWithMessage(error)) {
+          toast.error(error.message);
+        }
       } finally {
         dispatch(setBackdrop(null));
         setSelectedWorkshopId(null);
@@ -80,30 +99,16 @@ const AdminSystemWorkshop = () => {
     }
   };
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setPage(page);
-  };
-
   useEffect(() => {
-    if (isSuccessApprove && dataApprove?.message) {
-      toast.success(dataApprove?.message);
-      resetApprove(); // Gọi reset để làm sạch trạng thái approve
-    }
-    if (isSuccessReject && dataReject?.message) {
-      toast.success(dataReject?.message);
-      resetReject(); // Gọi reset để làm sạch trạng thái reject
-    }
-    if (isSuccessDelete && dataDelete?.message) {
-      toast.success(dataDelete?.message);
-      resetDelete(); // Gọi reset để làm sạch trạng thái delete
-    }
-
     dispatch(setLoading(isLoading || isLoadingApprove || isLoadingReject || isLoadingDelete));
+    return () => {
+      dispatch(resetFilters());
+    };
   }, [
+    dispatch,
     isLoading,
     isLoadingApprove,
     isLoadingReject,
-    dispatch,
     dataApprove?.message,
     isSuccessApprove,
     isSuccessReject,
@@ -132,10 +137,17 @@ const AdminSystemWorkshop = () => {
               { value: 'PENDING', label: 'Chờ duyệt' },
               { value: 'REJECTED', label: 'Từ chối' },
             ]}
-            onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
+            onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
             className="w-[160px] cursor-pointer"
           />
-          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
+          <TextField
+            id="filled-search"
+            label="Tìm kiếm tiêu đề, tên trường"
+            type="search"
+            variant="outlined"
+            size="small"
+            onChange={e => debouncedSearch(e.target.value)}
+          />
         </div>
       </div>
 
@@ -169,9 +181,7 @@ const AdminSystemWorkshop = () => {
             {workshops?.data.content.length !== 0 ? (
               workshops?.data.content.map((workshop, index) => (
                 <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-4 py-4">
-                    <p className="min-w-max">{index + 1}</p>
-                  </td>
+                  <td className="px-2 py-4"> {index + 1 + (page - 1) * size}</td>
                   <Link href={`/admin/system/workshop/${workshop.id}`}>
                     <td className="cursor-pointer px-2 py-4 hover:text-primary-main">
                       <p className="sm:[250px] w-[220px]">{workshop.workshopTitle}</p>
@@ -201,16 +211,24 @@ const AdminSystemWorkshop = () => {
                       }
                     />
                   </td>
-                  <td className="flex items-center gap-1 py-4">
+                  <td className="flex items-center py-4">
                     {workshop.moderationStatus === 'PENDING' && (
                       <>
                         <Tooltip title="Duyệt">
-                          <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, workshop.id)}>
+                          <IconButton
+                            onClick={() => {
+                              handleAction(BackdropType.ApproveConfirmation, workshop.id);
+                              dispatch(setName(workshop.workshopTitle));
+                            }}>
                             <CheckCircleIcon color="success" />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Từ chối">
-                          <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, workshop.id)}>
+                          <IconButton
+                            onClick={() => {
+                              handleAction(BackdropType.RefuseConfirmation, workshop.id);
+                              dispatch(setName(workshop.workshopTitle));
+                            }}>
                             <ClearIcon color="warning" />
                           </IconButton>
                         </Tooltip>
@@ -220,7 +238,11 @@ const AdminSystemWorkshop = () => {
                     {workshop.moderationStatus !== 'PENDING' && (
                       <>
                         <Tooltip title="Xóa">
-                          <IconButton onClick={() => handleAction(BackdropType.DeleteConfirmation, workshop.id)}>
+                          <IconButton
+                            onClick={() => {
+                              handleAction(BackdropType.DeleteConfirmation, workshop.id);
+                              dispatch(setName(workshop.workshopTitle));
+                            }}>
                             <DeleteIcon color="error" />
                           </IconButton>
                         </Tooltip>
@@ -241,7 +263,7 @@ const AdminSystemWorkshop = () => {
       </div>
       {/* Pagination */}
       <div className="flex items-center justify-center bg-white p-5">
-        <Pagination count={workshops?.data.totalPages} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
+        <Pagination count={workshops?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
         <p className="text-sm">
           ({workshops?.data.currentPage} / {workshops?.data.totalPages})
         </p>
@@ -254,9 +276,9 @@ const AdminSystemWorkshop = () => {
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">
             <h3 className="font-bold">
-              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt Workshop ${name}`}
-              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối Workshop ${name}`}
-              {selectedAction === BackdropType.DeleteConfirmation && `Xóa Workshop ${name}`}
+              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt workshop ${name}`}
+              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối workshop ${name}`}
+              {selectedAction === BackdropType.DeleteConfirmation && `Xóa workshop ${name}`}
             </h3>
             <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div className="mt-9 flex items-center gap-5">

@@ -5,6 +5,7 @@ export interface ICompany {
   token: string;
   user: {
     id: number;
+    fullName: string;
     linkWebsite: string;
     email: string;
     companyName: string;
@@ -24,6 +25,7 @@ export interface ISchool {
   token: string;
   user: {
     id: number;
+    fullName: string;
     universityName: string;
     email: string;
     logoUrl: string | null;

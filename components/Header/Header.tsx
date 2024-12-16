@@ -1,6 +1,7 @@
+import { useRouter } from 'next/router';
 import { Avatar, IconButton, Menu, useMediaQuery, useTheme, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { memo, use, useState } from 'react';
+import { memo, useState } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -17,7 +18,7 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const dispatch = useDispatch();
   const user = useAppSelector(state => state.user);
-
+  const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleMenuClose = () => {
@@ -27,7 +28,10 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
-
+  const handleLogout = () => {
+    dispatch(logOut());
+    router.push('/');
+  };
   return (
     <header className={`border-b border-gray-400 border-opacity-20 bg-primary-white py-[30px] shadow-md ${isAdmin ? 'px-[20px]' : ''}`}>
       <div className="flex items-center justify-between">
@@ -56,7 +60,7 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <span className="text-primary-black">Xin chào {user.user.fullName}</span>
+            <span className="text-primary-black">Xin chào {user?.user?.fullName ?? ''}</span>
 
             <IconButton onClick={handleMenuOpen}>
               <Avatar src="" />
@@ -76,7 +80,7 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
                 horizontal: 'right',
               }}>
               <MenuItem>Trang Admin</MenuItem>
-              <MenuItem onClick={() => dispatch(logOut())}>
+              <MenuItem onClick={handleLogout}>
                 Đăng xuất <LogoutIcon />
               </MenuItem>
             </Menu>
