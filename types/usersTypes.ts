@@ -1,10 +1,11 @@
-import { Address } from './addressesTypes';
-import { Fields } from '.';
+import { IAddress } from './addressesTypes';
+import { IFields } from '.';
 
 export interface ICompany {
   token: string;
   user: {
     id: number;
+    fullName: string;
     linkWebsite: string;
     email: string;
     companyName: string;
@@ -14,8 +15,8 @@ export interface ICompany {
     phoneNumber: string;
     taxCode: string;
     establishedDate: string;
-    fields: Fields[];
-    addresses: Address;
+    fields: IFields[];
+    addresses: IAddress;
   };
   roleAccount: string;
 }
@@ -24,6 +25,7 @@ export interface ISchool {
   token: string;
   user: {
     id: number;
+    fullName: string;
     universityName: string;
     email: string;
     logoUrl: string | null;
@@ -33,7 +35,7 @@ export interface ISchool {
     phoneNumber: string;
     establishedDate: string;
     universityType: string;
-    addresses: Address;
+    addresses: IAddress;
   };
   numberOfStudents: number;
   numberOfGraduates: number;
@@ -61,7 +63,7 @@ export interface IEmploymentSchool {
     phoneNumber: string;
     fullName: string;
     avatarUrl: string;
-    address: Address;
+    address: IAddress;
   };
   gender: string;
   dateOfBirth: string;
@@ -78,7 +80,7 @@ export interface IEmploymentCompany {
     email: string;
     phoneNumber: string;
     fullName: string;
-    address: Address | null;
+    address: IAddress | null;
     employeePosition: string;
     dateOfBirth: string;
     gender: string;

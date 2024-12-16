@@ -1,5 +1,5 @@
 import { Chip, Stack } from '@mui/material';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import BackupIcon from '@mui/icons-material/Backup';
@@ -12,7 +12,7 @@ interface ImageUploaderProps {
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ images, setImages, existingImages = [], removeExistingImage }) => {
   const [newPreviews, setNewPreviews] = useState<string[]>([]); // Chỉ lưu previews của ảnh mới
-
+  const dropzoneRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // Chỉ khởi tạo previews của ảnh mới khi `images` thay đổi
     const previews = images.map(file => URL.createObjectURL(file));
@@ -50,6 +50,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, setImages, existi
     },
     maxSize: 10 * 1024 * 1024, // 10MB
   });
+
+  useEffect(() => {
+    if (dropzoneRef.current) {
+      dropzoneRef.current.focus();
+    }
+  }, []);
 
   return (
     <div>

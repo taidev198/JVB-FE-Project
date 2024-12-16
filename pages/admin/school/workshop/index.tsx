@@ -9,7 +9,7 @@ import { debounce } from 'lodash';
 
 import DatePickerComponent from '@/components/Common/DatePicker';
 import { Button } from '@/components/Common/Button';
-import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useDeleteWorkshopMutation, useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
@@ -23,6 +23,7 @@ const AdminSchoolWorkshop = () => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
+  const name = useAppSelector(state => state.global.name);
   const dispatch = useDispatch();
 
   const { data: workshops, isLoading } = useGetAllWorShopsUniversityQuery({
@@ -152,7 +153,11 @@ const AdminSchoolWorkshop = () => {
                       </Link>
                     </Tooltip>
                     <Tooltip title="Xóa">
-                      <IconButton onClick={() => handleOpenConfirm(workshop.id)}>
+                      <IconButton
+                        onClick={() => {
+                          handleOpenConfirm(workshop.id);
+                          dispatch(setName(workshop.workshopTitle));
+                        }}>
                         <DeleteIcon color="error" />
                       </IconButton>
                     </Tooltip>
@@ -174,7 +179,7 @@ const AdminSchoolWorkshop = () => {
         {showBackdrop === BackdropType.DeleteConfirmation && (
           <BackDrop isCenter>
             <div className="max-w-[400px] rounded-md p-6">
-              <h3 className="font-bold">Xóa Workshop</h3>
+              <h3 className="font-bold">Xóa workshop {name}</h3>
               <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
               <div className="mt-9 flex items-center gap-5">
                 <Button text="Hủy" className="bg-red-700" full={true} onClick={() => dispatch(setBackdrop(null))} />

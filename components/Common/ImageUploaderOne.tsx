@@ -1,5 +1,5 @@
 import { Chip, Stack } from '@mui/material';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
@@ -37,6 +37,15 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
     },
   });
 
+  useEffect(() => {
+    // Cleanup preview URL when component is unmounted or image changes
+    return () => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
+
   return (
     <div className="w-[160px]">
       <div
@@ -56,12 +65,11 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
       {preview && (
         <div className="mt-4">
           <Stack>
-            <Chip label={image?.name || ''} onDelete={handleRemoveImage} className="font-bold" />
+            <Chip label={image?.name || 'No file selected'} onDelete={handleRemoveImage} className="font-bold" />
           </Stack>
         </div>
       )}
     </div>
   );
 };
-
 export default ImageUploaderOne;

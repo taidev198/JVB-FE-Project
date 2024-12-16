@@ -98,9 +98,6 @@ const UpdateWorkshop = () => {
     } catch (err) {
       console.error('Error creating workshop:', err);
     }
-    // formData.forEach((value, key) => {
-    //   console.log(key, value);
-    // });
   };
 
   // Hàm xử lý xóa ảnh đã lưu
@@ -289,9 +286,8 @@ const UpdateWorkshop = () => {
           </div>
           <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
         </div>
-        <div className="flex justify-end bg-primary-white p-5">
-          <Button text="Cập nhật" type="submit" />
-        </div>
+
+        <Button text="Cập nhật" type="submit" />
       </form>
     </div>
   );

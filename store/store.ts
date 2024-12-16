@@ -4,6 +4,7 @@ import storage from 'redux-persist/lib/storage';
 import globalReducer from './slices/global';
 import toastReducer from './slices/toastSlice';
 import userReducer from './slices/user';
+import filterReducer from './slices/filtersSlice';
 import { adminSystemApi } from '@/services/adminSystemApi';
 import { adminSchoolApi } from '@/services/adminSchoolApi';
 import { adminCompanyApi } from '@/services/adminCompanyApi';
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   user: userReducer,
   global: globalReducer,
   toast: toastReducer,
+  filter: filterReducer,
   [adminSystemApi.reducerPath]: adminSystemApi.reducer,
   [adminSchoolApi.reducerPath]: adminSchoolApi.reducer,
   [adminCompanyApi.reducerPath]: adminCompanyApi.reducer,

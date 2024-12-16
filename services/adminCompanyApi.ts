@@ -1,5 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
+import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
+import { number } from 'yup';
+import { IProfileCompany, IProfileCompanyRespone } from '@/types/profileCompany';
+import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
+import { result } from 'lodash';
+import { error } from 'console';
 
 export const adminCompanyApi = createApi({
   reducerPath: 'adminCompanyApi',
@@ -14,6 +20,7 @@ export const adminCompanyApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['Workshop', 'Company', 'ii'],
   endpoints: builder => {
     return {
       getAllWorShopsUniversity: builder.query<void, void>({
@@ -21,8 +28,71 @@ export const adminCompanyApi = createApi({
           url: '/university/workshops',
         }),
       }),
+
+      //employe
+      getAllCompanyEmploye: builder.query<ICompanyAllResponse, { page: number; size: number; keyword: string; status: string }>({
+        query: ({ page, size, keyword, status }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+
+          return `/company/company-employees?${queryParams.toString()}`;
+        },
+        providesTags: [{ type: 'Company', id: 'LIST' }], // Liên kết tag này với getAllDepartments
+      }),
+
+      getDetailEmployee: builder.query<ICompanyDetailResponse, { id: number | null }>({
+        query: ({ id }) => ({
+          url: `/company/company-employees/${id}`,
+        }),
+        providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Company', id }] : []),
+      }),
+
+      //profile Company
+      getDetailProfile: builder.query<IProfileCompanyRespone, void>({
+        query: () => ({
+          url: `/company/detail-current`,
+        }),
+      }),
+
+      //JOBCOMPANY
+      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string; status: string }>({
+        query: ({ page, size, keyword, status }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+
+          return `/company/get_all_jobs?${queryParams.toString()}`;
+        },
+        providesTags: ['ii'],
+      }),
+      getDetailCompanyJob: builder.query<IJobDetailResponse, { id: number | null }>({
+        query: ({ id }) => ({
+          url: `/company/get_detail/${id}`,
+        }),
+        // providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Employee', id }] : []),
+      }),
+      deleteJobCompany: builder.mutation({
+        query: ({ id }) => ({
+          url: `/company/delete_job/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: [{ type: 'ii' }],
+      }),
     };
   },
 });
 
-export const { useGetAllWorShopsUniversityQuery } = adminCompanyApi;
+export const {
+  useGetAllWorShopsUniversityQuery,
+  useGetAllCompanyEmployeQuery,
+  useGetDetailEmployeeQuery,
+  useGetDetailProfileQuery,
+  useGetAllCompanyJobQuery,
+  useGetDetailCompanyJobQuery,
+  useDeleteJobCompanyMutation,
+} = adminCompanyApi;

@@ -6,31 +6,36 @@ import Select from 'react-select';
 interface SelectProps {
   name: string;
   label?: string;
-  options: { value: number; label: string | undefined }[]; // Mảng các lựa chọn với `value` là số và `label` là chuỗi
+  options: { value: number | string; label: string | undefined }[];
   control: Control<any>;
   error?: string;
   className?: string;
   isMultiple?: boolean;
   placeholder: string;
-  value?: { value: number; label: string }[]; // Nếu muốn giá trị hiện tại từ bên ngoài
+  value?: { value: number | string; label: string }[];
+  required?: boolean;
 }
 
-const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, error, className, isMultiple = false, placeholder, value }) => {
+const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, error, className, isMultiple = false, placeholder, value, required = false }) => {
   return (
-    <div className={`form-group ${className}`}>
-      {label && <label htmlFor={name}>{label}</label>}
+    <div className={`form-group mt-auto ${className}`}>
+      {label && (
+        <label htmlFor={name} className="block text-sm font-semibold text-gray-700">
+          {label} {required && <span className="text-red-600">*</span>}
+        </label>
+      )}
 
       <Controller
         name={name}
         control={control}
-        defaultValue={isMultiple ? value || [] : value || undefined} // Đảm bảo có giá trị mặc định, lấy từ `value` hoặc `field.value`
+        defaultValue={isMultiple ? value || [] : value || undefined}
         render={({ field }) => (
           <Select
             {...field}
             options={options}
             placeholder={placeholder}
             isMulti={isMultiple}
-            className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
+            className={`!basic-select py-1 shadow-none ${error ? 'is-invalid' : ''}`}
             classNamePrefix="select"
             value={
               isMultiple
@@ -42,6 +47,12 @@ const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, err
                 ? (selected as { value: number; label: string }[]).map(item => item.value) // Cập nhật giá trị cho lựa chọn nhiều
                 : (selected as { value: number; label: string }).value; // Cập nhật giá trị cho lựa chọn đơn
               field.onChange(newValue); // Cập nhật giá trị vào form
+            }}
+            styles={{
+              placeholder: (provided: any) => ({
+                ...provided,
+                fontSize: '14px',
+              }),
             }}
           />
         )}

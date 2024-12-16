@@ -1,0 +1,79 @@
+import { IAddress } from './addressesTypes';
+import { IFields } from '.';
+
+export interface ICompany {
+  id: number;
+  linkWebsite: string;
+  companyName: string;
+  companyCode: string;
+  logoUrl: string;
+  companyDescription: string;
+  phoneNumber: string;
+  taxCode: string;
+  establishedDate: string;
+  fields: IFields[];
+  address: IAddress;
+  account: { id: number; email: string; createAt: string; updateAt: string; statusAccount: string };
+  createAt: string;
+  updateAt: string;
+}
+
+export interface ICompanyEmploy {
+  id: number;
+  employeeCode: string;
+  account: {
+    id: number;
+    email: string;
+  };
+  avatarUrl: string;
+  phoneNumber: string;
+  fullName: string;
+  address: IAddress;
+  employeePosition: string;
+  dateOfBirth: string;
+  employeeStatus: string;
+  gender: string;
+  salary: number;
+  company: {
+    id: number;
+    companyCode: string;
+    companyName: string;
+  };
+  isDelete: false;
+}
+
+export interface ICompanyAllResponse {
+  code: number;
+  message: string;
+  data: {
+    content: ICompanyEmploy[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}
+
+export interface ICompanyDetailResponse {
+  code: number;
+  message: string;
+  data: ICompanyEmploy;
+}
+
+export interface IAccountCompanyAllResponse {
+  code: number;
+  message: string;
+  data: {
+    content: ICompany[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}
+
+export interface IAccountCompanyDetailResponse {
+  code: number;
+  message: string;
+  data: ICompany;
+}

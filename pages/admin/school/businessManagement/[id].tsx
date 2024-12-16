@@ -1,7 +1,8 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { IconButton } from '@mui/material';
+import { Chip, IconButton } from '@mui/material';
 
 import Link from 'next/link';
+import TextFieldsIcon from '@mui/icons-material/TextFields';
 import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -9,7 +10,17 @@ import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutli
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useEffect } from 'react';
+import { setLoading } from '@/store/slices/global';
+import { useGetDetailBusinessQuery } from '@/services/adminSchoolApi';
 const DetalBusinessManagement = () => {
+  const idBusiness = useAppSelector(state => state.global.id);
+  const dispatch = useAppDispatch();
+  const { data: business, isLoading } = useGetDetailBusinessQuery({ id: idBusiness });
+  useEffect(() => {
+    dispatch(setLoading(isLoading));
+  }, [dispatch, isLoading]);
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
       {/* Icon */}
@@ -35,37 +46,52 @@ const DetalBusinessManagement = () => {
           <li className="mt-5 flex items-center gap-3">
             <StarBorderIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mã ngành:</span> CNTT
+              <span className="mr-2 font-semibold">Mã ngành:</span> {business?.data.majorCode}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Tên Ngành:</span> Công Nghệ Thông Tin
+              <span className="mr-2 font-semibold">Tên Ngành:</span>
+              {business?.data.majorName}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <CreditScoreIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Số Tín Chỉ :</span> 124
+              <span className="mr-2 font-semibold">Số Tín Chỉ :</span> {business?.data.creditRequirement}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
             <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Số Sinh Viên:</span> 578
+              <span className="mr-2 font-semibold">Số Sinh Viên:</span> {business?.data.numberOfStudents}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <CameraOutdoorIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Khoa:</span> Công Nghệ Thông Tin
+              <span className="mr-2 font-semibold">Khoa:</span>
+              {business?.data.faculty.facultyName}
             </div>
           </li>
-          <li className="mt-4 flex items-center  gap-3 ">
-            <DescriptionIcon sx={{ color: '#757575' }} />
+          <li className="mt-4 flex items-center gap-3">
+            <TextFieldsIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mô tả:</span>Khoa Công nghệ Thông tin (CNTT) là một đơn vị trong các trường đại học, cao đẳng chuyên đào tạo.
+              <span className="mr-2 font-semibold">Lĩnh vực:</span>
+              <div className="  flex flex-wrap gap-2">
+                {business?.data.majorFields.map((i, index) => (
+                  <Chip key={index} label={i.fieldName} variant="outlined" color="primary" sx={{ fontSize: '14px' }} />
+                ))}
+              </div>
+            </div>
+          </li>
+
+          <li className="mt-5 flex  items-center gap-3 ">
+            <DescriptionIcon sx={{ color: '#757575' }} />
+            <div className="mt-5">
+              <span className="mr-2 font-semibold">Mô tả:</span>
+              {business?.data.majorDescription}
             </div>
           </li>
         </ul>

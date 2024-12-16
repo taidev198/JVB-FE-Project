@@ -18,8 +18,8 @@ const validationSchemaAddBusiness = Yup.object({
     .positive('Số lượng sinh viên phải là số dương')
     .integer('Số lượng sinh viên phải là số nguyên'),
   majorDescription: Yup.string().max(500, 'Mô tả ngành học không được quá 500 kí tự'),
-  facultyId: Yup.number().required('Ngành học là bắt buộc'),
-  fieldIds: Yup.array().of(Yup.number().required('Mỗi phần tử trong fieldIds phải là số')).required('Danh sách fieldIds là bắt buộc'),
+  facultyId: Yup.number().required('Danh sách ngành là bắt buộc'),
+  fieldIds: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),
 });
 
 export default validationSchemaAddBusiness;
