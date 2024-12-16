@@ -1,5 +1,7 @@
+const withTM = require('next-transpile-modules')(['antd', '@ant-design/icons', 'rc-util', 'rc-select', 'rc-menu']);
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = withTM({
   reactStrictMode: true,
   webpack(config) {
     config.experiments = {
@@ -18,7 +20,6 @@ const nextConfig = {
     API_SERVER_HOST: process.env.API_SERVER_HOST,
   },
   images: {
-    // domains: [],
     remotePatterns: [
       {
         protocol: 'https',
@@ -26,6 +27,6 @@ const nextConfig = {
       },
     ],
   },
-};
+});
 
 module.exports = nextConfig;

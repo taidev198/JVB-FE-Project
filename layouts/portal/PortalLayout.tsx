@@ -6,14 +6,13 @@ interface ProtolLayoutProps {
   children: React.ReactNode;
   type: string;
 }
-const PortalLayout: FC<ProtolLayoutProps> = ({ children }) => {
-  return (
-    <>
-      <PortalHeader />
-      {children}
-      <PortalFooter />
-    </>
-  );
-};
+
+const PortalLayout: FC<ProtolLayoutProps> = ({ children, type }) => (
+  <>
+    <PortalHeader type={type} />
+    {children}
+    <PortalFooter />
+  </>
+);
 
 export default PortalLayout;

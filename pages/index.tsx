@@ -25,7 +25,6 @@ const Home: React.FC<HomeProps> = () => {
         <meta name="viewport" content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
-        <link rel="stylesheet" href="../styles/portal.css" />
       </Head>
       <PortalLayout type="home">
         <main>

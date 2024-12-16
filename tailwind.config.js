@@ -42,6 +42,7 @@ module.exports = {
         'banner-img': 'url(/images/image_2x.webp)',
         'why-us-bg': 'url(/images/ww-img__bg.svg)',
         'feedback-bg': 'url(/images/feedback__bg.png)',
+        'breakcrumb-bg': 'url(/images/breadcrumb__bg.png)',
       },
       fontFamily: {
         logo: ['Azeret Mono', 'sans-serif'],
