@@ -4,8 +4,8 @@ import { useDropzone } from 'react-dropzone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 interface ImageUploaderOneProps {
-  image: File | null;
-  setImage: (file: File | null) => void;
+  image: File | null | string; // Cập nhật để chấp nhận cả File và URL
+  setImage: (file: File | null | string) => void;
 }
 
 const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) => {
@@ -38,13 +38,20 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
   });
 
   useEffect(() => {
-    // Cleanup preview URL when component is unmounted or image changes
+    if (typeof image === 'string') {
+      setPreview(image);
+    } else if (image) {
+      setPreview(URL.createObjectURL(image));
+    }
+  }, [image]);
+
+  useEffect(() => {
     return () => {
-      if (preview) {
+      if (preview && typeof image !== 'string') {
         URL.revokeObjectURL(preview);
       }
     };
-  }, [preview]);
+  }, [preview, image]);
 
   return (
     <div className="w-[160px]">
@@ -65,11 +72,12 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
       {preview && (
         <div className="mt-4">
           <Stack>
-            <Chip label={image?.name || 'No file selected'} onDelete={handleRemoveImage} className="font-bold" />
+            <Chip label={typeof image === 'string' ? 'Current Image' : image?.name || 'No file selected'} onDelete={handleRemoveImage} className="font-bold" />
           </Stack>
         </div>
       )}
     </div>
   );
 };
+
 export default ImageUploaderOne;

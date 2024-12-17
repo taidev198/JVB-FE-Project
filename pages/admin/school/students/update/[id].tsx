@@ -5,7 +5,9 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -15,10 +17,10 @@ import validationSchemaAddStudent from '@/components/Admin/school/Student/valida
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
-import { useAddStudentMutation, useGetDetailStudentQuery } from '@/services/adminSchoolApi';
-import { setToast } from '@/store/slices/toastSlice';
+import { useGetAllMajorsQuery, useGetDetailStudentQuery, useUpdateStudentMutation } from '@/services/adminSchoolApi';
 import { setLoading } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataAddStudent {
   studentCode: string;
@@ -35,12 +37,13 @@ interface FormDataAddStudent {
   majorId: number;
   provinceId: number;
   districtId: number;
-  wardId: string;
+  wardId: number;
 }
 
 const UpdateStudent = () => {
-  const [image, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -56,8 +59,11 @@ const UpdateStudent = () => {
   });
   const id = useAppSelector(state => state.global.id);
   const { data: detailStudent } = useGetDetailStudentQuery({ id });
-  console.log(detailStudent);
-
+  useEffect(() => {
+    if (detailStudent?.data.avatarUrl) {
+      setImage(detailStudent?.data.avatarUrl);
+    }
+  }, [detailStudent?.data.avatarUrl]);
   const provinceSelect = watch('provinceId');
   const districtSelect = watch('districtId');
   // Fetch data
@@ -65,9 +71,10 @@ const UpdateStudent = () => {
   const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
 
-  const [addStudent, { data, isLoading, isSuccess, isError, error }] = useAddStudentMutation();
+  const { data: majors } = useGetAllMajorsQuery();
+  const [updateStudent, { isLoading }] = useUpdateStudentMutation();
 
-  const onSubmit: SubmitHandler<FormDataAddStudent> = data => {
+  const onSubmit: SubmitHandler<FormDataAddStudent> = async data => {
     const formData = new FormData();
 
     // Append dữ liệu JSON dưới dạng chuỗi
@@ -87,33 +94,45 @@ const UpdateStudent = () => {
       phoneNumber: data.phoneNumber,
       majorId: data.majorId,
     };
-
-    // Chuyển đổi đối tượng studentRequest thành chuỗi JSON và append vào FormData
     formData.append('studentRequest', new Blob([JSON.stringify(studentRequest)], { type: 'application/json' }));
-    // Append file vào FormData
-
-    if (!image) {
-      console.error('Image is required');
-      return;
-    }
     formData.append('file', image as File);
-    addStudent(formData);
+
+    try {
+      const response = await updateStudent({ formData: formData, id: id }).unwrap();
+      toast.success(response.message);
+      router.push('/admin/school/students');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
     if (detailStudent?.data) {
-      reset(detailStudent?.data);
+      reset({
+        studentCode: detailStudent?.data.studentCode,
+        fullName: detailStudent?.data.fullName,
+        avatarUrl: detailStudent?.data.avatarUrl,
+        email: detailStudent?.data.email,
+        gender: detailStudent?.data.gender,
+        phoneNumber: detailStudent?.data.phoneNumber,
+        yearOfEnrollment: detailStudent?.data.yearOfEnrollment,
+        houseNumber: detailStudent?.data.phoneNumber,
+        gpa: detailStudent?.data.gpa,
+        dateOfBirth: detailStudent?.data.dateOfBirth,
+        studentStatus: detailStudent?.data.studentStatus,
+        majorId: detailStudent?.data.major.id,
+        provinceId: detailStudent?.data?.address.province.id,
+        districtId: detailStudent?.data?.address.district.id,
+        wardId: detailStudent?.data?.address.ward.id,
+      });
     }
-    if (isSuccess && data?.message) {
-      dispatch(setToast({ message: data.message }));
-    }
-
-    if (isError && error?.data?.message) {
-      dispatch(setToast({ message: error.data.message, type: 'error' }));
-    }
-
     dispatch(setLoading(isLoading));
-  }, [isSuccess, isError, isLoading, data?.message, error?.data?.message, dispatch]);
+  }, [isLoading, dispatch, detailStudent?.data, reset]);
 
   return (
     <div className="bg-primary-white px-10">
@@ -177,11 +196,10 @@ const UpdateStudent = () => {
               name="majorId"
               label="Ngành học"
               placeholder="Chọn ngành học"
-              options={[
-                { value: 2, label: 'Kinh tế' },
-                { value: 1, label: 'Công nghệ' },
-                { value: 5, label: 'Thú y' },
-              ]}
+              options={(majors?.data || []).map(major => ({
+                value: major.id,
+                label: major.majorName,
+              }))}
               control={control}
               error={errors.majorId?.message}
             />
@@ -288,7 +306,7 @@ const UpdateStudent = () => {
         </div>
 
         <div className="ml-auto w-fit py-5">
-          <Button text="Thêm sinh viên" type="submit" />
+          <Button text="Cập nhật" type="submit" />
         </div>
       </form>
     </div>

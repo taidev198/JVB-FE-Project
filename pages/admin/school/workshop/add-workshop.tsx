@@ -167,7 +167,7 @@ const AddWorkshop = () => {
         </div>
 
         {/* Block 4 */}
-        <div className="mt-4 grid grid-cols-1 gap-4 rounded-lg bg-primary-white p-5 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 rounded-t-lg bg-primary-white p-5 sm:grid-cols-2">
           {/* Chọn tỉnh */}
           <div>
             <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
