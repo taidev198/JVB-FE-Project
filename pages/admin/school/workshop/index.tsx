@@ -66,7 +66,7 @@ const AdminSchoolWorkshop = () => {
           <div className="flex items-center justify-between">
             <h1 className="mb-5 font-bold">Doanh sách Workshop</h1>
             <Link href={'/admin/school/workshop/add-workshop'}>
-              <Button text="Thêm" icon={<AddIcon />} />
+              <Button text="Thêm mới" icon={<AddIcon />} />
             </Link>
           </div>
           <div className="mt-5 flex items-center gap-3 md:mt-0">
@@ -116,7 +116,7 @@ const AdminSchoolWorkshop = () => {
                     <p className="min-w-max">{workshop.id}</p>
                   </td>
                   <td className="cursor-pointer px-2 py-4 hover:text-primary-main">
-                    <Link href={'/admin/school/workshop/detail'}>
+                    <Link href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))}>
                       <p className="sm:[250px] w-[220px]">{workshop.workshopTitle}</p>
                     </Link>
                   </td>

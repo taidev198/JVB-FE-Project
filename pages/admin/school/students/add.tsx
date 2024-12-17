@@ -7,6 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -17,25 +18,25 @@ import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery }
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
 import { useAddStudentMutation, useGetAllMajorsQuery } from '@/services/adminSchoolApi';
-import { setToast } from '@/store/slices/toastSlice';
 import { setLoading } from '@/store/slices/global';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataAddStudent {
   studentCode: string;
   fullName: string;
   avatarUrl: string;
   email: string;
-  gender: string | null;
+  gender: string;
   phoneNumber: string;
   yearOfEnrollment: number;
   houseNumber: string;
   gpa: number;
-  dateOfBirth: string | null;
+  dateOfBirth: string;
   studentStatus: string;
   majorId: number;
   provinceId: number;
   districtId: number;
-  wardId: string;
+  wardId: number;
 }
 
 const AddStudent = () => {
@@ -51,7 +52,6 @@ const AddStudent = () => {
     resolver: yupResolver(validationSchemaAddStudent),
     defaultValues: {
       yearOfEnrollment: undefined,
-      gender: '',
     },
   });
 
@@ -63,9 +63,9 @@ const AddStudent = () => {
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
 
   const { data: majors } = useGetAllMajorsQuery();
-  const [addStudent, { data, isLoading, isSuccess, isError, error }] = useAddStudentMutation();
+  const [addStudent, { isLoading }] = useAddStudentMutation();
 
-  const onSubmit: SubmitHandler<FormDataAddStudent> = data => {
+  const onSubmit: SubmitHandler<FormDataAddStudent> = async data => {
     const formData = new FormData();
 
     // Append dữ liệu JSON dưới dạng chuỗi
@@ -90,21 +90,23 @@ const AddStudent = () => {
     formData.append('studentRequest', new Blob([JSON.stringify(studentRequest)], { type: 'application/json' }));
     // Append file vào FormData
     formData.append('file', image as File);
-    addStudent(formData);
+    try {
+      const response = await addStudent(formData).unwrap();
+      toast.success(response.messages);
+      router.push('/admin/school/students');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
-    if (isSuccess && data?.message) {
-      dispatch(setToast({ message: data.message }));
-      router.push('/admin/school/students');
-    }
-
-    if (isError && error?.data?.message) {
-      dispatch(setToast({ message: error.data.message, type: 'error' }));
-    }
-
     dispatch(setLoading(isLoading));
-  }, [isSuccess, isError, isLoading, data?.message, error?.data?.message, dispatch]);
+  }, [isLoading, dispatch]);
 
   return (
     <div className="bg-primary-white px-10">
@@ -123,9 +125,25 @@ const AddStudent = () => {
           <ImageUploaderOne image={image} setImage={setImage} />
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Student Code */}
-            <Input type="text" name="studentCode" label="Mã sinh viên" placeholder="Nhập mã sinh viên" control={control} error={errors.studentCode?.message} />
+            <Input
+              type="text"
+              name="studentCode"
+              label="Mã sinh viên"
+              placeholder="Nhập mã sinh viên"
+              control={control}
+              error={errors.studentCode?.message}
+              required={true}
+            />
             {/* Student name */}
-            <Input type="text" name="fullName" label="Tên sinh viên" placeholder="Nhập tên sinh viên" control={control} error={errors.fullName?.message} />
+            <Input
+              type="text"
+              name="fullName"
+              label="Tên sinh viên"
+              placeholder="Nhập tên sinh viên"
+              control={control}
+              error={errors.fullName?.message}
+              required={true}
+            />
             {/* Phone */}
             <Input
               type="text"
@@ -134,9 +152,10 @@ const AddStudent = () => {
               placeholder="Nhập số điện thoại"
               control={control}
               error={errors.phoneNumber?.message}
+              required={true}
             />
             {/* Email */}
-            <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} />
+            <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} required={true} />
             {/* Year Of Enrollment */}
             <Input
               type="number"
@@ -145,9 +164,10 @@ const AddStudent = () => {
               placeholder="Nhập năm nhập học"
               control={control}
               error={errors.yearOfEnrollment?.message}
+              required={true}
             />
             {/* Date Of Birth */}
-            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="" control={control} />
+            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="" control={control} error={errors.dateOfBirth?.message} required={true} />
             {/* GPA */}
             <Input type="number" name="gpa" label="Điểm GPA" placeholder="Nhập Điểm GPA" control={control} error={errors.gpa?.message} />
             {/* Student status */}
@@ -162,6 +182,7 @@ const AddStudent = () => {
               ]}
               control={control}
               error={errors.studentStatus?.message}
+              required={true}
             />
             {/* Major */}
             <SelectReact
@@ -174,6 +195,7 @@ const AddStudent = () => {
               }))}
               control={control}
               error={errors.majorId?.message}
+              required={true}
             />
             {/* Gender */}
             <SelectReact
@@ -185,12 +207,14 @@ const AddStudent = () => {
                 label: item.label,
               }))}
               control={control}
+              error={errors.gender?.message}
+              required={true}
             />
 
             {/* Tỉnh */}
             <div>
               <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Tỉnh
+                Tỉnh <span className="text-red-600">*</span>
               </label>
               <Controller
                 name="provinceId"
@@ -219,7 +243,7 @@ const AddStudent = () => {
             {/* Chọn Huyện */}
             <div>
               <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Huyện
+                Huyện <span className="text-red-600">*</span>
               </label>
               <Controller
                 name="districtId"
@@ -248,7 +272,7 @@ const AddStudent = () => {
             {/* Chọn Xã */}
             <div>
               <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Xã
+                Xã <span className="text-red-600">*</span>
               </label>
               <Controller
                 name="wardId"
@@ -274,7 +298,17 @@ const AddStudent = () => {
               {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
             </div>
           </div>
-          <Text type="text" name="houseNumber" label="Địa chỉ cụ thể" placeholder="Nhập địa chỉ cụ thể" control={control} error={errors.houseNumber?.message} />
+          <div className="mt-4">
+            <Text
+              type="text"
+              name="houseNumber"
+              label="Địa chỉ cụ thể"
+              placeholder="Nhập địa chỉ cụ thể"
+              control={control}
+              error={errors.houseNumber?.message}
+              required={true}
+            />
+          </div>
         </div>
 
         <div className="ml-auto w-fit py-5">

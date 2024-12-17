@@ -9,6 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import {
@@ -19,9 +20,9 @@ import {
   useGetAllStudentsQuery,
 } from '@/services/adminSchoolApi';
 import { StatusStudent } from '@/utils/app/const';
-import { setToast } from '@/store/slices/toastSlice';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 const StudentsManagement = () => {
   const dispatch = useDispatch();
@@ -66,41 +67,32 @@ const StudentsManagement = () => {
     setSelectedStudents(prev => (prev.includes(id) ? prev.filter(studentId => studentId !== id) : [...prev, id]));
   };
 
-  const [deleteOne, { isLoading: isLoadingDeleteOne, isSuccess: isSuccessDeleteOne, data: dataDeleteOne }] = useDeleteStudentOneMutation();
-  const [deleteMultiple, { isLoading: isLoadingMultiple, isSuccess: isSuccessDeleteMultiple, data: dataDeleteMultiple, isError, error }] =
-    useDeleteStudentMultipleMutation();
-  const handleDelete = () => {
-    if (selectedStudents.length > 0) {
-      deleteMultiple({ ids: selectedStudents });
-    } else {
-      deleteOne({ id: idStudent });
+  const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteStudentOneMutation();
+  const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteStudentMultipleMutation();
+  const handleDelete = async () => {
+    try {
+      if (selectedStudents.length > 0) {
+        const response = await deleteMultiple({ ids: selectedStudents }).unwrap();
+        toast.success(response?.message);
+      } else {
+        const response = await deleteOne({ id: idStudent }).unwrap();
+        toast.success(response?.message);
+      }
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
+      dispatch(setBackdrop(null));
     }
-    dispatch(setBackdrop(null));
   };
 
   useEffect(() => {
-    if (isSuccessDeleteOne) {
-      dispatch(setToast({ message: dataDeleteOne?.message }));
-    } else if (isSuccessDeleteMultiple) {
-      dispatch(setToast({ message: dataDeleteMultiple?.message }));
-    }
-    if (isError && error?.data?.message) {
-      dispatch(setToast({ message: error.data.message, type: 'error' }));
-    }
     dispatch(setLoading(isLoadingDeleteOne || isLoadingGetAllDepartment || isLoadingGetAllSt || isLoadingMultiple));
-  }, [
-    dispatch,
-    isLoadingDeleteOne,
-    isLoadingGetAllDepartment,
-    isLoadingGetAllSt,
-    isLoadingMultiple,
-    dataDeleteMultiple?.message,
-    dataDeleteOne?.message,
-    isSuccessDeleteMultiple,
-    isSuccessDeleteOne,
-    error?.data.message,
-    isError,
-  ]);
+  }, [dispatch, isLoadingDeleteOne, isLoadingGetAllDepartment, isLoadingGetAllSt, isLoadingMultiple]);
   return (
     <>
       {/* Header */}
@@ -150,6 +142,7 @@ const StudentsManagement = () => {
               text="Xóa sinh viên đã chọn"
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
               className="bg-red-custom"
+              disabled={!selectedStudents.length}
             />
           </div>
         </div>
@@ -166,6 +159,7 @@ const StudentsManagement = () => {
                   checked={selectedStudents.length === students?.data.content.length}
                   indeterminate={selectedStudents.length > 0 && selectedStudents.length < (students?.data.content || []).length}
                   onChange={handleSelectAll}
+                  size="small"
                 />
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -196,7 +190,7 @@ const StudentsManagement = () => {
             {students?.data.content.map((student, index) => (
               <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <Checkbox color="primary" checked={selectedStudents.includes(student.id)} onChange={() => handleSelectStudent(student.id)} />
+                  <Checkbox color="primary" checked={selectedStudents.includes(student.id)} onChange={() => handleSelectStudent(student.id)} size="small" />
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
                   <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
@@ -205,9 +199,9 @@ const StudentsManagement = () => {
                   <p className="min-w-max">{student.major.faculty.facultyCode}</p>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">
-                  <div className="flex min-w-max items-center">
-                    <Image src={student?.avatarUrl} alt="anh" width={50} height={50} />
-                    {student.fullName}
+                  <div className="flex min-w-max items-center gap-2">
+                    <Image src={student?.avatarUrl} alt="anh" width={50} height={50} className="h-[50px] rounded-full" />
+                    <p> {student.fullName}</p>
                   </div>
                 </td>
                 <td className="p-3 sm:px-5 sm:py-4">

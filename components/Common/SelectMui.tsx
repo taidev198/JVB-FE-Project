@@ -25,38 +25,47 @@ const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, err
         </label>
       )}
 
-      <Controller
-        name={name}
-        control={control}
-        defaultValue={isMultiple ? value || [] : value || undefined}
-        render={({ field }) => (
-          <Select
-            {...field}
-            options={options}
-            placeholder={placeholder}
-            isMulti={isMultiple}
-            className={`!basic-select py-1 shadow-none ${error ? 'is-invalid' : ''}`}
-            classNamePrefix="select"
-            value={
-              isMultiple
-                ? options.filter(option => field.value?.includes(option.value)) // Hiển thị nhiều lựa chọn đã chọn
-                : options.find(option => option.value === field.value) // Hiển thị một lựa chọn đã chọn
-            }
-            onChange={(selected: any) => {
-              const newValue = isMultiple
-                ? (selected as { value: number; label: string }[]).map(item => item.value) // Cập nhật giá trị cho lựa chọn nhiều
-                : (selected as { value: number; label: string }).value; // Cập nhật giá trị cho lựa chọn đơn
-              field.onChange(newValue); // Cập nhật giá trị vào form
-            }}
-            styles={{
-              placeholder: (provided: any) => ({
-                ...provided,
-                fontSize: '14px',
-              }),
-            }}
-          />
-        )}
-      />
+      <div className={`relative mt-1`}>
+        <Controller
+          name={name}
+          control={control}
+          defaultValue={isMultiple ? value || [] : value || undefined}
+          render={({ field }) => (
+            <Select
+              {...field}
+              options={options}
+              placeholder={placeholder}
+              isMulti={isMultiple}
+              className={`!basic-select py-1 shadow-none ${error ? 'is-invalid' : ''}`}
+              classNamePrefix="select"
+              value={
+                isMultiple
+                  ? options.filter(option => field.value?.includes(option.value)) // Hiển thị nhiều lựa chọn đã chọn
+                  : options.find(option => option.value === field.value) // Hiển thị một lựa chọn đã chọn
+              }
+              onChange={(selected: any) => {
+                const newValue = isMultiple
+                  ? (selected as { value: number; label: string }[]).map(item => item.value) // Cập nhật giá trị cho lựa chọn nhiều
+                  : (selected as { value: number; label: string }).value; // Cập nhật giá trị cho lựa chọn đơn
+                field.onChange(newValue); // Cập nhật giá trị vào form
+              }}
+              styles={{
+                control: (base: any) => ({
+                  ...base,
+                  borderColor: error ? 'red' : '',
+                  '&:hover': {
+                    borderColor: error ? 'red' : '',
+                  },
+                }),
+                placeholder: (provided: any) => ({
+                  ...provided,
+                  fontSize: '14px',
+                }),
+              }}
+            />
+          )}
+        />
+      </div>
       {error && <p className="top-full mt-[2px] text-[13px] text-red-500">{error}</p>}
     </div>
   );

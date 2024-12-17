@@ -28,10 +28,10 @@ const validationSchemaAddStudent = Yup.object({
       'Điểm trung bình chỉ được phép có tối đa 2 chữ số thập phân',
       value => value === undefined || /^[0-9]+(\.[0-9]{1,2})?$/.test(String(value))
     ),
-  dateOfBirth: Yup.string(),
-  gender: Yup.string(),
+  dateOfBirth: Yup.string().required('Ngày sinh là bắt buộc'),
+  gender: Yup.string().required('Giới tính là bắt buộc'),
   houseNumber: Yup.string().required('Địa chỉ cụ thể sinh viên là bắt buộc').max(255, 'Địa chỉ cụ thể không được quá 255 kí tự'),
-  studentStatus: Yup.string(),
+  studentStatus: Yup.string().required('Trạng thái là bắt buộc'),
   majorId: Yup.number().required('Khoa là bắt buộc'),
   wardId: Yup.number().required('Xã/Phường là bắt buộc'),
   districtId: Yup.number().required('Quận/Huyện là bắt buộc'),

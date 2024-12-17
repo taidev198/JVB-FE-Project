@@ -310,6 +310,7 @@ export const adminSchoolApi = createApi({
             url: `university/students/${id}`,
           };
         },
+        providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Student', id }] : []),
       }),
 
       addStudent: builder.mutation({
@@ -318,7 +319,15 @@ export const adminSchoolApi = createApi({
           method: 'POST',
           body: formData,
         }),
-        invalidatesTags: ['Student'],
+      }),
+
+      updateStudent: builder.mutation({
+        query: ({ formData, id }) => ({
+          url: `/university/students/update/${id}`,
+          method: 'PUT',
+          body: formData,
+        }),
+        invalidatesTags: result => [{ type: 'Student', id: result.data.id }, { type: 'Student' }],
       }),
 
       deleteStudentOne: builder.mutation({
@@ -368,6 +377,7 @@ export const {
   // useDeleteAcademicOfficeManagementMutation,
   useGetDetailStudentQuery,
   useAddStudentMutation,
+  useUpdateStudentMutation,
   useDeleteStudentOneMutation,
   useDeleteStudentMultipleMutation,
   useAddAcademicOfficeManagementMutation,

@@ -9,13 +9,14 @@ interface textProps {
   type?: string;
   control: Control<any>;
   error?: string;
+  required?: boolean;
 }
 
-const Text = ({ name, label, placeholder, control, error }: textProps) => {
+const Text = ({ name, label, placeholder, control, error, required }: textProps) => {
   return (
     <div className="mb-4">
       <label htmlFor={name} className="block text-sm font-semibold text-gray-700">
-        {label}
+        {label} {required && <span className="text-red-600">*</span>}
       </label>
       <Controller
         name={name}
