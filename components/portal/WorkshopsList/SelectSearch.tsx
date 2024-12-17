@@ -26,6 +26,7 @@ const SelectSearch: React.FC<SelectSearchProps> = ({ label, value, items, onChan
         }))}
         optionFilterProp="label"
         filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+        dropdownRender={menu => <div style={{ maxHeight: '200px', overflowY: 'auto' }}>{menu}</div>} // Sets max height and scroll
       />
     </div>
   );

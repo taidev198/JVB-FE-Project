@@ -1,17 +1,38 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import SelectOne from './SelectOne';
+import { useGetProvincesQuery, useGetCompaniesQuery } from '@/services/portalHomeApi';
+import { Pagination } from 'antd';
+import Image from 'next/image';
 import SelectSearch from './SelectSearch';
+import { ICompany } from '@/types/companyType';
 
-const CompaniesList = () => {
+const CompaniesList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedCompanySize, setSelectedCompanySize] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 9;
 
-  const locations = ['Hà Nội', 'Quảng Ninh', 'Sài Gòn', 'Đà Nẵng'];
-  const statuses = ['Active', 'Closed', 'Pending'];
-  const companySizes = ['Small', 'Medium', 'Large'];
+  // Fetch provinces data
+  const { data: provincesData, isLoading: isProvincesLoading, error: provincesError } = useGetProvincesQuery();
+
+  // Fetch companies data
+  const {
+    data: companiesData,
+    isLoading: isCompaniesLoading,
+    error: companiesError,
+  } = useGetCompaniesQuery({
+    page: currentPage,
+    size: pageSize,
+    keyword: searchTerm,
+  });
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSearch = useCallback(() => {
+    setCurrentPage(1); // Reset to the first page on search
+  }, []);
 
   // Debounce logic
   useEffect(() => {
@@ -24,18 +45,20 @@ const CompaniesList = () => {
   // Perform search when debounced value changes
   useEffect(() => {
     if (debouncedValue) {
-      handleSearch(debouncedValue);
+      handleSearch();
     }
   }, [debouncedValue]);
 
-  const handleSearch = useCallback((term: string) => {
-    console.log('Searching for:', term);
-    // Trigger your search logic here
-  }, []);
-
   const handleButtonClick = () => {
-    handleSearch(searchTerm);
+    handleSearch();
   };
+
+  // Handle loading or error states for provinces
+  const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
+
+  if (provincesError) {
+    console.error('Failed to fetch provinces');
+  }
 
   return (
     <div className="rts__section">
@@ -62,16 +85,64 @@ const CompaniesList = () => {
 
         {/* Filter and Results */}
         <div className="mt-[70px] flex items-center justify-between">
-          <span className="font-medium text-primary-black">1-9 trong 19 kết quả</span>
+          <span className="font-medium text-primary-black">
+            {companiesData
+              ? `${(currentPage - 1) * pageSize + 1} - ${(currentPage - 1) * pageSize + companiesData?.data.content.length} trong ${
+                  companiesData?.data.totalElements
+                } kết quả`
+              : 'Loading...'}
+          </span>
           <div className="flex items-center gap-4">
-            <SelectSearch label="Trạng thái" value={selectedStatus} items={statuses} onChange={setSelectedStatus} width={150} />
-            <SelectSearch label="Địa điểm" value={selectedLocation} items={locations} onChange={setSelectedLocation} width={150} />
-            <SelectOne label="Quy mô công ty" value={selectedCompanySize} items={companySizes} onChange={setSelectedCompanySize} width={150} />
+            <SelectSearch label="Địa điểm" value={selectedLocation} items={locationItems} onChange={setSelectedLocation} width={150} />
           </div>
         </div>
 
-        {/* Render company list or filters */}
-        <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3"></div>
+        {/* Companies List */}
+        <div className="mt-[40px] grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3">
+          {isCompaniesLoading ? (
+            <p>Loading companies...</p>
+          ) : (
+            companiesData?.data.content.map((company: ICompany) => (
+              <div
+                key={company.id}
+                className="item group flex flex-col items-center justify-start rounded-[10px] border-[1px] border-solid border-primary-border bg-primary-white p-[30px]">
+                <div className="company__icon mb-[20px] flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light">
+                  <Image src={company.logoUrl || '/images/default-logo.png'} alt={company.companyName} width={40} height={40} className="object-cover" />
+                </div>
+                <h4 className="text-2xl font-semibold text-primary-black">{company.companyName}</h4>
+                <span className="mt-2 text-lg text-primary-gray">Tài Chính - Ngân Hàng</span>
+                <div className="mt-2 flex w-full items-center justify-center gap-6 text-lg text-primary-gray">
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-location-dot"></i>
+                    <span className="text-lg">{company.address.province.provinceName}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-user"></i>
+                    <span className="text-lg">20.000+</span>
+                  </div>
+                </div>
+                <button className="mp_transition_4 mt-[20px] rounded-md bg-primary-light px-[20px] py-[16px] text-lg hover:bg-primary-main hover:text-primary-white">
+                  Xem Chi Tiết
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Pagination */}
+        {companiesData && (
+          <div className="mt-[80px] w-full">
+            <Pagination
+              current={currentPage}
+              total={companiesData.data.totalElements}
+              pageSize={pageSize}
+              showSizeChanger={false}
+              onChange={handlePageChange}
+              align="center"
+              showTotal={(total, range) => `${range[0]}-${range[1]} / ${total}`}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

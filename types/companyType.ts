@@ -1,3 +1,5 @@
+// types/companyType.ts
+
 import { IAddress } from './addressesTypes';
 import { IFields } from '.';
 

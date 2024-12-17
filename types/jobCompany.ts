@@ -1,3 +1,5 @@
+// types/jobCompany.ts
+
 import { IFields } from '.';
 
 export interface IJobCompany {

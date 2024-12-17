@@ -4,6 +4,8 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Azeret+Mono:ital,wght@0,100..900;1,100..900&display=swap');
 
+
+
 html {
   height: 100%;
 }
@@ -24,6 +26,9 @@ body > div#__next > main {
   font-size: 14px;
 }
 
+.ant-select-selection-placeholder {
+  color: #979797  !important;
+}
 
 @layer components {}
 @layer components {

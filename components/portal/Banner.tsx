@@ -6,7 +6,7 @@ const Banner = () => {
   const [location, setLocation] = useState<string[]>([]);
   const [jobType, setJobType] = useState<string[]>([]);
 
-  const locations = ['Hà Nội', 'Quảng Ninh', 'Sài Gòn', 'Hà Nội', 'Đà Nẵng'];
+  const locations = ['Quảng Ninh', 'Sài Gòn', 'Hà Nội', 'Đà Nẵng'];
 
   const jobTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance'];
 
@@ -49,14 +49,14 @@ const Banner = () => {
                     <label htmlFor="location " className="mb-3 text-xl font-medium capitalize tracking-[-1px] text-primary-black">
                       Vị trí
                     </label>
-                    <CustomSelect label="Vị trí" value={location} items={locations} onChange={handleLocationChange} />
+                    <CustomSelect label="Vị trí" value={location[0] || null} items={locations} onChange={item => setLocation([item])} />
                   </div>
                   <div className="hidden w-[1px] bg-[rgb(125,128,135,0.2)] sm:block" />
                   <div className="single__input relative flex w-full  flex-col xl:min-w-[190px]">
                     <label htmlFor="job__type" className="mb-3 text-xl font-medium capitalize tracking-[-1px]  text-primary-black">
                       Công việc
                     </label>
-                    <CustomSelect label="Job Type" value={jobType} items={jobTypes} onChange={handleJobTypeChange} />
+                    <CustomSelect label="Công việc" value={jobType[0] || null} items={jobTypes} onChange={item => setJobType([item])} />
                   </div>
                 </div>
                 <button
