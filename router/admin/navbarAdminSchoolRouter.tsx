@@ -60,7 +60,7 @@ export const litsNavbarAdminSchoolRouter = [
   {
     id: 9,
     icon: <IconChangePassword />,
-    url: '/admin/school/changePassword',
+    url: '/admin/school/change-password',
     label: 'Đổi mật khẩu',
   },
 ];

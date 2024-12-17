@@ -14,9 +14,10 @@ interface InputProps {
   icon?: ReactNode;
   startTime?: boolean;
   required?: boolean;
+  disabled?: boolean;
 }
 
-const Input = ({ name, label, placeholder, control, error, type = 'text', icon, startTime, required = false }: InputProps) => {
+const Input = ({ name, label, placeholder, control, error, type = 'text', icon, startTime, required = false, disabled = false }: InputProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const today = new Date().toISOString().split('T')[0];
 
@@ -24,13 +25,13 @@ const Input = ({ name, label, placeholder, control, error, type = 'text', icon, 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
-    <div className="">
+    <div className={``}>
       {label && (
         <label htmlFor={name} className="block text-sm font-semibold text-gray-700">
           {label} {required && <span className="text-red-600">*</span>}
         </label>
       )}
-      <div className={`relative mt-1`}>
+      <div className={`relative mt-1 ${disabled ? 'pointer-events-none opacity-50' : ''}`}>
         {icon && <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">{icon}</span>}
         <Controller
           name={name}

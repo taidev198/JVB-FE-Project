@@ -10,6 +10,7 @@ export interface IBusiness {
   numberOfStudents: number;
   faculty: IFaculty;
   university: University;
+  majorFields: IFields[];
 }
 export interface ApiResponseBusiness {
   code: number;

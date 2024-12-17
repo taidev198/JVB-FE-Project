@@ -15,6 +15,8 @@ import AddAdemic from '@/pages/admin/school/academicOfficeManagement/addAdemic';
 import { setToast } from '@/store/slices/toastSlice';
 import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
 import { debounce } from 'lodash';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 const AcademicOfficeManagement = () => {
   const dispatch = useDispatch();
@@ -44,16 +46,27 @@ const AcademicOfficeManagement = () => {
   // const handleConfirmAction = () => {
   //   deleteAcademicOfficeManagement({ id: selectId });
   // };
-  const [deleteOne, { isLoading: isLoadingDeleteOne, isSuccess: isSuccessDeleteOne, data: dataDeleteOne }] = useDeleteAdemicOneMutation();
-  const [deleteMultiple, { isLoading: isLoadingMultiple, isSuccess: isSuccessDeleteMultiple, data: dataDeleteMultiple, isError, error }] =
-    useDeleteAdemicMultipleMutation();
-  const handleDelete = () => {
-    if (selectedAdemic.length > 0) {
-      deleteMultiple({ ids: selectedAdemic });
-    } else {
-      deleteOne({ id: idAdemic });
+  const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteAdemicOneMutation();
+  const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAdemicMultipleMutation();
+  const handleDelete = async () => {
+    try {
+      if (selectedAdemic.length > 0) {
+        const response = await deleteMultiple({ ids: selectedAdemic }).unwrap();
+        toast.success(response.message);
+      } else {
+        const response = await deleteOne({ id: idAdemic }).unwrap();
+        toast.success(response.message);
+      }
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string }).message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
+      dispatch(setBackdrop(null));
     }
-    dispatch(setBackdrop(null));
   };
   console.log(selectedAdemic);
 
@@ -79,17 +92,8 @@ const AcademicOfficeManagement = () => {
     setSelectedAdemic(prev => (prev.includes(id) ? prev.filter(ademicId => ademicId !== id) : [...prev, id]));
   };
   useEffect(() => {
-    if (isSuccessDeleteOne) {
-      dispatch(setToast({ message: dataDeleteOne?.message }));
-    } else if (isSuccessDeleteMultiple) {
-      dispatch(setToast({ message: dataDeleteMultiple?.message }));
-    }
-    if (isSuccessDeleteOne) {
-      dispatch(setToast({ message: data?.message }));
-      dispatch(setBackdrop(null));
-    }
     dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
-  }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne, data?.message, isSuccess]);
+  }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
       {/* Header */}
@@ -103,7 +107,7 @@ const AcademicOfficeManagement = () => {
             </Link>
             <MyButton
               type="submit"
-              text="Xóa tất cả giáo vụ đã chọn"
+              text="Xóa tất cả đã chọn"
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
               className="bg-red-custom"
             />
@@ -165,9 +169,9 @@ const AcademicOfficeManagement = () => {
                           </IconButton>
                         </Tooltip>
                       </Link>
-                      <Link href={`/admin/school/academicOfficeManagement/update`}>
-                        <Tooltip title="Sửa khoa">
-                          <IconButton>
+                      <Link href={`/admin/school/academicOfficeManagement/update/${item.id}`}>
+                        <Tooltip title="Sửa giáo vụ">
+                          <IconButton onClick={() => dispatch(setId(item.id))}>
                             <BorderColorIcon className="text-purple-500" />
                           </IconButton>
                         </Tooltip>

@@ -40,14 +40,13 @@ const SendEmail = () => {
     try {
       const response = await getOtp({ email: formData.email }).unwrap();
       toast.success(response.message);
+      router.push({ pathname: '/auth/forgot-password/verify-my-account', query: { email: formData.email } });
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string }).message || 'Đã xảy ra lỗi';
         toast.error(errMsg);
-        router.push({ pathname: '/auth/forgot-password/verify-my-account', query: { email: formData.email } });
       } else if (isErrorWithMessage(error)) {
         toast.error(error.message);
-        router.push({ pathname: '/auth/forgot-password/verify-my-account', query: { email: formData.email } });
       }
     }
   };

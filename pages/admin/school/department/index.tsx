@@ -1,4 +1,4 @@
-import { IconButton, Tooltip, Pagination, TextField } from '@mui/material';
+import { IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
@@ -12,8 +12,10 @@ import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/s
 
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
-import { useDeleteDepartmentMutation, useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
+import { useDeleteDepartmentMultipleMutation, useDeleteDepartmentOneMutation, useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
 import { setToast } from '@/store/slices/toastSlice';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import toast from 'react-hot-toast';
 
 const Department = () => {
   const dispatch = useAppDispatch();
@@ -21,7 +23,7 @@ const Department = () => {
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
-  const [deleteDepartment, { isLoading: isLoadingDelete, isSuccess, data }] = useDeleteDepartmentMutation();
+  const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const {
     data: departments,
@@ -43,18 +45,45 @@ const Department = () => {
     setSelectId(id);
   };
 
-  const handleConfirmAction = () => {
-    deleteDepartment({ id: selectId });
-    refetch(); // Gọi lại API sau khi xóa
-  };
-
-  useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data?.message }));
+  const idDepartment = useAppSelector(state => state.global.id);
+  console.log(departments);
+  const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteDepartmentOneMutation();
+  const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteDepartmentMultipleMutation();
+  const handleConfirmAction = async () => {
+    try {
+      if (selectedDepartment.length > 0) {
+        const response = await deleteMultiple({ ids: selectedDepartment }).unwrap();
+        toast.success(response.message);
+      } else {
+        const response = await deleteOne({ id: idDepartment }).unwrap();
+        toast.success(response.message);
+      }
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
       dispatch(setBackdrop(null));
     }
-    dispatch(setLoading(isLoading || isLoadingDelete));
-  }, [isLoading, dispatch, isLoadingDelete, data?.message, isSuccess]);
+  };
+  console.log(selectedDepartment);
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const allAdemicIds = departments?.data.content.map(department => department.id);
+      setSelectedDepartment(allAdemicIds ?? []);
+    } else {
+      setSelectedDepartment([]);
+    }
+  };
+  const handleSelectDepartment = (id: number) => {
+    setSelectedDepartment(prev => (prev.includes(id) ? prev.filter(departmentId => departmentId !== id) : [...prev, id]));
+  };
+  useEffect(() => {
+    dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
+  }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
       {/* Header */}
@@ -62,9 +91,18 @@ const Department = () => {
         <h1 className="mb-5 font-bold">Doanh sách quản lý khoa</h1>
         <div className="flex items-center justify-between gap-3 ">
           <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
-          <Link href={'/admin/school/department/AddDepartment'}>
-            <MyButton text="Thêm mới" icon={<AddIcon />} />
-          </Link>
+          <div className="flex items-center gap-5">
+            <Link href={'/admin/school/department/AddDepartment'}>
+              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            </Link>
+            <MyButton
+              type="submit"
+              text="Xóa khoa đã chọn"
+              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              className="bg-red-custom"
+              disabled={!selectedDepartment.length}
+            />
+          </div>
         </div>
       </div>
 
@@ -73,6 +111,15 @@ const Department = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <Checkbox
+                  color="primary"
+                  checked={selectedDepartment.length === departments?.data.content.length}
+                  indeterminate={selectedDepartment.length > 0 && selectedDepartment.length < (departments?.data.content || []).length}
+                  onChange={handleSelectAll}
+                  size="small"
+                />
+              </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Mã Khoa</p>
               </th>
@@ -94,6 +141,9 @@ const Department = () => {
             {departments?.data?.content && departments.data.content.length > 0 ? (
               departments.data.content.map((item, index) => (
                 <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <Checkbox color="primary" checked={selectedDepartment.includes(item.id)} onChange={() => handleSelectDepartment(item.id)} size="small" />
+                  </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.facultyCode}</p>
                   </td>
