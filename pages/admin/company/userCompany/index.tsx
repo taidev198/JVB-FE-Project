@@ -19,9 +19,6 @@ import { debounce } from 'lodash';
 import { setToast } from '@/store/slices/toastSlice';
 
 
-interface FormDataRegisterCompany {
-  search_employee: string;
-}
 
 const validationSchema = Yup.object({
   search_employee: Yup.string().required('Tên doanh nghiệp không được bỏ trống').max(100, 'Tên doanh nghiệp không được quá 100 kí tự'),
@@ -36,13 +33,7 @@ const userCompany = () => {
   const backdropType = useAppSelector(state => state.global.backdropType);
   // const [currentPage, setCurrentPage] = useState(1);
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormDataRegisterCompany>({
-    resolver: yupResolver(validationSchema),
-  });
+
   
   const debouncedSearch = debounce((value: string) => {
     setKeyword(value);
@@ -56,15 +47,6 @@ const userCompany = () => {
   })
   console.log(employee);
   
-  
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // if (event.target.checked) {
-    //   const allEmployeeIds = mockData.map(employee => employee.id);
-    //   setSelectedEmployee(allEmployeeIds);
-    // } else {
-    //   setSelectedEmployee([]);
-    // }
-  };
 
   const handleSelectEmployee = (id: number) => {
     setSelectedEmployee(prev => (prev.includes(id) ? prev.filter(employeeId => employeeId !== id) : [...prev, id]));
@@ -106,7 +88,7 @@ const userCompany = () => {
                   color="primary"
                   checked={selectedEmployee.length === employee?.data.content.length}
                   indeterminate={selectedEmployee.length > 0 && selectedEmployee.length < (employee?.data.content||[]).length}
-                  onChange={handleSelectAll}
+                  
                 />
               </th>
               <th className="px-5 py-4 text-left">STT</th>

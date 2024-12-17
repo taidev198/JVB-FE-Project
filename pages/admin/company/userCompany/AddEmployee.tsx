@@ -11,22 +11,23 @@ import Input from '@/components/Common/Input';
 import SelectMui from '@/components/Common/SelectMui';
 import Select from '@/components/Common/Select';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
+import Text from '@/components/Common/Text';
 
 interface FormDataWorkShop {
-    employee_code: string;
-    full_name: string;
-    phone_number: string;
+    employeeCode: string;
+    fullName: string;
+    phoneNumber: string;
     email: string;
     gender: string;
-    employee_position: string;
+    employeePosition: string;
     salary: number;
-    status_account: string;
+    employeeStatus: string;
     wardName: number;
     districtName: number;
     provinceName: number;
     houseNumber: string;
     // fieldIds: number[];
-    data_of_birth: Date;
+    dateOfBirth: Date;
     password: string;
     confirmPassword: string;
     // address: string;
@@ -46,62 +47,68 @@ const AddEmployee = () => {
     ({ data, image });
   };
   return (
-    <div className="">
+    <div className="bg-primary-white px-10">
     {/* Icon */}
-    <div className="rounded-t-lg bg-white p-5">
+    <div className="rounded-t-lg ">
       <Link href={'/admin/company/userCompany'}>
         <IconButton>
           <ArrowBackIcon />
         </IconButton>
       </Link>
       Trở về
-      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm Công Ty </h1>
+      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm Nhân Viên </h1>
     </div>
-
-      {/* Block 2 */}
-      <div className="grid grid-cols-1 gap-4 rounded-lg bg-primary-white ">
-        {/* Image */}
-        <ImageUploaderOne images={image} setImages={setImage} />
-      </div>
-
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {/* Block 1 */}
-      <div className="rounded-b-lg bg-primary-white p-5">
-        <Input name="employee_code" control={control} error={errors.employee_code?.message} placeholder="Mã nhân viên" label="Mã nhân viên" />
-        <div>
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {/*  */}
+    <form onSubmit={handleSubmit(onSubmit)} className=''>
+      <div className=''>
+         {/* Image */}
+         <ImageUploaderOne images={image} setImages={setImage} />
+        {/* Block 1 */}
+      <div className="rounded-b-lg mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        {/* employee code */}
             <Input 
-              name="full_name" 
+              name="employeeCode" 
               control={control} 
-              error={errors.full_name?.message} 
+              error={errors.employeeCode?.message} 
+              placeholder="Mã nhân viên" 
+              label="Mã nhân viên" />
+        
+        {/* employee name */}
+            <Input 
+              name="fullName" 
+              control={control} 
+              error={errors.fullName?.message} 
               placeholder="Tên nhân viên" 
               label="Tên nhân viên" />
-            {/*  */}
-            
+           
+         {/* dateofbirthday */}    
             <Input 
               type='date'
-              name="data_of_birth" 
+              name="dateOfBirth" 
               control={control} 
-              error={errors.data_of_birth?.message} 
+              error={errors.dateOfBirth?.message} 
               placeholder="Ngày sinh" 
               label="Ngày sinh" />
 
+         {/* phonenumber */}
             <Input
-              // type="number"
-              name="phone_number"
+              type="text"
+              name="phoneNumber"
               label="Số điện thoại"
               placeholder="Số điện thoại"
               control={control}
-              error={errors.phone_number?.message}
+              error={errors.phoneNumber?.message}
             />
+
+          {/* email */}
             <Input
+              type='email'
               name="email"
               label="Email"
               placeholder="email"
               control={control}
               error={errors.email?.message}
             />
+
           {/* Trường giới tính */}
           <Input
               name="gender"
@@ -111,13 +118,16 @@ const AddEmployee = () => {
               error={errors.gender?.message}
             />
 
+          {/* vị trí công việc */}
             <Input
-              name="employee_position"
+              name="employeePosition"
               label="Vị trí công việc"
               placeholder="vị trí công việc"
               control={control}
-              error={errors.employee_position?.message}
+              error={errors.employeePosition?.message}
             />
+
+          {/* lương */}
             <Input
               type='number'
               name="salary"
@@ -126,8 +136,10 @@ const AddEmployee = () => {
               control={control}
               error={errors.salary?.message}
             />
+
+          {/* Trạng thái */}
               <SelectMui
-                name="status_account"
+                name="employeeStatus"
                 label="Trạng thái"
                 control={control}
                 options={[
@@ -135,70 +147,83 @@ const AddEmployee = () => {
                   { value: 2, label: 'Nghỉ việc' },
                 ]}
                 isMultiple={true} // Bật chế độ chọn nhiều
-                error={errors.status_account?.message}
+                error={errors.employeeStatus?.message}
               />
 
+            {/* mật khẩu */}
             <Input
               name="password"
               label="Mật khẩu"
               placeholder="Mật khẩu"
               control={control}
               error={errors.password?.message}
-            />   
+            />  
+
+             {/*mật khẩu */}
             <Input
               name="confirmPassword"
               label="Nhập lại mật khẩu"
               placeholder="Nhập lại mật khẩu"
               control={control}
               error={errors.confirmPassword?.message}
-            />   
+            />  
 
-          </div>
+            {/* Address */}
+            <div>
+              <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
+                Tỉnh
+              </label>
+                
+              <Select
+               name="provinceName"
+               control={control}
+               options={[
+                { value: '0', label: 'Chọn' },
+                { value: '1', label: 'Health' },
+                { value: '2', label: 'Finance' },
+                ]}
+              error={errors.provinceName?.message}
+              />
+            </div>
 
-        </div>
+            {/* Chọn Huyện */}
+            <div>
+            <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
+                Huyện
+            </label>
+            <Select
+              name="districtName"
+              control={control}
+              options={[
+                { value: '0', label: 'Chọn' },
+                { value: '1', label: 'Health' },
+                { value: '2', label: 'Finance' },
+              ]}
+              error={errors.districtName?.message}
+            />
+            </div>
+
+            {/* Chọn xã */}
+            <div>
+            <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
+                Xã
+            </label>
+            <Select
+              name="wardName"
+              control={control}
+              options={[
+                { value: '0', label: 'Chọn' },
+                { value: '3', label: 'Health' },
+                { value: '4', label: 'Finance' },
+              ]}
+              error={errors.wardName?.message}
+            />
+            </div>
       </div>
-
-      {/* Block 3 */}
-
-      {/* Block 4 */}
-      <div className="mt-4 grid grid-cols-1 gap-4 rounded-lg bg-primary-white p-5 sm:grid-cols-2">
-        {/* Address */}
-        <Select
-          name="provinceName"
-          label="Tỉnh/ Thành phố"
-          control={control}
-          options={[
-            { value: '0', label: 'Chọn' },
-            { value: '1', label: 'Health' },
-            { value: '2', label: 'Finance' },
-          ]}
-          error={errors.provinceName?.message}
-        />
-        <Select
-          name="districtName"
-          label="Quận/ Huyện"
-          control={control}
-          options={[
-            { value: '0', label: 'Chọn' },
-            { value: '1', label: 'Health' },
-            { value: '2', label: 'Finance' },
-          ]}
-          error={errors.districtName?.message}
-        />
-        <Select
-          name="wardName"
-          label="Xã/ Phường"
-          control={control}
-          options={[
-            { value: '0', label: 'Chọn' },
-            { value: '3', label: 'Health' },
-            { value: '4', label: 'Finance' },
-          ]}
-          error={errors.wardName?.message}
-        />
-        <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
+      <Text type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
       </div>
-      <div className="flex justify-end bg-primary-white p-5">
+  
+      <div className="ml-auto w-fit py-5">
         <Button text="Thêm mới" type="submit" />
       </div>
     </form>

@@ -6,6 +6,7 @@ import { IProfileCompany, IProfileCompanyRespone } from '@/types/profileCompany'
 import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
 import { result } from 'lodash';
 import { error } from 'console';
+import { WorkshopResponse } from '@/types/workshop';
 
 export const adminCompanyApi = createApi({
   reducerPath: 'adminCompanyApi',
@@ -83,6 +84,20 @@ export const adminCompanyApi = createApi({
         }),
         invalidatesTags: [{ type: 'ii' }],
       }),
+
+      // WORKSHOP
+      getAllWorkShop: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string }>({
+        query: ({ page, size, keyword, status }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+
+          return `/company/workshop/apply/get_all?${queryParams.toString()}`;
+        },
+        providesTags: ['Workshop'],
+      }),
     };
   },
 });
@@ -95,4 +110,5 @@ export const {
   useGetAllCompanyJobQuery,
   useGetDetailCompanyJobQuery,
   useDeleteJobCompanyMutation,
+  useGetAllWorkShopQuery,
 } = adminCompanyApi;
