@@ -3,8 +3,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Logo from '../Logo';
 import avt from '@/assets/images/avt.png';
-import { getUserState } from '@/store/slices/user';
-import { useSelector } from 'react-redux';
+import { getUserState, logOut } from '@/store/slices/user';
+import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
 import { DownOutlined } from '@ant-design/icons';
 import { Dropdown, Space } from 'antd';
@@ -12,6 +12,11 @@ const PortalHeader = () => {
   const [isSticky, setIsSticky] = useState(false);
   const { token, roleAccount, user } = useSelector(getUserState);
   const router = useRouter(); // Hook lấy thông tin đường dẫn
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(logOut());
+    router.push('/');
+  };
 
   const items = [
     {
@@ -62,7 +67,7 @@ const PortalHeader = () => {
     },
     {
       label: (
-        <a className="flex items-center justify-between">
+        <a onClick={handleLogout} className="flex items-center justify-between">
           <span>Đăng xuất</span>
           <i className="fa-solid fa-right-from-bracket"></i>
         </a>
@@ -86,9 +91,11 @@ const PortalHeader = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
   const isActiveLink = path => {
     return router.pathname === path ? 'text-primary-main after:w-full' : ''; // Nếu đường dẫn hiện tại trùng với path, thì đánh dấu là active
   };
+
   const isLoggedIn = !!token;
   return (
     <header className={`${isSticky ? 'mp_header_sticky mp_box_shadow' : 'mp_header_fixed'}`}>

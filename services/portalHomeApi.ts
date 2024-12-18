@@ -4,6 +4,9 @@ import { WorkshopResponse, WorkshopDetailResponse } from '@/types/workshop';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IProvinceResponse } from '@/types/addressesTypes';
 import { RootState } from '@/store/store';
+import { FieldsResponse } from '@/types/fields';
+import { IFields } from '@/types';
+import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -45,6 +48,19 @@ export const portalHomeApi = createApi({
       query: ({ id }) => `/portal/companies/${id}`,
     }),
 
+    // Fetch all schools with pagination
+    getSchools: builder.query<UniversityResponse, { page: number; size: number; keyword?: string }>({
+      query: ({ page, size, keyword = '' }) => {
+        const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
+        return `/portal/get_all_unis?${params.toString()}`;
+      },
+    }),
+
+    // Fetch specific school details
+    getSchoolDetails: builder.query<UniversityDetailResponse, { id: number }>({
+      query: ({ id }) => `/portal/university/${id}`,
+    }),
+
     // Fetch all workshops with pagination
     getWorkshops: builder.query<WorkshopResponse, { page: number; size: number }>({
       query: ({ page, size }) => {
@@ -62,6 +78,11 @@ export const portalHomeApi = createApi({
     getProvinces: builder.query<IProvinceResponse, void>({
       query: () => `/provinces`,
     }),
+
+    // Fetch fields
+    getFields: builder.query<IFields, void>({
+      query: () => `/fields`,
+    }),
   }),
 });
 
@@ -73,4 +94,7 @@ export const {
   useGetCompaniesQuery,
   useGetCompanyDetailsQuery,
   useGetProvincesQuery,
+  useGetFieldsQuery,
+  useGetSchoolsQuery,
+  useGetSchoolDetailsQuery,
 } = portalHomeApi;
