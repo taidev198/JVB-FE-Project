@@ -14,19 +14,17 @@ import { gender } from '@/utils/app/const';
 import SelectReact from '@/components/Common/SelectMui';
 import { useRouter } from 'next/router';
 import { useGetDetailAcademicOfficeManagementQuery, useGetDetailAdemicQuery, useUpdateAdemicMutation } from '@/services/adminSchoolApi';
-import { useGetAllAccountSchoolQuery, useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
+import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import Text from '@/components/Common/Text';
 import toast from 'react-hot-toast';
 import validationSchemaUpdateAdemic from '@/components/Admin/school/Ademic/validationUpdateAdemic';
 import { useAppSelector } from '@/store/hooks';
-import AddAdemic from '../addAdemic';
+
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataUpdateAdemic {
   fullName: string;
   employeeCode: string;
-  //   password: string;
-  //   confirm_password: string;
   phoneNumber: string;
   dateOfBirth: string | null;
   gender: string;
@@ -39,7 +37,7 @@ interface FormDataUpdateAdemic {
 }
 
 const UpdateAdemic = () => {
-  const [image, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
   const {
@@ -70,19 +68,19 @@ const UpdateAdemic = () => {
       gender: data.gender,
       dateOfBirth: data.dateOfBirth,
       phoneNumber: data.phoneNumber,
+
       address: {
         houseNumber: data.houseNumber,
         wardId: data.wardId,
       },
     };
 
-    console.log(data, image);
-
     // Chuyển đổi đối tượng universityEmployeeRequest thành chuỗi JSON và append vào FormData
     formData.append('universityEmployeeRequest', new Blob([JSON.stringify(universityEmployeeRequest)], { type: 'application/json' }));
 
     // Append file vào FormData
     formData.append('file', image as File);
+    console.log(image);
 
     if (IdAdemic) {
       try {
@@ -102,12 +100,14 @@ const UpdateAdemic = () => {
       console.error('Ademic ID is missing');
     }
   };
+  console.log(errors);
 
   useEffect(() => {
     if (ademic?.data) {
       reset({
         employeeCode: ademic.data.employeeCode,
         fullName: ademic.data.fullName,
+        avatarUrl: ademic.data.avatarUrl,
         gender: ademic.data.gender,
         dateOfBirth: ademic.data.dateOfBirth,
         phoneNumber: ademic.data.phoneNumber,
@@ -120,7 +120,11 @@ const UpdateAdemic = () => {
     }
     dispatch(setLoading(isLoadingDetailAdemic));
   }, [dispatch, isLoadingDetailAdemic, reset, ademic]);
-
+  useEffect(() => {
+    if (ademic?.data.avatarUrl) {
+      setImage(ademic?.data.avatarUrl);
+    }
+  }, [ademic?.data.avatarUrl]);
   return (
     <div className="bg-primary-white p-6">
       <div className="rounded-t-lg">
@@ -166,7 +170,7 @@ const UpdateAdemic = () => {
               error={errors.phoneNumber?.message}
             />
 
-            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="Nhập ngày sinh" control={control} error={errors.dateOfBirth?.message} />
+            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="Nhập ngày sinh" control={control} />
             <div>
               <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
                 Tỉnh

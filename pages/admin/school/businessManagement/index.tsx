@@ -1,7 +1,8 @@
 import DeleteIcon from '@mui/icons-material/Delete';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
+import Select from 'react-select';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { BackDrop } from '@/components/Common/BackDrop';
@@ -13,18 +14,25 @@ import { debounce } from 'lodash';
 import { useDeleteBusinessMultipleMutation, useDeleteBusinessOneMutation, useGetAllBusinessQuery } from '@/services/adminSchoolApi';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { setKeyword, setPage } from '@/store/slices/filtersSlice';
 
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
-  const [keyword, setKeyword] = useState('');
+  const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
+  const [major, setMajor] = useState<number | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedBusiness, setSelectedBusiness] = useState<number[]>([]);
-  const debouncedSearch = debounce((value: string) => {
-    setKeyword(value);
-  }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
@@ -34,10 +42,11 @@ const BusinessManagement = () => {
   };
 
   const { data: business, isLoading } = useGetAllBusinessQuery({
-    page: currentPage,
-    size: 10,
+    page,
+    size,
     keyword,
   });
+
   const idBusiness = useAppSelector(state => state.global.id);
   console.log(business);
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteBusinessOneMutation();
@@ -83,7 +92,32 @@ const BusinessManagement = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản ngành học</h1>
         <div className="flex items-center justify-between gap-3 ">
-          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
+          <div className="flex gap-10">
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+              className="w-full"
+            />
+            <Select
+              placeholder="Chọn ngành"
+              closeMenuOnSelect={true}
+              options={[
+                { value: null, label: 'Tất cả' },
+                ...(business?.data.content || []).map(major => ({
+                  value: major.id,
+                  label: major.majorName,
+                })),
+              ]}
+              onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
+                setMajor(selectedOption.value ? Number(selectedOption.value) : null);
+              }}
+              className="w-full cursor-pointer"
+            />
+          </div>
           <div className="flex items-center gap-5">
             <Link href={'/admin/school/businessManagement/AddBusiness'}>
               <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
@@ -216,8 +250,11 @@ const BusinessManagement = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
+      <div className="flex items-center justify-center bg-white p-5">
+        <Pagination count={business?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
+        <p className="text-sm">
+          ({business?.data.currentPage} / {business?.data.totalPages})
+        </p>
       </div>
     </>
   );

@@ -27,7 +27,6 @@ const AdminSystemSchool = () => {
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();
-
   const handleAction = useCallback(
     (actionType: any, companyId: number, universityName: string) => {
       setSelectedCompanyId(companyId);

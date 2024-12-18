@@ -9,7 +9,7 @@ export interface IProfileCompany {
   companyName: string;
   companyCode: string;
   logoUrl: string;
-  companyDescription: null;
+  companyDescription: string;
   companyShortDescription: string;
   phoneNumber: string;
   taxCode: string;

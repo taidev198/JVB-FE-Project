@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Checkbox, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -17,24 +17,29 @@ import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllA
 import { debounce } from 'lodash';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { setKeyword, setPage } from '@/store/slices/filtersSlice';
 
 const AcademicOfficeManagement = () => {
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
-  // const [deleteAcademicOfficeManagement, { isLoading: isLoadingDelete, data }] = useDeleteAcademicOfficeManagementMutation();
 
   const idAdemic = useAppSelector(state => state.global.id);
   const name = useAppSelector(state => state.global.name);
-  const [keyword, setKeyword] = useState('');
+  const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
 
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
 
-  const debouncedSearch = debounce((value: string) => {
-    setKeyword(value);
-  }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
@@ -148,7 +153,7 @@ const AcademicOfficeManagement = () => {
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">{index + 1}</td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <Image src={item?.avatarUrl} alt="ảnh" width={50} height={50} />
+                    <Image src={item?.avatarUrl} alt="anh" width={50} height={50} className="h-[50px] rounded-full" />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.employeeCode}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.fullName}</td>
@@ -217,8 +222,17 @@ const AcademicOfficeManagement = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
+      <div className="flex items-center justify-center bg-white p-5">
+        <Pagination
+          count={academicOfficeManagement?.data.totalPages}
+          page={page}
+          onChange={(event, value) => dispatch(setPage(value))}
+          color="primary"
+          shape="rounded"
+        />
+        <p className="text-sm">
+          ({academicOfficeManagement?.data.currentPage} / {academicOfficeManagement?.data.totalPages})
+        </p>
       </div>
     </>
   );

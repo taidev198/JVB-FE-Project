@@ -26,7 +26,7 @@ export const adminSchoolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement', 'School'],
+  tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement', 'School', 'CurrentSchool'],
   endpoints: builder => {
     return {
       getAllDepartments: builder.query<ApiResponse, { page: number; size: number; keyword: string }>({
@@ -229,27 +229,23 @@ export const adminSchoolApi = createApi({
         },
       }),
       //school
-      getAllSchool: builder.query<ApiResponseSchool, { page: number; size: number; keyword: string; status: string }>({
-        query: ({ page, size, keyword, status }) => {
-          let queryParams = new URLSearchParams();
-          if (page) queryParams.append('page', String(page));
-          if (size) queryParams.append('size', String(size));
-          if (keyword) queryParams.append('keyword', keyword);
-          if (status) queryParams.append('status', status);
 
-          return `/admin/get-university?${queryParams.toString()}`;
-        },
-        providesTags: [{ type: 'School', id: 'listSchool' }],
-      }),
-
-      getDetailSchool: builder.query<ApiResponseDetailSchool, { id: number | null }>({
-        query: ({ id }) => {
+      getDetailSchool: builder.query<ApiResponseDetailSchool, void>({
+        query: () => {
           return {
-            url: `/admin/get-university/${id}`,
+            url: `/university/detail-current`,
           };
         },
+        providesTags: ['CurrentSchool'],
       }),
-
+      UpdateSchool: builder.mutation({
+        query: (args: { formData: FormData }) => ({
+          url: `/university/update`,
+          method: 'PUT',
+          body: args.formData,
+        }),
+        invalidatesTags: ['CurrentSchool'],
+      }),
       // Workshop
       getAllWorShopsUniversity: builder.query<
         WorkshopResponse,
@@ -331,7 +327,7 @@ export const adminSchoolApi = createApi({
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (majorId) queryParams.append('majorId', String(majorId));
-          if (facultyId) queryParams.append('facultyId', String(facultyId)); // Sửa ở đây
+          if (facultyId) queryParams.append('facultyId', String(facultyId));
 
           return `/university/students?${queryParams.toString()}`;
         },
@@ -400,18 +396,16 @@ export const {
   useAddDepartmentMutation,
   useUpdateDepartmentMutation,
   useGetAllStudentsQuery,
-  useGetAllBusinessQuery,
+  useGetAllBusinessQuery, 
   useUpdateBusinessMutation,
   useGetDetailBusinessQuery,
   useDeleteBusinessMultipleMutation,
   useDeleteBusinessOneMutation,
-  // useDeleteBusinessMutation,
   useGetAllMajorByQuery,
   useAddBusinessMutation,
   useGetAllAcademicOfficeManagementQuery,
   useGetDetailAcademicOfficeManagementQuery,
   useGetDetailAdemicQuery,
-  // useDeleteAcademicOfficeManagementMutation,
   useUpdateAdemicMutation,
   useGetDetailStudentQuery,
   useAddStudentMutation,
@@ -421,6 +415,6 @@ export const {
   useAddAcademicOfficeManagementMutation,
   useDeleteAdemicMultipleMutation,
   useDeleteAdemicOneMutation,
-  useGetAllSchoolQuery,
   useGetDetailSchoolQuery,
+  useUpdateSchoolMutation,
 } = adminSchoolApi;
