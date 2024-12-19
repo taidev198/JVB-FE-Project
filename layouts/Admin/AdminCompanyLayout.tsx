@@ -13,19 +13,21 @@ const AdminCompanyLayout = memo(({ children }: { children: ReactNode }) => {
 
   return (
     <>
+      {/* Loading Overlay */}
       {isLoading && <Loading />}
+
+      {/* Header */}
       <Header isAdmin={true} />
-      <div className={`${!isMobileAndTablet ? 'flex' : ''}`}>
-        {isMobileAndTablet ? (
-          <div className={`hidden h-screen overflow-auto`}>
-            <Navbar props={litsNavbarAdminSchoolRouter} />
-          </div>
-        ) : (
-          <div className={`h-screen w-[19%] overflow-auto bg-primary-white p-[20px]`}>
-            <Navbar props={litsNavbarAdminSchoolRouter} />
-          </div>
-        )}
-        <div className="h-screen overflow-auto bg-[#EEEE] p-0 md:p-[20px] xl:w-[81%] xl:p-[20px]">{children}</div>
+
+      {/* Main Layout */}
+      <div className="flex h-screen pt-[100px]">
+        {/* Sidebar */}
+        <div className={`${isMobileAndTablet ? 'hidden' : 'block'} h-full w-[19%] overflow-auto bg-primary-white p-[20px]`}>
+          <Navbar props={litsNavbarAdminSchoolRouter} />
+        </div>
+
+        {/* Main Content */}
+        <div className="h-full w-full overflow-auto bg-[#EEEE] p-0 md:p-[20px] xl:w-[81%] xl:p-[20px]">{children}</div>
       </div>
     </>
   );

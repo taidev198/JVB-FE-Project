@@ -20,19 +20,21 @@ const AdminSystemLayout = memo(({ children }: { children: ReactNode }) => {
   }, [roleAccount, router]);
   return (
     <>
+      {/* Loading Overlay */}
       {isLoading && <Loading />}
+
+      {/* Header */}
       <Header isAdmin={true} />
-      <div className={`${!isMobileAndTablet ? 'flex' : ''}`}>
-        {isMobileAndTablet ? (
-          <div className={`hidden h-screen overflow-auto`}>
-            <Navbar props={litsNavbarSystemAdmin} />
-          </div>
-        ) : (
-          <div className={`h-screen w-[19%] overflow-auto bg-primary-white p-[20px]`}>
-            <Navbar props={litsNavbarSystemAdmin} />
-          </div>
-        )}
-        <div className="h-screen overflow-auto bg-[#EEEE] p-0 md:p-[20px] xl:w-[81%] xl:p-[20px]">{children}</div>
+
+      {/* Main Layout */}
+      <div className="flex h-screen pt-[100px]">
+        {/* Sidebar */}
+        <div className={`${isMobileAndTablet ? 'hidden' : 'block'} h-full w-[19%] overflow-auto bg-primary-white p-[20px]`}>
+          <Navbar props={litsNavbarSystemAdmin} />
+        </div>
+
+        {/* Main Content */}
+        <div className="h-full w-full overflow-auto bg-[#EEEE] p-0 md:p-[20px] xl:w-[81%] xl:p-[20px]">{children}</div>
       </div>
     </>
   );

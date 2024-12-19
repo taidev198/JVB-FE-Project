@@ -103,6 +103,23 @@ export const adminSystemApi = createApi({
         providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Workshop', id }] : []),
       }),
 
+      deleteWorkshop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/workshops/delete/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Workshop', id }, { type: 'Workshop' }],
+      }),
+
+      deleteWorkshops: builder.mutation({
+        query: ids => ({
+          url: `/workshops/delete`,
+          method: 'DELETE',
+          body: ids,
+        }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Workshop', id }, { type: 'Workshop' }],
+      }),
+
       // Approve workshop
       approveWorkshop: builder.mutation({
         query: ({ id }) => ({
@@ -140,15 +157,6 @@ export const adminSystemApi = createApi({
           method: 'PUT',
           body: { email, otp, password, confirmPassword },
         }),
-      }),
-
-      // Delete workshop
-      deleteWorkshop: builder.mutation({
-        query: ({ id }) => ({
-          url: `/workshops/delete/${id}`,
-          method: 'DELETE',
-        }),
-        invalidatesTags: (result, error, { id }) => [{ type: 'Workshop', id }, { type: 'Workshop' }],
       }),
 
       // Company
@@ -293,6 +301,7 @@ export const {
   useGetOtpMutation,
   useForgotPasswordMutation,
   useDeleteWorkshopMutation,
+  useDeleteWorkshopsMutation,
   useGetAllAccountCompanyQuery,
   useGetDetailAccountCompanyQuery,
   useRejectAccountCompanyMutation,
