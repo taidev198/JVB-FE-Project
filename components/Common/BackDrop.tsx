@@ -21,7 +21,7 @@ export const BackDrop = ({ children, isCenter = false, className = '' }: Props):
   };
 
   return (
-    <div className="fixed inset-0 z-[10]">
+    <div className="fixed inset-0 z-[51]">
       <div
         className={clsx(
           isCenter && 'items-center',
