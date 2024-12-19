@@ -39,7 +39,7 @@ const detailJobCompany = () => {
               </li>
               <li className="mt-5 flex items-center gap-3">
                 <div>
-                  <span className="mr-2 font-semibold">Yêu cầu:</span> {jobCompany?.data.requirements}
+                  <span className="mr-2 font-semibold">Yêu cầu:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.requirements ?? '' }}></p>
                 </div>
               </li>
               <li className="mt-5 flex items-center gap-3">
@@ -54,7 +54,7 @@ const detailJobCompany = () => {
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Phúc lợi:</span> {jobCompany?.data.benifits}
+                  <span className="mr-2 font-semibold">Phúc lợi:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.benifits ?? '' }}></p>
                 </div>
               </li>
               <li className="mt-4 flex items-center  gap-3 ">

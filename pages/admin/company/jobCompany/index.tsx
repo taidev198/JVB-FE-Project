@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import SearchIcon from '@mui/icons-material/Search';
+// import SearchIcon from '@mui/icons-material/Search';
 import { Chip, IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -12,10 +12,13 @@ import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { debounce } from 'lodash';
-import { useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
+import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
+import { setKeyword, setPage } from '@/store/slices/filtersSlice';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 
 
@@ -28,12 +31,11 @@ const validationSchema = Yup.object({
 });
 
 const jobCompany = () => {
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState('');
-  const [status, setStatus] = useState('');
   const [idJob, setIdJob] = useState <number>()
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
+  const name = useAppSelector(state => state.global.name);
+  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
   const {
     control,
@@ -44,32 +46,61 @@ const jobCompany = () => {
   });
 console.log(idJob);
 
-  const debouncedSearch = debounce((value: string) => {
-    setKeyword(value);
-  }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
 
-  const {data: jobCompany, isLoading} = useGetAllCompanyJobQuery({
-    page,
-    size: 10,
-    keyword,
-    status,
-  })
+  const {data: jobCompany, isLoading} = useGetAllCompanyJobQuery({ page, keyword, size, status})
   
-  const [deleteC,{}] = useDeleteJobCompanyMutation()
+  const [deleteC,{isLoading: isLoadingOne}] = useDeleteJobCompanyMutation()
+  const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
+  const handleDelete = async () => {
+    try {
+      if (selectedJob.length > 0) {
+        const response = await deleteMultiple({ ids: selectedJob }).unwrap();
+        toast.success(response.message);
+      } else {
+        const response = await deleteC({ id: idJob }).unwrap();
+        toast.success(response.message);
+      }
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
+      dispatch(setBackdrop(null));
+    }
+  };
+  console.log(selectedJob)
 
+    const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.checked) {
+        const allJob = jobCompany?.data.content.map(job => job.id);
+        setselectedJob(allJob ?? []);
+      } else {
+        setselectedJob([]);
+      }
+    };
   const handleSelectJob = (id: number) => {
     setselectedJob(prev => (prev.includes(id) ? prev.filter(jobId => jobId !== id) : [...prev, id]));
   };
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setPage(page);
-  };
+    useEffect(() => {
+      dispatch(setLoading(isLoading || isLoadingOne || isLoadingMultiple));
+    }, [isLoading, dispatch, isLoadingMultiple, isLoadingOne]);
 
-  const handleConfirmAction = () => {
-    deleteC({id:idJob})
-    dispatch(setBackdrop(null))
-  };
-
+  // const handleConfirmAction = () => {
+  //   deleteC({id:idJob})
+  //   dispatch(setBackdrop(null))
+  // };
 
   return (
     <>
@@ -78,10 +109,28 @@ console.log(idJob);
         <h1 className="mb-5 font-bold">Doanh sách bài đăng tuyển</h1>
         <div className="flex items-center gap-3 justify-between ">
           <div className="w-[200px]">
-          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
+
+          <TextField 
+              id="filled-search" 
+              label="Tìm kiếm" 
+              type="search" 
+              variant="outlined" 
+              size="small" 
+              onChange={e => debouncedSearch(e.target.value)} />
           </div>
 
-          <MyButton type="submit" text="Thêm công việc" />
+          <div className='flex items-center gap-5'>
+            <Link href={'/admin/company/jobCompany/AddJob'}>
+            <MyButton type="submit" text="Thêm công việc" />
+            </Link>
+            
+            <MyButton 
+              type="submit" 
+              text="Xóa tất cả công việc" 
+              className='bg-red-600'
+              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+               />
+          </div>
         </div>
       </div>
 
@@ -95,7 +144,7 @@ console.log(idJob);
                   color="primary"
                   checked={selectedJob.length === jobCompany?.data.content.length}
                   indeterminate={selectedJob.length > 0 && selectedJob.length < (jobCompany?.data.content||[]).length}
-                  // onChange={handleSelectAll}
+                  onChange={handleSelectAll}
                 />
               </th>
               <th className="px-5 py-4 text-left">STT</th>
@@ -112,9 +161,9 @@ console.log(idJob);
                 <td className="p-3 sm:px-5 sm:py-4">
                   <Checkbox color="primary" checked={selectedJob.includes(item.id)} onChange={() => handleSelectJob(item.id)} />
                 </td>
-                <td className="px-5 py-4">{item.id}</td>
+                <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.jobTitle}</td>
-                <td className="px-5 py-4">{item.jobDescription}</td>
+                <td className="px-5 py-4"><p dangerouslySetInnerHTML={{ __html: item.jobDescription ?? '' }}></p></td>
                 <td className="px-5 py-4">{item.maxSalary}-{item.minSalary}</td>
                 <td className="px-5 py-4">{item.expirationDate}</td>
 
@@ -128,15 +177,21 @@ console.log(idJob);
                     </Tooltip>
                     </Link>
 
-                    <Tooltip title="Sửa">
-                      <IconButton>
-                        <BorderColorIcon className='text-purple-500' />
-                      </IconButton>
-                    </Tooltip>
+                    <Link href={`/admin/company/jobCompany/update/${item.id}`}>
+                      <Tooltip title="Sửa">
+                        <IconButton onClick={() => {
+                          dispatch(setId(item.id))
+                        }}>
+                          <BorderColorIcon className='text-purple-500' />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+
 
                     <Tooltip title="Xóa">
                       <IconButton onClick={() =>{
                         dispatch(setBackdrop(BackdropType.DeleteConfirmation))
+                        dispatch(setName(item.jobTitle))
                         setIdJob(item.id)
                       } }>
                         <DeleteIcon color="error" />
@@ -156,11 +211,11 @@ console.log(idJob);
         {backdropType === BackdropType.DeleteConfirmation && (
           <BackDrop isCenter={true}>
            <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa {name}?</h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
             <Button text="Hủy" className="bg-red-600"full={true} onClick={() => dispatch(setBackdrop(null))} />
-            <Button text="Xác nhận" className="bg-green-600" onClick={ handleConfirmAction} full={true} />
+            <Button text="Xác nhận" className="bg-green-600" onClick={ handleDelete} full={true} />
             </div>
           </div>
         </BackDrop>
@@ -168,7 +223,7 @@ console.log(idJob);
 
       {/* Pagination */}
       <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
+        <Pagination count={jobCompany?.data.totalPages} page={page} onChange={(value, event) => dispatch(setPage(event))}  color="primary" shape="rounded" />
       </div>
     </>
   )

@@ -4,40 +4,42 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
-
+import Select from 'react-select';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useDeleteDepartmentMultipleMutation, useDeleteDepartmentOneMutation, useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
-import { setToast } from '@/store/slices/toastSlice';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import toast from 'react-hot-toast';
+import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 
 const Department = () => {
   const dispatch = useAppDispatch();
-  const [keyword, setKeyword] = useState('');
+  const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const {
-    data: departments,
-    isLoading,
-    refetch,
-  } = useGetAllDepartmentsQuery({
-    page: currentPage,
-    size: 10,
+  const [department, setDepartment] = useState<number | null>(null);
+
+  const { data: departments, isLoading } = useGetAllDepartmentsQuery({
+    page,
+    size,
     keyword,
   });
 
-  const debouncedSearch = debounce((value: string) => {
-    setKeyword(value);
-  }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
     setCurrentPage(page);
   };
@@ -83,6 +85,9 @@ const Department = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
+    return () => {
+      dispatch(resetFilters());
+    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
@@ -90,7 +95,32 @@ const Department = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách quản lý khoa</h1>
         <div className="flex items-center justify-between gap-3 ">
-          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
+          <div className="flex gap-10">
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+              className="w-full"
+            />
+            <Select
+              placeholder="Chọn khoa"
+              closeMenuOnSelect={true}
+              options={[
+                { value: null, label: 'Tất cả' },
+                ...(departments?.data.content || []).map(department => ({
+                  value: department.id,
+                  label: department.facultyName,
+                })),
+              ]}
+              onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
+                setDepartment(selectedOption.value ? Number(selectedOption.value) : null);
+              }}
+              className="w-full cursor-pointer "
+            />
+          </div>
           <div className="flex items-center gap-5">
             <Link href={'/admin/school/department/AddDepartment'}>
               <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
@@ -214,8 +244,11 @@ const Department = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
+      <div className="flex items-center justify-center bg-white p-5">
+        <Pagination count={departments?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
+        <p className="text-sm">
+          ({departments?.data.currentPage} / {departments?.data.totalPages})
+        </p>
       </div>
     </>
   );

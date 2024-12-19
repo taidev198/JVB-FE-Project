@@ -13,15 +13,22 @@ import { useGetDetailSchoolQuery } from '@/services/adminSchoolApi';
 import SchoolIcon from '@mui/icons-material/School';
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import { Button } from '@/components/Common/Button';
+import { setId, setLoading } from '@/store/slices/global';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 const DetailSchoolManagement = () => {
+  const dispatch = useDispatch();
   const id = useAppSelector(state => state.global.id);
-  const { data: detailSchool } = useGetDetailSchoolQuery();
-  console.log(detailSchool);
+  const { data: detailSchool, isLoading } = useGetDetailSchoolQuery();
+  useEffect(() => {
+    dispatch(setLoading(isLoading)); // Gọi hành động để cập nhật trạng thái
+  }, [isLoading]); // useEffect sẽ chạy mỗi khi `isLoading` thay đổi
 
+  console.log(detailSchool);
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
       <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin hồ sơ trường</h1>
-      {/* Info */}
+
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
           <div className="rounded-[50%] bg-[#F1F1F1] p-6">
@@ -45,7 +52,7 @@ const DetailSchoolManagement = () => {
           <li className="mt-5 flex items-center gap-3">
             <EmailIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Email:</span> {detailSchool?.data.email}
+              <span className="mr-2 font-semibold">Email:</span> {detailSchool?.data.account.email}
             </div>
           </li>
 
@@ -110,8 +117,10 @@ const DetailSchoolManagement = () => {
             </div>
           </li>
         </ul>
-        <div className="mt-9 flex items-center gap-5">
-          <Button text="Sửa hồ sơ trường" full={true} />
+        <div className="mt-9 flex items-center justify-center gap-5">
+          <Link href={`/admin/school/schoolManagement/UpdateSchoolManagement`}>
+            <Button text="Sửa hồ sơ trường" full={true} />
+          </Link>
         </div>
       </div>
     </div>

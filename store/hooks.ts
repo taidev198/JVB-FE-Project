@@ -1,3 +1,5 @@
+// store/hooks.ts
+
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, store } from './store';
 

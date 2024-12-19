@@ -1,29 +1,30 @@
 import * as Yup from 'yup';
 
 const validationSchemaAddStudent = Yup.object({
-  full_name: Yup.string().required('Tên nhân viên là bắt buộc').max(100, 'Tên nhân viên không được quá 100 kí tự'),
-  employee_code: Yup.string().required('Mã nhân viên là bắt buộc').max(50, 'Mã sinh viên không được quá 50 kí tự'),
+  fullName: Yup.string().required('Tên nhân viên là bắt buộc').max(100, 'Tên nhân viên không được quá 100 kí tự'),
+  employeeCode: Yup.string().required('Mã nhân viên là bắt buộc').max(50, 'Mã sinh viên không được quá 50 kí tự'),
 
   gender: Yup.string().oneOf(['MALE', 'FEMALE', 'OTHER'], 'Giới tính phải là Nam, Nữ hoặc Khác').required('Giới tính là bắt buộc'),
   email: Yup.string()
     .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không đúng định dạng')
     .required('Email là bắt buộc')
     .max(50, 'Email không được quá 50 kí tự'),
-  status_account: Yup.string().required('Trạng thái học tập là bắt buộc'),
-  phone_number: Yup.string()
+  employeeStatus: Yup.string().required('Trạng thái học tập là bắt buộc'),
+  phoneNumber: Yup.string()
     .matches(/^[0-9]+$/, 'Số điện thoại chỉ có thể chứa các chữ số')
     .max(15, 'Số điện thoại không được vượt quá 15 ký tự')
     .required('Số điện thoại là bắt buộc'),
 
-  position: Yup.string().required('Chức vụ không được để trống').max(100, 'Chức vụ không được quá 100 kí tự'),
+  employeePosition: Yup.string().required('Chức vụ không được để trống').max(100, 'Chức vụ không được quá 100 kí tự'),
 
-  data_of_birth: Yup.date()
+  dateOfBirth: Yup.date()
     .required('Ngày sinh không được để trống')
     .nullable()
     .transform((value, originalValue) => {
       if (originalValue === '') return null;
       return value;
-    }).test('is-not-null', 'Ngày sinh thể là rỗng', value => value !== null),
+    })
+    .test('is-not-null', 'Ngày sinh thể là rỗng', value => value !== null),
 
   salary: Yup.number()
     .nullable()
@@ -33,7 +34,8 @@ const validationSchemaAddStudent = Yup.object({
     .transform((value, originalValue) => {
       if (originalValue === '') return null;
       return value;
-    }).test('is-not-null', 'Mức lương không thể là rỗng', value => value !== null),
+    })
+    .test('is-not-null', 'Mức lương không thể là rỗng', value => value !== null),
 
   account: Yup.string().required('Mật khẩu không được để trống').min(6, 'Mật khẩu phải có ít nhất 6 ký tự').max(20, 'Mật khẩu không được quá 20 ký tự'),
 

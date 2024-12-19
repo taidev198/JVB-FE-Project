@@ -1,3 +1,5 @@
+// types/workshop.ts
+
 import { IUniversity } from './university';
 import { IAddress } from './addressesTypes';
 import { IFields } from './index';
