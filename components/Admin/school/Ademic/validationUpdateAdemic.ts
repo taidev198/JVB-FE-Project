@@ -13,15 +13,7 @@ const validationSchemaUpdateAdemic = Yup.object({
     .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số')
     .required('Số điện thoại là bắt buộc'),
   dateOfBirth: Yup.string(),
-  avatarUrl: Yup.mixed()
-    .test('fileType', 'Chỉ chấp nhận định dạng JPG hoặc PNG', value => {
-      if (!value) return true; // Không bắt buộc
-      return value instanceof File && ['image/jpg', 'image/jpeg', 'image/png'].includes(value.type);
-    })
-    .test('fileSize', 'Kích thước file không được quá 2MB', value => {
-      if (!value) return true; // Không bắt buộc
-      return value instanceof File && value.size <= 2 * 1024 * 1024; // 2MB
-    }),
+
   houseNumber: Yup.string().required('Địa chỉ cụ thể sinh viên là bắt buộc').max(255, 'Địa chỉ cụ thể không được quá 255 kí tự'),
   wardId: Yup.number().required('Xã/Phường là bắt buộc'),
   districtId: Yup.number().required('Quận/Huyện là bắt buộc'),
