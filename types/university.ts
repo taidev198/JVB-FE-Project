@@ -1,5 +1,5 @@
 import { IAddress } from './addressesTypes';
-import { IAccount } from '.';
+import { IAccount, IFields } from '.';
 
 export interface IUniversity {
   id: number;
@@ -15,6 +15,7 @@ export interface IUniversity {
   universityType: string;
   address: IAddress;
   account: IAccount;
+  fields: IFields[];
   numberOfStudents: number;
   numberOfGraduates: number;
 }

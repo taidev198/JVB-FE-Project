@@ -1,7 +1,7 @@
 import React from 'react';
 import { Select } from 'antd';
 
-interface SelectOneProps {
+interface SelectSearchProps {
   label: string;
   value: string | null;
   items: string[];
@@ -9,11 +9,12 @@ interface SelectOneProps {
   width?: string | number;
 }
 
-const SelectOne: React.FC<SelectOneProps> = ({ label, value, items, onChange, width = '100%' }) => {
+const SelectSearch: React.FC<SelectSearchProps> = ({ label, value, items, onChange, width = '100%' }) => {
   return (
     <div className="relative w-full" style={{ width }}>
-      {/* Ant Design Select */}
+      {/* Ant Design Select with Search and Max Height */}
       <Select
+        showSearch
         size="large"
         placeholder={label}
         value={value || undefined}
@@ -23,10 +24,12 @@ const SelectOne: React.FC<SelectOneProps> = ({ label, value, items, onChange, wi
           value: item,
           label: item,
         }))}
-        dropdownRender={menu => <div style={{ maxHeight: '200px', overflowY: 'auto' }}>{menu}</div>}
+        optionFilterProp="label"
+        filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+        dropdownRender={menu => <div style={{ maxHeight: '200px', overflowY: 'auto' }}>{menu}</div>} // Sets max height and scroll
       />
     </div>
   );
 };
 
-export default SelectOne;
+export default SelectSearch;

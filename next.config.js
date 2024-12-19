@@ -1,4 +1,4 @@
-const withTM = require('next-transpile-modules')(['antd', '@ant-design/icons', 'rc-util', 'rc-select', 'rc-menu']);
+const withTM = require('next-transpile-modules')(['antd', '@ant-design/icons', 'rc-util', 'rc-select', 'rc-menu', 'rc-pagination', 'rc-picker']);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = withTM({

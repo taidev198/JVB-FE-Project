@@ -1,3 +1,5 @@
+// types/companyType.ts
+
 import { IAddress } from './addressesTypes';
 import { IFields } from '.';
 
@@ -13,6 +15,7 @@ export interface ICompany {
   establishedDate: string;
   fields: IFields[];
   address: IAddress;
+  quantityEmployee: number;
   account: { id: number; email: string; createAt: string; updateAt: string; statusAccount: string };
   createAt: string;
   updateAt: string;
