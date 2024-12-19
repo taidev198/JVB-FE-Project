@@ -19,11 +19,16 @@ const SchoolsList: React.FC = () => {
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
-  const { data: schoolsData, isLoading: isSchoolsLoading } = useGetSchoolsQuery({
-    page: 1,
-    size: 1000,
-    keyword: searchTerm,
-  });
+  const { data: schoolsData, isLoading: isSchoolsLoading } = useGetSchoolsQuery(
+    {
+      page: 1,
+      size: 1000,
+      keyword: searchTerm,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  console.log(schoolsData);
 
   const typesItems = ['Học viện', 'Cao đẳng', 'Đại học', 'Khác'];
   // const typesItem = ['ACADEMY', 'COLLEGE', 'OTHER', 'UNIVERSITY'];
@@ -135,7 +140,7 @@ const SchoolsList: React.FC = () => {
 
         <div className="mt-[40px]">
           {isSchoolsLoading ? (
-            <div className="flex w-full items-center justify-center">
+            <div className="my-[60px] flex w-full items-center justify-center">
               <Spin size="large" />
             </div>
           ) : paginatedSchools.length > 0 ? (
@@ -174,7 +179,7 @@ const SchoolsList: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="flex w-full items-center justify-center">
+            <div className="my-[60px] flex w-full items-center justify-center">
               <Empty description="Không có dữ liệu" />
             </div>
           )}

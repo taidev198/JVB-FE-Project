@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React from 'react';
 import PortalLayout from '@/layouts/Portal/PortalLayout';
 import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
-import CompaniesList from '@/components/Portal/CompaniesList/CompaniesList';
+import JobsList from '@/components/Portal/JobsList/JobsList';
 
 interface CompanyListProps {
   serverSideApiKeyIsSet: boolean;
@@ -12,7 +12,7 @@ const CompanyListPage: React.FC<CompanyListProps> = () => {
   return (
     <>
       <Head>
-        <title>Company List</title>
+        <title>Jobs List</title>
         <meta name="description" content="Danh sách công ty" />
         <meta name="viewport" content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no" />
         <link rel="icon" href="/favicon.ico" />
@@ -21,7 +21,7 @@ const CompanyListPage: React.FC<CompanyListProps> = () => {
       <PortalLayout type="company-list">
         <main>
           <BreadCrumbHeader title="Danh sách công việc" currentPage="Công việc" />
-          <CompaniesList />
+          <JobsList />
         </main>
       </PortalLayout>
     </>

@@ -6,7 +6,7 @@ import avt from '@/assets/images/avt.png';
 import { getUserState, logOut } from '@/store/slices/user';
 import { useDispatch, useSelector } from 'react-redux';
 import { useRouter } from 'next/router';
-import { DownOutlined } from '@ant-design/icons';
+import { DownOutlined, ExportOutlined } from '@ant-design/icons';
 import { Dropdown, Space } from 'antd';
 const PortalHeader = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -23,7 +23,7 @@ const PortalHeader = () => {
       label: (
         <a className="flex items-center justify-between">
           <span className="min-w-[150px]">Tài khoản</span>
-          <i className="fa-solid fa-chalkboard-user"></i>
+          <ExportOutlined />
         </a>
       ),
       key: '0',

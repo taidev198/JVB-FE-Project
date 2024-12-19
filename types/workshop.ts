@@ -28,11 +28,41 @@ export interface IWorkshop {
   workshopStatus: string;
 }
 
+export interface IWorkshopPortal {
+  id: number;
+  workshopTitle: string;
+  workshopDescription: string;
+  startTime: string;
+  endTime: string;
+  estimateCompanyParticipants: number;
+  agenda: string;
+  moderationStatus: string;
+  imageWorkshops: string;
+  address: IAddress;
+  university: IUniversity;
+  fields: IFields[];
+  createAt: string;
+  updateAt: string;
+  isDelete: false;
+  workshopStatus: string;
+}
+
 export interface WorkshopResponse {
   code: number;
   message: string;
   data: {
     content: IWorkshop[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}
+export interface WorkshopResponsePortal {
+  code: number;
+  message: string;
+  data: {
+    content: IWorkshopPortal[];
     totalPages: number;
     totalElements: number;
     pageSize: number;

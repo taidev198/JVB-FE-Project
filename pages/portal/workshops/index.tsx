@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React from 'react';
 import PortalLayout from '@/layouts/Portal/PortalLayout';
 import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
-import CompaniesList from '@/components/Portal/WorkshopsList/WorkshopsList';
+import WorkshopsList from '@/components/Portal/WorkshopsList/WorkshopsList';
 
 interface WorkshopsListProp {
   serverSideApiKeyIsSet: boolean;
@@ -21,7 +21,7 @@ const CompanyListPage: React.FC<WorkshopsListProp> = () => {
       <PortalLayout type="workshop-list">
         <main>
           <BreadCrumbHeader title="Danh sách workshop" currentPage="Workshop" />
-          <CompaniesList />
+          <WorkshopsList />
         </main>
       </PortalLayout>
     </>

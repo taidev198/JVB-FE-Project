@@ -6,15 +6,12 @@ import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
 
 const Workshop = () => {
   const { data: workshopsData, isLoading, error } = useGetWorkshopsQuery({ page: 1, size: 6 });
-  console.log(workshopsData);
   if (isLoading) {
     return <p>Loading workshops...</p>;
   }
-
   if (error) {
     return <p>Error loading workshops.</p>;
   }
-
   return (
     <div className="rts__section mp_section_padding relative overflow-hidden pb-[180px]">
       <div className="shape__home__one absolute left-[-3%] top-0 z-[-2] hidden lg:block">
@@ -41,7 +38,7 @@ const Workshop = () => {
               <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
               <Link href={`/workshops/${workshop.id}`} className="blog__img">
                 <img
-                  src={workshop.imageWorkshops[0]?.imageUrl || '/images/default-workshop.jpg'}
+                  src={workshop.imageWorkshops || '/images/default-workshop.jpg'}
                   className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
                   alt={workshop.workshopTitle}
                 />

@@ -1,3 +1,4 @@
+// layouts/Portal/PortalLayout.tsx
 import { FC } from 'react';
 import React from 'react';
 import PortalHeader from '@/components/Portal/PortalHeader';
@@ -35,6 +36,11 @@ const PortalLayout: FC<ProtolLayoutProps> = ({ children, type }) => (
             colorText: '#0b0d28',
             colorTextDisabled: '#7D8087',
             paddingBlock: 8,
+          },
+          Input: {
+            hoverBorderColor: '#34a853',
+            activeBorderColor: '#34a853',
+            colorText: '#0b0d28',
           },
         },
       }}>
