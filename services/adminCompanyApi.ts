@@ -58,6 +58,15 @@ export const adminCompanyApi = createApi({
         }),
       }),
 
+      updateProfile: builder.mutation<any, { data: any; id: number | null }>({
+        query: ({ data, id }) => ({
+          url: `/company/update_job/${id}`,
+          method: 'PUT',
+          body: data,
+        }),
+        invalidatesTags: ['Job'],
+      }),
+
       //JOBCOMPANY
       getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string; status: string }>({
         query: ({ page, size, keyword, status }) => {
@@ -111,7 +120,7 @@ export const adminCompanyApi = createApi({
       }),
 
       // WORKSHOP
-      getAllWorkShop: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string }>({
+      getAllWorkShopCompany: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string }>({
         query: ({ page, size, keyword, status }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
@@ -135,7 +144,7 @@ export const {
   useGetAllCompanyJobQuery,
   useGetDetailCompanyJobQuery,
   useDeleteJobCompanyMutation,
-  useGetAllWorkShopQuery,
+  useGetAllWorkShopCompanyQuery,
   useAddJobMutation,
   useUpdateJobMutation,
   useDeleteAllJobCompanyMutation,

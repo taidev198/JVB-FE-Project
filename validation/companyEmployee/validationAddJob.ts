@@ -15,7 +15,7 @@ const validationSchemaAddJob = Yup.object({
 
   minSalary: Yup.number().required('Mức lương không được để trống'),
 
-  memberOfCandidate: Yup.number().required('Số lượng không được để trống'),
+  memberOfCandidate: Yup.string().required('Số lượng không được để trống'),
   salary_type: Yup.string().required('Lương không được để trống'),
   jobField: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),
 });
