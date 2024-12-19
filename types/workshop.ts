@@ -3,6 +3,7 @@
 import { IUniversity } from './university';
 import { IAddress } from './addressesTypes';
 import { IFields } from './index';
+import { JobWork } from './workShopCompany';
 
 export interface ImageWorkshops {
   id: number;
@@ -26,6 +27,7 @@ export interface IWorkshop {
   updateAt: string;
   isDelete: false;
   workshopStatus: string;
+  workshop: JobWork;
 }
 
 export interface WorkshopResponse {

@@ -1,28 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, SubmitHandler } from 'react-hook-form';
-// import SearchIcon from '@mui/icons-material/Search';
 import { Chip, IconButton, Tooltip, Pagination, Checkbox, TextField } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Button, Button as MyButton } from '@/components/Common/Button';
-// import Input from '@/components/Common/Input';
+
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useGetAllCompanyEmployeQuery } from '@/services/adminCompanyApi';
 import { debounce } from 'lodash';
-import { setToast } from '@/store/slices/toastSlice';
-
-
-
-const validationSchema = Yup.object({
-  search_employee: Yup.string().required('Tên doanh nghiệp không được bỏ trống').max(100, 'Tên doanh nghiệp không được quá 100 kí tự'),
-});
 
 
 const userCompany = () => {
@@ -31,7 +20,6 @@ const userCompany = () => {
   const [status, setStatus] = useState('');
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
-  // const [currentPage, setCurrentPage] = useState(1);
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
 
   
@@ -151,8 +139,6 @@ const userCompany = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Backdrop for Employee Detail */}
        
 
       {/* Delete Confirmation */}
