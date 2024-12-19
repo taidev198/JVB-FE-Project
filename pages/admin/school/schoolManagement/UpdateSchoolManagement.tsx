@@ -13,18 +13,11 @@ import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Text from '@/components/Common/Text';
-import validationSchemaAddStudent from '@/components/Admin/school/Student/validationAddStudent';
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import SelectReact from '@/components/Common/SelectMui';
-import { gender, typeUniversity } from '@/utils/app/const';
-import {
-  useGetAllMajorsQuery,
-  useGetDetailSchoolQuery,
-  useGetDetailStudentQuery,
-  useUpdateSchoolMutation,
-  useUpdateStudentMutation,
-} from '@/services/adminSchoolApi';
-import { setId, setLoading } from '@/store/slices/global';
+import { typeUniversity } from '@/utils/app/const';
+import { useGetAllMajorsQuery, useGetDetailSchoolQuery, useUpdateSchoolMutation } from '@/services/adminSchoolApi';
+import { setLoading } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import validationSchemaUpdateSchool from '@/components/Admin/school/profileSchool/validationUpdateSchool';
@@ -104,7 +97,7 @@ const UpdateSchoolManagement = () => {
     formData.append('file', image as File);
 
     try {
-      const response = await updateSchool({ formData: formData, id: id }).unwrap();
+      const response = await updateSchool({ formData: formData }).unwrap();
       toast.success(response.message);
       router.push('/admin/school/schoolManagement');
     } catch (error) {
@@ -212,13 +205,14 @@ const UpdateSchoolManagement = () => {
               <SelectReact
                 name="universityType"
                 label="Loại trường"
-                placeholder="Chọn lĩnh vực"
+                placeholder="Chọn loại trường"
                 options={(typeUniversity || []).map(type => ({
                   value: type.value,
                   label: type.label,
                 }))}
                 control={control}
                 error={errors.universityType?.message}
+                disabled={true}
               />
             </>
             {/* Tỉnh */}
@@ -237,12 +231,12 @@ const UpdateSchoolManagement = () => {
                     placeholder="Chọn Tỉnh/Thành phố"
                     isLoading={isLoadingProvinces}
                     options={provinces?.data || []}
-                    getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''}
+                    getOptionValue={(option: { id: any }) => option.id}
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                      field.onChange(selectedOption ? selectedOption.id : null);
                     }}
-                    value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                    value={provinces?.data?.find(option => option.id === field.value)}
                     ref={field.ref}
                   />
                 )}
@@ -266,12 +260,12 @@ const UpdateSchoolManagement = () => {
                     placeholder="Chọn Quận/Huyện"
                     isLoading={isLoadingDistricts}
                     options={districts?.data || []}
-                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''}
+                    getOptionValue={(option: { id: any }) => option.id}
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                      field.onChange(selectedOption ? selectedOption.id : null);
                     }}
-                    value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                    value={districts?.data?.find(option => option.id === field.value)}
                     ref={field.ref}
                   />
                 )}
@@ -295,12 +289,12 @@ const UpdateSchoolManagement = () => {
                     placeholder="Chọn Xã/Phường"
                     isLoading={isLoadingWard}
                     options={wards?.data || []}
-                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''}
+                    getOptionValue={(option: { id: any }) => option.id}
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                      field.onChange(selectedOption ? selectedOption.id : null);
                     }}
-                    value={wards?.data?.find(option => option.id === Number(field.value))} // Giữ giá trị name (tên tỉnh) khi chọn
+                    value={wards?.data?.find(option => option.id === Number(field.value))}
                     ref={field.ref}
                   />
                 )}
@@ -308,7 +302,16 @@ const UpdateSchoolManagement = () => {
               {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
             </div>
           </div>
-          <Text type="text" name="houseNumber" label="Địa chỉ cụ thể" placeholder="Nhập địa chỉ cụ thể" control={control} error={errors.houseNumber?.message} />
+          <div className="mt-5">
+            <Text
+              type="text"
+              name="houseNumber"
+              label="Địa chỉ cụ thể"
+              placeholder="Nhập địa chỉ cụ thể"
+              control={control}
+              error={errors.houseNumber?.message}
+            />
+          </div>
           <Text
             label="Mô tả hồ sơ trường "
             placeholder="Nhập mô tả hồ sơ trường"

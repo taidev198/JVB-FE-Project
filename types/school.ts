@@ -11,7 +11,7 @@ export interface ISchool {
   universityDescription: string;
   universityShortDescription: string;
   phoneNumber: string;
-  establishedDate: string | null;
+  establishedDate: string;
   address: IAddress;
   universityType: string;
   account: IAccount;

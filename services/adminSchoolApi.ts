@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
-import { ApiResponse, ApiResponseDetail, DepartmentResponsePortal } from '@/types/departmentType';
+import { ApiResponse, ApiResponseDetail, DepartmentResponse, DepartmentResponsePortal } from '@/types/departmentType';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
@@ -47,7 +47,12 @@ export const adminSchoolApi = createApi({
         }),
         providesTags: [{ type: 'Department' }],
       }),
-
+      getAllFaculity: builder.query<DepartmentResponse, void>({
+        query: () => ({
+          url: '/university/faculties/get-all',
+        }),
+        providesTags: [{ type: 'Department' }],
+      }),
       detailDepartments: builder.query<ApiResponseDetail, { id: number | null }>({
         query: ({ id }) => ({
           url: `/university/faculties/${id}`,
@@ -101,13 +106,13 @@ export const adminSchoolApi = createApi({
       }),
 
       //business
-      getAllBusiness: builder.query<ApiResponseBusiness, { page: number; size: number; keyword: string }>({
-        query: ({ page, size, keyword }) => {
+      getAllBusiness: builder.query<ApiResponseBusiness, { page: number; size: number; keyword: string; idFaculty: number }>({
+        query: ({ page, size, keyword, idFaculty }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
-
+          if (idFaculty) queryParams.append('idFaculty', String(idFaculty));
           return `/university/majors?${queryParams.toString()}`;
         },
         providesTags: [{ type: 'Business', id: 'listBu' }],
@@ -157,6 +162,7 @@ export const adminSchoolApi = createApi({
         }),
         invalidatesTags: () => [{ type: 'Business' }],
       }),
+
       //academicOfficeManagement
       getAllAcademicOfficeManagement: builder.query<ApiResponseAcademicOfficeManagement, { page: number; size: number; keyword: string }>({
         query: ({ page, size, keyword }) => {
@@ -396,7 +402,7 @@ export const {
   useAddDepartmentMutation,
   useUpdateDepartmentMutation,
   useGetAllStudentsQuery,
-  useGetAllBusinessQuery, 
+  useGetAllBusinessQuery,
   useUpdateBusinessMutation,
   useGetDetailBusinessQuery,
   useDeleteBusinessMultipleMutation,
@@ -417,4 +423,5 @@ export const {
   useDeleteAdemicOneMutation,
   useGetDetailSchoolQuery,
   useUpdateSchoolMutation,
+  useGetAllFaculityQuery,
 } = adminSchoolApi;
