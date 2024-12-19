@@ -4,7 +4,7 @@ import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType
 import { number } from 'yup';
 import { IProfileCompany, IProfileCompanyRespone } from '@/types/profileCompany';
 import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
-import { result } from 'lodash';
+import { method, result } from 'lodash';
 import { error } from 'console';
 import { WorkshopResponse } from '@/types/workshop';
 
@@ -21,7 +21,7 @@ export const adminCompanyApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Company', 'ii'],
+  tagTypes: ['Workshop', 'Company', 'Job'],
   endpoints: builder => {
     return {
       getAllWorShopsUniversity: builder.query<void, void>({
@@ -69,7 +69,7 @@ export const adminCompanyApi = createApi({
 
           return `/company/get_all_jobs?${queryParams.toString()}`;
         },
-        providesTags: ['ii'],
+        providesTags: ['Job'],
       }),
       getDetailCompanyJob: builder.query<IJobDetailResponse, { id: number | null }>({
         query: ({ id }) => ({
@@ -79,10 +79,35 @@ export const adminCompanyApi = createApi({
       }),
       deleteJobCompany: builder.mutation({
         query: ({ id }) => ({
-          url: `/company/delete_job/${id}`,
+          url: `/delete_job/${id}`,
           method: 'DELETE',
         }),
-        invalidatesTags: [{ type: 'ii' }],
+        invalidatesTags: [{ type: 'Job' }],
+      }),
+      deleteAllJobCompany: builder.mutation<any, { ids: number[] }>({
+        query: ({ ids }) => ({
+          url: `/company/delete_multi_job`,
+          method: 'DELETE',
+          body: { ids },
+        }),
+        invalidatesTags: [{ type: 'Job' }],
+      }),
+      addJob: builder.mutation({
+        query: data => ({
+          url: `/company/create_job`,
+          method: 'POST',
+          body: data,
+        }),
+        invalidatesTags: ['Job'],
+      }),
+
+      updateJob: builder.mutation<any, { data: any; id: number | null }>({
+        query: ({ data, id }) => ({
+          url: `/company/update_job/${id}`,
+          method: 'PUT',
+          body: data,
+        }),
+        invalidatesTags: ['Job'],
       }),
 
       // WORKSHOP
@@ -111,4 +136,7 @@ export const {
   useGetDetailCompanyJobQuery,
   useDeleteJobCompanyMutation,
   useGetAllWorkShopQuery,
+  useAddJobMutation,
+  useUpdateJobMutation,
+  useDeleteAllJobCompanyMutation,
 } = adminCompanyApi;

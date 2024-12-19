@@ -1,6 +1,6 @@
-import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
+
 import StarBorderIcon from '@mui/icons-material/StarBorder';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
+// import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import PhoneIcon from '@mui/icons-material/Phone';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -16,10 +16,12 @@ import { setLoading } from '@/store/slices/global';
 import { useGetDetailProfileQuery } from '@/services/adminCompanyApi';
 import { Chip } from '@mui/material';
 import { Button } from '@/components/Common/Button';
-import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
+import Image from 'next/image';
+import Link from 'next/link';
+// import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 
 const profileCompany = () => {
-  const [image, setImage] = useState<File[]>([]);
+  // const [image, setImage] = useState<File[]>([]);
   const dispatch = useAppDispatch();
   const { data: profile, isLoading } = useGetDetailProfileQuery();
   console.log(profile);
@@ -34,19 +36,29 @@ const profileCompany = () => {
 
       {/* Block 2 */}
       <div className="grid grid-cols-1 gap-4 rounded-lg bg-primary-white ">
-        {/* Image */}
-        <ImageUploaderOne images={logoUrl} setImages={setImage} />
-      </div>
 
+      </div>
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
+      <div className="flex items-center gap-[30px] ">
+          <div className="rounded-[50%] bg-[#F1F1F1] p-6">
+            <Image src={profile?.data?.logoUrl ?? ''} alt="name" width={75} height={75} />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">{profile?.data.companyName}</h2>
+            <Link href={'#'}>
+              <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin công ty</p>
+            </Link>
+          </div>
+        </div>
+
         <ul className="">
-          <li className="mt-4 flex items-center  gap-3 ">
+          {/* <li className="mt-4 flex items-center  gap-3 ">
             <CameraOutdoorIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">logoUrl:</span> {profile?.data.logoUrl}
             </div>
-          </li>
+          </li> */}
           <li className="mt-4 flex items-center  gap-3 ">
             <PersonOutlineIcon sx={{ color: '#757575' }} />
             <div>
@@ -56,7 +68,7 @@ const profileCompany = () => {
           <li className="mt-5 flex items-center gap-3">
             <AddLinkIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Linkwebsite:</span> {profile?.data.linkWebsite}
+              <span className="mr-2 font-semibold">Linkwebsite:</span> <Link href={profile?.data.linkWebsite || '#'}>{profile?.data.linkWebsite}</Link>
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
@@ -65,12 +77,12 @@ const profileCompany = () => {
               <span className="mr-2 font-semibold">Email:</span> {profile?.data.email}
             </div>
           </li>
-          <li className="mt-5 flex items-center gap-3">
+          {/* <li className="mt-5 flex items-center gap-3">
             <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Tên công ty:</span> {profile?.data.companyName}
             </div>
-          </li>
+          </li> */}
           <li className="mt-5 flex items-center gap-3">
             <CreditScoreIcon sx={{ color: '#757575' }} />
             <div>
@@ -101,6 +113,17 @@ const profileCompany = () => {
               <span className="mr-2 font-semibold">Ngày thành lập:</span> {profile?.data.establishedDate}
             </div>
           </li>
+          {/* <li className="mt-4 flex  gap-3 ">
+            <HorizontalSplitIcon sx={{ color: '#757575' }} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+              <span className="mr-2 font-semibold" style={{ fontWeight: 'bold' }}>
+                Fields:
+              </span>
+              {profile?.data.fields.map(field => (
+                <Chip key={field.id} label={field.fieldName} color="primary" variant="outlined" style={{ fontSize: '14px' }} />
+              ))}
+            </div>
+          </li> */}
           <li className="mt-4 flex  gap-3 ">
             <HorizontalSplitIcon sx={{ color: '#757575' }} />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
@@ -112,6 +135,8 @@ const profileCompany = () => {
               ))}
             </div>
           </li>
+
+
           <li className="mt-5 flex items-center gap-3">
             <AddLocationAltIcon sx={{ color: '#757575' }} />
             <div>

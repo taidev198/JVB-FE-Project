@@ -6,14 +6,14 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { Button } from '@/components/Common/Button';
-import addWorkshopSchema from '@/validation/companyEmployee/validationAddEmployee';
 import Input from '@/components/Common/Input';
 import SelectMui from '@/components/Common/SelectMui';
 import Select from '@/components/Common/Select';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Text from '@/components/Common/Text';
+import validationSchemaAddStudent from '@/validation/companyEmployee/validationAddEmployee';
 
-interface FormDataWorkShop {
+interface FormDataAddEmployee {
     employeeCode: string;
     fullName: string;
     phoneNumber: string;
@@ -39,11 +39,11 @@ const AddEmployee = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormDataWorkShop>({
-    resolver: yupResolver(addWorkshopSchema),
+  } = useForm<FormDataAddEmployee>({
+    resolver: yupResolver(validationSchemaAddStudent),
   });
 
-  const onSubmit: SubmitHandler<FormDataWorkShop> = data => {
+  const onSubmit: SubmitHandler<FormDataAddEmployee> = data => {
     ({ data, image });
   };
   return (
@@ -140,6 +140,7 @@ const AddEmployee = () => {
           {/* Trạng thái */}
               <SelectMui
                 name="employeeStatus"
+                placeholder='Nhập trạng thái'
                 label="Trạng thái"
                 control={control}
                 options={[
