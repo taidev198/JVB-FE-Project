@@ -30,7 +30,7 @@ const Department = () => {
     page,
     size,
     keyword,
-  });
+  },{ refetchOnMountOrArgChange: true });
 
   const debouncedSearch = useMemo(
     () =>
@@ -105,21 +105,7 @@ const Department = () => {
               onChange={e => debouncedSearch(e.target.value)}
               className="w-full"
             />
-            <Select
-              placeholder="Chọn khoa"
-              closeMenuOnSelect={true}
-              options={[
-                { value: null, label: 'Tất cả' },
-                ...(departments?.data.content || []).map(department => ({
-                  value: department.id,
-                  label: department.facultyName,
-                })),
-              ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
-                setDepartment(selectedOption.value ? Number(selectedOption.value) : null);
-              }}
-              className="w-full cursor-pointer "
-            />
+            
           </div>
           <div className="flex items-center gap-5">
             <Link href={'/admin/school/department/AddDepartment'}>
@@ -151,19 +137,19 @@ const Department = () => {
                 />
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Mã Khoa</p>
+                <p className="min-w-max">Mã khoa</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Tên Khoa</p>
+                <p className="min-w-max">Tên khoa</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Trưởng Khoa</p>
+                <p className="min-w-max">Trưởng khoa</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Năm Thành Lập</p>
+                <p className="min-w-max">Năm thành lập</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Thao Tác</p>
+                <p className="min-w-max">Thao tác</p>
               </th>
             </tr>
           </thead>

@@ -47,10 +47,6 @@ const AcademicOfficeManagement = () => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
-
-  // const handleConfirmAction = () => {
-  //   deleteAcademicOfficeManagement({ id: selectId });
-  // };
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteAdemicOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAdemicMultipleMutation();
   const handleDelete = async () => {
@@ -79,11 +75,14 @@ const AcademicOfficeManagement = () => {
     data: academicOfficeManagement,
     isLoading,
     isSuccess,
-  } = useGetAllAcademicOfficeManagementQuery({
-    page: currentPage,
-    size: 10,
-    keyword,
-  });
+  } = useGetAllAcademicOfficeManagementQuery(
+    {
+      page: currentPage,
+      size: 10,
+      keyword,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
   console.log(academicOfficeManagement);
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -135,13 +134,13 @@ const AcademicOfficeManagement = () => {
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">STT</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Ảnh đại diện</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Mã Nhân Viên</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Họ Và Tên</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Số Điện Thoại</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Giới Tính</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Ngày Sinh</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Mã nhân viên</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Họ và tên</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Số điện thoại</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Giới tính</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Ngày sinh</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Gmail </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Hành Động</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Hành động</th>
             </tr>
           </thead>
           <tbody>

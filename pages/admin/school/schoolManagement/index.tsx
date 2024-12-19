@@ -3,6 +3,7 @@ import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
 import DomainIcon from '@mui/icons-material/Domain';
 import PhoneIcon from '@mui/icons-material/Phone';
+import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
@@ -27,7 +28,7 @@ const DetailSchoolManagement = () => {
   console.log(detailSchool);
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
-      <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin hồ sơ trường</h1>
+      <h1 className="mb-10 mt-3 text-center text-2xl font-bold">Thông tin hồ sơ trường</h1>
 
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
@@ -103,7 +104,7 @@ const DetailSchoolManagement = () => {
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
-            <DescriptionIcon sx={{ color: '#757575' }} />
+            <InsertCommentIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Mô tả ngắn gọn:</span>
               {detailSchool?.data.universityShortDescription}
