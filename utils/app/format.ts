@@ -38,6 +38,15 @@ export const formatDateDd_MM_yyyy = (date: Date | string | null): string | null 
   return format(dateObj, 'dd/MM/yyyy');
 };
 
+export const formatJobType = (jobType?: string): string => {
+  if (!jobType) return '';
+  return jobType
+    .toLowerCase() // Biến tất cả thành chữ thường: 'full_time' -> 'full time'
+    .split('_') // Tách chuỗi theo dấu gạch dưới: ['full', 'time']
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Viết hoa chữ cái đầu: ['Full', 'Time']
+    .join(' '); // Ghép lại thành chuỗi: 'Full Time'
+};
+
 export const formatDateDD_thang_MM_yyyy = (dateTimeStr: string | null): string => {
   if (!dateTimeStr) {
     return ''; // Handle invalid date input

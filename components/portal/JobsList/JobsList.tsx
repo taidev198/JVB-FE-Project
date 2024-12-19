@@ -16,8 +16,9 @@ import SelectSearch from '../common/SelectSearch';
 import { useGetProvincesQuery, useGetFieldsQuery, useGetSchoolsQuery, useGetWorkshopsQuery, useGetJobsQuery } from '@/services/portalHomeApi';
 import { IUniversity } from '@/types/university';
 import Select from 'rc-select';
-import { formatCurrencyVND, formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
+import { formatCurrencyVND, formatDateDD_thang_MM_yyyy, formatJobType } from '@/utils/app/format';
 import { IJobCompany } from '@/types/jobCompany';
+import CustomImage from '../common/CustomImage';
 
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -189,7 +190,13 @@ const WorkshopsList: React.FC = () => {
                         className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
                         <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
                         <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
-                          <img src={job.company.logoUrl} alt={job.company.companyName} className="h-10 w-10" />
+                          <CustomImage
+                            src={job.company.logoUrl || '/images/user-default.png'}
+                            alt={job.company.companyName}
+                            className="h-10 w-10"
+                            width={40}
+                            height={40}
+                          />
                         </div>
                         <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">
                           <div className="flex items-center gap-2">
@@ -197,7 +204,7 @@ const WorkshopsList: React.FC = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <i className="fa-solid fa-briefcase" />
-                            <span className="lowercase">{job.jobType}</span>
+                            <span className="">{formatJobType(job.jobType)}</span>
                           </div>
                         </div>
                         <div className="my-4 text-2xl font-bold text-primary-black">

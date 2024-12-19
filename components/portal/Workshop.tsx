@@ -38,7 +38,7 @@ const Workshop = () => {
               <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
               <Link href={`/workshops/${workshop.id}`} className="blog__img">
                 <img
-                  src={workshop.imageWorkshops || '/images/default-workshop.jpg'}
+                  src={workshop.imageWorkshops || '/images/default-workshop.png'}
                   className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
                   alt={workshop.workshopTitle}
                 />

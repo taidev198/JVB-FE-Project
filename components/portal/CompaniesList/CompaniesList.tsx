@@ -146,7 +146,7 @@ const CompaniesList: React.FC = () => {
                   key={company.id}
                   className="item group flex flex-col items-center justify-start rounded-[10px] border-[1px] border-solid border-primary-border bg-primary-white p-[30px]">
                   <div className="company__icon mb-[20px] flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light">
-                    <Image src={company.logoUrl || '/images/default-logo.png'} alt={company.companyName} width={40} height={40} className="object-cover" />
+                    <Image src={company.logoUrl || '/images/user-default.png'} alt={company.companyName} width={40} height={40} className="object-cover" />
                   </div>
                   <h4 className="text-2xl font-semibold text-primary-black">{company.companyName}</h4>
                   <span className="mt-2 text-lg text-primary-gray">{company.companyCode}</span>
