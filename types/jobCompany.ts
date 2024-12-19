@@ -13,11 +13,11 @@ export interface IJobCompany {
   jobLevel: string;
   expirationDate: string;
   memberOfCandidate: number;
+  fields: IFields[];
   status: string;
   salaryType: string;
   maxSalary: number;
   minSalary: number;
-  fields: IFields[];
 }
 
 export interface IJobAllResponse {

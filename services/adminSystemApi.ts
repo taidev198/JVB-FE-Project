@@ -5,6 +5,7 @@ import { DistrictsResponse, ProvinceResponse, WardResponse } from '@/types/addre
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
+import { IPartnershipsSchoolResponse } from '@/types/jobAndPartnershipsSchoolType';
 
 export const adminSystemApi = createApi({
   reducerPath: 'adminSystemApi',
@@ -19,7 +20,7 @@ export const adminSystemApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Company', 'School'],
+  tagTypes: ['Workshop', 'Company', 'School', 'Partnerships'],
   endpoints: builder => {
     return {
       // Address
@@ -216,6 +217,61 @@ export const adminSystemApi = createApi({
         }),
         providesTags: result => (result ? [{ type: 'School', id: result.data.id }] : [{ type: 'School' }]),
       }),
+
+      // Partnership
+      getAllPartnershipsUniversity: builder.query<IPartnershipsSchoolResponse, { universityId: number | undefined; page: number; size: number }>({
+        query: ({ universityId, page, size }) => {
+          let queryParams = new URLSearchParams();
+          if (universityId) queryParams.append('universityId', String(universityId));
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+
+          return `/university/partnerships?${queryParams.toString()}`;
+        },
+        providesTags: ['Partnerships'],
+      }),
+
+      acceptPartnerships: builder.mutation({
+        query: ({ accountLoginId, acceptToAccountId }) => ({
+          url: `/partnership/acceptConnect`,
+          method: 'POST',
+          body: { accountLoginId, acceptToAccountId },
+        }),
+        invalidatesTags: (result, error, { acceptToAccountId }) => [
+          { type: 'Partnerships', acceptToAccountId },
+          { type: 'Partnerships', acceptToAccountId },
+          { type: 'Partnerships' },
+          { type: 'Partnerships' },
+        ],
+      }),
+
+      cancelPartnerships: builder.mutation({
+        query: ({ accountLoginId, cancelToAccountId }) => ({
+          url: `/partnership/cancelConnect`,
+          method: 'POST',
+          body: { accountLoginId, cancelToAccountId },
+        }),
+        invalidatesTags: (result, error, { cancelToAccountId }) => [
+          { type: 'Partnerships', cancelToAccountId },
+          { type: 'Partnerships', cancelToAccountId },
+          { type: 'Partnerships' },
+          { type: 'Partnerships' },
+        ],
+      }),
+
+      removePartnerships: builder.mutation({
+        query: ({ accountLoginId, removeToAccountId }) => ({
+          url: `/partnership/removeConnect`,
+          method: 'POST',
+          body: { accountLoginId, removeToAccountId },
+        }),
+        invalidatesTags: (result, error, { removeToAccountId }) => [
+          { type: 'Partnerships', removeToAccountId },
+          { type: 'Partnerships', removeToAccountId },
+          { type: 'Partnerships' },
+          { type: 'Partnerships' },
+        ],
+      }),
     };
   },
 });
@@ -243,4 +299,8 @@ export const {
   useBanAndActiveMutation,
   useGetAllAccountSchoolQuery,
   useGetDetailAccountSchoolQuery,
+  useGetAllPartnershipsUniversityQuery,
+  useAcceptPartnershipsMutation,
+  useCancelPartnershipsMutation,
+  useRemovePartnershipsMutation,
 } = adminSystemApi;

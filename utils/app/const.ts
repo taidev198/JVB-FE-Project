@@ -109,3 +109,46 @@ export const typeAccount = (status: string): AccountStatus => {
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }
 };
+
+export const StatusJob = (status: string): AccountStatus => {
+  switch (status) {
+    case 'PENDING':
+      return { title: 'Đang chờ', color: '#fff', bg: '#ed6c02' };
+    case 'ACCEPT':
+      return { title: 'Thành công', color: '#fff', bg: '#2e7d32' };
+    case 'CANCEL':
+      return { title: 'Đã hủy', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
+export const jobType = (status: string | undefined): string => {
+  switch (status) {
+    case 'FULL_TIME':
+      return 'Toàn thời gian';
+    case 'PART_TIME':
+      return 'Bán thời gian';
+    case 'FREELANCE':
+      return 'Tự do';
+    default:
+      return 'Chưa xác định';
+  }
+};
+
+export const jobLever = (status: string | undefined): string => {
+  switch (status) {
+    case 'INTERN':
+      return 'Toàn thời gian';
+    case 'FRESHER':
+      return 'Bán thời gian';
+    case 'JUNIOR':
+      return 'Tự do';
+    case 'MIDDLE':
+      return 'Tự do';
+    case 'SENIOR':
+      return 'Tự do';
+    default:
+      return 'Chưa xác định';
+  }
+};

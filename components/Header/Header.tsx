@@ -33,7 +33,7 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
     router.push('/');
   };
   return (
-    <header className={`border-b border-gray-400 border-opacity-20 bg-primary-white py-[30px] shadow-md ${isAdmin ? 'px-[20px]' : ''}`}>
+    <header className={`fixed z-50 w-full border-b border-gray-400 border-opacity-20 bg-primary-white py-5 ${isAdmin ? 'px-[20px]' : ''}`}>
       <div className="flex items-center justify-between">
         {!isMobileAndTablet ? (
           <Logo />
