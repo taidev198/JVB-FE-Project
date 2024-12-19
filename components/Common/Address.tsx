@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Control, Controller } from 'react-hook-form';
 import { useState } from 'react';
 import Select from 'react-select';
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 
 interface OptionType {
-  id: number | string; // Chấp nhận cả chuỗi và số
+  id: number | string;
   provinceName?: string;
   districtName?: string;
   wardName?: string;

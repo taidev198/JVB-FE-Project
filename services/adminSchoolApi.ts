@@ -6,12 +6,12 @@ import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
 import { ApiResponseBusiness, ApiResponseDetailBusiness } from '@/types/businesTypes';
-import UpdateBusiness from '@/pages/admin/school/businessManagement/update/[id]';
 import { MajorResponse } from '@/types/majorType';
 import { ApiResponseAcademicOfficeManagement, ApiResponseDetailAdemicOfficeManagement } from '@/types/academicOfficeManagementType';
 import { StudentDetailResponse, StudentResponse } from '@/types/studentType';
 import { IMajorByUniversityResponse } from '@/types/majorType';
 import { ApiResponseDetailSchool, ApiResponseSchool } from '@/types/school';
+import { IJobCompanyResponse } from '@/types/jobAndPartnershipsSchoolType';
 
 export const adminSchoolApi = createApi({
   reducerPath: 'adminSchoolApi',
@@ -380,6 +380,18 @@ export const adminSchoolApi = createApi({
         }),
         invalidatesTags: () => [{ type: 'Student' }],
       }),
+
+      // Job
+      getAllJobAppliesUniversity: builder.query<IJobCompanyResponse, { universityId: number | undefined; page: number; size: number }>({
+        query: ({ universityId, page, size }) => {
+          let queryParams = new URLSearchParams();
+          if (universityId) queryParams.append('universityId', String(universityId));
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+
+          return `/university/applies?${queryParams.toString()}`;
+        },
+      }),
     };
   },
 });
@@ -423,4 +435,5 @@ export const {
   useDeleteAdemicOneMutation,
   useGetAllSchoolQuery,
   useGetDetailSchoolQuery,
+  useGetAllJobAppliesUniversityQuery,
 } = adminSchoolApi;

@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   page: 1,
-  size: 5,
+  size: 10,
   keyword: '',
   status: '',
   universityType: '',

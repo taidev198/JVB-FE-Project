@@ -1,5 +1,5 @@
 import { IAddress } from './addressesTypes';
-import { IFields } from '.';
+import { IAccount, IFields } from '.';
 
 export interface ICompany {
   id: number;
@@ -13,7 +13,7 @@ export interface ICompany {
   establishedDate: string;
   fields: IFields[];
   address: IAddress;
-  account: { id: number; email: string; createAt: string; updateAt: string; statusAccount: string };
+  account: IAccount;
   createAt: string;
   updateAt: string;
 }

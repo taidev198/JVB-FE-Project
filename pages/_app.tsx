@@ -15,6 +15,7 @@ import AdminSystemLayout from '@/layouts/Admin/AdminSystemLayout';
 import AdminSchoolLayout from '@/layouts/Admin/AdminSchoolLayout';
 import AdminCompanyLayout from '@/layouts/Admin/AdminCompanyLayout';
 import ToastNotification from '@/components/Common/ToastNotification';
+import SocketProvider from '@/context/SoketProvider';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -49,22 +50,24 @@ function App({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <main className={plusJakartaSans.className}>
-            <Toaster
-              position="top-right"
-              containerStyle={{
-                top: 6,
-                right: 20,
-              }}
-            />
-            {/* Apply the layout dynamically based on pathname */}
-            <Layout>
-              <ToastNotification />
-              <Component {...pageProps} />
-            </Layout>
-          </main>
-        </PersistGate>
+        <SocketProvider>
+          <PersistGate loading={null} persistor={persistor}>
+            <main className={plusJakartaSans.className}>
+              <Toaster
+                position="top-right"
+                containerStyle={{
+                  top: 6,
+                  right: 20,
+                }}
+              />
+              {/* Apply the layout dynamically based on pathname */}
+              <Layout>
+                <ToastNotification />
+                <Component {...pageProps} />
+              </Layout>
+            </main>
+          </PersistGate>
+        </SocketProvider>
       </Provider>
     </>
   );

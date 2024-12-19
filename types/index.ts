@@ -8,6 +8,7 @@ export interface University {
   universityCode: string;
   universityName: string;
 }
+
 export interface Faculty {
   id: number;
   facultyCode: string;
