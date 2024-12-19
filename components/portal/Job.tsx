@@ -1,5 +1,8 @@
 import { useGetJobsQuery } from '@/services/portalHomeApi';
-import { formatCurrencyVND } from '@/utils/app/format';
+import { formatCurrencyVND, formatJobType } from '@/utils/app/format';
+import Image from 'next/image';
+import Link from 'next/link';
+import CustomImage from './common/CustomImage';
 const Job = () => {
   const { data: jobs, isLoading, error } = useGetJobsQuery({ page: 1, size: 6 });
   // eslint-disable-next-line no-console
@@ -22,7 +25,13 @@ const Job = () => {
               className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
               <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
               <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
-                <img src={job.company.logoUrl} alt={job.company.companyName} className="h-10 w-10" />
+                <CustomImage
+                  src={job.company.logoUrl || '/images/user-default.png'}
+                  alt={job.company.companyName}
+                  className="h-10 w-10"
+                  width={40}
+                  height={40}
+                />
               </div>
               <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">
                 <div className="flex items-center gap-2">
@@ -30,7 +39,7 @@ const Job = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <i className="fa-solid fa-briefcase" />
-                  <span className="lowercase">{job.jobType}</span>
+                  <span className="">{formatJobType(job.jobType)}</span>
                 </div>
               </div>
               <div className="my-4 text-2xl font-bold text-primary-black">
@@ -52,6 +61,12 @@ const Job = () => {
               </div>
             </div>
           ))}
+        </div>
+        <div className="load_more mt-[30px] flex items-center justify-center 2xl:mt-[40px]">
+          <Link href={'/portal/jobs'} className="mp_fill_button mp_transition_4 flex items-center gap-2 rounded-[10px] px-[16px] py-[15px] font-medium">
+            <span>Xem thêm</span>
+            <i className="fa-solid fa-arrow-right"></i>
+          </Link>
         </div>
       </div>
     </section>

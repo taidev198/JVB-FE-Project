@@ -22,9 +22,10 @@ import { IWorkshopPortal } from '@/types/workshop';
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
-
+  const [gridLayout, setGridLayout] = useState(true);
+  const [listLayout, setListLayout] = useState(false);
   const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [filteredWorkshops, setFilteredWorkshops] = useState<IWorkshopPortal[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedWorkshops, setPaginatedWorkshops] = useState<IWorkshopPortal[]>([]);
@@ -46,20 +47,24 @@ const WorkshopsList: React.FC = () => {
     if (workshopsData?.data.content) {
       let filtered = workshopsData.data.content;
 
+      if (selectedLocation) {
+        filtered = filtered.filter(workshop => workshop.address.province.provinceName === selectedLocation);
+      }
+
       if (selectedField) {
         filtered = filtered.filter(
-          university => university.fields && Array.isArray(university.fields) && university.fields.some(field => field.fieldName === selectedField)
+          workshop => workshop.fields && Array.isArray(workshop.fields) && workshop.fields.some(field => field.fieldName === selectedField)
         );
       }
 
       if (searchTerm) {
-        filtered = filtered.filter(university => university.universityName.toLowerCase().includes(searchTerm.toLowerCase()));
+        filtered = filtered.filter(workshop => workshop.workshopTitle.toLowerCase().includes(searchTerm.toLowerCase()));
       }
 
       setFilteredWorkshops(filtered);
       setCurrentPage(1);
     }
-  }, [workshopsData, selectedField, selectedType, searchTerm]);
+  }, [workshopsData, selectedField, selectedLocation, searchTerm]);
 
   useEffect(() => {
     const start = (currentPage - 1) * pageSize;
@@ -88,6 +93,7 @@ const WorkshopsList: React.FC = () => {
     }
   }, [debouncedValue]);
 
+  const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
 
   return (
@@ -101,20 +107,27 @@ const WorkshopsList: React.FC = () => {
       }}>
       <div className="rts__section">
         <div className="mp_section_padding container relative mx-auto">
-          <div className="mt-[20px] flex items-start gap-[30px]">
-            <div className="mb-[40px] min-w-[375px] max-w-[390px] rounded-[10px] bg-custom-gradient p-[30px]">
+          <div className="mt-[20px] flex items-start justify-center gap-[30px]">
+            <div className="mb-[40px] hidden min-w-[375px]  max-w-[390px] rounded-[10px] bg-custom-gradient p-[30px] md:block">
               <Form form={form} layout="vertical" onFinish={handleSearch} style={{ maxWidth: '600px', margin: '0 auto' }}>
                 <h2 className="mb-[16px] text-xl font-semibold">Tìm Kiếm Workshop</h2>
                 <Form.Item name="workshopName">
-                  <Input prefix={<SearchOutlined className="mr-[4px]" />} size="large" className="w-full" placeholder="Nhập tên workshop" />
+                  <Input
+                    prefix={<SearchOutlined className="mr-[4px]" />}
+                    size="large"
+                    className="w-full"
+                    placeholder="Nhập tên workshop"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
                 </Form.Item>
                 <Form.Item name="location" label="Địa điểm">
                   <SelectSearch
                     icon={<EnvironmentOutlined className="mr-[4px]" />}
                     label="Chọn địa điểm"
-                    value={null}
-                    items={locations}
-                    onChange={selected => form.setFieldsValue({ location: selected })}
+                    value={selectedLocation}
+                    items={locationItems}
+                    onChange={setSelectedLocation}
                   />
                 </Form.Item>
 
@@ -122,9 +135,9 @@ const WorkshopsList: React.FC = () => {
                   <SelectSearch
                     icon={<TagOutlined className="mr-[4px]" />}
                     label="Chọn ngành nghề"
-                    value={null}
-                    items={topics}
-                    onChange={selected => form.setFieldsValue({ topic: selected })}
+                    value={selectedField}
+                    items={fieldItems}
+                    onChange={setSelectedField}
                   />
                 </Form.Item>
 
@@ -157,7 +170,7 @@ const WorkshopsList: React.FC = () => {
                 </Form.Item>
               </Form>
             </div>
-            <div className="basis-2/3">
+            <div className="md:basis-2/3">
               <div className=" flex items-center justify-between">
                 <span className="hidden font-medium text-primary-black md:block">
                   {paginatedWorkshops.length
@@ -167,11 +180,28 @@ const WorkshopsList: React.FC = () => {
                     : ''}
                 </span>
                 <div className="flex items-center gap-4">
-                  <div className=" flex h-[40px] items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main bg-primary-main px-4 text-primary-white ">
+                  <div
+                    className={
+                      'mp_transition_4 flex h-[40px] cursor-pointer items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main px-4 text-primary-main hover:bg-primary-main hover:text-white ' +
+                      (gridLayout ? 'bg-primary-main text-white' : '')
+                    }
+                    onClick={() => {
+                      setGridLayout(!gridLayout);
+                      setListLayout(false);
+                    }}>
                     <AppstoreOutlined />
                     <span>Lưới</span>
                   </div>
-                  <div className="flex h-[40px] items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main px-4 text-primary-main">
+
+                  <div
+                    className={
+                      'mp_transition_4 flex h-[40px] cursor-pointer items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main px-4 text-primary-main hover:bg-primary-main hover:text-white ' +
+                      (listLayout ? 'bg-primary-main text-white' : '')
+                    }
+                    onClick={() => {
+                      setListLayout(!listLayout);
+                      setGridLayout(false);
+                    }}>
                     <BarsOutlined />
                     <span>Chi tiết</span>
                   </div>
@@ -184,7 +214,7 @@ const WorkshopsList: React.FC = () => {
                     <Spin size="large" />
                   </div>
                 ) : paginatedWorkshops.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-[30px] lg:grid-cols-2 ">
+                  <div className="grid grid-cols-1 gap-[30px] md:grid-cols-1 xl:grid-cols-2 ">
                     {paginatedWorkshops.map(workshop => (
                       <div
                         key={workshop.id}
@@ -192,7 +222,7 @@ const WorkshopsList: React.FC = () => {
                         <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
                         <Link href={`/workshops/${workshop.id}`} className="blog__img">
                           <img
-                            src={workshop.imageWorkshops || '/images/default-workshop.jpg'}
+                            src={workshop.imageWorkshops || '/images/default-workshop.png'}
                             className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
                             alt={workshop.workshopTitle}
                           />

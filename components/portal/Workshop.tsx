@@ -38,7 +38,7 @@ const Workshop = () => {
               <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
               <Link href={`/workshops/${workshop.id}`} className="blog__img">
                 <img
-                  src={workshop.imageWorkshops || '/images/default-workshop.jpg'}
+                  src={workshop.imageWorkshops || '/images/default-workshop.png'}
                   className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
                   alt={workshop.workshopTitle}
                 />
@@ -75,7 +75,7 @@ const Workshop = () => {
           ))}
         </div>
         <div className="load_more mt-[30px] flex items-center justify-center 2xl:mt-[40px]">
-          <Link href={'/workshops'} className="mp_fill_button mp_transition_4 flex items-center gap-2 rounded-[10px] px-[16px] py-[15px] font-medium">
+          <Link href={'/portal/workshops'} className="mp_fill_button mp_transition_4 flex items-center gap-2 rounded-[10px] px-[16px] py-[15px] font-medium">
             <span>Xem thêm</span>
             <i className="fa-solid fa-arrow-right"></i>
           </Link>

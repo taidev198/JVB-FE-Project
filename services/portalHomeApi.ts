@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
+import { IJobAllResponse, IJobAllResponsePortal, IJobDetailResponse } from '@/types/jobCompany';
 import { WorkshopResponse, WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IProvinceResponse } from '@/types/addressesTypes';
@@ -23,7 +23,7 @@ export const portalHomeApi = createApi({
   }),
   endpoints: builder => ({
     // Fetch all jobs with pagination
-    getJobs: builder.query<IJobAllResponse, { page: number; size: number; keyword?: string }>({
+    getJobs: builder.query<IJobAllResponsePortal, { page: number; size: number; keyword?: string }>({
       query: ({ page, size, keyword = '' }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
         return `/portal/jobs?${params.toString()}`;
