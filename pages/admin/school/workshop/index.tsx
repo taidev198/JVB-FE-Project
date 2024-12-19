@@ -110,7 +110,7 @@ const AdminSchoolWorkshop = () => {
               </tr>
             </thead>
             <tbody>
-              {workshops?.data.content.map((workshop, index) => (
+              {workshops?.data?.content.map((workshop, index) => (
                 <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="px-4 py-4">
                     <p className="min-w-max">{workshop.id}</p>
@@ -125,8 +125,8 @@ const AdminSchoolWorkshop = () => {
                   </td>
                   <td className="px-2 py-4">
                     <p className="sm:[250px] w-[220px]">
-                      {workshop.address.houseNumber}, {workshop.address.ward.wardName}, {workshop.address.district.districtName},
-                      {workshop.address.province.provinceName}
+                      {workshop.address?.houseNumber}, {workshop.address?.ward.wardName}, {workshop.address?.district.districtName},
+                      {workshop.address?.province.provinceName}
                     </p>
                   </td>
                   <td className="px-2 py-4">{workshop.estimateCompanyParticipants}</td>
