@@ -1,5 +1,6 @@
 import { useGetJobsQuery } from '@/services/portalHomeApi';
 import { formatCurrencyVND } from '@/utils/app/format';
+import Link from 'next/link';
 const Job = () => {
   const { data: jobs, isLoading, error } = useGetJobsQuery({ page: 1, size: 6 });
   // eslint-disable-next-line no-console
@@ -52,6 +53,12 @@ const Job = () => {
               </div>
             </div>
           ))}
+        </div>
+        <div className="load_more mt-[30px] flex items-center justify-center 2xl:mt-[40px]">
+          <Link href={'/portal/jobs'} className="mp_fill_button mp_transition_4 flex items-center gap-2 rounded-[10px] px-[16px] py-[15px] font-medium">
+            <span>Xem thêm</span>
+            <i className="fa-solid fa-arrow-right"></i>
+          </Link>
         </div>
       </div>
     </section>
