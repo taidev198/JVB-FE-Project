@@ -5,6 +5,7 @@ import Link from 'next/link';
 import SelectSearch from '../common/SelectSearch';
 import { useGetProvincesQuery, useGetFieldsQuery, useGetSchoolsQuery } from '@/services/portalHomeApi';
 import { IUniversity } from '@/types/university';
+import CustomImage from '../common/CustomImage';
 
 const SchoolsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,8 +28,6 @@ const SchoolsList: React.FC = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
-
-  console.log(schoolsData);
 
   const typesItems = ['Học viện', 'Cao đẳng', 'Đại học', 'Khác'];
   // const typesItem = ['ACADEMY', 'COLLEGE', 'OTHER', 'UNIVERSITY'];
@@ -150,7 +149,7 @@ const SchoolsList: React.FC = () => {
                   key={university.id}
                   className="item group flex flex-col items-center justify-start rounded-[10px] border-[1px] border-solid border-primary-border bg-primary-white p-[30px]">
                   <div className="university__icon mb-[20px] flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light">
-                    <Image
+                    <CustomImage
                       src={university.logoUrl || '/images/default-logo.png'}
                       alt={university.universityName}
                       width={40}
@@ -158,7 +157,7 @@ const SchoolsList: React.FC = () => {
                       className="object-cover"
                     />
                   </div>
-                  <h4 className="text-2xl font-semibold text-primary-black">{university.universityName}</h4>
+                  <h4 className="truncate text-2xl font-semibold text-primary-black">{university.universityName}</h4>
                   <span className="mt-2 text-lg text-primary-gray">{university.universityCode}</span>
                   <div className="mt-2 flex w-full items-center justify-center gap-6 text-lg text-primary-gray">
                     <div className="flex items-center gap-2">

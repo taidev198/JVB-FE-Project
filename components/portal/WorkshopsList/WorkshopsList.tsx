@@ -239,16 +239,16 @@ const WorkshopsList: React.FC = () => {
                             </span>
                           </div>
                         </div>
-                        <Link href={`/workshops/${workshop.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black">
+                        <Link href={`/workshops/${workshop.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
                           {workshop.workshopTitle}
                         </Link>
-                        <p className="mt-[16px] text-lg text-primary-gray">{workshop.workshopDescription}</p>
-                        <div className="mt-[20px] flex flex-row items-center justify-between">
-                          <Link href={`/workshops/${workshop.id}`} className="readmore__btn flex items-center gap-2  text-lg">
+                        <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">{workshop.workshopDescription}</p>
+                        <div className="mt-[20px] flex flex-row items-center justify-between ">
+                          <Link href={`/workshops/${workshop.id}`} className="readmore__btn flex basis-1/2 items-center gap-2 text-lg">
                             <span className="mp_transition_4 font-medium hover:text-primary-main">Chi tiết</span>
                             <i className="fa-solid fa-arrow-right mp_transition_4 rotate-[-40deg] group-hover:rotate-0 group-hover:text-primary-main" />
                           </Link>
-                          <div className="readmore__btn flex items-center gap-2 truncate text-lg ">
+                          <div className="readmore__btn flex basis-1/2 items-center gap-2 truncate text-lg  ">
                             <i className="fa-solid fa-location-dot mp_transition_4 text-primary-main" />
                             <span className="mp_transition_4 truncate whitespace-nowrap font-medium hover:text-primary-main">
                               {workshop.address.province.provinceName}, {workshop.address.district.districtName}
