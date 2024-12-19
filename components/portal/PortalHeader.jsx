@@ -211,8 +211,7 @@ const PortalHeader = () => {
                           placement="bottomRight"
                           menu={{
                             items,
-                          }}
-                          trigger={['click']}>
+                          }}>
                           <a onClick={e => e.preventDefault()}>
                             <Space className="cursor-pointer">
                               <DownOutlined />
