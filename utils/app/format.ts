@@ -13,7 +13,7 @@ export const toISOString = (date: string): string => {
   return format(parsedDate, "yyyy-MM-dd'T'HH:mm:ss");
 };
 
-export const formatDateSearch = (date: Date | null): string | null => {
+export const formatDateSearch = (date: Date | null | string): string | null => {
   return date ? format(date, 'yyyy-MM-dd') : null;
 };
 
