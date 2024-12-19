@@ -26,6 +26,7 @@
     "@mui/material": "^6.1.8",
     "@reduxjs/toolkit": "^1.9.5",
     "@tabler/icons-react": "^2.9.0",
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@types/quill": "^1.3.10",
     "@types/styled-components": "^5.1.34",
     "antd": "^5.22.5",

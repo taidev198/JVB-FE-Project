@@ -207,12 +207,12 @@ const WorkshopsList: React.FC = () => {
                             <span className="">{formatJobType(job.jobType)}</span>
                           </div>
                         </div>
-                        <div className="my-4 text-2xl font-bold text-primary-black">
-                          <a href={`/jobs/${job.id}`} aria-label="job">
+                        <div className="my-4 line-clamp-2 text-2xl font-bold text-primary-black">
+                          <Link href={`/jobs/${job.id}`} aria-label="job" className="line-clamp-2">
                             {job.jobTitle}
-                          </a>
+                          </Link>
                         </div>
-                        <p className="mp_p">{job.jobDescription}</p>
+                        <p className="mp_p line-clamp-2">{job.jobDescription}</p>
                         <div className="jobs__tags mt-6 flex items-center gap-4 ">
                           <span className="job__tag rounded-md bg-primary-light px-[12px] py-[8px] font-medium capitalize text-primary-gray">
                             {job.minSalary && job.maxSalary
