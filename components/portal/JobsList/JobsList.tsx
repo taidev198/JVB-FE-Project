@@ -1,762 +1,242 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Pagination, Spin, Empty, Form, Input, Checkbox, Button, Space, DatePicker, ConfigProvider, Divider } from 'antd';
+import {
+  AppstoreOutlined,
+  BarsOutlined,
+  EnvironmentOutlined,
+  HistoryOutlined,
+  SearchOutlined,
+  TagOutlined,
+  TeamOutlined,
+  TransactionOutlined,
+} from '@ant-design/icons';
+import Image from 'next/image';
+import Link from 'next/link';
+import SelectSearch from '../common/SelectSearch';
+import { useGetProvincesQuery, useGetFieldsQuery, useGetSchoolsQuery, useGetWorkshopsQuery, useGetJobsQuery } from '@/services/portalHomeApi';
+import { IUniversity } from '@/types/university';
+import Select from 'rc-select';
+import { formatCurrencyVND, formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
+import { IJobCompany } from '@/types/jobCompany';
 
-const JobsList = () => {
+const WorkshopsList: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedValue, setDebouncedValue] = useState('');
+
+  const [selectedField, setSelectedField] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [filteredJobs, setFilteredJobs] = useState<IJobCompany[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedJobs, setPaginatedJobs] = useState<IJobCompany[]>([]);
+  const pageSize = 8;
+  const [form] = Form.useForm();
+
+  const [locations] = useState<string[]>(['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng']); // Example location options
+  const [topics] = useState<string[]>(['Marketing', 'Design', 'Coding', 'Business']); // Example topic options
+
+  const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
+  const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
+  const { data: jobsData, isLoading: isJobsLoading } = useGetJobsQuery({
+    page: 1,
+    size: 1000,
+    keyword: searchTerm,
+  });
+
+  useEffect(() => {
+    if (jobsData?.data.content) {
+      let filtered = jobsData.data.content;
+
+      if (selectedField) {
+        filtered = filtered.filter(
+          university => university.fields && Array.isArray(university.fields) && university.fields.some(field => field.fieldName === selectedField)
+        );
+      }
+
+      if (searchTerm) {
+        filtered = filtered.filter(university => university.universityName.toLowerCase().includes(searchTerm.toLowerCase()));
+      }
+
+      setFilteredJobs(filtered);
+      setCurrentPage(1);
+    }
+  }, [jobsData, selectedField, selectedType, searchTerm]);
+
+  useEffect(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    setPaginatedJobs(filteredJobs.slice(start, end));
+  }, [filteredJobs, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleSearch = useCallback(() => {
+    setCurrentPage(1);
+  }, []);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(searchTerm);
+    }, 600);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (debouncedValue) {
+      handleSearch();
+    }
+  }, [debouncedValue]);
+
+  const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
+
   return (
-    <div className="rts__section mp_section_padding">
-      <div className="container mx-auto">
-        <div className="flex items-start gap-[30px]">
-          <div className="job__search__section mb-[40px] rounded-[10px] bg-custom-gradient-1 p-[30px]">
-            <form className="flex flex-col gap-[30px]">
-              <div className="search__item">
-                <label htmlFor="search" className="font-20 fw-medium text-dark text-capitalize mb-3">
-                  Search By Job Title
-                </label>
-                <div className="position-relative">
-                  <input type="text" id="search" placeholder="Enter Type Of job" required="" />
-                  <i className="fa-light fa-magnifying-glass" />
-                </div>
-              </div>
-              {/* job location */}
-              <div className="search__item">
-                <h6 className="font-20 fw-medium text-dark text-capitalize mb-3">Search Location</h6>
-                <div className="position-relative">
-                  <div className="nice-select" tabIndex={0}>
-                    <span className="current">Search Location</span>
-                    <ul className="list">
-                      <li data-value="Nothing" data-display="Search Location" className="option selected focus">
-                        Search Location
-                      </li>
-                      <li data-value={1} className="option">
-                        Dhaka
-                      </li>
-                      <li data-value={2} className="option">
-                        Barisal
-                      </li>
-                      <li data-value={3} className="option">
-                        Chittagong
-                      </li>
-                      <li data-value={4} className="option">
-                        Rajshahi
-                      </li>
-                    </ul>
-                  </div>
-                  <i className="fa-light fa-location-dot" />
-                </div>
-              </div>
-              {/* job category */}
-              <div className="search__item">
-                <h6 className="font-20 fw-medium text-dark text-capitalize mb-3">Search By Job category</h6>
-                <div className="position-relative">
-                  <div className="nice-select" tabIndex={0}>
-                    <span className="current">Choose a Category</span>
-                    <ul className="list">
-                      <li data-value="Nothing" data-display="Search By Job category" className="option selected focus">
-                        Choose a Category
-                      </li>
-                      <li data-value={1} className="option">
-                        Government
-                      </li>
-                      <li data-value={2} className="option">
-                        NGO
-                      </li>
-                      <li data-value={3} className="option ">
-                        Private
-                      </li>
-                    </ul>
-                  </div>
-                  <i className="rt-briefcase" />
-                </div>
-              </div>
-              {/* job post time */}
-              <div className="search__item">
-                <h6 className="font-20 fw-medium text-dark text-capitalize mb-3">Date posted</h6>
-                <div className="position-relative">
-                  <div className="nice-select" tabIndex={0}>
-                    <span className="current">Date Posted</span>
-                    <ul className="list">
-                      <li data-value="Nothing" data-display="Date posted" className="option selected focus">
-                        Date Posted
-                      </li>
-                      <li data-value={1} className="option">
-                        01 Jan 24
-                      </li>
-                      <li data-value={2} className="option">
-                        05 Feb 24
-                      </li>
-                      <li data-value={3} className="option">
-                        07 Mar 24
-                      </li>
-                    </ul>
-                  </div>
-                  <i className="fa-light fa-clock" />
-                </div>
-              </div>
-              {/* job post time */}
-              <div className="search__item">
-                <div className="font-20 fw-medium text-dark text-capitalize mb-3">job type</div>
-                <div className="search__item__list">
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="fulltime" id="fulltime" />
-                      <label htmlFor="fulltime">Full Time</label>
-                    </div>
-                    <span>(130)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="part" id="part" />
-                      <label htmlFor="part">Part Time</label>
-                    </div>
-                    <span>(80)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="temporary" id="temporary" />
-                      <label htmlFor="temporary">temporary</label>
-                    </div>
-                    <span>(150)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="freelance" id="freelance" />
-                      <label htmlFor="freelance">freelance</label>
-                    </div>
-                    <span>(130)</span>
-                  </div>
-                </div>
-              </div>
-              {/* experience label */}
-              <div className="search__item">
-                <div className="font-20 fw-medium text-dark text-capitalize mb-3">experience Label</div>
-                <div className="search__item__list">
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="5year" id="5year" />
-                      <label htmlFor="5year">5 year</label>
-                    </div>
-                    <span>(10)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="4year" id="4year" />
-                      <label htmlFor="4year">4 year</label>
-                    </div>
-                    <span>(15)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="3year" id="3year" />
-                      <label htmlFor="3year">3 year</label>
-                    </div>
-                    <span>(50)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name="fresher" id="fresher" />
-                      <label htmlFor="fresher">fresher</label>
-                    </div>
-                    <span>(130)</span>
-                  </div>
-                </div>
-              </div>
-              {/* salary label */}
-              <div className="search__item">
-                <div className="font-20 fw-medium text-dark text-capitalize mb-3">salary offered</div>
-                <div className="search__item__list">
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name={500} id={500} />
-                      <label htmlFor={500}>under $500</label>
-                    </div>
-                    <span>(10)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name={5000} id={5000} />
-                      <label htmlFor={5000}>$5,000 - $10,000</label>
-                    </div>
-                    <span>(44)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name={1000} id={1000} />
-                      <label htmlFor={1000}>$10,000 - $15,000</label>
-                    </div>
-                    <span>(27)</span>
-                  </div>
-                  <div className="d-flex align-items-center justify-content-between list">
-                    <div className="d-flex align-items-center checkbox gap-2">
-                      <input type="checkbox" name={1500} id={1500} />
-                      <label htmlFor={1500}>$15,000 - $20,000</label>
-                    </div>
-                    <span>(85)</span>
-                  </div>
-                </div>
-              </div>
-              <button type="submit" className="rts__btn no__fill__btn max-content job__search__btn font-sm mx-auto" aria-label="Search">
-                Find Job
-              </button>
-            </form>
-          </div>
-          <div className="col-lg-7 col-xl-8">
-            <div className="top__query d-flex gap-xl-0 justify-content-between align-items-center mb-40 flex-wrap gap-4">
-              <span className="text-dark font-20 fw-medium">Showing 1-9 of 19 results</span>
-              <div className="d-flex align-items-center flex-wrap gap-4">
-                <form action="#" className="category-select">
-                  <div className="position-relative">
-                    <div className="nice-select" tabIndex={0}>
-                      <span className="current">All Category</span>
-                      <ul className="list">
-                        <li data-value="Nothing" data-display="All Category" className="option selected focus">
-                          All Category
-                        </li>
-                        <li data-value={1} className="option">
-                          Part Time
-                        </li>
-                        <li data-value={2} className="option">
-                          Full Time
-                        </li>
-                        <li data-value={3} className="option">
-                          Government
-                        </li>
-                        <li data-value={4} className="option">
-                          NGO
-                        </li>
-                        <li data-value={5} className="option">
-                          Private
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </form>
-                <div className="d-flex align-items-center gap-3" id="nav-tab" role="tablist">
-                  <button
-                    className="rts__btn no__fill__btn grid-style nav-link active"
-                    data-bs-toggle="tab"
-                    data-bs-target="#grid"
-                    aria-selected="true"
-                    role="tab">
-                    {' '}
-                    <i className="rt-hamburger" /> Grid
-                  </button>
-                  <button
-                    className="rts__btn no__fill__btn list-style nav-link"
-                    data-bs-toggle="tab"
-                    data-bs-target="#list"
-                    aria-selected="false"
-                    tabIndex={-1}
-                    role="tab">
-                    {' '}
-                    <i className="rt-list" /> List
-                  </button>
-                </div>
-              </div>
+    <ConfigProvider
+      theme={{
+        components: {
+          Select: {
+            colorBgContainer: '#FFFFFF', // Override the background color
+          },
+        },
+      }}>
+      <div className="rts__section">
+        <div className="mp_section_padding container relative mx-auto">
+          <div className="mt-[20px] flex items-start gap-[30px]">
+            <div className="mb-[40px] min-w-[375px] max-w-[390px] rounded-[10px] bg-custom-gradient p-[30px]">
+              <Form form={form} layout="vertical" onFinish={handleSearch} style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <h2 className="mb-[16px] text-xl font-semibold">Tìm Kiếm Workshop</h2>
+                <Form.Item name="workshopName">
+                  <Input prefix={<SearchOutlined className="mr-[4px]" />} size="large" className="w-full" placeholder="Nhập tên workshop" />
+                </Form.Item>
+                <Form.Item name="location" label="Địa điểm">
+                  <SelectSearch
+                    icon={<EnvironmentOutlined className="mr-[4px]" />}
+                    label="Chọn địa điểm"
+                    value={null}
+                    items={locations}
+                    onChange={selected => form.setFieldsValue({ location: selected })}
+                  />
+                </Form.Item>
+
+                <Form.Item name="topic" label="Ngành nghề">
+                  <SelectSearch
+                    icon={<TagOutlined className="mr-[4px]" />}
+                    label="Chọn ngành nghề"
+                    value={null}
+                    items={topics}
+                    onChange={selected => form.setFieldsValue({ topic: selected })}
+                  />
+                </Form.Item>
+
+                <Form.Item name="time" label="Thời gian">
+                  <DatePicker
+                    prefix={<HistoryOutlined className="mr-[4px]" />}
+                    format="DD/MM/YYYY"
+                    placeholder="Chọn ngày đăng bài"
+                    className="w-full "
+                    size="large"
+                  />
+                </Form.Item>
+                <Form.Item name="format" label="Hình thức">
+                  <Space direction="vertical" size={0} className="w-full">
+                    <Checkbox name="online" className="w-full  py-[14px]">
+                      Full Time
+                    </Checkbox>
+                    <Checkbox name="online" className="w-full border-t border-primary-border py-[14px]">
+                      Part Time
+                    </Checkbox>
+                    <Checkbox name="online" className="w-full border-t border-primary-border py-[14px]">
+                      Freelance
+                    </Checkbox>
+                  </Space>
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" size="large" className="w-full">
+                    Tìm kiếm
+                  </Button>
+                </Form.Item>
+              </Form>
             </div>
-            <div className="tab-content" id="myTabContent">
-              <div className="tab-pane grid__style fade show active" role="tabpanel" id="grid">
-                <div className="row g-30">
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/google.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Senior UX Designer, Google
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">Creative</a>
-                        <a href="#">user interface</a>
-                        <a href="#">web ui</a>
-                      </div>
-                    </div>
+            <div className="basis-2/3">
+              <div className=" flex items-center justify-between">
+                <span className="hidden font-medium text-primary-black md:block">
+                  {paginatedJobs.length
+                    ? `${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, filteredJobs.length)} trong ${filteredJobs.length} kết quả`
+                    : ''}
+                </span>
+                <div className="flex items-center gap-4">
+                  <div className=" flex h-[40px] items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main bg-primary-main px-4 text-primary-white ">
+                    <AppstoreOutlined />
+                    <span>Lưới</span>
                   </div>
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/microsoft.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Software Engineer, Bing
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">React</a>
-                        <a href="#">javascript</a>
-                        <a href="#">web ui</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/apple.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Senior UX Designer, Apple
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">Creative</a>
-                        <a href="#">user interface</a>
-                        <a href="#">web ui</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/upwork.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Web Developer, Upwork
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">HTML</a>
-                        <a href="#">CSS</a>
-                        <a href="#">SCSS</a>
-                        <a href="#">Figma</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/facebook.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Digital Marketing, Facebook
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">Blog Post</a>
-                        <a href="#">web ui</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/in.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Graphic Designer, Linkedin
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">Creative</a>
-                        <a href="#">user interface</a>
-                        <a href="#">web ui</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/udemy.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Online Trainer, Udemy
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">Creative</a>
-                        <a href="#">user interface</a>
-                        <a href="#">web ui</a>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-xl-6 col-md-6 col-lg-12">
-                    <div className="rts__job__card">
-                      <div className="d-flex align-items-center justify-content-between">
-                        <div className="company__icon">
-                          <img src="assets/img/home-1/company/figma.svg" alt="" />
-                        </div>
-                        <div className="featured__option"></div>
-                      </div>
-                      <div className="d-flex mt-4 flex-wrap gap-3">
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-location-dot" /> Newyork, USA
-                        </div>
-                        <div className="d-flex align-items-center gap-1">
-                          <i className="fa-light fa-briefcase" /> Full Time
-                        </div>
-                      </div>
-                      <div className="h6 job__title my-3">
-                        <a href="#" aria-label="job">
-                          Product Designer, Figma
-                        </a>
-                      </div>
-                      <p>Consectetur adipisicing elit. Possimus aut mollitia eum ipsum fugiat odio officiis odit mollitia eum ipsum.</p>
-                      <div className="job__tags d-flex mt-4 flex-wrap gap-2">
-                        <a href="#">Skill</a>
-                        <a href="#">user interface</a>
-                        <a href="#">Problem Solving</a>
-                      </div>
-                    </div>
+                  <div className="flex h-[40px] items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main px-4 text-primary-main">
+                    <BarsOutlined />
+                    <span>Chi tiết</span>
                   </div>
                 </div>
               </div>
-              <div className="tab-pane fade list__style" role="tabpanel" id="list">
-                <div className="row g-30">
-                  {/* single item */}
-                  <div className="col-lg-12">
-                    <div className="rts__job__card__big style__gradient justify-content-between d-flex align-items-center flex-wrap gap-4">
-                      <div className="d-flex flex-md-nowrap flex-lg-wrap flex-xl-nowrap align-items-center flex-wrap gap-4">
-                        <div className="company__icon rounded-2">
-                          <img src="assets/img/home-1/company/apple.svg" alt="" />
-                        </div>
-                        <div className="job__meta w-100 d-flex flex-column gap-2">
-                          <div className="d-flex justify-content-between align-items-center gap-3">
-                            <a href="#" className="job__title h6 mb-0">
-                              Senior UI Designer, Apple
-                            </a>
-                          </div>
-                          <div className="d-flex gap-md-4 mb-2 flex-wrap gap-3">
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-location-dot" /> Newyork, USA
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light rt-briefcase" /> Full Time
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-clock" /> 1 Years Ago
-                            </div>
-                          </div>
-                          <div className="job__tags d-flex flex-wrap gap-3">
-                            <a href="#">Creative</a>
-                            <a href="#">user interface</a>
-                            <a href="#">web ui</a>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <button type="button" className="bookmark__btn">
-                          <i className="rt-bookmark" />
-                        </button>
-                      </div>
-                    </div>
+
+              <div className="mt-[40px]">
+                {isJobsLoading ? (
+                  <div className="flex w-full items-center justify-center">
+                    <Spin size="large" />
                   </div>
-                  {/* single item end */}
-                  {/* single item */}
-                  <div className="col-lg-12">
-                    <div className="rts__job__card__big style__gradient justify-content-between d-flex align-items-center flex-wrap gap-4">
-                      <div className="d-flex flex-md-nowrap flex-lg-wrap flex-xl-nowrap align-items-center flex-wrap gap-4">
-                        <div className="company__icon rounded-2">
-                          <img src="assets/img/home-1/company/google.svg" alt="" />
+                ) : paginatedJobs.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-[30px] lg:grid-cols-2 ">
+                    {paginatedJobs.map(job => (
+                      <div
+                        key={job.id}
+                        className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
+                        <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
+                        <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
+                          <img src={job.company.logoUrl} alt={job.company.companyName} className="h-10 w-10" />
                         </div>
-                        <div className="job__meta w-100 d-flex flex-column gap-2">
-                          <div className="d-flex justify-content-between align-items-center gap-3">
-                            <a href="#" className="job__title h6 mb-0">
-                              Senior UX Designer, Google
-                            </a>
+                        <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">
+                          <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-location-dot" /> {job.company.address.province.provinceName}
                           </div>
-                          <div className="d-flex gap-md-4 mb-2 flex-wrap gap-3">
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-location-dot" /> Newyork, USA
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light rt-briefcase" /> Full Time
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-clock" /> 1 Years Ago
-                            </div>
-                          </div>
-                          <div className="job__tags d-flex flex-wrap gap-3">
-                            <a href="#">Creative</a>
-                            <a href="#">user interface</a>
-                            <a href="#">web ui</a>
+                          <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-briefcase" />
+                            <span className="lowercase">{job.jobType}</span>
                           </div>
                         </div>
+                        <div className="my-4 text-2xl font-bold text-primary-black">
+                          <a href={`/jobs/${job.id}`} aria-label="job">
+                            {job.jobTitle}
+                          </a>
+                        </div>
+                        <p className="mp_p">{job.jobDescription}</p>
+                        <div className="jobs__tags mt-6 flex items-center gap-4 ">
+                          <span className="job__tag rounded-md bg-primary-light px-[12px] py-[8px] font-medium capitalize text-primary-gray">
+                            {job.minSalary && job.maxSalary
+                              ? `${formatCurrencyVND(job.minSalary)} - ${formatCurrencyVND(job.maxSalary)}`
+                              : job.minSalary
+                              ? formatCurrencyVND(job.minSalary)
+                              : job.maxSalary
+                              ? formatCurrencyVND(job.maxSalary)
+                              : 'Thỏa thuận'}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <button type="button" className="bookmark__btn">
-                          <i className="rt-bookmark" />
-                        </button>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                  {/* single item end */}
-                  {/* single item */}
-                  <div className="col-lg-12">
-                    <div className="rts__job__card__big style__gradient justify-content-between d-flex align-items-center flex-wrap gap-4">
-                      <div className="d-flex flex-md-nowrap flex-lg-wrap flex-xl-nowrap align-items-center flex-wrap gap-4">
-                        <div className="company__icon rounded-2">
-                          <img src="assets/img/home-1/company/microsoft.svg" alt="" />
-                        </div>
-                        <div className="job__meta w-100 d-flex flex-column gap-2">
-                          <div className="d-flex justify-content-between align-items-center gap-3">
-                            <a href="#" className="job__title h6 mb-0">
-                              Software Engineer, Bing
-                            </a>
-                          </div>
-                          <div className="d-flex gap-md-4 mb-2 flex-wrap gap-3">
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-location-dot" /> Newyork, USA
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light rt-briefcase" /> Full Time
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-clock" /> 1 Years Ago
-                            </div>
-                          </div>
-                          <div className="job__tags d-flex flex-wrap gap-3">
-                            <a href="#">Creative</a>
-                            <a href="#">user interface</a>
-                            <a href="#">web ui</a>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <button type="button" className="bookmark__btn">
-                          <i className="rt-bookmark" />
-                        </button>
-                      </div>
-                    </div>
+                ) : (
+                  <div className="flex w-full items-center justify-center">
+                    <Empty description="Không có dữ liệu" />
                   </div>
-                  {/* single item end */}
-                  {/* single item */}
-                  <div className="col-lg-12">
-                    <div className="rts__job__card__big style__gradient justify-content-between d-flex align-items-center flex-wrap gap-4">
-                      <div className="d-flex flex-md-nowrap flex-lg-wrap flex-xl-nowrap align-items-center flex-wrap gap-4">
-                        <div className="company__icon rounded-2">
-                          <img src="assets/img/home-1/company/upwork.svg" alt="" />
-                        </div>
-                        <div className="job__meta w-100 d-flex flex-column gap-2">
-                          <div className="d-flex justify-content-between align-items-center gap-3">
-                            <a href="#" className="job__title h6 mb-0">
-                              Web developer, Upwork
-                            </a>
-                          </div>
-                          <div className="d-flex gap-md-4 mb-2 flex-wrap gap-3">
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-location-dot" /> Newyork, USA
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light rt-briefcase" /> Full Time
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-clock" /> 1 Years Ago
-                            </div>
-                          </div>
-                          <div className="job__tags d-flex flex-wrap gap-3">
-                            <a href="#">Creative</a>
-                            <a href="#">user interface</a>
-                            <a href="#">web ui</a>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <button type="button" className="bookmark__btn">
-                          <i className="rt-bookmark" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  {/* single item end */}
-                  {/* single item */}
-                  <div className="col-lg-12">
-                    <div className="rts__job__card__big style__gradient justify-content-between d-flex align-items-center flex-wrap gap-4">
-                      <div className="d-flex flex-md-nowrap flex-lg-wrap flex-xl-nowrap align-items-center flex-wrap gap-4">
-                        <div className="company__icon rounded-2">
-                          <img src="assets/img/home-1/company/in.svg" alt="" />
-                        </div>
-                        <div className="job__meta w-100 d-flex flex-column gap-2">
-                          <div className="d-flex justify-content-between align-items-center gap-3">
-                            <a href="#" className="job__title h6 mb-0">
-                              Graphic Designer, Linkedin
-                            </a>
-                          </div>
-                          <div className="d-flex gap-md-4 mb-2 flex-wrap gap-3">
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-location-dot" /> Newyork, USA
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light rt-briefcase" /> Full Time
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-clock" /> 1 Years Ago
-                            </div>
-                          </div>
-                          <div className="job__tags d-flex flex-wrap gap-3">
-                            <a href="#">Creative</a>
-                            <a href="#">user interface</a>
-                            <a href="#">web ui</a>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <button type="button" className="bookmark__btn">
-                          <i className="rt-bookmark" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  {/* single item end */}
-                  {/* single item */}
-                  <div className="col-lg-12">
-                    <div className="rts__job__card__big style__gradient justify-content-between d-flex align-items-center flex-wrap gap-4">
-                      <div className="d-flex flex-md-nowrap flex-lg-wrap flex-xl-nowrap align-items-center flex-wrap gap-4">
-                        <div className="company__icon rounded-2">
-                          <img src="assets/img/home-1/company/facebook.svg" alt="" />
-                        </div>
-                        <div className="job__meta w-100 d-flex flex-column gap-2">
-                          <div className="d-flex justify-content-between align-items-center gap-3">
-                            <a href="#" className="job__title h6 mb-0">
-                              Digital Marketing, Facebook
-                            </a>
-                          </div>
-                          <div className="d-flex gap-md-4 mb-2 flex-wrap gap-3">
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-location-dot" /> Newyork, USA
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light rt-briefcase" /> Full Time
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                              <i className="fa-light fa-clock" /> 1 Years Ago
-                            </div>
-                          </div>
-                          <div className="job__tags d-flex flex-wrap gap-3">
-                            <a href="#">Blog post</a>
-                            <a href="#">e-commerce</a>
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <button type="button" className="bookmark__btn">
-                          <i className="rt-bookmark" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  {/* single item end */}
-                </div>
+                )}
               </div>
-            </div>
-            <div className="rts__pagination max-content mx-auto pt-60">
-              <ul className="d-flex gap-2">
-                <li>
-                  <a href="#" className="inactive">
-                    <i className="rt-chevron-left" />
-                  </a>
-                </li>
-                <li>
-                  <a className="active" href="#">
-                    1
-                  </a>
-                </li>
-                <li>
-                  <a href="#">2</a>
-                </li>
-                <li>
-                  <a href="#">3</a>
-                </li>
-                <li>
-                  <a href="#">
-                    <i className="rt-chevron-right" />
-                  </a>
-                </li>
-              </ul>
             </div>
           </div>
+          {filteredJobs.length > pageSize && (
+            <div className="mt-[80px] w-full">
+              <Pagination current={currentPage} total={filteredJobs.length} align="center" pageSize={pageSize} onChange={handlePageChange} />
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </ConfigProvider>
   );
 };
 
-export default JobsList;
+export default WorkshopsList;

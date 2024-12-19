@@ -1,6 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
-import { WorkshopResponse, WorkshopDetailResponse } from '@/types/workshop';
+import { WorkshopResponse, WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IProvinceResponse } from '@/types/addressesTypes';
 import { RootState } from '@/store/store';
@@ -23,9 +23,9 @@ export const portalHomeApi = createApi({
   }),
   endpoints: builder => ({
     // Fetch all jobs with pagination
-    getJobs: builder.query<IJobAllResponse, { page: number; size: number }>({
-      query: ({ page, size }) => {
-        const params = new URLSearchParams({ page: String(page), size: String(size) });
+    getJobs: builder.query<IJobAllResponse, { page: number; size: number; keyword?: string }>({
+      query: ({ page, size, keyword = '' }) => {
+        const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
         return `/portal/jobs?${params.toString()}`;
       },
     }),
@@ -62,9 +62,9 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch all workshops with pagination
-    getWorkshops: builder.query<WorkshopResponse, { page: number; size: number }>({
-      query: ({ page, size }) => {
-        const params = new URLSearchParams({ page: String(page), size: String(size) });
+    getWorkshops: builder.query<WorkshopResponsePortal, { page: number; size: number; keyword?: string }>({
+      query: ({ page, size, keyword = '' }) => {
+        const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
         return `/portal/workshops?${params.toString()}`;
       },
     }),
