@@ -44,7 +44,7 @@ const RegisterCompanyComponent = () => {
       toast.success(response?.message);
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
-        const errMsg = (error.data as { message?: string }).message || 'Đã xảy ra lỗi';
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
         toast.error(errMsg);
       } else if (isErrorWithMessage(error)) {
         toast.error(error.message);
