@@ -1,3 +1,5 @@
+// types/university.ts
+
 import { IAddress } from './addressesTypes';
 import { IAccount, IFields } from '.';
 
