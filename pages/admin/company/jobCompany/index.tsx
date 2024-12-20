@@ -19,6 +19,7 @@ import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllC
 import { setKeyword, setPage } from '@/store/slices/filtersSlice';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import AddIcon from '@mui/icons-material/Add';
 
 
 
@@ -55,7 +56,8 @@ console.log(idJob);
     [dispatch]
   );
 
-  const {data: jobCompany, isLoading} = useGetAllCompanyJobQuery({ page, keyword, size, status})
+  const {data: jobCompany, isLoading} = useGetAllCompanyJobQuery({ page, keyword, size, status}, { refetchOnMountOrArgChange: true })
+  console.log(jobCompany)
   
   const [deleteC,{isLoading: isLoadingOne}] = useDeleteJobCompanyMutation()
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
@@ -97,16 +99,11 @@ console.log(idJob);
       dispatch(setLoading(isLoading || isLoadingOne || isLoadingMultiple));
     }, [isLoading, dispatch, isLoadingMultiple, isLoadingOne]);
 
-  // const handleConfirmAction = () => {
-  //   deleteC({id:idJob})
-  //   dispatch(setBackdrop(null))
-  // };
-
   return (
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách bài đăng tuyển</h1>
+        <h1 className="mb-5 font-bold">Doanh sách công việc</h1>
         <div className="flex items-center gap-3 justify-between ">
           <div className="w-[200px]">
 
@@ -121,7 +118,7 @@ console.log(idJob);
 
           <div className='flex items-center gap-5'>
             <Link href={'/admin/company/jobCompany/AddJob'}>
-            <MyButton type="submit" text="Thêm công việc" />
+            <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
             </Link>
             
             <MyButton 

@@ -140,16 +140,16 @@ const UpdateProfileCompany = () => {
   }, [isLoading, dispatch, detailProfile?.data, reset]);
 
   return (
-    <div className="bg-primary-white px-10">
-      <div className="rounded-t-lg p-5">
-        <Link href={'/admin/company/profileCompany'}>
-          <IconButton>
-            <ArrowBackIcon />
-          </IconButton>
-        </Link>
-        Trở về
-        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Cập nhật hồ sơ trường</h1>
-      </div>
+    <div className="bg-primary-white p-5 rounded-lg">
+     <div className="">
+      <Link href={'/admin/company/profileCompany'}>
+        <IconButton>
+          <ArrowBackIcon />
+        </IconButton>
+      </Link>
+      Trở về
+      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Chi tiết công ty </h1>
+    </div>
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
           {/* Avatar */}
@@ -316,7 +316,10 @@ const UpdateProfileCompany = () => {
             </>
         </div>
 
-        <Button text="Cập nhật" type="submit" />
+        
+        <div className="ml-auto w-fit">
+            <Button text="Cập nhật" type="submit" />
+        </div>
       </form>
     </div>
   );

@@ -1,10 +1,12 @@
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import WorkIcon from '@mui/icons-material/Work';
-import HomeIcon from '@mui/icons-material/Home';
-import SaveAsIcon from '@mui/icons-material/SaveAs';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
+
+import IconDepartment from '@/assets/icons/iconNavbarAdminSchool/icon-department.svg';
+import IconJob from '@/assets/icons/iconNavbarAdminSchool/icon-job.svg';
+import IconSchool from '@/assets/icons/iconNavbarAdminSchool/icon-school.svg';
 import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
+import IconWorkshop from '@/assets/icons/iconNavbar/workshop.svg';
+import IconNotification from '@/assets/icons/notification.svg';
+import IconChangePassword from '@/assets/icons/iconNavbar/password.svg';
 
 export const litsNavbarAdminSchoolRouter = [
   {
@@ -15,49 +17,44 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 2,
-    icon: <SaveAsIcon />,
+    icon: <IconSchool />,
     url: '/admin/company/profileCompany',
-    label: 'Hồ Sơ Công Ty',
+    label: 'Quản lý hồ sơ công ty',
   },
-  // {
-  //   id: 3,
-  //   icon: <IconRecruitment />,
-  //   url: '/admin/company/recruitmentCompany',
-  //   label: 'Quản Lý Tin Tuyển Dụng',
-  // },
+
   {
     id: 3,
-    icon: <HomeIcon />,
+    icon: <IconWorkshop />,
     url: '/admin/company/workShopCompany',
-    label: 'Quản Lý Workshop',
+    label: 'Quản lý workShop',
   },
   {
     id: 4,
     icon: <IconEmployee />,
     url: '/admin/company/userCompany',
-    label: 'Quản Lý Nhân Viên',
+    label: 'Quản lý nhân viên',
   },
   {
     id: 5,
-    icon: <WorkIcon />,
+    icon: <IconDepartment />,
     url: '/admin/company/jobCompany',
-    label: 'Quản Lý Job',
+    label: 'Quản lý job',
   },
   {
     id: 6,
-    icon: <WorkIcon />,
+    icon: <IconJob />,
     url: '/admin/company/requestListCompany',
     label: 'Danh sách yêu cầu',
   },
   {
     id: 7,
-    icon: <NotificationsIcon />,
+    icon: <IconNotification />,
     url: '/admin/company/noticeCompany',
-    label: 'Thông Báo',
+    label: 'Thông báo',
   },
   {
     id: 8,
-    icon: <LockOpenIcon />,
+    icon: <IconChangePassword />,
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',
   },

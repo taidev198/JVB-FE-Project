@@ -79,18 +79,13 @@ const detailJobCompany = () => {
               </li>
               <li className="mt-4 flex items-center  gap-3 ">
                 <div>
-                  <span className="mr-2 font-semibold">Loại Lương:</span> {jobCompany?.data.salaryType}
-                </div>
-              </li>
-              <li className="mt-4 flex items-center  gap-3 ">
-                <div>
                   <span className="mr-2 font-semibold">Lương:</span> {jobCompany?.data.maxSalary} - {jobCompany?.data.minSalary}
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-4 flex items-center gap-3 ">
                 <div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-                  <span className="mr-2 font-semibold" style={{ fontWeight: 'bold' }}>Loại công việc:</span>
+                  <span className="mr-2 font-semibold">Loại công việc:</span>
                     {jobCompany?.data.fields.map((field) => (
                       <Chip
                         key={field.id}
