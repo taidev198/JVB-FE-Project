@@ -1,21 +1,17 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-// import SearchIcon from '@mui/icons-material/Search';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Chip, IconButton, Tooltip, Pagination,FormControl, TextField, InputLabel, Select, MenuItem } from '@mui/material';
-import Link from 'next/link';
+import { Chip, IconButton, Tooltip, Pagination,FormControl, TextField, InputLabel, Select, MenuItem, Checkbox } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-
 import { Button, Button as MyButton } from '@/components/Common/Button';
-// import Input from '@/components/Common/Input';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
-// import CloseIcon from '@mui/icons-material/Close';
 import { debounce } from 'lodash';
 import { useGetAllWorkShopCompanyQuery} from '@/services/adminCompanyApi';
+import { setKeyword, setPage } from '@/store/slices/filtersSlice';
 
 
 interface FormDataRegisterCompany {
@@ -28,12 +24,11 @@ const validationSchema = Yup.object({
 
 
 const workShopCompany = () => {
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState('');
-  const [status, setStatus] = useState('');
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
-  const [currentPage, setCurrentPage] = useState(1);
+  const { page, keyword, size, status } = useAppSelector(state => state.filter);
+  const [selectedWorkShop, setselectedWorkShop] = useState<number[]>([]);
+
   const {
     control,
     handleSubmit,
@@ -42,84 +37,23 @@ const workShopCompany = () => {
     resolver: yupResolver(validationSchema),
   });
 
-    const debouncedSearch = debounce((value: string) => {
-      setKeyword(value);
-    }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
 
-    const {data: companyWorkShop, isLoading} = useGetAllWorkShopCompanyQuery({
-      page,
-      size: 10,
-      keyword,
-      status,
-    },{ refetchOnMountOrArgChange: true })
-    console.log('companyWorkShop: ', companyWorkShop);
 
-    const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-      setPage(page);
-    };
+  const {data: companyWorkShop, isLoading} = useGetAllWorkShopCompanyQuery({ page, keyword, size, status},{ refetchOnMountOrArgChange: true })
+  console.log('companyWorkShop: ', companyWorkShop);
   
-    console.log(companyWorkShop)
-
-
-  // Data giả lập
-  // const mockData = [
-  //   { 
-  //     id: '1', 
-  //     workshop_title: 'Workshop A', 
-  //     university_id: 'Trường Đại Học A',
-  //     start_time: '01/12/2024 12:00',
-  //     end_time: '01/12/2024 12:00', 
-  //     address_id: 'Đường Lê Duẩn, Hà Nội', 
-  //     quatity: '15', 
-  //     moderation_status:'đã duyệt' 
-  //   },
-
-  //   { 
-  //     id: '2', 
-  //     workshop_title: 'Workshop A', 
-  //     university_id: 'Trường Đại Học A',
-  //     start_time: '01/12/2024 12:00',
-  //     end_time: '01/12/2024 12:00', 
-  //     address_id: 'Đường Lê Duẩn, Hà Nội', 
-  //     quatity: '15', 
-  //     moderation_status:'chờ duyệt' 
-  //   },
-
-  //   { 
-  //     id: '3', 
-  //     workshop_title: 'Workshop A', 
-  //     university_id: 'Trường Đại Học A',
-  //     start_time: '01/12/2024 12:00',
-  //     end_time: '01/12/2024 12:00', 
-  //     address_id: 'Đường Lê Duẩn, Hà Nội', 
-  //     quatity: '15',
-  //     moderation_status:'từ chối' 
-  //   },
-
-  //   { 
-  //     id: '4', 
-  //     workshop_title: 'Workshop A', 
-  //     university_id: 'Trường Đại Học A',
-  //     start_time: '01/12/2024 12:00',
-  //     end_time: '01/12/2024 12:00', 
-  //     address_id: 'Đường Lê Duẩn, Hà Nội', 
-  //     quatity: '15',
-  //     moderation_status:'đã duyệt' 
-  //   },
-
-  //   { 
-  //     id: '5', 
-  //     workshop_title: 'Workshop A', 
-  //     university_id: 'Trường Đại Học A',
-  //     start_time: '01/12/2024 12:00',
-  //     end_time: '01/12/2024 12:00', 
-  //     address_id: 'Đường Lê Duẩn, Hà Nội', 
-  //     quatity: '15',
-  //     moderation_status:'từ chối' 
-  //   },
-  // ];
-
-
+  const handleSelectWorkShop = (id: number) => {
+    setselectedWorkShop(prev => (prev.includes(id) ? prev.filter(employeeId => employeeId !== id) : [...prev, id]));
+  };
+   
   return (
     <>
       {/* Header */}
@@ -137,6 +71,14 @@ const workShopCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <Checkbox
+                  color="primary"
+                  checked={selectedWorkShop.length === companyWorkShop?.data.content.length}
+                  indeterminate={selectedWorkShop.length > 0 && selectedWorkShop.length < (companyWorkShop?.data.content||[]).length}
+                                
+                />
+              </th>
               <th className="px-5 py-4 text-left">STT</th>
               <th className="px-5 py-4 text-left">Tiêu đề</th>
               <th className="px-5 py-4 text-left">Trường học</th>
@@ -151,6 +93,9 @@ const workShopCompany = () => {
           <tbody>
             {companyWorkShop?.data.content.map((item, index) => (
               <tr key={item.id} className= {index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
+                <td className="p-3 sm:px-5 sm:py-4">
+                  <Checkbox color="primary" checked={selectedWorkShop.includes(item.id)} onChange={() => handleSelectWorkShop(item.id)} />
+                </td>
                 <td className="px-5 py-4">{index + 1}</td>
                 <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
                 <td className="px-5 py-4">{item.workshop.university.universityName}</td>
@@ -212,7 +157,7 @@ const workShopCompany = () => {
 
       {/* Pagination */}
       <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
+        <Pagination count={companyWorkShop?.data.totalPages} page={page} onChange={(value, event) => dispatch(setPage(event))}  color="primary" shape="rounded" />
       </div>
 
     </>

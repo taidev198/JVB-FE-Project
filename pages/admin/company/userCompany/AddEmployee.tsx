@@ -21,7 +21,6 @@ interface FormDataAddEmployee {
     gender: string;
     employeePosition: string;
     salary: number;
-    employeeStatus: string;
     wardName: number;
     districtName: number;
     provinceName: number;
@@ -47,21 +46,23 @@ const AddEmployee = () => {
     ({ data, image });
   };
   return (
-    <div className="bg-primary-white px-10">
+    <div className="bg-primary-white p-5 rounded-lg">
     {/* Icon */}
-    <div className="rounded-t-lg ">
+    <div className="">
       <Link href={'/admin/company/userCompany'}>
         <IconButton>
           <ArrowBackIcon />
         </IconButton>
       </Link>
       Trở về
-      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm Nhân Viên </h1>
+      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm nhân viên </h1>
     </div>
     <form onSubmit={handleSubmit(onSubmit)} className=''>
       <div className=''>
          {/* Image */}
+         <div className='mx-5'>
          <ImageUploaderOne images={image} setImages={setImage} />
+         </div>
         {/* Block 1 */}
       <div className="rounded-b-lg mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* employee code */}
@@ -70,7 +71,8 @@ const AddEmployee = () => {
               control={control} 
               error={errors.employeeCode?.message} 
               placeholder="Mã nhân viên" 
-              label="Mã nhân viên" />
+              label="Mã nhân viên"
+              required={true} />
         
         {/* employee name */}
             <Input 
@@ -78,7 +80,8 @@ const AddEmployee = () => {
               control={control} 
               error={errors.fullName?.message} 
               placeholder="Tên nhân viên" 
-              label="Tên nhân viên" />
+              label="Tên nhân viên"
+              required={true} />
            
          {/* dateofbirthday */}    
             <Input 
@@ -87,13 +90,15 @@ const AddEmployee = () => {
               control={control} 
               error={errors.dateOfBirth?.message} 
               placeholder="Ngày sinh" 
-              label="Ngày sinh" />
+              label="Ngày sinh"
+              required={true} />
 
          {/* phonenumber */}
             <Input
               type="text"
               name="phoneNumber"
               label="Số điện thoại"
+              required={true}
               placeholder="Số điện thoại"
               control={control}
               error={errors.phoneNumber?.message}
@@ -105,6 +110,7 @@ const AddEmployee = () => {
               name="email"
               label="Email"
               placeholder="email"
+              required={true}
               control={control}
               error={errors.email?.message}
             />
@@ -113,6 +119,7 @@ const AddEmployee = () => {
           <Input
               name="gender"
               label="Giới tính"
+              required={true}
               placeholder="gender"
               control={control}
               error={errors.gender?.message}
@@ -122,6 +129,7 @@ const AddEmployee = () => {
             <Input
               name="employeePosition"
               label="Vị trí công việc"
+              required={true}
               placeholder="vị trí công việc"
               control={control}
               error={errors.employeePosition?.message}
@@ -132,29 +140,18 @@ const AddEmployee = () => {
               type='number'
               name="salary"
               label="Mức lương"
+              required={true}
               placeholder="mức lương"
               control={control}
               error={errors.salary?.message}
             />
 
-          {/* Trạng thái */}
-              <SelectMui
-                name="employeeStatus"
-                placeholder='Nhập trạng thái'
-                label="Trạng thái"
-                control={control}
-                options={[
-                  { value: 1, label: 'Đang làm' },
-                  { value: 2, label: 'Nghỉ việc' },
-                ]}
-                isMultiple={true} // Bật chế độ chọn nhiều
-                error={errors.employeeStatus?.message}
-              />
 
             {/* mật khẩu */}
             <Input
               name="password"
               label="Mật khẩu"
+              required={true}
               placeholder="Mật khẩu"
               control={control}
               error={errors.password?.message}
@@ -164,6 +161,7 @@ const AddEmployee = () => {
             <Input
               name="confirmPassword"
               label="Nhập lại mật khẩu"
+              required={true}
               placeholder="Nhập lại mật khẩu"
               control={control}
               error={errors.confirmPassword?.message}
@@ -221,7 +219,9 @@ const AddEmployee = () => {
             />
             </div>
       </div>
+      <div className='mt-5'>
       <Text type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
+      </div>
       </div>
   
       <div className="ml-auto w-fit py-5">
