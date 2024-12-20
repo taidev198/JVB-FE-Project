@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { IconButton } from '@mui/material';
+import { Chip, IconButton } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
@@ -13,35 +13,43 @@ import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Text from '@/components/Common/Text';
+import validationSchemaAddStudent from '@/components/Admin/school/Student/validationAddStudent';
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import SelectReact from '@/components/Common/SelectMui';
-import { typeUniversity } from '@/utils/app/const';
-import { useGetAllMajorsQuery, useGetDetailSchoolQuery, useUpdateSchoolMutation } from '@/services/adminSchoolApi';
-import { setLoading } from '@/store/slices/global';
+import { gender, typeUniversity } from '@/utils/app/const';
+import {
+  useGetAllMajorsQuery,
+  useGetDetailSchoolQuery,
+  useGetDetailStudentQuery,
+  useUpdateSchoolMutation,
+  useUpdateStudentMutation,
+} from '@/services/adminSchoolApi';
+import { setId, setLoading } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import validationSchemaUpdateSchool from '@/components/Admin/school/profileSchool/validationUpdateSchool';
+import { useGetDetailProfileQuery } from '@/services/adminCompanyApi';
 
-interface FormDataAddStudent {
-  universityName: string;
+interface FormDataProfile {
+  companyCode: string;
+  companyName: string;
+  phoneNumber: string;
+  linkWebsite: string;
+  establishedDate: string;
   email: string;
   logoUrl: string;
-  universityCode: string;
-  linkWebsite: string;
-  universityDescription?: string;
-  universityShortDescription?: string;
-  phoneNumber: string;
-  establishedDate: string | null;
-  universityType: string;
-  numberOfStudents: number;
-  numberOfGraduates: number;
   wardId: number;
   houseNumber: string;
   provinceId: number;
   districtId: number;
+  fieldIds: number[];
+  address: string;
+  companyShortDescription: string;
+  companyDescription: string;
+  taxCode: string;
 }
 
-const UpdateSchoolManagement = () => {
+const UpdateProfileCompany = () => {
   const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -52,16 +60,16 @@ const UpdateSchoolManagement = () => {
     formState: { errors },
     watch,
     reset,
-  } = useForm<FormDataAddStudent>({
+  } = useForm<FormDataProfile>({
     resolver: yupResolver(validationSchemaUpdateSchool),
   });
   const id = useAppSelector(state => state.global.id);
-  const { data: detailSchool } = useGetDetailSchoolQuery();
+  const { data: detailProfile } = useGetDetailProfileQuery();
   useEffect(() => {
-    if (detailSchool?.data.logoUrl) {
-      setImage(detailSchool?.data.logoUrl);
+    if (detailProfile?.data.logoUrl) {
+      setImage(detailProfile?.data.logoUrl);
     }
-  }, [detailSchool?.data.logoUrl]);
+  }, [detailProfile?.data.logoUrl]);
   const provinceSelect = watch('provinceId');
   const districtSelect = watch('districtId');
   // Fetch data
@@ -70,36 +78,35 @@ const UpdateSchoolManagement = () => {
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
 
   const { data: majors } = useGetAllMajorsQuery();
-  const [updateSchool, { isLoading }] = useUpdateSchoolMutation();
-  console.log(detailSchool);
-  const onSubmit: SubmitHandler<FormDataAddStudent> = async data => {
+  const [updateProfile, { isLoading }] = useUpdateSchoolMutation();
+  console.log(detailProfile);
+  const onSubmit: SubmitHandler<FormDataProfile> = async data => {
     const formData = new FormData();
 
     // Append dữ liệu JSON dưới dạng chuỗi
-    const universityRequest = {
-      universityCode: data.universityCode,
-      universityName: data.universityName,
-      email: data.email,
-      establishedDate: data.establishedDate,
-      linkWebsite: data.linkWebsite,
-      universityDescription: data.universityDescription,
-      universityShortDescription: data.universityShortDescription,
-      numberOfGraduates: data.numberOfGraduates,
-      numberOfStudents: data.numberOfStudents,
-      universityType: data.universityType,
+    const profileRequest = {
+      companyCode: detailProfile.data.companyCode,
+      companyName: detailProfile.data.companyName,
+      email: detailProfile.data.email,
+      establishedDate: detailProfile.data.establishedDate,
+      fieldIds: detailProfile.data.fields.map(fielId => fielId.id),
+      linkWebsite: detailProfile.data.linkWebsite,
+      companyDescription: detailProfile.data.companyDescription,
+      companyShortDescription: detailProfile.data.companyShortDescription,
+      taxCode: detailProfile.data.taxCode,
       address: {
-        houseNumber: data.houseNumber,
-        wardId: data.wardId,
+        houseNumber: detailProfile.data.address.houseNumber,
+        wardId: detailProfile.data.address.ward.id,
       },
-      phoneNumber: data.phoneNumber,
+      phoneNumber: detailProfile.data.phoneNumber,
     };
-    formData.append('universityRequest', new Blob([JSON.stringify(universityRequest)], { type: 'application/json' }));
+    formData.append('profileRequest', new Blob([JSON.stringify(profileRequest)], { type: 'application/json' }));
     formData.append('file', image as File);
 
     try {
-      const response = await updateSchool({ formData: formData }).unwrap();
+      const response = await updateProfile({ formData: formData, id: id }).unwrap();
       toast.success(response.message);
-      router.push('/admin/school/schoolManagement');
+      router.push('/admin/company/profileCompany');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
@@ -111,33 +118,31 @@ const UpdateSchoolManagement = () => {
   };
 
   useEffect(() => {
-    if (detailSchool?.data) {
+    if (detailProfile?.data) {
       reset({
-        universityCode: detailSchool?.data.universityCode,
-        establishedDate: detailSchool?.data.establishedDate,
-        universityName: detailSchool?.data.universityName,
-        numberOfGraduates: detailSchool?.data.numberOfGraduates,
-        numberOfStudents: detailSchool?.data.numberOfStudents,
-        linkWebsite: detailSchool?.data.linkWebsite,
-        universityType: detailSchool?.data.universityType,
-        universityDescription: detailSchool?.data.universityDescription,
-        universityShortDescription: detailSchool?.data.universityShortDescription,
-        logoUrl: detailSchool?.data.logoUrl,
-        email: detailSchool?.data.account.email,
-        phoneNumber: detailSchool?.data.phoneNumber,
-        houseNumber: detailSchool?.data.address.houseNumber,
-        provinceId: detailSchool?.data?.address.province.id,
-        districtId: detailSchool?.data?.address.district.id,
-        wardId: detailSchool?.data?.address.ward.id,
+        companyCode: detailProfile?.data.companyCode,
+        establishedDate: detailProfile?.data.establishedDate,
+        companyName: detailProfile?.data.companyName,
+        taxCode: detailProfile?.data.taxCode,
+        linkWebsite: detailProfile?.data.linkWebsite,
+        companyDescription: detailProfile?.data.companyDescription,
+        companyShortDescription: detailProfile?.data.companyShortDescription,
+        logoUrl: detailProfile?.data.logoUrl,
+        email: detailProfile?.data.email,
+        phoneNumber: detailProfile?.data.phoneNumber,
+        houseNumber: detailProfile?.data.address.houseNumber,
+        provinceId: detailProfile?.data?.address.province.id,
+        districtId: detailProfile?.data?.address.district.id,
+        wardId: detailProfile?.data?.address.ward.id,
       });
     }
     dispatch(setLoading(isLoading));
-  }, [isLoading, dispatch, detailSchool?.data, reset]);
+  }, [isLoading, dispatch, detailProfile?.data, reset]);
 
   return (
     <div className="bg-primary-white px-10">
       <div className="rounded-t-lg p-5">
-        <Link href={'/admin/school/schoolManagement'}>
+        <Link href={'/admin/company/profileCompany'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
@@ -152,21 +157,21 @@ const UpdateSchoolManagement = () => {
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
               type="text"
-              name="universityCode"
-              label="Mã trường"
-              placeholder="Nhập mã trường"
+              name="companyCode"
+              label="Mã công ty"
+              placeholder="Nhập mã công ty"
               control={control}
-              error={errors.universityCode?.message}
+              error={errors.companyCode?.message}
               disabled={true}
             />
 
             <Input
               type="text"
-              name="universityName"
-              label="Tên trường"
-              placeholder="Nhập tên trường"
+              name="companyName"
+              label="Tên công ty"
+              placeholder="Nhập tên công ty"
               control={control}
-              error={errors.universityName?.message}
+              error={errors.companyName?.message}
             />
             {/* Phone */}
             <Input
@@ -186,35 +191,13 @@ const UpdateSchoolManagement = () => {
 
             <Input
               type="number"
-              name="numberOfStudents"
-              label="Số lượng sinh viên"
-              placeholder="Nhập số lượng sinh viên"
+              name="taxCode"
+              label="Mã Code"
+              placeholder="Nhập mã code"
               control={control}
-              error={errors.numberOfStudents?.message}
+              error={errors.taxCode?.message}
             />
-            <Input
-              type="number"
-              name="numberOfGraduates"
-              label="Số lượng sinh viên tốt nghiệp"
-              placeholder="Nhập số lượng sinh viên tốt nghiệp"
-              control={control}
-              error={errors.numberOfGraduates?.message}
-            />
-            {/* Type school */}
-            <>
-              <SelectReact
-                name="universityType"
-                label="Loại trường"
-                placeholder="Chọn loại trường"
-                options={(typeUniversity || []).map(type => ({
-                  value: type.value,
-                  label: type.label,
-                }))}
-                control={control}
-                error={errors.universityType?.message}
-                disabled={true}
-              />
-            </>
+
             {/* Tỉnh */}
             <div>
               <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
@@ -231,12 +214,12 @@ const UpdateSchoolManagement = () => {
                     placeholder="Chọn Tỉnh/Thành phố"
                     isLoading={isLoadingProvinces}
                     options={provinces?.data || []}
-                    getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''}
-                    getOptionValue={(option: { id: any }) => option.id}
+                    getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
+                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null);
+                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
                     }}
-                    value={provinces?.data?.find(option => option.id === field.value)}
+                    value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
                     ref={field.ref}
                   />
                 )}
@@ -260,12 +243,12 @@ const UpdateSchoolManagement = () => {
                     placeholder="Chọn Quận/Huyện"
                     isLoading={isLoadingDistricts}
                     options={districts?.data || []}
-                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''}
-                    getOptionValue={(option: { id: any }) => option.id}
+                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
+                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null);
+                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
                     }}
-                    value={districts?.data?.find(option => option.id === field.value)}
+                    value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
                     ref={field.ref}
                   />
                 )}
@@ -289,12 +272,12 @@ const UpdateSchoolManagement = () => {
                     placeholder="Chọn Xã/Phường"
                     isLoading={isLoadingWard}
                     options={wards?.data || []}
-                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''}
-                    getOptionValue={(option: { id: any }) => option.id}
+                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
+                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null);
+                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
                     }}
-                    value={wards?.data?.find(option => option.id === Number(field.value))}
+                    value={wards?.data?.find(option => option.id === Number(field.value))} // Giữ giá trị name (tên tỉnh) khi chọn
                     ref={field.ref}
                   />
                 )}
@@ -302,30 +285,35 @@ const UpdateSchoolManagement = () => {
               {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
             </div>
           </div>
-          <div className="mt-5">
-            <Text
-              type="text"
-              name="houseNumber"
-              label="Địa chỉ cụ thể"
-              placeholder="Nhập địa chỉ cụ thể"
-              control={control}
-              error={errors.houseNumber?.message}
-            />
-          </div>
+          <Text type="text" name="houseNumber" label="Địa chỉ cụ thể" placeholder="Nhập địa chỉ cụ thể" control={control} error={errors.houseNumber?.message} />
           <Text
             label="Mô tả hồ sơ trường "
             placeholder="Nhập mô tả hồ sơ trường"
             control={control}
-            error={errors.universityDescription?.message}
-            {...register('universityDescription')}
+            error={errors.companyDescription?.message}
+            {...register('companyDescription')}
           />
           <Text
             label="Mô tả ngắn "
             placeholder="Nhập mô tả ngắn"
             control={control}
-            error={errors.universityShortDescription?.message}
-            {...register('universityShortDescription')}
+            error={errors.companyShortDescription?.message}
+            {...register('companyShortDescription')}
           />
+
+          {/* Type fiels */}
+          <>
+            <li className="mt-4 mb-5 flex  gap-3 ">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+              <span>
+                Fields:
+              </span>
+              {detailProfile?.data.fields.map(field => (
+                <Chip key={field.id} label={field.fieldName} color="primary" variant="outlined" style={{ fontSize: '14px' }} />
+              ))}
+            </div>
+          </li>
+            </>
         </div>
 
         <Button text="Cập nhật" type="submit" />
@@ -334,4 +322,4 @@ const UpdateSchoolManagement = () => {
   );
 };
 
-export default UpdateSchoolManagement;
+export default UpdateProfileCompany;

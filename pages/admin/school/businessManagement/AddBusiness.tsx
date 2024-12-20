@@ -73,8 +73,24 @@ const AddBussiness = () => {
         <div className="ml-5 mr-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Các trường thông tin khác */}
 
-          <Input type="text" name="majorCode" label="Mã ngành học" placeholder="Nhập mã ngành học" control={control} error={errors.majorCode?.message} />
-          <Input type="text" name="majorName" label="Tên ngành học" placeholder="Nhập tên ngành học" control={control} error={errors.majorName?.message} />
+          <Input
+            type="text"
+            name="majorCode"
+            label="Mã ngành học"
+            placeholder="Nhập mã ngành học"
+            control={control}
+            error={errors.majorCode?.message}
+            required={true}
+          />
+          <Input
+            type="text"
+            name="majorName"
+            label="Tên ngành học"
+            placeholder="Nhập tên ngành học"
+            control={control}
+            error={errors.majorName?.message}
+            required={true}
+          />
           <Input
             type="number"
             name="creditRequirement"
@@ -82,6 +98,7 @@ const AddBussiness = () => {
             placeholder="Nhập số tín chỉ ngành học"
             control={control}
             error={errors.creditRequirement?.message}
+            required={true}
           />
 
           <Input
@@ -91,6 +108,7 @@ const AddBussiness = () => {
             placeholder="Nhập số lượng sinh viên"
             control={control}
             error={errors.numberOfStudents?.message}
+            required={true}
           />
 
           <SelectReact
@@ -104,6 +122,7 @@ const AddBussiness = () => {
             control={control}
             isMultiple={true}
             error={errors.facultyId?.message}
+            required={true}
           />
           <SelectReact
             name="fieldIds"
@@ -116,6 +135,7 @@ const AddBussiness = () => {
             control={control}
             isMultiple={true}
             error={errors.fieldIds?.message}
+            required={true}
           />
         </div>
         <div className="ml-5 mt-5">

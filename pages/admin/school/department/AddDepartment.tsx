@@ -66,8 +66,24 @@ const AddDepartment = () => {
         <div className="mr-5 grid grid-cols-1 gap-4 bg-primary-white sm:grid-cols-2">
           {/* Các trường thông tin khác */}
 
-          <Input type="text" name="facultyCode" label="Mã khoa" placeholder="Nhập mã khoa" control={control} error={errors.facultyCode?.message} />
-          <Input type="text" name="facultyName" label="Tên Khoa" placeholder="Nhập tên khoa" control={control} error={errors.facultyName?.message} />
+          <Input
+            type="text"
+            name="facultyCode"
+            label="Mã khoa"
+            placeholder="Nhập mã khoa"
+            control={control}
+            error={errors.facultyCode?.message}
+            required={true}
+          />
+          <Input
+            type="text"
+            name="facultyName"
+            label="Tên Khoa"
+            placeholder="Nhập tên khoa"
+            control={control}
+            error={errors.facultyName?.message}
+            required={true}
+          />
           <Input
             type="number"
             name="establishYear"
@@ -76,7 +92,15 @@ const AddDepartment = () => {
             control={control}
             error={errors.establishYear?.message}
           />
-          <Input type="text" name="nameDean" label="Tên trưởng khoa" placeholder="Nhập tên trưởng khoa" control={control} error={errors.nameDean?.message} />
+          <Input
+            type="text"
+            name="nameDean"
+            label="Tên trưởng khoa"
+            placeholder="Nhập tên trưởng khoa"
+            control={control}
+            error={errors.nameDean?.message}
+            required={true}
+          />
         </div>
         <div className="mr-5 ">
           <Input type="text" name="address" label="Địa chỉ" placeholder="Nhập địa chỉ" control={control} error={errors.address?.message} />

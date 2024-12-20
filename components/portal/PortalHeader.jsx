@@ -69,7 +69,7 @@ const PortalHeader = () => {
       label: (
         <a onClick={handleLogout} className="flex items-center justify-between">
           <span>Đăng xuất</span>
-          <i className="fa-solid fa-right-from-bracket"></i>
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </a>
       ),
     },
@@ -214,7 +214,7 @@ const PortalHeader = () => {
                           }}>
                           <a onClick={e => e.preventDefault()}>
                             <Space className="cursor-pointer">
-                              <DownOutlined />
+                              <i class="fa-solid fa-chevron-down"></i>
                             </Space>
                           </a>
                         </Dropdown>

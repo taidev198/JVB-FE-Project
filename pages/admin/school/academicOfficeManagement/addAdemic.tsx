@@ -56,7 +56,7 @@ const AddAdemic = () => {
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
   const [addAcademicOfficeManagement, { data, isLoading: isLoadingAddAcademicOfficeManagement, isSuccess, isError, error }] =
     useAddAcademicOfficeManagementMutation();
-  
+
   const onSubmit: SubmitHandler<FormDataAddAdemic> = data => {
     const formData = new FormData();
 
@@ -120,8 +120,17 @@ const AddAdemic = () => {
               placeholder="Nhập mã nhân viên"
               control={control}
               error={errors.employeeCode?.message}
+              required={true}
             />
-            <Input type="text" name="fullName" label="Họ và tên" placeholder="Nhập họ và tên" control={control} error={errors.fullName?.message} />
+            <Input
+              type="text"
+              name="fullName"
+              label="Họ và tên"
+              placeholder="Nhập họ và tên"
+              control={control}
+              error={errors.fullName?.message}
+              required={true}
+            />
 
             <SelectReact
               name="gender"
@@ -132,6 +141,7 @@ const AddAdemic = () => {
                 label: item.label,
               }))}
               control={control}
+              required={true}
             />
             <Input
               type="text"
@@ -140,9 +150,10 @@ const AddAdemic = () => {
               placeholder="Nhập số điện thoại"
               control={control}
               error={errors.phoneNumber?.message}
+              required={true}
             />
-            <Input type="text" name="email" label="Email" placeholder="Nhập email" control={control} error={errors.email?.message} />
-            <Input type="password" name="password" label="Mật khẩu" placeholder="Nhập Mật khẩu" control={control} error={errors.password?.message} />
+            <Input type="text" name="email" label="Email" placeholder="Nhập email" control={control} error={errors.email?.message} required={true}/>
+            <Input type="password" name="password" label="Mật khẩu" placeholder="Nhập Mật khẩu" control={control} error={errors.password?.message} required={true}/>
             <Input
               type="password"
               name="confirm_password"

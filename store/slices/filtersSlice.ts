@@ -6,6 +6,7 @@ const initialState = {
   keyword: '',
   status: '',
   universityType: '',
+  idFaculty: null,
 };
 
 const filtersSlice = createSlice({
@@ -27,12 +28,15 @@ const filtersSlice = createSlice({
     setUniversityType: (state, action) => {
       state.universityType = action.payload;
     },
+    setIdFaculty: (state, action) => {
+      state.idFaculty = action.payload;
+    },
     resetFilters: state => {
       Object.assign(state, initialState);
     },
   },
 });
 
-export const { setPage, setPageSize, setKeyword, setStatus, setUniversityType, resetFilters } = filtersSlice.actions;
+export const { setPage, setPageSize, setKeyword, setStatus, setUniversityType, resetFilters, setIdFaculty } = filtersSlice.actions;
 
 export default filtersSlice.reducer;

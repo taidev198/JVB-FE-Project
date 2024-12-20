@@ -1,3 +1,5 @@
+// services/portalHomeApi.ts
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { IJobAllResponse, IJobAllResponsePortal, IJobDetailResponse } from '@/types/jobCompany';
 import { WorkshopResponse, WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';

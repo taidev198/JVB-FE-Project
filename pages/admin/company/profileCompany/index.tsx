@@ -53,12 +53,7 @@ const profileCompany = () => {
         </div>
 
         <ul className="">
-          {/* <li className="mt-4 flex items-center  gap-3 ">
-            <CameraOutdoorIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">logoUrl:</span> {profile?.data.logoUrl}
-            </div>
-          </li> */}
+
           <li className="mt-4 flex items-center  gap-3 ">
             <PersonOutlineIcon sx={{ color: '#757575' }} />
             <div>
@@ -77,12 +72,7 @@ const profileCompany = () => {
               <span className="mr-2 font-semibold">Email:</span> {profile?.data.email}
             </div>
           </li>
-          {/* <li className="mt-5 flex items-center gap-3">
-            <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Tên công ty:</span> {profile?.data.companyName}
-            </div>
-          </li> */}
+
           <li className="mt-5 flex items-center gap-3">
             <CreditScoreIcon sx={{ color: '#757575' }} />
             <div>
@@ -104,7 +94,7 @@ const profileCompany = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <PaymentsIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">taxCode:</span> {profile?.data.taxCode}
+              <span className="mr-2 font-semibold">Mã code:</span> {profile?.data.taxCode}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
@@ -113,17 +103,7 @@ const profileCompany = () => {
               <span className="mr-2 font-semibold">Ngày thành lập:</span> {profile?.data.establishedDate}
             </div>
           </li>
-          {/* <li className="mt-4 flex  gap-3 ">
-            <HorizontalSplitIcon sx={{ color: '#757575' }} />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-              <span className="mr-2 font-semibold" style={{ fontWeight: 'bold' }}>
-                Fields:
-              </span>
-              {profile?.data.fields.map(field => (
-                <Chip key={field.id} label={field.fieldName} color="primary" variant="outlined" style={{ fontSize: '14px' }} />
-              ))}
-            </div>
-          </li> */}
+
           <li className="mt-4 flex  gap-3 ">
             <HorizontalSplitIcon sx={{ color: '#757575' }} />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
@@ -147,7 +127,9 @@ const profileCompany = () => {
         </ul>
 
         <div className="mt-9 flex items-center gap-5">
-          <Button text="Sửa" full={true} />
+          <Link href={'/admin/company/profileCompany/updateProfile'}>
+            <Button text="Sửa" full={true} />
+          </Link>
         </div>
       </div>
     </div>
@@ -155,3 +137,5 @@ const profileCompany = () => {
 };
 
 export default profileCompany;
+
+
