@@ -29,7 +29,7 @@ const validationSchema = Yup.object({
     .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không hợp lệ')
     .required('Email không được bỏ trống')
     .max(255, 'Email không được quá 255 kí tự'),
-  password: Yup.string().required('Mật khẩu không được bỏ trống').min(6, 'Mật khẩu phải có ít nhất 8 ký tự'),
+  password: Yup.string().required('Mật khẩu không được bỏ trống'),
   // .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt'),
 });
 

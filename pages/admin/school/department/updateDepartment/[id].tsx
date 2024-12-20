@@ -69,8 +69,8 @@ const UpdateDepartment = () => {
   const { refetch } = useDetailDepartmentsQuery({ id: IdDepartment });
 
   return (
-    <div className="p-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-white px-5 sm:px-0">
+    <div className="rounded-lg ">
+      <form onSubmit={handleSubmit(onSubmit)} className="h h-screen w-full rounded-lg bg-white px-5">
         {/* Icon */}
         <div className="p-5">
           <Link href={'/admin/school/department'}>
@@ -79,9 +79,9 @@ const UpdateDepartment = () => {
             </IconButton>
           </Link>
           Trở về
+          <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Cập nhật khoa </h1>
         </div>
-        <h1 className="my-10 ml-5 text-2xl font-bold">Cập nhật khoa</h1>
-        <div className="ml-5 mr-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className=" grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             type="text"
             label="Mã khoa"
@@ -89,14 +89,16 @@ const UpdateDepartment = () => {
             control={control}
             error={errors.facultyCode?.message}
             {...register('facultyCode', { required: 'Mã khoa là bắt buộc' })}
+            required={true}
           />
           <Input
             type="text"
-            label="Tên Khoa"
+            label="Tên khoa"
             placeholder="Nhập tên khoa"
             control={control}
             error={errors.facultyName?.message}
             {...register('facultyName', { required: 'Tên khoa là bắt buộc' })}
+            required={true}
           />
           <Input
             type="number"
@@ -113,9 +115,10 @@ const UpdateDepartment = () => {
             control={control}
             error={errors.nameDean?.message}
             {...register('nameDean', { required: 'Tên trưởng khoa là bắt buộc' })}
+            required={true}
           />
         </div>
-        <div className="ml-5 mr-5 bg-white">
+        <div className="mt-5 flex flex-col gap-5">
           <Input
             type="text"
             label="Địa chỉ"
@@ -123,6 +126,7 @@ const UpdateDepartment = () => {
             control={control}
             error={errors.address?.message}
             {...register('address', { required: 'Địa chỉ là bắt buộc' })}
+            required={true}
           />
 
           <Text
@@ -132,7 +136,9 @@ const UpdateDepartment = () => {
             error={errors.facultyDescription?.message}
             {...register('facultyDescription')}
           />
-          <Button text="Cập nhật" full={true} type="submit" />
+          <div className="ml-auto w-fit">
+            <Button text="Cập nhật" full={true} type="submit" />
+          </div>
         </div>
       </form>
     </div>

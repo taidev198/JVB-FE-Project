@@ -61,7 +61,6 @@ const UpdateAdemic = () => {
   const onSubmit: SubmitHandler<FormDataUpdateAdemic> = async data => {
     const formData = new FormData();
 
-    // Append dữ liệu JSON dưới dạng chuỗi
     const universityEmployeeRequest = {
       employeeCode: data.employeeCode,
       fullName: data.fullName,
@@ -75,12 +74,9 @@ const UpdateAdemic = () => {
       },
     };
 
-    // Chuyển đổi đối tượng universityEmployeeRequest thành chuỗi JSON và append vào FormData
     formData.append('universityEmployeeRequest', new Blob([JSON.stringify(universityEmployeeRequest)], { type: 'application/json' }));
 
-    // Append file vào FormData
     formData.append('file', image as File);
-    console.log(image);
 
     if (IdAdemic) {
       try {
@@ -94,13 +90,11 @@ const UpdateAdemic = () => {
         } else if (isErrorWithMessage(error)) {
           toast.error(error.message);
         }
-        // console.error('Error updating Ademic:', error);
       }
     } else {
       console.error('Ademic ID is missing');
     }
   };
-  console.log(errors);
 
   useEffect(() => {
     if (ademic?.data) {
@@ -126,18 +120,18 @@ const UpdateAdemic = () => {
     }
   }, [ademic?.data.avatarUrl]);
   return (
-    <div className="bg-primary-white p-6">
-      <div className="rounded-t-lg">
+    <div className="rounded-lg bg-primary-white p-6">
+      <div className="p-5">
         <Link href={'/admin/school/academicOfficeManagement'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
         </Link>
         Trở về
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Cập nhật giáo vụ </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0 ">
         <div className="mb-5">
-          <h1 className="my-10 text-center text-2xl font-bold">Thêm mới giáo vụ</h1>
           <ImageUploaderOne image={image} setImage={setImage} />
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
@@ -148,8 +142,17 @@ const UpdateAdemic = () => {
               control={control}
               error={errors.employeeCode?.message}
               disabled={true}
+              required={true}
             />
-            <Input type="text" name="fullName" label="Họ và tên" placeholder="Nhập họ và tên" control={control} error={errors.fullName?.message} />
+            <Input
+              type="text"
+              name="fullName"
+              label="Họ và tên"
+              placeholder="Nhập họ và tên"
+              control={control}
+              error={errors.fullName?.message}
+              required={true}
+            />
 
             <SelectReact
               name="gender"
@@ -160,6 +163,8 @@ const UpdateAdemic = () => {
                 label: item.label,
               }))}
               control={control}
+              error={errors.gender?.message}
+              required={true}
             />
             <Input
               type="text"
@@ -168,12 +173,13 @@ const UpdateAdemic = () => {
               placeholder="Nhập số điện thoại"
               control={control}
               error={errors.phoneNumber?.message}
+              required={true}
             />
 
             <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="Nhập ngày sinh" control={control} />
             <div>
               <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Tỉnh
+                Tỉnh<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="provinceId"
@@ -183,7 +189,7 @@ const UpdateAdemic = () => {
                     {...field}
                     className="basic-single"
                     classNamePrefix="select"
-                    placeholder="Chọn Tỉnh/Thành phố"
+                    placeholder="Chọn tỉnh/thành phố"
                     isLoading={isLoadingProvinces}
                     options={provinces?.data || []}
                     getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
@@ -200,7 +206,7 @@ const UpdateAdemic = () => {
             </div>
             <div>
               <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Huyện
+                Huyện<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="districtId"
@@ -210,7 +216,7 @@ const UpdateAdemic = () => {
                     {...field}
                     className="basic-single"
                     classNamePrefix="select"
-                    placeholder="Chọn Quận/Huyện"
+                    placeholder="Chọn quận/huyện"
                     isLoading={isLoadingDistricts}
                     options={districts?.data || []}
                     getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
@@ -227,7 +233,7 @@ const UpdateAdemic = () => {
             </div>
             <div>
               <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Xã
+                Xã<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="wardId"
@@ -264,7 +270,9 @@ const UpdateAdemic = () => {
             />
           </div>
         </div>
-        <Button text="Cập nhật" full={true} type="submit" className="mt-5" />
+        <div className="ml-auto w-fit ">
+          <Button text="Cập nhật" type="submit" />
+        </div>
       </form>
     </div>
   );

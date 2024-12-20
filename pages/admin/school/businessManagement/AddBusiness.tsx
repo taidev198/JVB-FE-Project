@@ -59,18 +59,18 @@ const AddBussiness = () => {
   }, [dispatch, isLoadingAddBusiness, isLoadingMajor, isLoadingFaculies, data?.message, isSuccess]);
 
   return (
-    <div className="bg-primary-white p-6">
-      <div className="rounded-t-lg bg-white p-5">
+    <div className="rounded-lg bg-primary-white p-6">
+      <div className=" p-5">
         <Link href={'/admin/school/businessManagement'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
         </Link>
         Trở về
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm mới ngành học </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-primary-white px-5 sm:px-0 ">
-        <h1 className="my-10 ml-5  text-2xl font-bold"> Thêm mới ngành học</h1>
-        <div className="ml-5 mr-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className=" grid grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Các trường thông tin khác */}
 
           <Input
@@ -120,7 +120,6 @@ const AddBussiness = () => {
               label: major.facultyName,
             }))}
             control={control}
-            isMultiple={true}
             error={errors.facultyId?.message}
             required={true}
           />
@@ -138,10 +137,12 @@ const AddBussiness = () => {
             required={true}
           />
         </div>
-        <div className="ml-5 mt-5">
+        <div className=" mt-5">
           <Text name="majorDescription" label="Mô tả ngành học" placeholder="Nhập mô tả ngành học" control={control} error={errors.majorDescription?.message} />
         </div>
-        <Button text="Thêm " full={true} type="submit" />
+        <div className="ml-auto w-fit">
+          <Button text="Thêm mới" type="submit" />
+        </div>
       </form>
     </div>
   );
