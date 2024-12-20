@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Chip, IconButton } from '@mui/material';
-import Image from 'next/image';
 import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
 import DomainIcon from '@mui/icons-material/Domain';
@@ -17,6 +16,7 @@ import { useAppSelector } from '@/store/hooks';
 import { useGetDetailAccountSchoolQuery } from '@/services/adminSystemApi';
 import { typeAccount, typeUniversityTitle } from '@/utils/app/const';
 import { setLoading } from '@/store/slices/global';
+import ImageComponent from '@/components/Common/Image';
 
 const AdminSystemDetailSchool = () => {
   const dispatch = useDispatch();
@@ -40,8 +40,8 @@ const AdminSystemDetailSchool = () => {
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
-          <div className="rounded-[50%] bg-[#F1F1F1] p-6">
-            <Image src={data?.data.logoUrl ?? ''} alt="name" width={75} height={75} className="rounded-full" />
+          <div className="rounded-[50%] bg-[#F1F1F1] p-5">
+            <ImageComponent src={data?.data.logoUrl} width={80} height={80} className="rounded-full" alt={data?.data.universityName} />
           </div>
           <div>
             <h2 className="text-xl font-bold">{data?.data.universityName}</h2>
@@ -54,7 +54,7 @@ const AdminSystemDetailSchool = () => {
           <li className="mt-5 flex items-center gap-3">
             <EmailIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Email:</span> {data?.data.email}
+              <span className="mr-2 font-semibold">Email:</span> {data?.data.account.email}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
@@ -96,7 +96,7 @@ const AdminSystemDetailSchool = () => {
             <div>
               <span className="mr-2 font-semibold">Số lượng sinh viên:</span> {data?.data.numberOfStudents}
             </div>
-          </li>{' '}
+          </li>
           <li className="mt-4 flex items-center  gap-3 ">
             <EmojiEventsIcon sx={{ color: '#757575' }} />
             <div>
@@ -106,8 +106,8 @@ const AdminSystemDetailSchool = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <LightbulbIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mô tả:</span>
-              <div dangerouslySetInnerHTML={{ __html: data?.data.universityDescription || '' }} />
+              <span className="mr-2 font-semibold">Số lượng sinh viên:</span>
+              <span dangerouslySetInnerHTML={{ __html: data?.data.universityDescription || '' }} />
             </div>
           </li>
         </ul>

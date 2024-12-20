@@ -10,8 +10,8 @@ const validationSchemaUpdateAdemic = Yup.object({
     .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không đúng định dạng')
     .max(50, 'Email không được quá 50 kí tự'),
   phoneNumber: Yup.string()
-    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số')
-    .required('Số điện thoại là bắt buộc'),
+    .required('Số điện thoại là bắt buộc')
+    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
   dateOfBirth: Yup.string(),
 
   houseNumber: Yup.string().required('Địa chỉ cụ thể sinh viên là bắt buộc').max(255, 'Địa chỉ cụ thể không được quá 255 kí tự'),

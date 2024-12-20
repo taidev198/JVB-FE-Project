@@ -33,8 +33,8 @@ const registerValidateCompany = Yup.object({
     .required('Xác nhận mật khẩu là bắt buộc'),
   companyDescription: Yup.string().required('Mô tả là bắt buộc'),
   phoneNumber: Yup.string()
-    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số')
-    .required('Số điện thoại là bắt buộc'),
+    .required('Số điện thoại là bắt buộc')
+    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
   provinceId: Yup.number().typeError('Tỉnh must be a number').required('Tỉnh là bắt buộc'),
   districtId: Yup.number().typeError('Huyện must be a number').required('Huyện là bắt buộc'),
   wardId: Yup.number().typeError('Xã must be a number').required('Xã là bắt buộc'),

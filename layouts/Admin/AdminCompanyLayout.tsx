@@ -1,5 +1,6 @@
-import React, { memo, ReactNode } from 'react';
+import React, { memo, ReactNode, useEffect } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
+import { useRouter } from 'next/router';
 import Navbar from './Sidebar';
 import Header from '@/components/Header/Header';
 import { litsNavbarAdminSchoolRouter } from '@/router/admin/navbarAdminCompany';
@@ -10,7 +11,13 @@ const AdminCompanyLayout = memo(({ children }: { children: ReactNode }) => {
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const isLoading = useAppSelector(state => state.global.isLoading);
-
+  const router = useRouter();
+  const roleAccount = useAppSelector(state => state.user.roleAccount);
+  useEffect(() => {
+    if (roleAccount !== 'COMPANY') {
+      router.push('/auth/login');
+    }
+  }, [roleAccount, router]);
   return (
     <>
       {/* Loading Overlay */}

@@ -8,10 +8,10 @@ import { useAppSelector } from '@/store/hooks';
 import { Loading } from '@/components/Common/Loading';
 
 const AdminSystemLayout = memo(({ children }: { children: ReactNode }) => {
-  const router = useRouter();
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const isLoading = useAppSelector(state => state.global.isLoading);
+  const router = useRouter();
   const roleAccount = useAppSelector(state => state.user.roleAccount);
   useEffect(() => {
     if (roleAccount !== 'ADMIN') {

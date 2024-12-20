@@ -15,11 +15,12 @@ const validationSchemaAddStudent = Yup.object({
     .min(1000, 'Năm nhập học phải có ít nhất 4 chữ số')
     .max(9999, 'Năm nhập học không được lớn hơn 9999'),
   phoneNumber: Yup.string()
-    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số')
-    .required('Số điện thoại là bắt buộc'),
+    .required('Số điện thoại là bắt buộc')
+    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
   gpa: Yup.number()
+    .transform(value => (Number.isNaN(value) ? null : value))
+    .nullable()
     .required('Điểm trung bình là bắt buộc')
-    .typeError('Vui lòng nhập một số hợp lệ')
     .positive('Điểm trung bình không được âm')
     .min(0.0, 'Điểm trung bình không được nhỏ hơn 0.0')
     .max(10.0, 'Điểm trung bình không được lớn hơn 10.0')

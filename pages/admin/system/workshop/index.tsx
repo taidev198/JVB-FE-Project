@@ -199,16 +199,11 @@ const AdminSystemWorkshop = () => {
                   <td className="px-2 py-4">{workshop.estimateCompanyParticipants}</td>
                   <td className="px-2 py-4">
                     <Chip
-                      label={statusTextWorkshop(workshop.moderationStatus)}
-                      color={
-                        workshop.moderationStatus === 'APPROVED'
-                          ? 'success'
-                          : workshop.moderationStatus === 'PENDING'
-                          ? 'warning'
-                          : workshop.moderationStatus === 'REJECTED'
-                          ? 'error'
-                          : 'default'
-                      }
+                      label={statusTextWorkshop(workshop.moderationStatus).title}
+                      style={{
+                        color: `${statusTextWorkshop(workshop.moderationStatus).color}`,
+                        background: `${statusTextWorkshop(workshop.moderationStatus).bg}`,
+                      }}
                     />
                   </td>
                   <td className="flex items-center py-4">

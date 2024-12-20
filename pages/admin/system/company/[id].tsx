@@ -1,6 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Chip, IconButton } from '@mui/material';
-import Image from 'next/image';
 import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
 import DomainIcon from '@mui/icons-material/Domain';
@@ -13,6 +12,7 @@ import TrafficIcon from '@mui/icons-material/Traffic';
 import { useAppSelector } from '@/store/hooks';
 import { useGetDetailAccountCompanyQuery } from '@/services/adminSystemApi';
 import { typeAccount } from '@/utils/app/const';
+import ImageComponent from '@/components/Common/Image';
 
 const AdminSystemDetailCompany = () => {
   const id = useAppSelector(state => state.global.id);
@@ -32,8 +32,14 @@ const AdminSystemDetailCompany = () => {
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
-          <div className="rounded-[50%] bg-[#F1F1F1] p-6">
-            <Image src={AccountCompanyDetail?.data?.logoUrl ?? ''} alt="name" width={75} height={75} className="h-[75px] w-[75px] rounded-full object-cover" />
+          <div className="rounded-[50%] bg-[#F1F1F1] p-5">
+            <ImageComponent
+              src={AccountCompanyDetail?.data?.logoUrl ?? ''}
+              alt="name"
+              width={80}
+              height={80}
+              className="h-[75px] w-[75px] rounded-full object-cover"
+            />
           </div>
           <div>
             <h2 className="text-xl font-bold">{AccountCompanyDetail?.data.companyName}</h2>

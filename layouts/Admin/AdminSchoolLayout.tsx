@@ -1,16 +1,23 @@
-import React, { memo, ReactNode } from 'react';
+import { useRouter } from 'next/router';
+import React, { memo, ReactNode, useEffect } from 'react';
 import { useMediaQuery, useTheme } from '@mui/material';
-import Navbar from './Sidebar'; // Sidebar component
-import Header from '@/components/Header/Header'; // Header component
-import { litsNavbarAdminSchoolRouter } from '@/router/admin/navbarAdminSchoolRouter'; // Navbar routes
-import { Loading } from '@/components/Common/Loading'; // Loading component
-import { useAppSelector } from '@/store/hooks'; // Redux selector
+import Navbar from './Sidebar';
+import Header from '@/components/Header/Header';
+import { litsNavbarAdminSchoolRouter } from '@/router/admin/navbarAdminSchoolRouter';
+import { Loading } from '@/components/Common/Loading';
+import { useAppSelector } from '@/store/hooks';
 
 const AdminSchoolLayout = memo(({ children }: { children: ReactNode }) => {
-  const theme = useTheme(); // Get MUI theme
-  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg')); // Check for mobile/tablet
-  const isLoading = useAppSelector(state => state.global.isLoading); // Check loading state from Redux
-
+  const theme = useTheme();
+  const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
+  const isLoading = useAppSelector(state => state.global.isLoading);
+  const router = useRouter();
+  const roleAccount = useAppSelector(state => state.user.roleAccount);
+  useEffect(() => {
+    if (roleAccount !== 'UNIVERSITY') {
+      router.push('/auth/login');
+    }
+  }, [roleAccount, router]);
   return (
     <>
       {/* Loading Overlay */}

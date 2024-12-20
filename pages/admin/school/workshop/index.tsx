@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Chip, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,33 +13,42 @@ import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/s
 import { useAppSelector } from '@/store/hooks';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useDeleteWorkshopMutation, useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
-import { statusTextWorkshop } from '@/utils/app/const';
+import { statusTextWorkshop, typeAccount } from '@/utils/app/const';
+import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
+
 import { setToast } from '@/store/slices/toastSlice';
 
 const AdminSchoolWorkshop = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [keyword, setKeyword] = useState('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
+  const { page, keyword, size } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();
 
-  const { data: workshops, isLoading } = useGetAllWorShopsUniversityQuery({
-    page: currentPage,
-    size: 10,
-    keyword,
-    startDate: startDate,
-    endDate: endDate,
-  });
+  const { data: workshops, isLoading } = useGetAllWorShopsUniversityQuery(
+    {
+      page: page,
+      size: size,
+      keyword,
+      startDate: startDate,
+      endDate: endDate,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
-  const debouncedSearch = debounce((value: string) => {
-    setKeyword(value);
-  }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
+    setPage(page);
   };
 
   const handleOpenConfirm = (id: number) => {
@@ -58,6 +67,9 @@ const AdminSchoolWorkshop = () => {
       dispatch(setBackdrop(null));
     }
     dispatch(setLoading(isLoading || isLoadingDelete));
+    return () => {
+      dispatch(resetFilters());
+    };
   }, [isLoading, dispatch, isLoadingDelete, data?.message, isSuccess]);
   return (
     <div>
@@ -88,7 +100,7 @@ const AdminSchoolWorkshop = () => {
           <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
             <thead className="bg-white">
               <tr>
-                <th className="px-2 py-4 text-left">
+                <th className="px-5 py-4 text-left">
                   <p className="min-w-max">STT</p>
                 </th>
                 <th className="px-2 py-4 text-left">Tiêu đề</th>
@@ -104,7 +116,7 @@ const AdminSchoolWorkshop = () => {
                 <th className="px-2 py-4 text-left">
                   <p className="min-w-max">Trạng thái</p>
                 </th>
-                <th className="px-2 py-4 text-left">
+                <th className="px-5 py-4 text-left">
                   <p className="min-w-max">Hành động</p>
                 </th>
               </tr>
@@ -112,8 +124,8 @@ const AdminSchoolWorkshop = () => {
             <tbody>
               {workshops?.data?.content.map((workshop, index) => (
                 <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-4 py-4">
-                    <p className="min-w-max">{workshop.id}</p>
+                  <td className="px-5 py-4 text-center">
+                    <p>{index + 1 + (page - 1) * size}</p>
                   </td>
                   <td className="cursor-pointer px-2 py-4 hover:text-primary-main">
                     <Link href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))}>
@@ -129,22 +141,17 @@ const AdminSchoolWorkshop = () => {
                       {workshop.address?.province.provinceName}
                     </p>
                   </td>
-                  <td className="px-2 py-4">{workshop.estimateCompanyParticipants}</td>
+                  <td className="px-2 py-4 text-center">{workshop.estimateCompanyParticipants}</td>
                   <td className="px-2 py-4">
                     <Chip
-                      label={statusTextWorkshop(workshop.moderationStatus)}
-                      color={
-                        workshop.moderationStatus === 'APPROVED'
-                          ? 'success'
-                          : workshop.moderationStatus === 'PENDING'
-                          ? 'warning'
-                          : workshop.moderationStatus === 'REJECTED'
-                          ? 'error'
-                          : 'default'
-                      }
+                      label={statusTextWorkshop(workshop.moderationStatus).title}
+                      style={{
+                        color: `${statusTextWorkshop(workshop.moderationStatus).color}`,
+                        background: `${statusTextWorkshop(workshop.moderationStatus).bg}`,
+                      }}
                     />
                   </td>
-                  <td className="flex items-center gap-1 py-4">
+                  <td className="flex items-center gap-1 px-5 py-4">
                     <Tooltip title="Sửa">
                       <Link href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))}>
                         <IconButton>
@@ -170,7 +177,7 @@ const AdminSchoolWorkshop = () => {
 
         {/* Pagination */}
         <div className="flex items-center justify-center bg-white p-5">
-          <Pagination count={workshops?.data.totalPages} page={currentPage} onChange={handlePageChange} color="primary" shape="rounded" />
+          <Pagination count={workshops?.data.totalPages} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
           <p className="text-sm">
             ({workshops?.data.currentPage} / {workshops?.data.totalPages})
           </p>

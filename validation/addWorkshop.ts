@@ -25,7 +25,10 @@ const addWorkshopSchema = Yup.object({
   provinceId: Yup.number().required('Tỉnh/Thành phố là bắt buộc'),
   houseNumber: Yup.string().required('Chi tiết địa chỉ là bắt buộc'),
   agenda: Yup.string().required('Lịch trình là bắt buộc'),
-  fieldIds: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),
+  fieldIds: Yup.array()
+    .of(Yup.number().typeError('Mỗi phần tử trong lĩnh vực phải là số').required('Không được để trống'))
+    .min(1, 'Phải chọn ít nhất một lĩnh vực')
+    .required('Danh sách lĩnh vực là bắt buộc'),
 });
 
 export default addWorkshopSchema;
