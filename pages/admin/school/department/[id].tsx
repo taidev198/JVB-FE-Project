@@ -35,13 +35,7 @@ const DetailDepartment = () => {
       <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin quản lý khoa </h1>
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
-        <div className="flex items-center gap-[30px] ">
-          <div>
-            <Link href={'#'}>
-              <p className="text-primary-gray">Chi tiết thông tin Khoa</p>
-            </Link>
-          </div>
-        </div>
+        <div className="flex items-center gap-[30px] "></div>
         <ul className="">
           <li className="mt-5 flex items-center gap-3">
             <StarBorderIcon sx={{ color: '#757575' }} />

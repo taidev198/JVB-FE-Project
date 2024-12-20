@@ -101,6 +101,7 @@ const UpdateBusiness = () => {
             control={control}
             error={errors.majorCode?.message}
             {...register('majorCode', { required: 'Mã ngành học là bắt buộc' })}
+            required={true}
           />
 
           <Input
@@ -110,6 +111,7 @@ const UpdateBusiness = () => {
             control={control}
             error={errors.majorName?.message}
             {...register('majorName', { required: 'Tên ngành học là bắt buộc' })}
+            required={true}
           />
           <Input
             type="number"
@@ -118,6 +120,7 @@ const UpdateBusiness = () => {
             control={control}
             error={errors.creditRequirement?.message}
             {...register('creditRequirement', { required: 'Số tín chỉ là bắt buộc' })}
+            required={true}
           />
 
           <Input
@@ -127,6 +130,7 @@ const UpdateBusiness = () => {
             control={control}
             error={errors.numberOfStudents?.message}
             {...register('numberOfStudents', { required: 'Số lượng sinh viên là bắt buộc' })}
+            required={true}
           />
           <SelectReact
             name="facultyId"
@@ -138,6 +142,7 @@ const UpdateBusiness = () => {
             }))}
             control={control}
             error={errors.facultyId?.message}
+            required={true}
           />
           <SelectReact
             name="fieldIds"
@@ -150,6 +155,7 @@ const UpdateBusiness = () => {
             control={control}
             isMultiple={true}
             error={errors.fieldIds?.message}
+            required={true}
           />
         </div>
         <div className="mt-5">

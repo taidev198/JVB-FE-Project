@@ -26,11 +26,14 @@ const Department = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [department, setDepartment] = useState<number | null>(null);
 
-  const { data: departments, isLoading } = useGetAllDepartmentsQuery({
-    page,
-    size,
-    keyword,
-  },{ refetchOnMountOrArgChange: true });
+  const { data: departments, isLoading } = useGetAllDepartmentsQuery(
+    {
+      page,
+      size,
+      keyword,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   const debouncedSearch = useMemo(
     () =>
@@ -94,20 +97,19 @@ const Department = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách quản lý khoa</h1>
-        <div className="flex items-center justify-between gap-3 ">
-          <div className="flex gap-10">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm"
+              label="Tìm kiếm tên khoa"
               type="search"
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
               className="w-full"
             />
-            
           </div>
-          <div className="flex items-center gap-5">
+          <div className="ml-auto flex justify-items-center gap-5">
             <Link href={'/admin/school/department/AddDepartment'}>
               <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
             </Link>
@@ -137,6 +139,9 @@ const Department = () => {
                 />
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
+                <p className="min-w-max">STT</p>
+              </th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Mã khoa</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -161,6 +166,9 @@ const Department = () => {
                     <Checkbox color="primary" checked={selectedDepartment.includes(item.id)} onChange={() => handleSelectDepartment(item.id)} size="small" />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.facultyCode}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
@@ -172,7 +180,7 @@ const Department = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.establishYear}</p>
                   </td>
-                  <td className="gap-2 px-2 py-4 sm:px-5">
+                  <td className="gap-2 py-4">
                     <div className="flex items-center">
                       <p className="min-w-max">
                         <Link href={`/admin/school/department/${item.id}`}>

@@ -3,6 +3,8 @@ import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
 import DomainIcon from '@mui/icons-material/Domain';
 import PhoneIcon from '@mui/icons-material/Phone';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { IconButton } from '@mui/material';
 import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
@@ -22,18 +24,20 @@ const DetailSchoolManagement = () => {
   const id = useAppSelector(state => state.global.id);
   const { data: detailSchool, isLoading } = useGetDetailSchoolQuery();
   useEffect(() => {
-    dispatch(setLoading(isLoading)); // Gọi hành động để cập nhật trạng thái
-  }, [isLoading]); // useEffect sẽ chạy mỗi khi `isLoading` thay đổi
+    dispatch(setLoading(isLoading));
+  }, [isLoading]);
 
   console.log(detailSchool);
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
-      <h1 className="mb-10 mt-3 text-center text-2xl font-bold">Thông tin hồ sơ trường</h1>
+      <div className="p-5">
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thông tin hồ sơ trường </h1>
+      </div>
 
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
           <div className="rounded-[50%] bg-[#F1F1F1] p-6">
-            <Image src={detailSchool?.data?.logoUrl ?? ''} alt="name" width={75} height={75} />
+            <Image src={detailSchool?.data?.logoUrl ?? ''} alt="name" width={80} height={75} className="rounded-cover h-20" />
           </div>
           <div>
             <h2 className="text-xl font-bold">{detailSchool?.data.universityName}</h2>
@@ -67,7 +71,7 @@ const DetailSchoolManagement = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <AccessTimeIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Ngày thành lập</span> {detailSchool?.data.establishedDate}
+              <span className="mr-2 font-semibold">Ngày thành lập:</span> {detailSchool?.data.establishedDate}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
@@ -87,7 +91,7 @@ const DetailSchoolManagement = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <CategoryIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Loại trường</span> {detailSchool?.data.universityType}
+              <span className="mr-2 font-semibold">Loại trường:</span> {detailSchool?.data.universityType}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">

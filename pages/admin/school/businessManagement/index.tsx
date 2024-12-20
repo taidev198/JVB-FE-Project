@@ -108,7 +108,7 @@ const BusinessManagement = () => {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm"
+              label="Tìm kiếm ngành học "
               type="search"
               variant="outlined"
               size="small"
@@ -161,6 +161,9 @@ const BusinessManagement = () => {
                 />
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
+                <p className="min-w-max">STT</p>
+              </th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Mã ngành</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -189,6 +192,9 @@ const BusinessManagement = () => {
                     <Checkbox color="primary" checked={selectedBusiness.includes(item.id)} onChange={() => handleSelectBusiness(item.id)} size="small" />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.majorCode}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
@@ -204,7 +210,7 @@ const BusinessManagement = () => {
                     <p className="min-w-max">{item.faculty.facultyName}</p>
                   </td>
 
-                  <td className="gap-2 px-2 py-4 sm:px-5">
+                  <td className="gap-2 py-4">
                     <div className="flex items-center">
                       <p className="min-w-max">
                         <Link href={`/admin/school/businessManagement/${item.id}`}>

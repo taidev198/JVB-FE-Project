@@ -75,21 +75,18 @@ const DetalBusinessManagement = () => {
               {business?.data.faculty.facultyName}
             </div>
           </li>
-          <li className="mt-4 flex items-center gap-3">
+          <li className="mt-4 flex gap-3 ">
             <TextFieldsIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Lĩnh vực:</span>
-              <div className="  flex flex-wrap gap-2">
-                {business?.data.majorFields.map((i, index) => (
-                  <Chip key={index} label={i.fieldName} variant="outlined" color="primary" sx={{ fontSize: '14px' }} />
-                ))}
-              </div>
+              {business?.data.majorFields.map((i, index) => (
+                <Chip key={index} label={i.fieldName} variant="outlined" color="primary" />
+              ))}
             </div>
           </li>
-
-          <li className="mt-5 flex  items-center gap-3 ">
+          <li className="mt-4 flex items-center  gap-3 ">
             <DescriptionIcon sx={{ color: '#757575' }} />
-            <div className="mt-5">
+            <div>
               <span className="mr-2 font-semibold">Mô tả:</span>
               {business?.data.majorDescription}
             </div>

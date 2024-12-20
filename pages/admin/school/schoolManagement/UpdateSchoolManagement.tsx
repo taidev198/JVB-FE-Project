@@ -135,7 +135,7 @@ const UpdateSchoolManagement = () => {
   }, [isLoading, dispatch, detailSchool?.data, reset]);
 
   return (
-    <div className="bg-primary-white px-10">
+    <div className=" bg-primary-white px-10">
       <div className="rounded-t-lg p-5">
         <Link href={'/admin/school/schoolManagement'}>
           <IconButton>
@@ -158,6 +158,7 @@ const UpdateSchoolManagement = () => {
               control={control}
               error={errors.universityCode?.message}
               disabled={true}
+              required={true}
             />
 
             <Input
@@ -167,6 +168,7 @@ const UpdateSchoolManagement = () => {
               placeholder="Nhập tên trường"
               control={control}
               error={errors.universityName?.message}
+              required={true}
             />
             {/* Phone */}
             <Input
@@ -176,12 +178,13 @@ const UpdateSchoolManagement = () => {
               placeholder="Nhập số điện thoại"
               control={control}
               error={errors.phoneNumber?.message}
+              required={true}
             />
             {/* Email */}
-            <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} />
+            <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} required={true} />
 
             {/* Date Of Birth */}
-            <Input type="date" name="establishedDate" label="Nhập năm thành lập" placeholder="Nhập ngày thành lập" control={control} />
+            <Input type="date" name="establishedDate" label="Nhập năm thành lập" placeholder="Nhập ngày thành lập" control={control} required={true} />
             <Input type="url" name="linkWebsite" label="Link website" placeholder="Nhập link website" control={control} error={errors.linkWebsite?.message} />
 
             <Input
@@ -191,6 +194,7 @@ const UpdateSchoolManagement = () => {
               placeholder="Nhập số lượng sinh viên"
               control={control}
               error={errors.numberOfStudents?.message}
+              required={true}
             />
             <Input
               type="number"
@@ -199,6 +203,7 @@ const UpdateSchoolManagement = () => {
               placeholder="Nhập số lượng sinh viên tốt nghiệp"
               control={control}
               error={errors.numberOfGraduates?.message}
+              required={true}
             />
             {/* Type school */}
             <>
@@ -212,13 +217,13 @@ const UpdateSchoolManagement = () => {
                 }))}
                 control={control}
                 error={errors.universityType?.message}
-                disabled={true}
+                required={true}
               />
             </>
             {/* Tỉnh */}
             <div>
               <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Tỉnh
+                Tỉnh<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="provinceId"
@@ -247,7 +252,7 @@ const UpdateSchoolManagement = () => {
             {/* Chọn Huyện */}
             <div>
               <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Huyện
+                Huyện<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="districtId"
@@ -276,7 +281,7 @@ const UpdateSchoolManagement = () => {
             {/* Chọn Xã */}
             <div>
               <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Xã
+                Xã<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="wardId"
@@ -310,6 +315,7 @@ const UpdateSchoolManagement = () => {
               placeholder="Nhập địa chỉ cụ thể"
               control={control}
               error={errors.houseNumber?.message}
+              required={true}
             />
           </div>
           <Text
@@ -318,6 +324,7 @@ const UpdateSchoolManagement = () => {
             control={control}
             error={errors.universityDescription?.message}
             {...register('universityDescription')}
+            required={true}
           />
           <Text
             label="Mô tả ngắn "
@@ -325,10 +332,14 @@ const UpdateSchoolManagement = () => {
             control={control}
             error={errors.universityShortDescription?.message}
             {...register('universityShortDescription')}
+            required={true}
           />
         </div>
 
-        <Button text="Cập nhật" type="submit" />
+        <div className="ml-auto w-fit">
+          {' '}
+          <Button text="Cập nhật" type="submit" />
+        </div>
       </form>
     </div>
   );
