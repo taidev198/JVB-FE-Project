@@ -30,8 +30,8 @@ interface FormDataWorkShop {
   startTime: string;
   endTime: string;
   estimateCompanyParticipants: number;
-  wardId?: number | null; // Thêm null vào đây
-  districtId?: number | null; // Thêm null vào đây
+  wardId?: number | null;
+  districtId?: number | null;
   provinceId?: number | null;
   houseNumber: string;
   agenda: string;
@@ -286,8 +286,9 @@ const UpdateWorkshop = () => {
           </div>
           <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
         </div>
-
-        <Button text="Cập nhật" type="submit" />
+        <div className="ml-auto mt-5 w-fit">
+          <Button text="Cập nhật" type="submit" />
+        </div>
       </form>
     </div>
   );

@@ -45,9 +45,7 @@ const Input = ({ name, label, placeholder, control, error, type = 'text', icon, 
               className={`block w-full rounded-md border px-3 py-2 ${
                 error ? 'border-red-500 focus:border-red-500' : 'border-gray-300 placeholder:text-sm focus:border-gray-300'
               } ${icon ? 'pl-10' : ''} focus:outline-none focus:ring-0`}
-              type={
-                type === 'password' && !showPassword ? 'password' : type === 'password' && showPassword ? 'text' : type // Giữ nguyên type cho các trường hợp khác như date, time, etc.
-              }
+              type={type === 'password' && !showPassword ? 'password' : type === 'password' && showPassword ? 'text' : type}
               {...(startTime && type === 'date' ? { min: today } : {})}
             />
           )}

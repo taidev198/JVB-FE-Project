@@ -17,10 +17,9 @@ const validationSchemaAddAdemic = Yup.object({
     .oneOf([Yup.ref('password'), ''], 'Mật khẩu không trùng khớp')
     .required('Xác nhận mật khẩu là bắt buộc'),
   phoneNumber: Yup.string()
-    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số')
-    .required('Số điện thoại là bắt buộc'),
-  dateOfBirth: Yup.string().required('Ngày sinh là bắt buộc'),
-
+    .required('Số điện thoại là bắt buộc')
+    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
+  dateOfBirth: Yup.string(),
   houseNumber: Yup.string().required('Địa chỉ cụ thể sinh viên là bắt buộc').max(255, 'Địa chỉ cụ thể không được quá 255 kí tự'),
   wardId: Yup.number().required('Xã/Phường là bắt buộc'),
   districtId: Yup.number().required('Quận/Huyện là bắt buộc'),

@@ -46,7 +46,10 @@ const AdminSystemSchool = () => {
     [dispatch]
   );
 
-  const { data: universities, isLoading: isLoadingDetAll } = useGetAllAccountSchoolQuery({ page, size, keyword, status, universityType });
+  const { data: universities, isLoading: isLoadingDetAll } = useGetAllAccountSchoolQuery(
+    { page, size, keyword, status, universityType },
+    { refetchOnMountOrArgChange: true }
+  );
   const [rejectAccount, { isLoading: isLoadingReject }] = useRejectAccountCompanyMutation();
   const [banAndActiveAccount] = useBanAndActiveMutation();
   const handleConfirmAction = async () => {
@@ -144,20 +147,20 @@ const AdminSystemSchool = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="px-5 py-4">STT</th>
               <th className="px-5 py-4 text-left">Mã trường học</th>
               <th className="px-5 py-4 text-left">Tên tên trường học</th>
               <th className="px-5 py-4 text-left">Loại trường</th>
               <th className="px-5 py-4 text-left">Email</th>
               <th className="px-5 py-4 text-left">Trạng Thái</th>
-              <th className="px-5 py-4 text-left">Thao Tác</th>
+              <th className="py-4 text-left">Thao Tác</th>
             </tr>
           </thead>
           <tbody>
             {universities?.data.content.length !== 0 ? (
               universities?.data.content.map((university, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4 text-center"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{university.universityCode}</td>
                   <td className="px-5 py-4">
                     <Link href={`/admin/system/school/${university.id}`} className=" hover:text-primary-main" onClick={() => dispatch(setId(university.id))}>
@@ -165,7 +168,7 @@ const AdminSystemSchool = () => {
                     </Link>
                   </td>
                   <td className="px-5 py-4">{typeUniversityTitle(university.universityType).title}</td>
-                  <td className="px-5 py-4">{university.email ? university.email : 'Chưa có email'}</td>
+                  <td className="px-5 py-4">{university.account.email ? university.account.email : 'Chưa có email'}</td>
                   <td className="px-5 py-4">
                     <Chip
                       label={typeAccount(university?.account?.statusAccount)?.title}

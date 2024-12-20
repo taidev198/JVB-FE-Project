@@ -15,7 +15,6 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import { useBanAndActiveMutation, useGetAllAccountCompanyQuery, useRejectAccountCompanyMutation } from '@/services/adminSystemApi';
 import { typeAccount } from '@/utils/app/const';
-import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
@@ -149,7 +148,7 @@ const AdminSystemCompany = () => {
                     </Link>
                   </td>
                   <td className="px-5 py-4">{company.account.email}</td>
-                  <td className="px-5 py-4">{formatDateDd_MM_yyyy(company.createAt)}</td>
+                  <td className="px-5 py-4">{company.createAt.split(' ')[0]}</td>
                   <td className="px-5 py-4">
                     <Chip
                       label={typeAccount(company?.account?.statusAccount)?.title}

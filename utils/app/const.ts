@@ -33,19 +33,6 @@ export const genderTitle = (gender: string | undefined): string => {
   }
 };
 
-export const statusTextWorkshop = (status: string | undefined): string => {
-  switch (status) {
-    case 'APPROVED':
-      return 'Đã duyệt';
-    case 'PENDING':
-      return 'Chờ duyệt';
-    case 'REJECTED':
-      return 'Từ chối';
-    default:
-      return 'Chưa xác định';
-  }
-};
-
 export const StatusStudent = (status: string | undefined): string => {
   switch (status) {
     case 'GRADUATED':
@@ -97,19 +84,6 @@ export const typeUniversityTitle = (status: string): AccountStatus => {
   }
 };
 
-export const typeAccount = (status: string): AccountStatus => {
-  switch (status) {
-    case 'PENDING':
-      return { title: 'Chờ duyệt', color: '#fff', bg: '#ed6c02' };
-    case 'ACTIVE':
-      return { title: 'Hoạt động', color: '#fff', bg: '#2e7d32' };
-    case 'BAN':
-      return { title: 'Ngừng hoạt động', color: '#d32f2f', bg: '#FFE5E5' };
-    default:
-      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
-  }
-};
-
 export const StatusJob = (status: string): AccountStatus => {
   switch (status) {
     case 'PENDING':
@@ -118,6 +92,32 @@ export const StatusJob = (status: string): AccountStatus => {
       return { title: 'Thành công', color: '#fff', bg: '#2e7d32' };
     case 'CANCEL':
       return { title: 'Đã hủy', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
+export const typeAccount = (status: string): AccountStatus => {
+  switch (status) {
+    case 'PENDING':
+      return { title: 'Chờ duyệt', color: '#FFA726', bg: '#fffae5' };
+    case 'ACTIVE':
+      return { title: 'Hoạt động', color: '#359d65', bg: '#ebf9f1' };
+    case 'BAN':
+      return { title: 'Ngừng hoạt động', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
+export const statusTextWorkshop = (status: string): AccountStatus => {
+  switch (status) {
+    case 'APPROVED':
+      return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };
+    case 'PENDING':
+      return { title: 'Đang chờ', color: '#FFA726', bg: '#fffae5' };
+    case 'REJECTED':
+      return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
     default:
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }

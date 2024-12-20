@@ -32,8 +32,8 @@ const validationSchemaSchool = Yup.object({
     .required('Xác nhận mật khẩu là bắt buộc'),
   universityDescription: Yup.string().required('Mô tả chi tiết là bắt buộc'),
   phoneNumber: Yup.string()
-    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số')
-    .required('Số điện thoại là bắt buộc'),
+    .required('Số điện thoại là bắt buộc')
+    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
   wardId: Yup.number().required('Xã/Phường là bắt buộc'),
   districtId: Yup.number().required('Quận/Huyện là bắt buộc'),
   provinceId: Yup.number().required('Tỉnh/Thành phố là bắt buộc'),

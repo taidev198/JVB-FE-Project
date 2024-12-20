@@ -40,7 +40,7 @@ interface FormDataAddStudent {
 }
 
 const AddStudent = () => {
-  const [image, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
   const {
@@ -109,8 +109,8 @@ const AddStudent = () => {
   }, [isLoading, dispatch]);
 
   return (
-    <div className="bg-primary-white px-10">
-      <div className="rounded-t-lg p-5">
+    <div className="rounded-lg bg-primary-white px-10">
+      <div className=" py-5">
         <Link href={'/admin/school/students'}>
           <IconButton>
             <ArrowBackIcon />
@@ -169,7 +169,7 @@ const AddStudent = () => {
             {/* Date Of Birth */}
             <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="" control={control} error={errors.dateOfBirth?.message} required={true} />
             {/* GPA */}
-            <Input type="number" name="gpa" label="Điểm GPA" placeholder="Nhập Điểm GPA" control={control} error={errors.gpa?.message} />
+            <Input type="number" name="gpa" label="Điểm GPA" placeholder="Nhập Điểm GPA" control={control} error={errors.gpa?.message} required={true} />
             {/* Student status */}
             <SelectReact
               name="studentStatus"

@@ -19,11 +19,16 @@ const nextConfig = withTM({
   env: {
     API_SERVER_HOST: process.env.API_SERVER_HOST,
   },
+
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'res.cloudinary.com',
+        hostname: '**.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.vn',
       },
     ],
   },

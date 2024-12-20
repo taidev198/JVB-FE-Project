@@ -10,11 +10,9 @@ const validationSchemaAddStudent = Yup.object({
     .required('Email là bắt buộc')
     .max(50, 'Email không được quá 50 kí tự'),
   phoneNumber: Yup.string()
-    .required('Số điện thoại là bắt buộc') // Bắt buộc nhập
-    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có đúng 10 chữ số'), // Bắt đầu bằng 0 và có 10 chữ số
-
+    .required('Số điện thoại là bắt buộc')
+    .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
   employeePosition: Yup.string().required('Chức vụ không được để trống').max(100, 'Chức vụ không được quá 100 kí tự'),
-
   dateOfBirth: Yup.date()
     .required('Ngày sinh không được để trống')
     .nullable()

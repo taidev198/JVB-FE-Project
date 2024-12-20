@@ -1,6 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
-import Image from 'next/image';
 import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
 import DomainIcon from '@mui/icons-material/Domain';
@@ -15,6 +14,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import { useAppSelector } from '@/store/hooks';
 import { useGetDetailStudentQuery } from '@/services/adminSchoolApi';
 import { genderTitle, StatusStudent } from '@/utils/app/const';
+import ImageComponent from '@/components/Common/Image';
 const DetailStudentsManagement = () => {
   const id = useAppSelector(state => state.global.id);
   const { data: detailStudent } = useGetDetailStudentQuery({ id });
@@ -34,8 +34,8 @@ const DetailStudentsManagement = () => {
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
-          <div className="rounded-[50%] bg-[#F1F1F1] p-6">
-            <Image src={detailStudent?.data?.avatarUrl ?? ''} alt="name" width={75} height={75} />
+          <div className="rounded-[50%] bg-[#F1F1F1] p-5">
+            <ImageComponent src={detailStudent?.data?.avatarUrl} alt={detailStudent.data.fullName} width={75} height={75} className="rounded-full" />
           </div>
           <div>
             <h2 className="text-xl font-bold">{detailStudent?.data.fullName}</h2>

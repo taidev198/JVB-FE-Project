@@ -2,7 +2,6 @@ import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDispatch } from 'react-redux';
 import { Chip, IconButton } from '@mui/material';
-import Image from 'next/image';
 import { useRouter } from 'next/router';
 import ClearIcon from '@mui/icons-material/Clear';
 import { FC, useEffect } from 'react';
@@ -11,6 +10,7 @@ import { useGetDetailWorkshopQuery } from '@/services/adminSchoolApi';
 import { BackdropType, setBackdrop, setImage, setLoading } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useAppSelector } from '@/store/hooks';
+import ImageComponent from '@/components/Common/Image';
 
 const DetailWorkshop: FC = () => {
   const router = useRouter();
@@ -42,10 +42,10 @@ const DetailWorkshop: FC = () => {
       </div>
       <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin chi tiết Workshop </h1>
       <div className="px-20">
-        <div className="flex justify-between">
-          <h1 className="text-lg font-bold">{workshop?.data.workshopTitle}</h1>
-        </div>
         <div className="mt-2 flex flex-col gap-6 rounded-md border-[1px] border-solid border-[#c2c0c0] p-4 ">
+          <div className="flex justify-between">
+            <h1 className="text-lg font-bold">{workshop?.data.workshopTitle}</h1>
+          </div>
           <div className="grid grid-cols-2 gap-x-6 gap-y-3">
             <p>
               <span className="font-semibold">Thời gian bắt đầu:</span> <span>{workshop?.data.startTime}</span>
@@ -79,41 +79,36 @@ const DetailWorkshop: FC = () => {
               <span className="font-semibold">Lĩnh vực:</span>
             </p>
             <ul className="ml-3 mt-3 flex gap-4">
-              <Chip label="Công nghệ" color="primary" />
-              <Chip label="Tài chính" color="primary" />
-              <Chip label="Khoa học" color="primary" />
+              <Chip label="Công nghệ" color="primary" variant="outlined" />
+              <Chip label="Tài chính" color="primary" variant="outlined" />
+              <Chip label="Khoa học" color="primary" variant="outlined" />
             </ul>
           </div>
           <div className="flex items-center gap-3">
             <span className="font-semibold">Trạng thái: </span>
             <Chip
-              label={statusTextWorkshop(workshop?.data.moderationStatus)}
-              color={
-                workshop?.data.moderationStatus === 'APPROVED'
-                  ? 'success'
-                  : workshop?.data.moderationStatus === 'PENDING'
-                  ? 'warning'
-                  : workshop?.data.moderationStatus === 'REJECTED'
-                  ? 'error'
-                  : 'default'
-              }
+              label={statusTextWorkshop(workshop?.data.moderationStatus).title}
+              style={{
+                color: `${statusTextWorkshop(workshop?.data.moderationStatus).color}`,
+                background: `${statusTextWorkshop(workshop?.data.moderationStatus).bg}`,
+              }}
             />
           </div>
           <div>
             <span className="font-semibold">Hình ảnh:</span>
             <div className="mt-2 flex justify-evenly gap-4">
               {workshop?.data.imageWorkshops.map(image => (
-                <Image
+                <ImageComponent
                   src={image?.imageUrl}
-                  alt="Workshop"
+                  alt={image.imageUrl}
                   width={120}
-                  height={60}
-                  className="cursor-pointer rounded"
-                  key={image.id}
-                  onClick={() => {
+                  height={80}
+                  onclick={() => {
                     dispatch(setImage(image?.imageUrl));
                     dispatch(setBackdrop(BackdropType.AddModal));
                   }}
+                  className="cursor-pointer rounded"
+                  key={image.id}
                 />
               ))}
             </div>
@@ -128,7 +123,7 @@ const DetailWorkshop: FC = () => {
               <div className="absolute right-1" onClick={() => dispatch(setBackdrop(null))}>
                 <ClearIcon className="cursor-pointer text-[#ccc] transition-all hover:text-[#666]" />
               </div>
-              <Image src={imageURL ?? ''} alt="Workshop" width={600} height={600} className="rounded" />
+              <ImageComponent src={imageURL ?? ''} alt="Workshop" width={600} height={600} className="rounded" />
             </div>
           </BackDrop>
         )}

@@ -20,9 +20,9 @@ const updateWorkshopSchema = Yup.object({
     .positive('Số lượng công ty không được âm')
     .integer('Số lượng công ty phải là một số nguyên')
     .typeError('Vui lòng nhập một số hợp lệ'),
-  wardId: Yup.number().notRequired().nullable(), // Sửa lại đây
-  districtId: Yup.number().notRequired().nullable(), // Sửa lại đây
-  provinceId: Yup.number().notRequired().nullable(), // Sửa lại đây
+  wardId: Yup.number().notRequired().nullable(),
+  districtId: Yup.number().notRequired().nullable(),
+  provinceId: Yup.number().notRequired().nullable(),
   houseNumber: Yup.string().required('Chi tiết địa chỉ là bắt buộc'),
   agenda: Yup.string().required('Lịch trình là bắt buộc'),
   fields: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),

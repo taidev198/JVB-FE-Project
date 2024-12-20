@@ -1,13 +1,13 @@
 import { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Chip, IconButton } from '@mui/material';
-import Image from 'next/image';
 import CloseIcon from '@mui/icons-material/Close';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { setBackdrop } from '@/store/slices/global';
 
 import { useGetDetailWorkshopQuery } from '@/services/adminSystemApi';
 import { statusTextWorkshop } from '@/utils/app/const';
+import ImageComponent from '@/components/Common/Image';
 
 interface DetailWorkshopProps {
   idWorkshop: number | null;
@@ -75,7 +75,7 @@ const DetailWorkshop: FC<DetailWorkshopProps> = ({ idWorkshop }) => {
           <div className="flex items-center gap-3">
             <span className="font-semibold">Trạng thái: </span>
             <Chip
-              label={statusTextWorkshop(workshop?.data.moderationStatus)}
+              label={statusTextWorkshop(workshop?.data.moderationStatus)?.title}
               color={
                 workshop?.data.moderationStatus === 'APPROVED'
                   ? 'success'
@@ -92,7 +92,7 @@ const DetailWorkshop: FC<DetailWorkshopProps> = ({ idWorkshop }) => {
             <span className="font-semibold">Hình ảnh:</span>
             <div className="mt-2 flex justify-evenly gap-4">
               {workshop?.data.imageWorkshops.map(image => (
-                <Image src={image.imageUrl} alt="Workshop" width={70} height={60} className="rounded" key={image.id} />
+                <ImageComponent src={image.imageUrl} alt={workshop.data?.workshopTitle} width={80} height={80} className="rounded" key={image.id} />
               ))}
             </div>
           </div>
