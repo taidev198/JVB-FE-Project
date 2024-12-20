@@ -23,7 +23,7 @@ import CustomImage from '../common/CustomImage';
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
-
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [filteredJobs, setFilteredJobs] = useState<IJobCompany[]>([]);
@@ -31,9 +31,6 @@ const WorkshopsList: React.FC = () => {
   const [paginatedJobs, setPaginatedJobs] = useState<IJobCompany[]>([]);
   const pageSize = 8;
   const [form] = Form.useForm();
-
-  const [locations] = useState<string[]>(['Hà Nội', 'Hồ Chí Minh', 'Đà Nẵng', 'Hải Phòng']); // Example location options
-  const [topics] = useState<string[]>(['Marketing', 'Design', 'Coding', 'Business']); // Example topic options
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
@@ -47,20 +44,22 @@ const WorkshopsList: React.FC = () => {
     if (jobsData?.data.content) {
       let filtered = jobsData.data.content;
 
+      if (selectedLocation) {
+        filtered = filtered.filter(job => job.company.address.province.provinceName === selectedLocation);
+      }
+
       if (selectedField) {
-        filtered = filtered.filter(
-          university => university.fields && Array.isArray(university.fields) && university.fields.some(field => field.fieldName === selectedField)
-        );
+        filtered = filtered.filter(job => job.fields && Array.isArray(job.fields) && job.fields.some(field => field.fieldName === selectedField));
       }
 
       if (searchTerm) {
-        filtered = filtered.filter(university => university.universityName.toLowerCase().includes(searchTerm.toLowerCase()));
+        filtered = filtered.filter(job => job.jobTitle.toLowerCase().includes(searchTerm.toLowerCase()));
       }
 
       setFilteredJobs(filtered);
       setCurrentPage(1);
     }
-  }, [jobsData, selectedField, selectedType, searchTerm]);
+  }, [jobsData, selectedField, selectedLocation, selectedType, searchTerm]);
 
   useEffect(() => {
     const start = (currentPage - 1) * pageSize;
@@ -89,6 +88,7 @@ const WorkshopsList: React.FC = () => {
     }
   }, [debouncedValue]);
 
+  const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
 
   return (
@@ -105,17 +105,24 @@ const WorkshopsList: React.FC = () => {
           <div className="mt-[20px] flex items-start gap-[30px]">
             <div className="mb-[40px] min-w-[375px] max-w-[390px] rounded-[10px] bg-custom-gradient p-[30px]">
               <Form form={form} layout="vertical" onFinish={handleSearch} style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <h2 className="mb-[16px] text-xl font-semibold">Tìm Kiếm Workshop</h2>
-                <Form.Item name="workshopName">
-                  <Input prefix={<SearchOutlined className="mr-[4px]" />} size="large" className="w-full" placeholder="Nhập tên workshop" />
+                <h2 className="mb-[16px] text-xl font-semibold">Tìm kiếm công việc </h2>
+                <Form.Item name="jobName">
+                  <Input
+                    prefix={<SearchOutlined className="mr-[4px]" />}
+                    size="large"
+                    className="w-full"
+                    placeholder="Nhập tên công việc"
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                  />
                 </Form.Item>
                 <Form.Item name="location" label="Địa điểm">
                   <SelectSearch
                     icon={<EnvironmentOutlined className="mr-[4px]" />}
                     label="Chọn địa điểm"
-                    value={null}
-                    items={locations}
-                    onChange={selected => form.setFieldsValue({ location: selected })}
+                    value={selectedLocation}
+                    items={locationItems}
+                    onChange={setSelectedLocation}
                   />
                 </Form.Item>
 
@@ -123,9 +130,9 @@ const WorkshopsList: React.FC = () => {
                   <SelectSearch
                     icon={<TagOutlined className="mr-[4px]" />}
                     label="Chọn ngành nghề"
-                    value={null}
-                    items={topics}
-                    onChange={selected => form.setFieldsValue({ topic: selected })}
+                    value={selectedField}
+                    items={fieldItems}
+                    onChange={setSelectedField}
                   />
                 </Form.Item>
 
