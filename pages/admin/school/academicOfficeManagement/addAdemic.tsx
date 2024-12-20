@@ -56,7 +56,7 @@ const AddAdemic = () => {
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
   const [addAcademicOfficeManagement, { data, isLoading: isLoadingAddAcademicOfficeManagement, isSuccess, isError, error }] =
     useAddAcademicOfficeManagementMutation();
-  
+
   const onSubmit: SubmitHandler<FormDataAddAdemic> = data => {
     const formData = new FormData();
 
@@ -76,11 +76,9 @@ const AddAdemic = () => {
       dateOfBirth: data.dateOfBirth,
       phoneNumber: data.phoneNumber,
     };
-    console.log(data, image);
 
-    // Chuyển đổi đối tượng universityEmployeeRequest thành chuỗi JSON và append vào FormData
     formData.append('universityEmployeeRequest', new Blob([JSON.stringify(universityEmployeeRequest)], { type: 'application/json' }));
-    // Append file vào FormData
+
     formData.append('file', image as File);
     addAcademicOfficeManagement(formData);
   };
@@ -99,18 +97,18 @@ const AddAdemic = () => {
   }, [isSuccess, isError, isLoadingAddAcademicOfficeManagement, data?.message, error?.data?.message, dispatch]);
 
   return (
-    <div className="bg-primary-white p-6">
-      <div className="rounded-t-lg">
+    <div className="rounded-lg bg-primary-white p-6">
+      <div className="p-5">
         <Link href={'/admin/school/academicOfficeManagement'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
         </Link>
         Trở về
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm giáo vụ </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full px-5 sm:px-0 ">
         <div className="mb-5">
-          <h1 className="my-10 text-center text-2xl font-bold">Thêm mới giáo vụ</h1>
           <ImageUploaderOne image={image} setImage={setImage} />
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
@@ -120,8 +118,17 @@ const AddAdemic = () => {
               placeholder="Nhập mã nhân viên"
               control={control}
               error={errors.employeeCode?.message}
+              required={true}
             />
-            <Input type="text" name="fullName" label="Họ và tên" placeholder="Nhập họ và tên" control={control} error={errors.fullName?.message} />
+            <Input
+              type="text"
+              name="fullName"
+              label="Họ và tên"
+              placeholder="Nhập họ và tên"
+              control={control}
+              error={errors.fullName?.message}
+              required={true}
+            />
 
             <SelectReact
               name="gender"
@@ -132,6 +139,8 @@ const AddAdemic = () => {
                 label: item.label,
               }))}
               control={control}
+              required={true}
+              error={errors.gender?.message}
             />
             <Input
               type="text"
@@ -140,9 +149,18 @@ const AddAdemic = () => {
               placeholder="Nhập số điện thoại"
               control={control}
               error={errors.phoneNumber?.message}
+              required={true}
             />
-            <Input type="text" name="email" label="Email" placeholder="Nhập email" control={control} error={errors.email?.message} />
-            <Input type="password" name="password" label="Mật khẩu" placeholder="Nhập Mật khẩu" control={control} error={errors.password?.message} />
+            <Input type="text" name="email" label="Email" placeholder="Nhập email" control={control} error={errors.email?.message} required={true} />
+            <Input
+              type="password"
+              name="password"
+              label="Mật khẩu"
+              placeholder="Nhập Mật khẩu"
+              control={control}
+              error={errors.password?.message}
+              required={true}
+            />
             <Input
               type="password"
               name="confirm_password"
@@ -152,10 +170,18 @@ const AddAdemic = () => {
               error={errors.confirm_password?.message}
             />
 
-            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="Nhập ngày sinh" control={control} error={errors.dateOfBirth?.message} />
+            <Input
+              type="date"
+              name="dateOfBirth"
+              label="Ngày sinh"
+              placeholder="Nhập ngày sinh"
+              control={control}
+              error={errors.dateOfBirth?.message}
+              required={true}
+            />
             <div>
               <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Tỉnh
+                Tỉnh<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="provinceId"
@@ -169,11 +195,11 @@ const AddAdemic = () => {
                     isLoading={isLoadingProvinces}
                     options={provinces?.data || []}
                     getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    getOptionValue={(option: { id: any }) => option.id}
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                      field.onChange(selectedOption ? selectedOption.id : null);
                     }}
-                    value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                    value={provinces?.data?.find(option => option.id === field.value)}
                     ref={field.ref}
                   />
                 )}
@@ -182,7 +208,7 @@ const AddAdemic = () => {
             </div>
             <div>
               <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Huyện
+                Huyện<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="districtId"
@@ -195,12 +221,12 @@ const AddAdemic = () => {
                     placeholder="Chọn Quận/Huyện"
                     isLoading={isLoadingDistricts}
                     options={districts?.data || []}
-                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''}
+                    getOptionValue={(option: { id: any }) => option.id}
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                      field.onChange(selectedOption ? selectedOption.id : null);
                     }}
-                    value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
+                    value={districts?.data?.find(option => option.id === field.value)}
                     ref={field.ref}
                   />
                 )}
@@ -209,7 +235,7 @@ const AddAdemic = () => {
             </div>
             <div>
               <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Xã
+                Xã<span className="text-red-600">*</span>
               </label>
               <Controller
                 name="wardId"
@@ -222,12 +248,12 @@ const AddAdemic = () => {
                     placeholder="Chọn Xã/Phường"
                     isLoading={isLoadingWard}
                     options={wards?.data || []}
-                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
+                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''}
+                    getOptionValue={(option: { id: any }) => option.id}
                     onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
+                      field.onChange(selectedOption ? selectedOption.id : null);
                     }}
-                    value={wards?.data?.find(option => option.id === Number(field.value))} // Giữ giá trị name (tên tỉnh) khi chọn
+                    value={wards?.data?.find(option => option.id === Number(field.value))}
                     ref={field.ref}
                   />
                 )}
@@ -246,7 +272,9 @@ const AddAdemic = () => {
             />
           </div>
         </div>
-        <Button text="Thêm" full={true} type="submit" className="mt-5" />
+        <div className="ml-auto w-fit ">
+          <Button text="Thêm mới" type="submit" />
+        </div>
       </form>
     </div>
   );

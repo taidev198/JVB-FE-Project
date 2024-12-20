@@ -100,7 +100,7 @@ const AddWorkshop = () => {
   return (
     <div className="">
       {/* Icon */}
-      <div className="rounded-t-lg bg-white p-5">
+      <div className="rounded-lg bg-white p-5">
         <Link href={'/admin/school/workshop'}>
           <IconButton>
             <ArrowBackIcon />

@@ -29,7 +29,7 @@ interface FormDataAddJob {
   salaryType: string;
   maxSalary: number;
   minSalary: number;
-  jobField: number[];
+  jobField: number;
   salary_type: string;
 }
 const AddJob = () => {
@@ -89,7 +89,7 @@ const AddJob = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
           {/* tiêu đề */}
-          <Input name="jobTitle" control={control} error={errors.jobTitle?.message} placeholder="Tiêu đề công việc" label="Tiêu đề công việc" />
+          <Input name="jobTitle" control={control} error={errors.jobTitle?.message} placeholder="Tiêu đề công việc" label="Tiêu đề công việc" required={true} />
           {/* mô tả */}
           <div className="mt-5 grid grid-cols-1 gap-4">
             <Controller
@@ -102,6 +102,7 @@ const AddJob = () => {
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   label="Mô tả công việc"
+                  required={true}
                   error={errors.jobDescription?.message}
                 />
               )}
@@ -113,7 +114,7 @@ const AddJob = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Yêu cầu" error={errors.requirements?.message} />
+                <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Yêu cầu" required={true} error={errors.requirements?.message} />
               )}
             />
 
@@ -123,7 +124,7 @@ const AddJob = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Phúc lợi" error={errors.benifits?.message} />
+                <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Phúc lợi" required={true} error={errors.benifits?.message} />
               )}
             />
           </div>
@@ -133,6 +134,7 @@ const AddJob = () => {
               name="jobType"
               label="Loại công việc"
               placeholder="Nhập loại công việc"
+              required={true}
               control={control}
               options={[
                 { value: 1, label: 'Full time' },
@@ -143,45 +145,49 @@ const AddJob = () => {
             />
 
             {/* time làm vc */}
-            <Input name="workTime" control={control} error={errors.workTime?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" />
+            <Input  name="workTime" control={control} error={errors.workTime?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" required={true}/>
 
             <SelectReact
               name="jobField"
               label="Lĩnh vực"
+              required={true}
               placeholder="Chọn lĩnh vực"
               options={(faculties?.data || []).map(faculty => ({
                 value: faculty.id,
                 label: faculty.fieldName,
               }))}
               control={control}
-              isMultiple={true}
+              
               error={errors.jobField?.message}
             />
             {/* Trình độ */}
             <SelectMui
               name="jobLevel"
               label="Trình độ"
+              required={true}
               placeholder="Nhập trình độ"
               control={control}
               options={[
-                { value: 1, label: 'JUNIOR' },
-                { value: 2, label: 'SENIOR' },
+                { value: 1, label: 'junior' },
+                { value: 2, label: 'senior' },
               ]}
               error={errors.jobLevel?.message}
             />
 
             {/*Ngày hết hạn */}
-            <Input type="date" name="expirationDate" control={control} error={errors.expirationDate?.message} placeholder="Ngày hết hạn" label="Ngày hết hạn" />
+            <Input type="date" name="expirationDate" control={control} error={errors.expirationDate?.message} placeholder="Ngày hết hạn" required={true} label="Ngày hết hạn" />
 
             {/* số lượng */}
-            <Input name="memberOfCandidate" control={control} error={errors.memberOfCandidate?.message} placeholder="Số lượng tuyển" label="Số lượng tuyển" />
+            <Input name="memberOfCandidate" control={control} error={errors.memberOfCandidate?.message} placeholder="Số lượng tuyển" required={true} label="Số lượng tuyển" />
 
             {/* Lương: cao */}
-          </div>{' '}
-          <div className="grid grid-cols-3 items-center gap-5">
+          </div>
+
+          <div className="grid grid-cols-3 items-center gap-5 mt-5">
             <SelectMui
               name="salary_type"
               label="Loại lương"
+              required={true}
               placeholder="Nhập loại lương"
               control={control}
               options={[

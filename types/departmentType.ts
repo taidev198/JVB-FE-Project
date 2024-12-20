@@ -36,3 +36,8 @@ export interface DepartmentResponsePortal {
   message: string;
   data: IDepartment[];
 }
+export interface DepartmentResponse {
+  code: number;
+  message: string;
+  data: IDepartment[];
+}

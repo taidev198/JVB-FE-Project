@@ -9,9 +9,9 @@ const validationSchemaUpdateDepartment = Yup.object({
     .min(1900, 'Năm thành lập không được trước 1900')
     .max(new Date().getFullYear(), 'Năm thành lập không được vượt quá năm hiện tại')
     .required('Năm thành lập là bắt buộc'),
-  facultyDescription: Yup.string(),
+  facultyDescription: Yup.string().required('Mô tả khoa là bắt buộc'),
   nameDean: Yup.string().required('Tên trưởng khoa là bắt buộc').max(50, 'Tên trưởng khoa không được quá 50 kí tự'),
-  address: Yup.string().required('Địa chỉ là bắt buộc').max(150, 'Địa chỉ không được quá 150 kí tự'),
+  address: Yup.string().required('Địa chỉ khoa cụ thể là bắt buộc').max(150, 'Địa chỉ không được quá 150 kí tự'),
 });
 
 export default validationSchemaUpdateDepartment;

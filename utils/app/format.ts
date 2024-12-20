@@ -47,6 +47,16 @@ export const formatJobType = (jobType?: string): string => {
     .join(' '); // Ghép lại thành chuỗi: 'Full Time'
 };
 
+export const convertSchoolType = (schoolType: string): string => {
+  const schoolTypeMapping: Record<string, string> = {
+    ACADEMY: 'Học viện',
+    COLLEGE: 'Cao đẳng',
+    UNIVERSITY: 'Đại học',
+    OTHER: 'Khác',
+  };
+  return schoolTypeMapping[schoolType] || 'Không xác định';
+};
+
 export const formatDateDD_thang_MM_yyyy = (dateTimeStr: string | null): string => {
   if (!dateTimeStr) {
     return ''; // Handle invalid date input

@@ -50,24 +50,39 @@ const AddDepartment = () => {
     dispatch(setLoading(isLoadingAddDepartment));
   }, [dispatch, isLoadingAddDepartment, data?.message, isSuccess]);
   return (
-    <div className="bg-primary-white">
-      <div className="rounded-t-lg">
+    <div className="h h-screen rounded-lg bg-primary-white">
+      <div className="p-5">
         <Link href={'/admin/school/department'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
         </Link>
         Trở về
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm mới khoa </h1>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="ml-5 mr-10 w-full bg-primary-white px-5 sm:px-0  ">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-primary-white px-5">
         {/* Icon */}
-
-        <h1 className="my-10 text-2xl font-bold "> Thêm mới khoa</h1>
-        <div className="mr-5 grid grid-cols-1 gap-4 bg-primary-white sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 bg-primary-white sm:grid-cols-2">
           {/* Các trường thông tin khác */}
 
-          <Input type="text" name="facultyCode" label="Mã khoa" placeholder="Nhập mã khoa" control={control} error={errors.facultyCode?.message} />
-          <Input type="text" name="facultyName" label="Tên Khoa" placeholder="Nhập tên khoa" control={control} error={errors.facultyName?.message} />
+          <Input
+            type="text"
+            name="facultyCode"
+            label="Mã khoa"
+            placeholder="Nhập mã khoa"
+            control={control}
+            error={errors.facultyCode?.message}
+            required={true}
+          />
+          <Input
+            type="text"
+            name="facultyName"
+            label="Tên Khoa"
+            placeholder="Nhập tên khoa"
+            control={control}
+            error={errors.facultyName?.message}
+            required={true}
+          />
           <Input
             type="number"
             name="establishYear"
@@ -76,13 +91,23 @@ const AddDepartment = () => {
             control={control}
             error={errors.establishYear?.message}
           />
-          <Input type="text" name="nameDean" label="Tên trưởng khoa" placeholder="Nhập tên trưởng khoa" control={control} error={errors.nameDean?.message} />
+          <Input
+            type="text"
+            name="nameDean"
+            label="Tên trưởng khoa"
+            placeholder="Nhập tên trưởng khoa"
+            control={control}
+            error={errors.nameDean?.message}
+            required={true}
+          />
         </div>
-        <div className="mr-5 ">
-          <Input type="text" name="address" label="Địa chỉ" placeholder="Nhập địa chỉ" control={control} error={errors.address?.message} />
-          <Text name="facultyDescription" label="Mô tả khoa" placeholder="Nhập mô tả khoa" control={control} />
+        <div className="mt-5 flex flex-col gap-5">
+          <Input type="text" name="address" label="Địa chỉ" placeholder="Nhập địa chỉ" control={control} error={errors.address?.message} required={true} />
+          <Text name="facultyDescription" label="Mô tả khoa" placeholder="Nhập mô tả khoa" control={control} error={errors.facultyDescription?.message} />
         </div>
-        <Button text="Thêm " full={true} type="submit" />
+        <div className="ml-auto w-fit ">
+          <Button text="Thêm mới" type="submit" />
+        </div>
       </form>
     </div>
   );

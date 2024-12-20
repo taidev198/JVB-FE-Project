@@ -1,11 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
-import { number } from 'yup';
+// import { number } from 'yup';
 import { IProfileCompany, IProfileCompanyRespone } from '@/types/profileCompany';
 import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
-import { method, result } from 'lodash';
-import { error } from 'console';
+// import { method, result } from 'lodash';
+// import { error } from 'console';
 import { WorkshopResponse } from '@/types/workshop';
 
 export const adminCompanyApi = createApi({
@@ -56,6 +56,15 @@ export const adminCompanyApi = createApi({
         query: () => ({
           url: `/company/detail-current`,
         }),
+      }),
+
+      updateProfile: builder.mutation<any, { data: any; id: number | null }>({
+        query: ({ data, id }) => ({
+          url: `/company/update_job/${id}`,
+          method: 'PUT',
+          body: data,
+        }),
+        invalidatesTags: ['Job'],
       }),
 
       //JOBCOMPANY
@@ -111,7 +120,7 @@ export const adminCompanyApi = createApi({
       }),
 
       // WORKSHOP
-      getAllWorkShop: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string }>({
+      getAllWorkShopCompany: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string }>({
         query: ({ page, size, keyword, status }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
@@ -135,7 +144,7 @@ export const {
   useGetAllCompanyJobQuery,
   useGetDetailCompanyJobQuery,
   useDeleteJobCompanyMutation,
-  useGetAllWorkShopQuery,
+  useGetAllWorkShopCompanyQuery,
   useAddJobMutation,
   useUpdateJobMutation,
   useDeleteAllJobCompanyMutation,

@@ -1,3 +1,5 @@
+// services/portalHomeApi.ts
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { IJobAllResponse, IJobAllResponsePortal, IJobDetailResponse } from '@/types/jobCompany';
 import { WorkshopResponse, WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
@@ -7,6 +9,7 @@ import { RootState } from '@/store/store';
 import { FieldsResponse } from '@/types/fields';
 import { IFields } from '@/types';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
+import { IFieldsPortal } from '@/types/fieldPortalHomeTypes';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -82,6 +85,11 @@ export const portalHomeApi = createApi({
     // Fetch fields
     getFields: builder.query<IFields, void>({
       query: () => `/fields`,
+    }),
+
+    // Fetch fields count job
+    getFieldsCountJob: builder.query<IFieldsPortal, void>({
+      query: () => `/portal/fields/jobs`,
     }),
   }),
 });

@@ -11,13 +11,22 @@ const validationSchemaAddJob = Yup.object({
 
   jobType: Yup.string().required('Loại công việc không được để trống'),
   jobLevel: Yup.string().required('Cấp bậc công việc không được để trống'),
-  maxSalary: Yup.number().required('Mức lương không được để trống'),
+  // maxSalary: Yup.number().required('Mức lương không được để trống'),
 
-  minSalary: Yup.number().required('Mức lương không được để trống'),
+  // minSalary: Yup.number().required('Mức lương không được để trống'),
 
-  memberOfCandidate: Yup.number().required('Số lượng không được để trống'),
+  memberOfCandidate: Yup.string().required('Số lượng không được để trống'),
   salary_type: Yup.string().required('Lương không được để trống'),
-  jobField: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),
+  jobField: Yup.number().required('Lĩnh vực không được để trống'),
+  maxSalary: Yup.number()
+    .typeError('Giá trị không hợp lệ')
+    .required('Mức lương tối thiểu không được để trống')
+    .min(0, 'Mức lương tối thiểu phải lớn hơn hoặc bằng 0'),
+
+  minSalary: Yup.number()
+    .typeError('Giá trị không hợp lệ')
+    .required('Mức lương tối đa không được để trống')
+    .min(Yup.ref('maxSalary'), 'Mức lương tối đa phải lớn hơn mức lương tối thiểu'),
 });
 
 export default validationSchemaAddJob;

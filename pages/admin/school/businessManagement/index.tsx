@@ -11,20 +11,29 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
-import { useDeleteBusinessMultipleMutation, useDeleteBusinessOneMutation, useGetAllBusinessQuery } from '@/services/adminSchoolApi';
+import {
+  useDeleteBusinessMultipleMutation,
+  useDeleteBusinessOneMutation,
+  useGetAllBusinessQuery,
+  useGetAllDepartmentsPortalQuery,
+  useGetAllFaculityQuery,
+  useGetAllMajorsQuery,
+} from '@/services/adminSchoolApi';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { setKeyword, setPage, setIdFaculty } from '@/store/slices/filtersSlice';
 
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
-  const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
+  const { data: dataMajor } = useGetAllMajorsQuery();
+  const { page, keyword, size, idFaculty } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
   const [major, setMajor] = useState<number | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedBusiness, setSelectedBusiness] = useState<number[]>([]);
+  const { data: dataDepartments, isLoading: isLoadingGetAllDepartment } = useGetAllFaculityQuery();
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -41,11 +50,15 @@ const BusinessManagement = () => {
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
 
-  const { data: business, isLoading } = useGetAllBusinessQuery({
-    page,
-    size,
-    keyword,
-  });
+  const { data: business, isLoading } = useGetAllBusinessQuery(
+    {
+      page,
+      size,
+      keyword,
+      idFaculty: idFaculty,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   const idBusiness = useAppSelector(state => state.global.id);
   console.log(business);
@@ -91,11 +104,11 @@ const BusinessManagement = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản ngành học</h1>
-        <div className="flex items-center justify-between gap-3 ">
-          <div className="flex gap-10">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm"
+              label="Tìm kiếm ngành học "
               type="search"
               variant="outlined"
               size="small"
@@ -103,28 +116,28 @@ const BusinessManagement = () => {
               className="w-full"
             />
             <Select
-              placeholder="Chọn ngành"
+              placeholder="Chọn khoa"
               closeMenuOnSelect={true}
               options={[
                 { value: null, label: 'Tất cả' },
-                ...(business?.data.content || []).map(major => ({
-                  value: major.id,
-                  label: major.majorName,
+                ...(dataDepartments?.data || []).map(department => ({
+                  value: department.id,
+                  label: department.facultyName,
                 })),
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
-                setMajor(selectedOption.value ? Number(selectedOption.value) : null);
+                dispatch(setIdFaculty(selectedOption.value ? Number(selectedOption.value) : null));
               }}
-              className="w-full cursor-pointer"
+              className="w-full cursor-pointer "
             />
           </div>
-          <div className="flex items-center gap-5">
+          <div className="ml-auto flex justify-items-center gap-5">
             <Link href={'/admin/school/businessManagement/AddBusiness'}>
               <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
             </Link>
             <MyButton
               type="submit"
-              text="Xóa ngành học đã chọn"
+              text="Xóa ngành đã chọn"
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
               className="bg-red-custom"
               disabled={!selectedBusiness.length}
@@ -148,23 +161,26 @@ const BusinessManagement = () => {
                 />
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Mã Ngành</p>
+                <p className="min-w-max">STT</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Tên Ngành</p>
+                <p className="min-w-max">Mã ngành</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Số Tín Chỉ</p>
+                <p className="min-w-max">Tên ngành</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Số Sinh Viên</p>
+                <p className="min-w-max">Số tín chỉ</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Khoa</p>
+                <p className="min-w-max">Số sinh viên</p>
+              </th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <p className="min-w-max">khoa</p>
               </th>
 
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Thao Tác</p>
+                <p className="min-w-max">Thao tác</p>
               </th>
             </tr>
           </thead>
@@ -174,6 +190,9 @@ const BusinessManagement = () => {
                 <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Checkbox color="primary" checked={selectedBusiness.includes(item.id)} onChange={() => handleSelectBusiness(item.id)} size="small" />
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.majorCode}</p>
@@ -191,7 +210,7 @@ const BusinessManagement = () => {
                     <p className="min-w-max">{item.faculty.facultyName}</p>
                   </td>
 
-                  <td className="gap-2 px-2 py-4 sm:px-5">
+                  <td className="gap-2 py-4">
                     <div className="flex items-center">
                       <p className="min-w-max">
                         <Link href={`/admin/school/businessManagement/${item.id}`}>

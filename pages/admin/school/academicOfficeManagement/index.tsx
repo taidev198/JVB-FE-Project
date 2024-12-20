@@ -47,10 +47,6 @@ const AcademicOfficeManagement = () => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
-
-  // const handleConfirmAction = () => {
-  //   deleteAcademicOfficeManagement({ id: selectId });
-  // };
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteAdemicOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAdemicMultipleMutation();
   const handleDelete = async () => {
@@ -73,18 +69,20 @@ const AcademicOfficeManagement = () => {
       dispatch(setBackdrop(null));
     }
   };
-  console.log(selectedAdemic);
 
   const {
     data: academicOfficeManagement,
     isLoading,
     isSuccess,
-  } = useGetAllAcademicOfficeManagementQuery({
-    page: currentPage,
-    size: 10,
-    keyword,
-  });
-  console.log(academicOfficeManagement);
+  } = useGetAllAcademicOfficeManagementQuery(
+    {
+      page: currentPage,
+      size,
+      keyword,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const allAdemicIds = academicOfficeManagement?.data.content.map(ademic => ademic.id);
@@ -103,10 +101,20 @@ const AcademicOfficeManagement = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách quản lý giáo vụ</h1>
-        <div className="flex items-center justify-between gap-3">
-          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
-          <div className="flex gap-5">
+        <h1 className="mb-5 font-bold">Danh sách quản lý giáo vụ</h1>
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm giáo vụ"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+              className="w-full"
+            />
+          </div>
+          <div className="ml-auto flex justify-items-center gap-5">
             <Link href={'/admin/school/academicOfficeManagement/addAdemic'}>
               <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
             </Link>
@@ -131,17 +139,20 @@ const AcademicOfficeManagement = () => {
                   checked={selectedAdemic.length === academicOfficeManagement?.data.content.length}
                   indeterminate={selectedAdemic.length > 0 && selectedAdemic.length < (academicOfficeManagement?.data.content || []).length}
                   onChange={handleSelectAll}
+                  size="small"
                 />
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">STT</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <p className="min-w-max">STT</p>
+              </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Ảnh đại diện</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Mã Nhân Viên</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Họ Và Tên</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Số Điện Thoại</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Giới Tính</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Ngày Sinh</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Gmail </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Hành Động</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Mã nhân viên</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Họ và tên</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Số điện thoại</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Giới tính</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">Ngày sinh</th>
+
+              <th className="p-3 text-left sm:px-5 sm:py-4">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -149,9 +160,11 @@ const AcademicOfficeManagement = () => {
               return (
                 <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <Checkbox color="primary" checked={selectedAdemic.includes(item.id)} onChange={() => handleSelectAdemic(item.id)} />
+                    <Checkbox color="primary" checked={selectedAdemic.includes(item.id)} onChange={() => handleSelectAdemic(item.id)} size="small" />
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">{index + 1}</td>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
+                  </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Image src={item?.avatarUrl} alt="anh" width={50} height={50} className="h-[50px] rounded-full" />
                   </td>
@@ -160,37 +173,35 @@ const AcademicOfficeManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">{item.phoneNumber}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.gender}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.dateOfBirth}</td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <Tooltip title={item?.account?.email}>
-                      <span className="cursor-pointer">{item?.account?.email}</span>
-                    </Tooltip>
-                  </td>
-                  <td className="gap-2 px-2 py-4 sm:px-5">
+
+                  <td className="gap-2 py-4">
                     <div className="flex items-center">
-                      <Link href={`/admin/school/academicOfficeManagement/${item.id}`}>
-                        <Tooltip title="Xem chi tiết">
-                          <IconButton onClick={() => dispatch(setId(item.id))}>
-                            <VisibilityIcon color="success" />
+                      <p className="min-w-max">
+                        <Link href={`/admin/school/academicOfficeManagement/${item.id}`}>
+                          <Tooltip title="Xem chi tiết">
+                            <IconButton onClick={() => dispatch(setId(item.id))}>
+                              <VisibilityIcon color="success" />
+                            </IconButton>
+                          </Tooltip>
+                        </Link>
+                        <Link href={`/admin/school/academicOfficeManagement/update/${item.id}`}>
+                          <Tooltip title="Sửa giáo vụ">
+                            <IconButton onClick={() => dispatch(setId(item.id))}>
+                              <BorderColorIcon className="text-purple-500" />
+                            </IconButton>
+                          </Tooltip>
+                        </Link>
+                        <Tooltip title="Xóa giáo vụ">
+                          <IconButton
+                            onClick={() => {
+                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                              dispatch(setId(item.id));
+                              dispatch(setName(item.fullName));
+                            }}>
+                            <DeleteIcon className="text-red-500" />
                           </IconButton>
                         </Tooltip>
-                      </Link>
-                      <Link href={`/admin/school/academicOfficeManagement/update/${item.id}`}>
-                        <Tooltip title="Sửa giáo vụ">
-                          <IconButton onClick={() => dispatch(setId(item.id))}>
-                            <BorderColorIcon className="text-purple-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </Link>
-                      <Tooltip title="Xóa giáo vụ">
-                        <IconButton
-                          onClick={() => {
-                            dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                            dispatch(setId(item.id));
-                            dispatch(setName(item.fullName));
-                          }}>
-                          <DeleteIcon className="text-red-500" />
-                        </IconButton>
-                      </Tooltip>
+                      </p>
                     </div>
                   </td>
                 </tr>

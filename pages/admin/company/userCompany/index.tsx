@@ -1,60 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, SubmitHandler } from 'react-hook-form';
-// import SearchIcon from '@mui/icons-material/Search';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Chip, IconButton, Tooltip, Pagination, Checkbox, TextField } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { Button, Button as MyButton } from '@/components/Common/Button';
-// import Input from '@/components/Common/Input';
+
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useGetAllCompanyEmployeQuery } from '@/services/adminCompanyApi';
 import { debounce } from 'lodash';
-import { setToast } from '@/store/slices/toastSlice';
-
-
-
-const validationSchema = Yup.object({
-  search_employee: Yup.string().required('Tên doanh nghiệp không được bỏ trống').max(100, 'Tên doanh nghiệp không được quá 100 kí tự'),
-});
+import AddIcon from '@mui/icons-material/Add';
+import { setKeyword, setPage } from '@/store/slices/filtersSlice';
 
 
 const userCompany = () => {
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState('');
-  const [status, setStatus] = useState('');
+  // const [page, setPage] = useState(1);
+  // const [keyword, setKeyword] = useState('');
+  // const [status, setStatus] = useState('');
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
-  // const [currentPage, setCurrentPage] = useState(1);
+  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
 
   
-  const debouncedSearch = debounce((value: string) => {
-    setKeyword(value);
-  }, 500);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        dispatch(setKeyword(value));
+        dispatch(setPage(1));
+      }, 500),
+    [dispatch]
+  );
 
-  const {data: employee, isLoading} = useGetAllCompanyEmployeQuery({
-    page,
-    size: 10,
-    keyword,
-    status,
-  })
+  const {data: employee, isLoading} = useGetAllCompanyEmployeQuery({ page, keyword, size, status},{ refetchOnMountOrArgChange: true })
   console.log(employee);
   
 
   const handleSelectEmployee = (id: number) => {
     setSelectedEmployee(prev => (prev.includes(id) ? prev.filter(employeeId => employeeId !== id) : [...prev, id]));
-  };
-
-
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setPage(page);
   };
 
 
@@ -70,10 +56,10 @@ const userCompany = () => {
           </div>
           <div className='flex items-center gap-5'>
             <Link href={'/admin/company/userCompany/AddEmployee'}>
-            <MyButton type="submit" text="Thêm nhân viên" />
+            <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
             </Link>
             
-            <MyButton type="submit" text="Xóa tất cả nhân viên" className='bg-red-600' />
+            <MyButton type="submit" text="Xóa tất cả " className='bg-red-600' />
           </div>
         </div>
       </div>
@@ -151,8 +137,6 @@ const userCompany = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Backdrop for Employee Detail */}
        
 
       {/* Delete Confirmation */}
@@ -171,7 +155,7 @@ const userCompany = () => {
 
       {/* Pagination */}
       <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
+        <Pagination count={employee?.data.totalPages} page={page} onChange={(value, event) => dispatch(setPage(event))}  color="primary" shape="rounded" />
       </div>
     </>
   );

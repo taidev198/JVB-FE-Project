@@ -36,7 +36,7 @@ const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, err
               options={options}
               placeholder={placeholder}
               isMulti={isMultiple}
-              className={`!basic-select !h-[42px] shadow-none ${error ? 'is-invalid' : ''}`}
+              className={`!basic-select py-1 shadow-none ${error ? 'is-invalid' : ''}`}
               classNamePrefix="select"
               value={
                 isMultiple
