@@ -6,12 +6,12 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import TransgenderIcon from '@mui/icons-material/Transgender';
 import MailIcon from '@mui/icons-material/Mail';
-import Image from 'next/image';
+import { useEffect } from 'react';
 import CakeIcon from '@mui/icons-material/Cake';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { useEffect } from 'react';
 import { setLoading } from '@/store/slices/global';
 import { useGetDetailAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
+import ImageComponent from '@/components/Common/Image';
 const DetailAdemicOfficeManagement = () => {
   const idAdemicOfficeManagement = useAppSelector(state => state.global.id);
   const dispatch = useAppDispatch();
@@ -41,8 +41,14 @@ const DetailAdemicOfficeManagement = () => {
           </div>
         </div>
         <div className="flex items-center gap-[30px] ">
-          <div className="rounded-[50%] bg-[#F1F1F1] p-6">
-            <Image src={academicOfficeManagement?.data.avatarUrl ?? ''} alt="name" width={75} height={75} />
+          <div className="rounded-[50%] bg-[#F1F1F1] p-5">
+            <ImageComponent
+              src={academicOfficeManagement?.data.avatarUrl}
+              alt={academicOfficeManagement.data.fullName}
+              width={80}
+              height={80}
+              className="rounded-full object-cover"
+            />
           </div>
           <div>
             <h2 className="text-xl font-bold">{academicOfficeManagement?.data.fullName}</h2>

@@ -157,6 +157,14 @@ body > div#__next > main {
   font-size: 14px;
 }
 
+.select__control{
+  padding: 2px 0 !important;
+}
+
+.ant-select-selection-item{
+  font-weight: 500 !important;
+}
+
 .ql-toolbar {
   border: 1px solid #e5e7eb;
   border-bottom: none;

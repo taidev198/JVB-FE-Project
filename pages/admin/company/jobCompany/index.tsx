@@ -20,6 +20,7 @@ import { setKeyword, setPage } from '@/store/slices/filtersSlice';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import AddIcon from '@mui/icons-material/Add';
+import { formatCurrencyVND } from '@/utils/app/format';
 
 
 
@@ -161,7 +162,7 @@ console.log(idJob);
                 <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.jobTitle}</td>
                 <td className="px-5 py-4"><p dangerouslySetInnerHTML={{ __html: item.jobDescription ?? '' }}></p></td>
-                <td className="px-5 py-4">{item.maxSalary}-{item.minSalary}</td>
+                <td className="px-5 py-4">{formatCurrencyVND(item.maxSalary)}-{formatCurrencyVND(item.minSalary)}</td>
                 <td className="px-5 py-4">{item.expirationDate}</td>
 
                 <td className="flex gap-2 px-5 py-4">

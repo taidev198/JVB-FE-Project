@@ -1,4 +1,3 @@
-import { useRouter } from 'next/router';
 import { Avatar, IconButton, Menu, useMediaQuery, useTheme, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { memo, useState } from 'react';
@@ -11,15 +10,15 @@ import Notification from '../Common/Notification';
 import Logo from '../Logo';
 import { showSidebar } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
-import { logOut } from '@/store/slices/user';
+import { useLogout } from '@/hooks';
 
 const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('lg'));
   const dispatch = useDispatch();
   const user = useAppSelector(state => state.user);
-  const router = useRouter();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { logOut } = useLogout();
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -27,10 +26,6 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-  };
-  const handleLogout = () => {
-    dispatch(logOut());
-    router.push('/');
   };
   return (
     <header className={`fixed z-50 w-full border-b border-gray-400 border-opacity-20 bg-primary-white py-5 ${isAdmin ? 'px-[20px]' : ''}`}>
@@ -60,7 +55,7 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <span className="text-primary-black">Xin chào {user?.user?.fullName ?? ''}</span>
+            {/* <span className="text-primary-black">Xin chào {user?.user?.fullName ?? ''}</span> */}
 
             <IconButton onClick={handleMenuOpen}>
               <Avatar src="" />
@@ -80,7 +75,7 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
                 horizontal: 'right',
               }}>
               <MenuItem>Trang Admin</MenuItem>
-              <MenuItem onClick={handleLogout}>
+              <MenuItem onClick={() => logOut()}>
                 Đăng xuất <LogoutIcon />
               </MenuItem>
             </Menu>

@@ -30,6 +30,22 @@ const nextConfig = withTM({
         protocol: 'https',
         hostname: '**.vn',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.vn',
+      },
+      {
+        protocol: 'https',
+        hostname: 'example.org', // Thêm hostname ví dụ .org
+      },
     ],
   },
 });

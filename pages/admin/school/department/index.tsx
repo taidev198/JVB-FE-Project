@@ -96,7 +96,7 @@ const Department = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách quản lý khoa</h1>
+        <h1 className="mb-5 font-bold">Danh sách quản lý khoa</h1>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextField

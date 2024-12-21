@@ -34,6 +34,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ src, alt, width, height
   return (
     <img
       className={currentSrc === src || !src ? className : `${className} blur-sm`}
+      style={{ height: `${height}px` }}
       src={currentSrc}
       alt={alt}
       width={width}

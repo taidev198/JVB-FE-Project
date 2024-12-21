@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import toast from 'react-hot-toast';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Chip, IconButton, Tooltip, Pagination, TextField } from '@mui/material';
-import Link from 'next/link';
+import { Chip, TextField } from '@mui/material';
 import Select from 'react-select';
-import ClearIcon from '@mui/icons-material/Clear';
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { resetFilters, setKeyword, setPage, setStatus, setUniversityType } from '@/store/slices/filtersSlice';
@@ -19,6 +14,12 @@ import { typeAccount, typeUniversity, typeUniversityTitle } from '@/utils/app/co
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
+import ButtonUnLock from '@/components/Common/ButtonIcon/ButtonUnLock';
+import ButtonLock from '@/components/Common/ButtonIcon/ButtonLock';
+import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
+import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import PaginationComponent from '@/components/Common/Pagination';
 
 const AdminSystemSchool = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
@@ -57,25 +58,23 @@ const AdminSystemSchool = () => {
       try {
         switch (selectedAction) {
           case BackdropType.ApproveConfirmation || BackdropType.UnlockConfirmation: {
-            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
-            toast.success(response?.message);
+            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
+            toast.success('Tài khoản đã được duyệt thành công.');
             break;
           }
           case BackdropType.UnlockConfirmation: {
-            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
-            toast.success(response?.message);
-
+            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
+            toast.success('Tài khoản đã được mở khóa thành công.');
             break;
           }
           case BackdropType.RefuseConfirmation: {
-            const response = await rejectAccount({ id: selectedCompanyId }).unwrap();
-            toast.success(response?.message);
-
+            await rejectAccount({ id: selectedCompanyId }).unwrap();
+            toast.success('Yêu cầu duyệt tài khoản đã bị từ chối.');
             break;
           }
           case BackdropType.LockConfirmation: {
-            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'BAN' }).unwrap();
-            toast.success(response?.message);
+            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'BAN' }).unwrap();
+            toast.success('Tài khoản đã bị khóa thành công.');
             break;
           }
           default:
@@ -153,7 +152,7 @@ const AdminSystemSchool = () => {
               <th className="px-5 py-4 text-left">Loại trường</th>
               <th className="px-5 py-4 text-left">Email</th>
               <th className="px-5 py-4 text-left">Trạng Thái</th>
-              <th className="py-4 text-left">Thao Tác</th>
+              <th className="px-5 py-4 text-left">Thao Tác</th>
             </tr>
           </thead>
           <tbody>
@@ -163,9 +162,7 @@ const AdminSystemSchool = () => {
                   <td className="px-5 py-4 text-center"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{university.universityCode}</td>
                   <td className="px-5 py-4">
-                    <Link href={`/admin/system/school/${university.id}`} className=" hover:text-primary-main" onClick={() => dispatch(setId(university.id))}>
-                      {university.universityName}
-                    </Link>
+                    <p>{university.universityName}</p>
                   </td>
                   <td className="px-5 py-4">{typeUniversityTitle(university.universityType).title}</td>
                   <td className="px-5 py-4">{university.account.email ? university.account.email : 'Chưa có email'}</td>
@@ -178,41 +175,27 @@ const AdminSystemSchool = () => {
                       }}
                     />
                   </td>
-                  <td className="flex items-center py-4">
+                  <td className="flex items-center gap-3 px-5 py-4">
+                    <ButtonSee href={`/admin/system/school/${university.id}`} onClick={() => dispatch(setId(university.id))} />
                     {university?.account?.statusAccount === 'PENDING' && (
                       <>
-                        <Tooltip title="Duyệt tài khoản">
-                          <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, university.account.id, university.universityName)}>
-                            <CheckCircleIcon color="success" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Từ chối">
-                          <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, university.account.id, university.universityName)}>
-                            <ClearIcon color="warning" />
-                          </IconButton>
-                        </Tooltip>
+                        <ButtonAccept onClick={() => handleAction(BackdropType.ApproveConfirmation, university.account.id, university.universityName)} />
+
+                        <ButtonReject onClick={() => handleAction(BackdropType.RefuseConfirmation, university.account.id, university.universityName)} />
                       </>
                     )}
                     {university?.account?.statusAccount === 'ACTIVE' && (
-                      <Tooltip title="Khóa tài khoản">
-                        <IconButton onClick={() => handleAction(BackdropType.LockConfirmation, university.account.id, university.universityName)}>
-                          <LockIcon color="error" />
-                        </IconButton>
-                      </Tooltip>
+                      <ButtonLock onClick={() => handleAction(BackdropType.LockConfirmation, university.account.id, university.universityName)} />
                     )}
                     {university?.account?.statusAccount === 'BAN' && (
-                      <Tooltip title="Mở khóa tài khoản">
-                        <IconButton onClick={() => handleAction(BackdropType.UnlockConfirmation, university.account.id, university.universityName)}>
-                          <LockOpenIcon color="success" />
-                        </IconButton>
-                      </Tooltip>
+                      <ButtonUnLock onClick={() => handleAction(BackdropType.UnlockConfirmation, university.account.id, university.universityName)} />
                     )}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="py-4 text-center text-base text-red-500">
+                <td colSpan={7} className="py-4 text-center text-base">
                   <p>Không có tài khoản trường học nào</p>
                 </td>
               </tr>
@@ -220,14 +203,15 @@ const AdminSystemSchool = () => {
           </tbody>
         </table>
       </div>
-
       {/* Pagination */}
-      <div className="flex items-center justify-center bg-white p-5">
-        <Pagination count={universities?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
-        <p className="text-sm">
-          ({universities?.data.currentPage} / {universities?.data.totalPages})
-        </p>
-      </div>
+      <PaginationComponent
+        size={size}
+        page={page}
+        count={universities?.data.totalPages}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        totalItem={universities?.data.totalElements}
+        totalTitle={'tài khoản'}
+      />
       {/* Backdrops */}
       {showBackdrop && (
         <BackDrop isCenter>
