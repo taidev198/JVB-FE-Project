@@ -1,10 +1,6 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { yupResolver } from '@hookform/resolvers/yup';
-import Select from 'react-select';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -12,33 +8,43 @@ import validationSchemaSchool, { FormDataRegisterSchool } from './validationSche
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import TextEditor from '@/components/Common/TextEditor';
-import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery, useRegisterUniversityMutation } from '@/services/adminSystemApi';
+import { useRegisterUniversityMutation } from '@/services/adminSystemApi';
 import SelectReact from '@/components/Common/SelectMui';
 import { typeUniversity } from '@/utils/app/const';
 import { setLoading } from '@/store/slices/global';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import Address from '@/components/Common/Address';
 
 const RegisterSchoolComponent = () => {
   const dispatch = useDispatch();
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<FormDataRegisterSchool>({
+  const methods = useForm<FormDataRegisterSchool>({
     resolver: yupResolver(validationSchemaSchool),
+    mode: 'onChange',
+    defaultValues: {
+      universityName: '',
+      universityCode: '',
+      email: '',
+      password: '',
+      confirm_password: '',
+      phoneNumber: '',
+      wardId: null,
+      districtId: null,
+      provinceId: null,
+      establishDate: '',
+      houseNumber: '',
+      universityType: '',
+      universityDescription: '',
+    },
   });
-  const provinceSelect = watch('provinceId');
-  const districtSelect = watch('districtId');
-  // Fetch data
-  const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvincesQuery();
-  const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
-  const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
-  watch('wardId');
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = methods;
   const [registerSchool, { isLoading: isLoadingRegister }] = useRegisterUniversityMutation();
   const onSubmit: SubmitHandler<FormDataRegisterSchool> = async data => {
-    const { confirm_password, provinceId, districtId, establishDate, ...payload } = data;
+    const { establishDate, ...payload } = data;
     const formattedDate = formatDateDd_MM_yyyy(establishDate);
     try {
       const response = await registerSchool({ ...payload, establishDate: formattedDate }).unwrap();
@@ -54,8 +60,8 @@ const RegisterSchoolComponent = () => {
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoadingDistricts || isLoadingProvinces || isLoadingWard || isLoadingRegister));
-  }, [dispatch, isLoadingDistricts, isLoadingProvinces, isLoadingWard, isLoadingRegister]);
+    dispatch(setLoading(isLoadingRegister));
+  }, [dispatch, isLoadingRegister]);
   return (
     <>
       <h1 className="my-6 px-6 text-xl font-bold md:mx-5 md:px-0 md:text-2xl">Đăng ký tài khoản trường học</h1>
@@ -152,111 +158,16 @@ const RegisterSchoolComponent = () => {
           </>
         </div>
         {/* Địa chỉ */}
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-              Tỉnh <span className="text-red-600">*</span>
-            </label>
-            <Controller
-              name="provinceId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="basic-single"
-                  classNamePrefix="select"
-                  placeholder="Chọn Tỉnh/Thành phố"
-                  isLoading={isLoadingProvinces}
-                  options={provinces?.data || []}
-                  getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
-                  getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
-                  onChange={(selectedOption: { id: any }) => {
-                    field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
-                  }}
-                  value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
-                  ref={field.ref}
-                  styles={{
-                    placeholder: (provided: any) => ({
-                      ...provided,
-                      fontSize: '14px',
-                    }),
-                  }}
-                />
-              )}
-            />
-            {errors.provinceId && <p className="mt-2 text-sm text-red-500">{errors.provinceId.message}</p>}
-          </div>
-
-          {/* Chọn Huyện */}
-          <div>
-            <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-              Huyện <span className="text-red-600">*</span>
-            </label>
-            <Controller
-              name="districtId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="basic-single"
-                  classNamePrefix="select"
-                  placeholder="Chọn Quận/Huyện"
-                  isLoading={isLoadingDistricts}
-                  options={districts?.data || []}
-                  getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
-                  getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
-                  onChange={(selectedOption: { id: any }) => {
-                    field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
-                  }}
-                  value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
-                  ref={field.ref}
-                  styles={{
-                    placeholder: (provided: any) => ({
-                      ...provided,
-                      fontSize: '14px',
-                    }),
-                  }}
-                />
-              )}
-            />
-            {errors.districtId && <p className="mt-2 text-sm text-red-500">{errors.districtId.message}</p>}
-          </div>
-
-          {/* Chọn Xã */}
-          <div>
-            <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-              Xã <span className="text-red-600">*</span>
-            </label>
-            <Controller
-              name="wardId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="basic-single"
-                  classNamePrefix="select"
-                  placeholder="Chọn Xã/Phường"
-                  isLoading={isLoadingWard}
-                  options={wards?.data || []}
-                  getOptionLabel={(option: { wardName: any }) => option.wardName || ''}
-                  getOptionValue={(option: { id: any }) => option.id}
-                  onChange={(selectedOption: { id: any }) => {
-                    field.onChange(selectedOption ? selectedOption.id : null);
-                  }}
-                  value={wards?.data?.find(option => option.id === field.value)}
-                  ref={field.ref}
-                  styles={{
-                    placeholder: (provided: any) => ({
-                      ...provided,
-                      fontSize: '14px',
-                    }),
-                  }}
-                />
-              )}
-            />
-            {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
-          </div>
-          <div>
+        <FormProvider {...methods}>
+          <Address
+            control={methods.control}
+            districtName="districtId"
+            provinceName="provinceId"
+            wardName="wardId"
+            errorDistrict={errors.districtId?.message}
+            errorProvince={errors.provinceId?.message}
+            errorWard={errors.wardId?.message}
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
               type="text"
               name="houseNumber"
@@ -266,8 +177,9 @@ const RegisterSchoolComponent = () => {
               error={errors.houseNumber?.message}
               required={true}
             />
-          </div>
-        </div>
+          </Address>
+        </FormProvider>
+        <div className="mt-4"></div>
         {/* Number house */}
         <div className="mt-4 flex flex-col">
           {/* Description */}

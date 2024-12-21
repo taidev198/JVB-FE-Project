@@ -1,10 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Checkbox, Chip, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
+import { Checkbox, Chip, TextField } from '@mui/material';
 import Link from 'next/link';
 import Select from 'react-select';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -24,6 +21,10 @@ import { Button, Button as MyButton } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import ImageComponent from '@/components/Common/Image';
+import PaginationComponent from '@/components/Common/Pagination';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 
 const StudentsManagement = () => {
   const dispatch = useDispatch();
@@ -57,10 +58,6 @@ const StudentsManagement = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    dispatch(setPage(page));
-  };
-
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const allStudentIds = students?.data.content.map(student => student.id);
@@ -79,11 +76,11 @@ const StudentsManagement = () => {
   const handleDelete = async () => {
     try {
       if (selectedStudents.length > 0) {
-        const response = await deleteMultiple({ ids: selectedStudents }).unwrap();
-        toast.success(response?.message);
+        await deleteMultiple({ ids: selectedStudents }).unwrap();
+        toast.success('Các sinh viên đã được xóa thành công.');
       } else {
-        const response = await deleteOne({ id: idStudent }).unwrap();
-        toast.success(response?.message);
+        await deleteOne({ id: idStudent }).unwrap();
+        toast.success('Sinh viên đã được xóa thành công.');
       }
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -106,7 +103,7 @@ const StudentsManagement = () => {
   return (
     <>
       {/* Header */}
-      <div className="rounded-md bg-white p-5 pb-5">
+      <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý sinh viên</h1>
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -166,7 +163,7 @@ const StudentsManagement = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 text-left sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedStudents.length === students?.data.content.length}
@@ -203,7 +200,7 @@ const StudentsManagement = () => {
             {students?.data.content.length > 0 ? (
               students?.data.content.map((student, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 sm:px-3 sm:py-4">
                     <Checkbox color="primary" checked={selectedStudents.includes(student.id)} onChange={() => handleSelectStudent(student.id)} size="small" />
                   </td>
                   <td className="p-3 text-center sm:px-5 sm:py-4">
@@ -247,42 +244,26 @@ const StudentsManagement = () => {
                       }}
                     />
                   </td>
-                  <td className="gap-2 py-4">
-                    <div className="flex items-center">
-                      <p className="min-w-max">
-                        <Link href={`/admin/school/students/${student.id}`}>
-                          <Tooltip title="Xem chi tiết">
-                            <IconButton onClick={() => dispatch(setId(student.id))}>
-                              <VisibilityIcon color="success" />
-                            </IconButton>
-                          </Tooltip>
-                        </Link>
-                        <Link href={`/admin/school/students/update/${student.id}`}>
-                          <Tooltip title="Sửa sinh viên">
-                            <IconButton onClick={() => dispatch(setId(student.id))}>
-                              <BorderColorIcon className="text-purple-500" />
-                            </IconButton>
-                          </Tooltip>
-                        </Link>
+                  <td className=" py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/school/students/${student.id}`} onClick={() => dispatch(setId(student.id))} />
 
-                        <Tooltip title="Xóa sinh viên">
-                          <IconButton
-                            onClick={() => {
-                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                              dispatch(setId(student.id));
-                              dispatch(setName(student.fullName));
-                            }}>
-                            <DeleteIcon className="text-red-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </p>
+                      <ButtonUpdate href={`/admin/school/students/update/${student.id}`} onClick={() => dispatch(setId(student.id))} />
+
+                      <ButtonDelete
+                        onClick={() => {
+                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                          dispatch(setId(student.id));
+                          dispatch(setName(student.fullName));
+                        }}
+                      />
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="py-4 text-center text-base text-red-500">
+                <td colSpan={7} className="py-4 text-center text-base">
                   <p>Không có dữ liệu sinh viên nào</p>
                 </td>
               </tr>
@@ -304,9 +285,14 @@ const StudentsManagement = () => {
         </BackDrop>
       )}
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={3} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
-      </div>
+      <PaginationComponent
+        size={size}
+        page={page}
+        count={students?.data.totalPages}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        totalItem={students?.data.totalElements}
+        totalTitle={'tài khoản'}
+      />
     </>
   );
 };

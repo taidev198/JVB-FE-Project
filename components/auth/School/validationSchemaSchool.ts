@@ -5,6 +5,7 @@ export interface FormDataRegisterSchool {
   universityCode: string;
   email: string;
   password: string;
+  universityDescription: string;
   confirm_password: string;
   phoneNumber: string;
   wardId: number;
@@ -13,7 +14,6 @@ export interface FormDataRegisterSchool {
   establishDate: string;
   houseNumber: string;
   universityType: string;
-  universityDescription: string;
 }
 
 const validationSchemaSchool = Yup.object({
@@ -26,7 +26,10 @@ const validationSchemaSchool = Yup.object({
   password: Yup.string()
     .required('Mật khẩu là bắt buộc')
     .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt'),
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).*$/,
+      'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 chữ số và 1 ký tự đặc biệt'
+    ),
   confirm_password: Yup.string()
     .oneOf([Yup.ref('password'), ''], 'Mật khẩu không trùng khớp')
     .required('Xác nhận mật khẩu là bắt buộc'),

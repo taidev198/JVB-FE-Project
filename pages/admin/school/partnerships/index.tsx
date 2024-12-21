@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pagination, TextField, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import Image from 'next/image';
 import { debounce } from 'lodash';
 import CancelIcon from '@mui/icons-material/Cancel';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useDispatch } from 'react-redux';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteIcon from '@mui/icons-material/Delete';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import BrushIcon from '@mui/icons-material/Brush';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
@@ -21,6 +22,7 @@ import {
   useGetAllPartnershipsUniversityQuery,
   useRemovePartnershipsMutation,
 } from '@/services/adminSystemApi';
+import ImageComponent from '@/components/Common/Image';
 
 const JobAdminSchool = () => {
   const dispatch = useDispatch();
@@ -227,7 +229,13 @@ const JobAdminSchool = () => {
                   <div className="flex w-full flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap">
                       <Link href={''}>
-                        <Image src={partner.company.logoUrl} alt="Name" width={80} height={80} className="h-20 rounded-full border border-solid" />
+                        <ImageComponent
+                          src={partner.company.logoUrl}
+                          alt={partner.company?.companyName}
+                          width={80}
+                          height={80}
+                          className="h-20 rounded-full border border-solid"
+                        />
                       </Link>
                       <div className="ml-0 font-semibold sm:ml-4">
                         <Link href={''}>
@@ -248,20 +256,20 @@ const JobAdminSchool = () => {
                       {partner.partnershipStatus === 'CANCEL' ? null : partner.partnershipStatus === 'ACCEPT' ? (
                         <Tooltip title="Xóa">
                           <div
-                            className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:opacity-60"
+                            className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2943]"
                             onClick={() => {
                               dispatch(setBackdrop(BackdropType.DeleteConfirmation));
                               dispatch(setName(partner.company.companyName));
                               setSelectId(partner.company.account.id);
                             }}>
-                            <DeleteForeverIcon color="error" fontSize="small" />
+                            <DeleteIcon color="error" fontSize="small" />
                           </div>
                         </Tooltip>
                       ) : (
                         <>
                           <Tooltip title="Chấp nhận">
                             <div
-                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:opacity-60"
+                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:bg-[#00986849]"
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.ApproveConfirmation));
                                 dispatch(setName(partner.company.companyName));
@@ -273,13 +281,49 @@ const JobAdminSchool = () => {
 
                           <Tooltip title="Từ chối">
                             <div
-                              className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:opacity-60"
+                              className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.RefuseConfirmation));
                                 dispatch(setName(partner.company.companyName));
                                 setSelectId(partner.company.account.id);
                               }}>
                               <CancelIcon color="warning" fontSize="small" />
+                            </div>
+                          </Tooltip>
+
+                          <Tooltip title="Xóa">
+                            <div
+                              className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2934]"
+                              onClick={() => {
+                                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                                dispatch(setName(partner.company.companyName));
+                                setSelectId(partner.company.account.id);
+                              }}>
+                              <DeleteIcon color="error" fontSize="small" />
+                            </div>
+                          </Tooltip>
+
+                          <Tooltip title="Chỉnh sửa">
+                            <div
+                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:bg-[#00986849]"
+                              onClick={() => {
+                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                                dispatch(setName(partner.company.companyName));
+                                setSelectId(partner.company.account.id);
+                              }}>
+                              <BrushIcon color="success" fontSize="small" />
+                            </div>
+                          </Tooltip>
+
+                          <Tooltip title="Chỉnh sửa">
+                            <div
+                              className="cursor-pointer rounded-lg bg-[#1966d227] px-2 py-[6px] transition-all hover:bg-[#1966d254]"
+                              onClick={() => {
+                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                                dispatch(setName(partner.company.companyName));
+                                setSelectId(partner.company.account.id);
+                              }}>
+                              <RemoveRedEyeIcon color="info" fontSize="small" />
                             </div>
                           </Tooltip>
                         </>

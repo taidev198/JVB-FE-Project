@@ -1,11 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Chip, IconButton, Tooltip, Pagination, TextField } from '@mui/material';
-import Link from 'next/link';
+import { Chip, TextField } from '@mui/material';
 import Select from 'react-select';
-import ClearIcon from '@mui/icons-material/Clear';
-import LockIcon from '@mui/icons-material/Lock';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { debounce } from 'lodash';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
@@ -17,6 +12,12 @@ import { useBanAndActiveMutation, useGetAllAccountCompanyQuery, useRejectAccount
 import { typeAccount } from '@/utils/app/const';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
+import ButtonLock from '@/components/Common/ButtonIcon/ButtonLock';
+import ButtonUnLock from '@/components/Common/ButtonIcon/ButtonUnLock';
+import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import PaginationComponent from '@/components/Common/Pagination';
 
 const AdminSystemCompany = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
@@ -49,23 +50,23 @@ const AdminSystemCompany = () => {
       try {
         switch (selectedAction) {
           case BackdropType.ApproveConfirmation || BackdropType.UnlockConfirmation: {
-            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
-            toast.success(response?.message);
+            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
+            toast.success('Tài khoản đã được duyệt thành công.');
             break;
           }
           case BackdropType.UnlockConfirmation: {
-            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
-            toast.success(response?.message);
+            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
+            toast.success('Tài khoản đã được mở khóa thành công.');
             break;
           }
           case BackdropType.RefuseConfirmation: {
-            const response = await rejectAccount({ id: selectedCompanyId }).unwrap();
-            toast.success(response?.message);
+            await rejectAccount({ id: selectedCompanyId }).unwrap();
+            toast.success('Yêu cầu duyệt tài khoản đã bị từ chối.');
             break;
           }
           case BackdropType.LockConfirmation: {
-            const response = await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'BAN' }).unwrap();
-            toast.success(response?.message);
+            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'BAN' }).unwrap();
+            toast.success('Tài khoản đã bị khóa thành công.');
             break;
           }
           default:
@@ -127,7 +128,7 @@ const AdminSystemCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="px-5 py-4">STT</th>
               <th className="px-5 py-4 text-left">Mã công ty</th>
               <th className="px-5 py-4 text-left">Tên Công Ty</th>
               <th className="px-5 py-4 text-left">Email</th>
@@ -140,12 +141,10 @@ const AdminSystemCompany = () => {
             {companies?.data.content.length !== 0 ? (
               companies?.data.content.map((company, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4 text-center"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{company.companyCode}</td>
                   <td className="px-5 py-4">
-                    <Link href={`/admin/system/company/${company.id}`} className=" hover:text-primary-main" onClick={() => dispatch(setId(company.id))}>
-                      {company.companyName}
-                    </Link>
+                    <p>{company.companyName}</p>
                   </td>
                   <td className="px-5 py-4">{company.account.email}</td>
                   <td className="px-5 py-4">{company.createAt.split(' ')[0]}</td>
@@ -158,41 +157,27 @@ const AdminSystemCompany = () => {
                       }}
                     />
                   </td>
-                  <td className="flex items-center py-4">
+                  <td className="flex items-center gap-3 px-5 py-4">
+                    <ButtonSee href={`/admin/system/company/${company.id}`} onClick={() => dispatch(setId(company.id))} />
                     {company?.account?.statusAccount === 'PENDING' && (
                       <>
-                        <Tooltip title="Duyệt tài khoản">
-                          <IconButton onClick={() => handleAction(BackdropType.ApproveConfirmation, company.account.id, company.companyName)}>
-                            <CheckCircleIcon color="success" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Từ chối">
-                          <IconButton onClick={() => handleAction(BackdropType.RefuseConfirmation, company.account.id, company.companyName)}>
-                            <ClearIcon color="warning" />
-                          </IconButton>
-                        </Tooltip>
+                        <ButtonAccept onClick={() => handleAction(BackdropType.ApproveConfirmation, company.account.id, company.companyName)} />
+
+                        <ButtonReject onClick={() => handleAction(BackdropType.RefuseConfirmation, company.account.id, company.companyName)} />
                       </>
                     )}
                     {company?.account?.statusAccount === 'ACTIVE' && (
-                      <Tooltip title="Khóa tài khoản">
-                        <IconButton onClick={() => handleAction(BackdropType.LockConfirmation, company.account.id, company.companyName)}>
-                          <LockIcon color="error" />
-                        </IconButton>
-                      </Tooltip>
+                      <ButtonLock onClick={() => handleAction(BackdropType.LockConfirmation, company.account.id, company.companyName)} />
                     )}
                     {company?.account?.statusAccount === 'BAN' && (
-                      <Tooltip title="Mở khóa tài khoản">
-                        <IconButton onClick={() => handleAction(BackdropType.UnlockConfirmation, company.account.id, company.companyName)}>
-                          <LockOpenIcon color="success" />
-                        </IconButton>
-                      </Tooltip>
+                      <ButtonUnLock onClick={() => handleAction(BackdropType.UnlockConfirmation, company.account.id, company.companyName)} />
                     )}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="py-4 text-center text-base text-red-500">
+                <td colSpan={7} className="py-4 text-center text-base">
                   <p>Không có tài khoản trường học nào</p>
                 </td>
               </tr>
@@ -200,14 +185,15 @@ const AdminSystemCompany = () => {
           </tbody>
         </table>
       </div>
-
       {/* Pagination */}
-      <div className="flex items-center justify-center bg-white p-5">
-        <Pagination count={companies?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
-        <p className="text-sm">
-          ({companies?.data.currentPage} / {companies?.data.totalPages})
-        </p>
-      </div>
+      <PaginationComponent
+        size={size}
+        page={page}
+        count={companies?.data.totalPages}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        totalItem={companies?.data.totalElements}
+        totalTitle={'tài khoản'}
+      />
       {/* Backdrops */}
       {showBackdrop && (
         <BackDrop isCenter>

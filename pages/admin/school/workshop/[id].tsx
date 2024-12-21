@@ -1,13 +1,13 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDispatch } from 'react-redux';
 import { Chip, IconButton } from '@mui/material';
-import Image from 'next/image';
 import Link from 'next/link';
 import ClearIcon from '@mui/icons-material/Clear';
 import { useAppSelector } from '@/store/hooks';
 import { useGetDetailWorkshopQuery } from '@/services/adminSchoolApi';
 import { BackdropType, setBackdrop, setImage } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
+import ImageComponent from '@/components/Common/Image';
 
 const AdminSchoolDetailWorkshop = () => {
   const dispatch = useDispatch();
@@ -87,14 +87,14 @@ const AdminSchoolDetailWorkshop = () => {
             <span className="font-semibold">Hình ảnh:</span>
             <div className="mt-2 flex flex-wrap justify-evenly gap-4">
               {workshop?.data.imageWorkshops.map(image => (
-                <Image
+                <ImageComponent
                   src={image.imageUrl ?? ''}
                   alt="Workshop"
                   width={140}
                   height={140}
                   className="cursor-pointer rounded"
                   key={image.id}
-                  onClick={() => {
+                  onclick={() => {
                     dispatch(setImage(image.imageUrl));
                     dispatch(setBackdrop(BackdropType.AddModal));
                   }}
@@ -110,7 +110,7 @@ const AdminSchoolDetailWorkshop = () => {
             <div className="absolute right-1" onClick={() => dispatch(setBackdrop(null))}>
               <ClearIcon className="cursor-pointer" />
             </div>
-            <Image src={imageURL ?? ''} alt="Workshop" width={600} height={600} className="rounded" />
+            <ImageComponent src={imageURL} alt="Workshop" width={600} height={600} className="rounded" />
           </div>
         </BackDrop>
       )}

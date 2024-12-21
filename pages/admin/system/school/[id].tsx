@@ -106,7 +106,7 @@ const AdminSystemDetailSchool = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <LightbulbIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Số lượng sinh viên:</span>
+              <span className="mr-2 font-semibold">Mô tả:</span>
               <span dangerouslySetInnerHTML={{ __html: data?.data.universityDescription || '' }} />
             </div>
           </li>
