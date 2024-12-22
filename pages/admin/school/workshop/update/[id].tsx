@@ -3,32 +3,30 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import Select from 'react-select';
-
+import dayjs, { Dayjs } from 'dayjs';
 import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
-import Text from '@/components/Common/Text';
 import ImageUploader from '@/components/Common/ImageUploader';
 import TextEditor from '@/components/Common/TextEditor';
-import Date from '@/components/Common/Date';
-import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import { useGetAllFieldsQuery, useGetDetailWorkshopQuery, useUpdateWorkshopMutation } from '@/services/adminSchoolApi';
 import SelectReact from '@/components/Common/SelectMui';
 import { setLoading } from '@/store/slices/global';
 import { ImageWorkshops } from '@/types/workshop';
 import updateWorkshopSchema from '@/validation/updateWorkshop';
-import { formatDate } from '@/utils/app/format';
+import { formatDateWorkshop } from '@/utils/app/format';
 import { useAppSelector } from '@/store/hooks';
+import DateComponent from '@/components/Common/DateComponent';
+import Address from '@/components/Common/Address';
 
 interface FormDataWorkShop {
   workshopTitle: string;
   workshopDescription: string;
-  startTime: string;
-  endTime: string;
+  startTime: Dayjs | string;
+  endTime: Dayjs | string;
   estimateCompanyParticipants: number;
   wardId?: number | null;
   districtId?: number | null;
@@ -43,26 +41,28 @@ const UpdateWorkshop = () => {
   const [idImageDelete, setIdImageDelete] = useState<number[]>([]);
   const router = useRouter();
   const dispatch = useDispatch();
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-    getValues,
-    reset,
-  } = useForm<FormDataWorkShop>({
+
+  const methods = useForm<FormDataWorkShop>({
     resolver: yupResolver(updateWorkshopSchema),
+    mode: 'onChange',
+    defaultValues: {
+      wardId: null,
+      districtId: null,
+      provinceId: null,
+    },
   });
+
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = methods;
+
   const IdWorkshop = useAppSelector(state => state.global.id);
 
   const { data: workshop, isLoading: isLoadingDetailWorkshop } = useGetDetailWorkshopQuery({ id: IdWorkshop });
-  const provinceSelect = watch('provinceId');
-  const districtSelect = watch('districtId');
-  watch('wardId');
-  // Fetch data
-  const { data: provinces, isLoading } = useGetAllProvincesQuery();
-  const { data: districts } = useGetAllDistrictsQuery({ id: provinceSelect ?? null }, { skip: !provinceSelect });
-  const { data: wards } = useGetAllWardsQuery({ id: districtSelect ?? null }, { skip: !districtSelect });
+
   const { data: faculties, isLoading: isLoadingFields } = useGetAllFieldsQuery();
   const [existingImageUrls, setExistingImageUrls] = useState<ImageWorkshops[]>([]);
   useEffect(() => {
@@ -75,15 +75,28 @@ const UpdateWorkshop = () => {
   const onSubmit: SubmitHandler<FormDataWorkShop> = async data => {
     const formData = new FormData();
 
+    const startTime = dayjs(data?.startTime);
+    const endTime = dayjs(data?.endTime);
+
+    if (!startTime.isValid()) {
+      console.error('startTime is invalid');
+    }
+
+    if (!endTime.isValid()) {
+      console.error('endTime is invalid');
+    }
+
     formData.append('workshopTitle', data.workshopTitle);
     formData.append('workshopDescription', data.workshopDescription);
-    formData.append('startTime', formatDate(data?.startTime ? data?.startTime : ''));
-    formData.append('endTime', formatDate(data?.endTime ? data?.endTime : ''));
+    // Chuyển đổi dayjs thành chuỗi trước khi append vào formData
+    formData.append('startTime', formatDateWorkshop(data.startTime));
+    formData.append('endTime', formatDateWorkshop(data.endTime));
     formData.append('estimateCompanyParticipants', String(data.estimateCompanyParticipants));
     formData.append('agenda', data.agenda);
     formData.append('addressDetail', data.houseNumber);
     formData.append('wardId', String(data.wardId));
     formData.append('fieldIds', String(data.fields));
+
     if (Array.isArray(newImages)) {
       newImages.forEach(file => {
         formData.append('imageNews', file);
@@ -111,8 +124,8 @@ const UpdateWorkshop = () => {
       reset({
         workshopTitle: workshop.data.workshopTitle,
         workshopDescription: workshop.data.workshopDescription,
-        startTime: workshop.data.startTime,
-        endTime: workshop.data.endTime,
+        startTime: workshop.data.startTime ? dayjs(workshop.data.startTime, 'DD/MM/YYYY HH:mm:ss') : null,
+        endTime: workshop.data.endTime ? dayjs(workshop.data.endTime, 'DD/MM/YYYY HH:mm:ss') : null,
         estimateCompanyParticipants: workshop.data.estimateCompanyParticipants,
         agenda: workshop.data.agenda,
         houseNumber: workshop.data.address.houseNumber,
@@ -143,9 +156,31 @@ const UpdateWorkshop = () => {
           <Input name="workshopTitle" control={control} error={errors.workshopTitle?.message} placeholder="Nhập tiêu đề Workshop" label="Tiêu đề Workshop" />
           <div>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Date name="startTime" label="Thời gian bắt đầu" placeholder="Thời gian bắt đầu" control={control} error={errors.startTime?.message} />
+              <DateComponent
+                showTime={true}
+                name="startTime"
+                label="Thời gian bắt đầu"
+                placeholder="Thời gian bắt đầu"
+                control={control}
+                error={errors.startTime?.message}
+              />
               {/*  */}
-              <Date name="endTime" label="Thời gian kết thúc" placeholder="Thời gian kết thúc" control={control} error={errors.endTime?.message} />
+              <DateComponent
+                showTime={true}
+                name="endTime"
+                label="Thời gian kết thúc"
+                placeholder="Thời gian kết thúc"
+                control={control}
+                error={errors.endTime?.message}
+              />{' '}
+              <Input
+                type="number"
+                name="estimateCompanyParticipants"
+                label="Số lượng công ty ước tính"
+                placeholder="Nhập số lượng công ty ước tính"
+                control={control}
+                error={errors.estimateCompanyParticipants?.message}
+              />
               <SelectReact
                 name="fields"
                 label="Lĩn vực"
@@ -159,18 +194,6 @@ const UpdateWorkshop = () => {
                 error={errors.fields?.message}
               />
             </div>
-            <Input
-              type="number"
-              name="estimateCompanyParticipants"
-              label="Số lượng công ty ước tính"
-              placeholder="Nhập số lượng công ty ước tính"
-              control={control}
-              error={errors.estimateCompanyParticipants?.message}
-            />
-            {/* workshopDescription */}
-            <div className="mt-4">
-              <Text name="workshopDescription" label="Mô tả" placeholder="Nhập mô tả" control={control} error={errors.workshopDescription?.message} />
-            </div>
           </div>
         </div>
 
@@ -178,6 +201,18 @@ const UpdateWorkshop = () => {
         <div className="mt-4 grid grid-cols-1 gap-4 rounded-lg bg-primary-white p-5 ">
           {/* Image */}
           <ImageUploader images={newImages} setImages={setNewImages} existingImages={existingImageUrls} removeExistingImage={handleRemoveExistingImage} />
+        </div>
+
+        {/* workshopDescription */}
+        <div className="mt-4 grid grid-cols-1 gap-4 rounded-lg bg-primary-white p-5">
+          <Controller
+            name="workshopDescription"
+            control={control}
+            defaultValue=""
+            render={({ field }) => (
+              <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Mô tả" error={errors.workshopDescription?.message} />
+            )}
+          />
         </div>
 
         {/* Block 3 */}
@@ -194,97 +229,30 @@ const UpdateWorkshop = () => {
         </div>
 
         {/* Block 4 */}
-        <div className="mt-4 grid grid-cols-1 gap-4 rounded-lg bg-primary-white p-5 sm:grid-cols-2">
-          {/* Address */}
+        <div className="mt-4 gap-4 rounded-t-lg bg-primary-white p-5">
+          <p className="mb-1 block text-sm font-semibold text-gray-700">Địa chỉ</p>
           {/* Chọn tỉnh */}
-          <div>
-            <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-              Tỉnh
-            </label>
-            <Controller
-              name="provinceId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="basic-single"
-                  classNamePrefix="select"
-                  placeholder="Chọn Tỉnh/Thành phố"
-                  isLoading={isLoading}
-                  options={provinces?.data || []}
-                  getOptionLabel={(option: { provinceName: string }) => option.provinceName || ''} // Hiển thị tên tỉnh
-                  getOptionValue={(option: { id: number }) => option.id} // Chỉ lưu id
-                  onChange={(selectedOption: { id: number }) => {
-                    // Nếu người dùng không chọn tỉnh mới, chọn tỉnh hiện tại
-                    field.onChange(selectedOption ? selectedOption.id : workshop?.data.address.province.id);
-                  }}
-                  value={
-                    provinces?.data?.find(option => option.id === getValues('provinceId')) ||
-                    provinces?.data?.find(option => option.id === workshop?.data.address.province.id)
-                  } // Giữ giá trị đã chọn, nếu không có giá trị chọn thì dùng tỉnh hiện tại
-                />
-              )}
-            />
-
-            {errors.provinceId && <p className="mt-2 text-sm text-red-500">{errors.provinceId.message}</p>}
-          </div>
-
-          {/* Chọn Huyện */}
-          <div>
-            <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-              Huyện
-            </label>
-            <Controller
-              name="districtId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="basic-single"
-                  classNamePrefix="select"
-                  placeholder="Chọn Quận/Huyện"
-                  isLoading={isLoading}
-                  options={districts?.data || []}
-                  getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
-                  getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
-                  onChange={(selectedOption: { id: any }) => {
-                    field.onChange(selectedOption ? selectedOption.id : workshop?.data.address.district.id); // Lưu id vào form
-                  }}
-                  value={districts?.data?.find(option => option.id === workshop?.data.address.district.id)} // Giữ giá trị name (tên tỉnh) khi chọn
-                />
-              )}
-            />
-            {errors.districtId && <p className="mt-2 text-sm text-red-500">{errors.districtId.message}</p>}
-          </div>
-
-          {/* Chọn Xã */}
-          <div>
-            <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-              Xã
-            </label>
-            <Controller
-              name="wardId"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  {...field}
-                  className="basic-single"
-                  classNamePrefix="select"
-                  placeholder="Chọn Xã/Phường"
-                  isLoading={isLoading}
-                  options={wards?.data || []}
-                  getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
-                  getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
-                  onChange={(selectedOption: { id: any }) => {
-                    field.onChange(selectedOption ? selectedOption.id : workshop?.data.address.ward.id); // Lưu id vào form
-                  }}
-                  value={wards?.data?.find(option => option.id === workshop?.data.address.ward.id)} // Giữ giá trị name (tên tỉnh) khi chọn
-                />
-              )}
-            />
-            {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
-          </div>
-          <Input type="text" name="houseNumber" label="Số nhà, đường" placeholder="Nhập số nhà" control={control} error={errors.houseNumber?.message} />
+          <FormProvider {...methods}>
+            <Address
+              control={methods.control}
+              districtName="districtId"
+              provinceName="provinceId"
+              wardName="wardId"
+              errorDistrict={errors.districtId?.message}
+              errorProvince={errors.provinceId?.message}
+              errorWard={errors.wardId?.message}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                type="text"
+                name="houseNumber"
+                label="Số nhà, đường"
+                placeholder="Nhập số nhà, đường"
+                control={control}
+                error={errors.houseNumber?.message}
+                required={true}
+              />
+            </Address>
+          </FormProvider>
         </div>
         <div className="ml-auto mt-5 w-fit">
           <Button text="Cập nhật" type="submit" />

@@ -25,7 +25,7 @@ export const Button = ({ onClick, className, text, icon: Icon, disabled = false,
       onClick={handleClick}
       className={`flex h-[42px] ${
         full ? 'w-full' : ''
-      }  items-center justify-center gap-[5px] whitespace-nowrap rounded-[8px] border-[1px] bg-primary-main px-[21px] text-white hover:bg-black disabled:bg-[#676767] ${className} ${
+      }  items-center justify-center gap-[5px] whitespace-nowrap rounded-[8px] border-[1px] bg-primary-main px-[21px] text-white hover:bg-[#2e7b42] disabled:bg-[#676767] ${className} ${
         disabled ? 'cursor-not-allowed' : 'cursor-pointer'
       } transform transition-all duration-300 ease-in-out`}>
       {Icon}

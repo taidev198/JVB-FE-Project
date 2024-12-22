@@ -2,13 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Pagination, TextField, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import Image from 'next/image';
 import { debounce } from 'lodash';
 import CancelIcon from '@mui/icons-material/Cancel';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useDispatch } from 'react-redux';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import DeleteIcon from '@mui/icons-material/Delete';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import BrushIcon from '@mui/icons-material/Brush';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
@@ -21,6 +22,7 @@ import {
   useGetAllPartnershipsUniversityQuery,
   useRemovePartnershipsMutation,
 } from '@/services/adminSystemApi';
+import ImageComponent from '@/components/Common/Image';
 
 const JobAdminSchool = () => {
   const dispatch = useDispatch();
@@ -110,75 +112,6 @@ const JobAdminSchool = () => {
 
       {/* Table */}
       <div className="w-full overflow-x-auto bg-white">
-        {/* <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
-          <thead className="bg-white">
-            <tr>
-              <th className="px-5 py-4 text-left">STT</th>
-              <th className="px-5 py-4 text-left">Mã công ty</th>
-              <th className="px-5 py-4 text-left">Tên công ty</th>
-              <th className="px-5 py-4 text-left">Mã số thuế</th>
-              <th className="px-5 py-4 text-left">Số điện thoại</th>
-              <th className="px-5 py-4 text-left">Ngày thành lập</th>
-              <th className="px-5 py-4 text-left">Trạng thái</th>
-              <th className="px-5 py-4 text-left">Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {partnerships?.data.content.length !== 0 ? (
-              partnerships?.data.content.map((partnership, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
-                  <td className="px-5 py-4">{partnership.company.companyCode}</td>
-                  <td className="px-5 py-4">{partnership.company.companyName}</td>
-                  <td className="px-5 py-4">{partnership.company.taxCode}</td>
-                  <td className="px-5 py-4">{partnership.company.phoneNumber}</td>
-                  <td className="px-5 py-4">{partnership.company.establishedDate}</td>
-                  <td className="px-5 py-4">
-                    <Chip
-                      label={StatusJob(partnership.partnershipStatus).title}
-                      style={{ color: `${StatusJob(partnership.partnershipStatus).color}`, backgroundColor: `${StatusJob(partnership.partnershipStatus).bg}` }}
-                    />
-                  </td>
-                  <td className="px-5 py-4">
-                    <Tooltip title="Chấp nhận lời mời">
-                      <IconButton
-                        onClick={() => {
-                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                          dispatch(setName(partnership.company.companyName));
-                        }}>
-                        <CheckCircleIcon color="success" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Từ chối lời mời">
-                      <IconButton
-                        onClick={() => {
-                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                          dispatch(setName(partnership.company.companyName));
-                        }}>
-                        <CancelIcon color="warning" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Xóa lời mời">
-                      <IconButton
-                        onClick={() => {
-                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                          dispatch(setName(partnership.company.companyName));
-                        }}>
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </Tooltip>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={7} className="py-4 text-center text-base text-red-500">
-                  <p>Không có công việc đã ứng tuyển nào.</p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table> */}
         <div>
           {/* Row */}
           <div className="p-5">
@@ -227,7 +160,13 @@ const JobAdminSchool = () => {
                   <div className="flex w-full flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap">
                       <Link href={''}>
-                        <Image src={partner.company.logoUrl} alt="Name" width={80} height={80} className="h-20 rounded-full border border-solid" />
+                        <ImageComponent
+                          src={partner.company.logoUrl}
+                          alt={partner.company?.companyName}
+                          width={80}
+                          height={80}
+                          className="h-20 rounded-full border border-solid"
+                        />
                       </Link>
                       <div className="ml-0 font-semibold sm:ml-4">
                         <Link href={''}>
@@ -248,20 +187,20 @@ const JobAdminSchool = () => {
                       {partner.partnershipStatus === 'CANCEL' ? null : partner.partnershipStatus === 'ACCEPT' ? (
                         <Tooltip title="Xóa">
                           <div
-                            className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:opacity-60"
+                            className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2943]"
                             onClick={() => {
                               dispatch(setBackdrop(BackdropType.DeleteConfirmation));
                               dispatch(setName(partner.company.companyName));
                               setSelectId(partner.company.account.id);
                             }}>
-                            <DeleteForeverIcon color="error" fontSize="small" />
+                            <DeleteIcon color="error" fontSize="small" />
                           </div>
                         </Tooltip>
                       ) : (
                         <>
                           <Tooltip title="Chấp nhận">
                             <div
-                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:opacity-60"
+                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:bg-[#00986849]"
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.ApproveConfirmation));
                                 dispatch(setName(partner.company.companyName));
@@ -273,13 +212,49 @@ const JobAdminSchool = () => {
 
                           <Tooltip title="Từ chối">
                             <div
-                              className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:opacity-60"
+                              className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.RefuseConfirmation));
                                 dispatch(setName(partner.company.companyName));
                                 setSelectId(partner.company.account.id);
                               }}>
                               <CancelIcon color="warning" fontSize="small" />
+                            </div>
+                          </Tooltip>
+
+                          <Tooltip title="Xóa">
+                            <div
+                              className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2934]"
+                              onClick={() => {
+                                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                                dispatch(setName(partner.company.companyName));
+                                setSelectId(partner.company.account.id);
+                              }}>
+                              <DeleteIcon color="error" fontSize="small" />
+                            </div>
+                          </Tooltip>
+
+                          <Tooltip title="Chỉnh sửa">
+                            <div
+                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:bg-[#00986849]"
+                              onClick={() => {
+                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                                dispatch(setName(partner.company.companyName));
+                                setSelectId(partner.company.account.id);
+                              }}>
+                              <BrushIcon color="success" fontSize="small" />
+                            </div>
+                          </Tooltip>
+
+                          <Tooltip title="Chỉnh sửa">
+                            <div
+                              className="cursor-pointer rounded-lg bg-[#1966d227] px-2 py-[6px] transition-all hover:bg-[#1966d254]"
+                              onClick={() => {
+                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                                dispatch(setName(partner.company.companyName));
+                                setSelectId(partner.company.account.id);
+                              }}>
+                              <RemoveRedEyeIcon color="info" fontSize="small" />
                             </div>
                           </Tooltip>
                         </>

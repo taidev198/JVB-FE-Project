@@ -1,9 +1,7 @@
 import Link from 'next/link';
-import { Chip, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
+import { Chip, TextField } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import { useDispatch } from 'react-redux';
 import { debounce } from 'lodash';
 
@@ -13,10 +11,14 @@ import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/s
 import { useAppSelector } from '@/store/hooks';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useDeleteWorkshopMutation, useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
-import { statusTextWorkshop, typeAccount } from '@/utils/app/const';
+import { statusTextWorkshop } from '@/utils/app/const';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 
 import { setToast } from '@/store/slices/toastSlice';
+import PaginationComponent from '@/components/Common/Pagination';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 
 const AdminSchoolWorkshop = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -47,10 +49,6 @@ const AdminSchoolWorkshop = () => {
     [dispatch]
   );
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setPage(page);
-  };
-
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
@@ -75,14 +73,10 @@ const AdminSchoolWorkshop = () => {
     <div>
       <>
         <div className="rounded-t-md bg-white p-5 pb-5">
-          <div className="flex items-center justify-between">
-            <h1 className="mb-5 font-bold">Doanh sách Workshop</h1>
-            <Link href={'/admin/school/workshop/add-workshop'}>
-              <Button text="Thêm mới" icon={<AddIcon />} />
-            </Link>
-          </div>
-          <div className="mt-5 flex items-center gap-3 md:mt-0">
-            <div className="">
+          <h1 className="mb-5 font-bold">Doanh sách Workshop</h1>
+
+          <div className="mt-5 flex flex-wrap items-center justify-between md:mt-0">
+            <div className="flex flex-wrap items-center gap-3">
               <TextField
                 id="filled-search"
                 label="Nhập tiêu đề"
@@ -90,14 +84,21 @@ const AdminSchoolWorkshop = () => {
                 variant="outlined"
                 size="small"
                 onChange={e => debouncedSearch(e.target.value)}
+                className="w-full sm:w-auto"
               />
+
+              <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
             </div>
-            <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
+            <div className="mt-3 w-full lg:mt-0 lg:w-auto">
+              <Link href={'/admin/school/workshop/add-workshop'}>
+                <Button text="Thêm mới" icon={<AddIcon />} full={true} />
+              </Link>
+            </div>
           </div>
         </div>
 
         <div className="w-full overflow-x-auto">
-          <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
+          <table className="w-full table-auto rounded-lg bg-white text-[14px]">
             <thead className="bg-white">
               <tr>
                 <th className="px-5 py-4 text-left">
@@ -111,7 +112,7 @@ const AdminSchoolWorkshop = () => {
                   <p className="min-w-max">Địa chỉ</p>
                 </th>
                 <th className="px-2 py-4 text-left">
-                  <p className="w-[100px]">Số lượng công ty ước tính</p>
+                  <p className="w-[100px]">Thời gian</p>
                 </th>
                 <th className="px-2 py-4 text-left">
                   <p className="min-w-max">Trạng thái</p>
@@ -127,13 +128,11 @@ const AdminSchoolWorkshop = () => {
                   <td className="px-5 py-4 text-center">
                     <p>{index + 1 + (page - 1) * size}</p>
                   </td>
-                  <td className="cursor-pointer px-2 py-4 hover:text-primary-main">
-                    <Link href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))}>
-                      <p className="sm:[250px] w-[220px]">{workshop.workshopTitle}</p>
-                    </Link>
+                  <td className="px-2 py-4">
+                    <p className="sm:[230px] w-[210px]">{workshop.workshopTitle}</p>
                   </td>
                   <td className="px-2 py-4">
-                    <p className="sm:[250px] w-[220px]">{workshop.university.universityName}</p>
+                    <p className="sm:[230px] w-[210px]">{workshop.university.universityName}</p>
                   </td>
                   <td className="px-2 py-4">
                     <p className="sm:[250px] w-[220px]">
@@ -141,8 +140,8 @@ const AdminSchoolWorkshop = () => {
                       {workshop.address?.province.provinceName}
                     </p>
                   </td>
-                  <td className="px-2 py-4 text-center">{workshop.estimateCompanyParticipants}</td>
-                  <td className="px-2 py-4">
+                  <td className="px-2 py-4">{workshop.startTime}</td>
+                  <td className="px-3 py-4">
                     <Chip
                       label={statusTextWorkshop(workshop.moderationStatus).title}
                       style={{
@@ -151,23 +150,17 @@ const AdminSchoolWorkshop = () => {
                       }}
                     />
                   </td>
-                  <td className="flex items-center gap-1 px-5 py-4">
-                    <Tooltip title="Sửa">
-                      <Link href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))}>
-                        <IconButton>
-                          <EditIcon color="success" />
-                        </IconButton>
-                      </Link>
-                    </Tooltip>
-                    <Tooltip title="Xóa">
-                      <IconButton
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
+                      <ButtonUpdate href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
+                      <ButtonDelete
                         onClick={() => {
                           handleOpenConfirm(workshop.id);
                           dispatch(setName(workshop.workshopTitle));
-                        }}>
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </Tooltip>
+                        }}
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -176,12 +169,14 @@ const AdminSchoolWorkshop = () => {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-center bg-white p-5">
-          <Pagination count={workshops?.data.totalPages} page={page} onChange={handlePageChange} color="primary" shape="rounded" />
-          <p className="text-sm">
-            ({workshops?.data.currentPage} / {workshops?.data.totalPages})
-          </p>
-        </div>
+        <PaginationComponent
+          count={workshops?.data.totalPages}
+          page={page}
+          onPageChange={(event, value) => dispatch(setPage(value))}
+          size={size}
+          totalItem={workshops?.data.totalElements}
+          totalTitle={'workshops'}
+        />
 
         {showBackdrop === BackdropType.DeleteConfirmation && (
           <BackDrop isCenter>

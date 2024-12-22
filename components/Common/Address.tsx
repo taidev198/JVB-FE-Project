@@ -1,134 +1,110 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Control, Controller } from 'react-hook-form';
-import { useState } from 'react';
-import Select from 'react-select';
+import React, { FC } from 'react';
+import { Control, Controller, useFormContext } from 'react-hook-form';
+import { Select } from 'antd';
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 
-interface OptionType {
-  id: number | string;
-  provinceName?: string;
-  districtName?: string;
-  wardName?: string;
-}
-
-interface SelectProps {
-  name: string;
+interface AddressProps {
   control: Control<any>;
-  error?: string;
-  className?: string;
+  provinceName: string;
+  districtName: string;
+  wardName: string;
+  errorProvince?: string;
+  errorDistrict?: string;
+  errorWard?: string;
+  className: string;
+  children?: React.ReactNode;
 }
 
-const Address = ({ name, control, error, className }: SelectProps) => {
-  const [provinceId, setProvinceId] = useState<number | null>(null);
-  const [districtId, setDistrictID] = useState<number | null>(null);
+const Address: FC<AddressProps> = ({ provinceName, districtName, wardName, control, errorProvince, errorDistrict, errorWard, className, children }) => {
+  const { watch, setValue } = useFormContext();
+
+  const provinceSelect = watch(provinceName);
+  const districtSelect = watch(districtName);
 
   // Fetch data
-  const { data: provinces } = useGetAllProvincesQuery();
-  const { data: districts } = useGetAllDistrictsQuery({ id: provinceId }, { skip: !provinceId });
-  const { data: wards } = useGetAllWardsQuery({ id: districtId }, { skip: !districtId });
+  const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvincesQuery();
+  const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
+  const { data: wards, isLoading: isLoadingWards } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
 
-  const handleSelectChange = (option: OptionType | null, setter: React.Dispatch<React.SetStateAction<number | null>>) => {
-    if (option && option.id) {
-      setter(Number(option.id)); // Chuyển đổi `id` sang `number`
-    } else {
-      setter(null); // Reset giá trị nếu không có lựa chọn
-    }
+  const handleProvinceChange = (value: string | null) => {
+    setValue(provinceName, value);
+    setValue(districtName, null);
+    setValue(wardName, null);
   };
 
+  const handleDistrictChange = (value: string | null) => {
+    setValue(districtName, value);
+    setValue(wardName, null);
+  };
+
+  const renderSelect = (
+    name: string,
+    error: string | undefined,
+    options: any[],
+    loading: boolean,
+    placeholder: string,
+    labelKey: string,
+    valueKey: string,
+    onChange?: (value: string | null) => void
+  ) => (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <Select
+          {...field}
+          status={`${error ? 'error' : ''}`}
+          showSearch
+          allowClear
+          placeholder={placeholder}
+          optionFilterProp="label"
+          loading={loading}
+          options={options.map(option => ({
+            value: option[valueKey],
+            label: option[labelKey],
+          }))}
+          onChange={value => {
+            field.onChange(value);
+            if (onChange) onChange(value);
+          }}
+          onClear={() => field.onChange(null)}
+          className="h-[42px] w-full"
+        />
+      )}
+    />
+  );
+
   return (
-    <div className={`${className}`}>
-      {/* Province */}
+    <div className={`mt-[16px] ${className}`}>
+      {/* Province Select */}
       <div>
-        <label htmlFor={`${name}-province`} className="mb-1 block text-sm font-semibold text-gray-700">
-          Tỉnh
+        <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
+          Tỉnh <span className="text-red-600">*</span>
         </label>
-        <Controller
-          name={`${name}.province`}
-          control={control}
-          defaultValue={null}
-          render={({ field }) => (
-            <Select
-              {...field}
-              options={
-                provinces?.data?.map((province: OptionType) => ({
-                  value: province.id.toString(), // Đảm bảo value là string
-                  label: province.provinceName || 'Chưa có tên tỉnh',
-                })) || []
-              }
-              getOptionLabel={(option: OptionType) => option.provinceName || ''}
-              getOptionValue={(option: OptionType) => option.id.toString()} // Đảm bảo id là string
-              className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
-              classNamePrefix="select"
-              placeholder="Chọn tỉnh"
-              onChange={(selectedOption: OptionType | null) => {
-                // Chuyển đổi value sang number
-                const provinceId = selectedOption ? Number(selectedOption.value) : null;
-                field.onChange(provinceId); // Gửi giá trị provinceId vào form
-                handleSelectChange(selectedOption, setProvinceId); // Gọi hàm thay đổi tỉnh
-                setDistrictID(null); // Reset huyện khi thay đổi tỉnh
-              }}
-              value={provinces?.data?.find((province: OptionType) => province.id === Number(field.value)) || null}
-            />
-          )}
-        />
-
-        {error && <p className="top-full mt-[2px] text-[13px] text-red-500">{error}</p>}
+        {renderSelect(provinceName, errorProvince, provinces?.data || [], isLoadingProvinces, 'Chọn Tỉnh', 'provinceName', 'id', handleProvinceChange)}
+        {errorProvince && <p className="top-full mt-[2px] text-[13px] text-red-500">{errorProvince}</p>}
       </div>
 
-      {/* District */}
+      {/* District Select */}
       <div>
-        <label htmlFor={`${name}-district`} className="mb-1 block text-sm font-semibold text-gray-700">
-          Huyện
+        <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
+          Huyện <span className="text-red-600">*</span>
         </label>
-        <Controller
-          name={`${name}.district`}
-          control={control}
-          defaultValue={null}
-          render={({ field }) => (
-            <Select
-              {...field}
-              options={districts?.data || []}
-              getOptionLabel={(option: OptionType) => option.districtName || ''}
-              getOptionValue={(option: OptionType) => option.id.toString()}
-              className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
-              classNamePrefix="select"
-              placeholder="Chọn huyện"
-              isDisabled={!provinceId}
-              onChange={(selectedOption: OptionType | null) => {
-                field.onChange(selectedOption);
-                handleSelectChange(selectedOption, setDistrictID);
-              }}
-            />
-          )}
-        />
+        {renderSelect(districtName, errorDistrict, districts?.data || [], isLoadingDistricts, 'Chọn Huyện', 'districtName', 'id', handleDistrictChange)}
+        {errorDistrict && <p className="top-full mt-[2px] text-[13px] text-red-500">{errorDistrict}</p>}
       </div>
 
-      {/* Ward */}
+      {/* Ward Select */}
       <div>
-        <label htmlFor={`${name}-ward`} className="mb-1 block text-sm font-semibold text-gray-700">
-          Xã
+        <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
+          Xã <span className="text-red-600">*</span>
         </label>
-        <Controller
-          name={`${name}.ward`}
-          control={control}
-          defaultValue={null}
-          render={({ field }) => (
-            <Select
-              {...field}
-              options={wards?.data || []}
-              getOptionLabel={(option: OptionType) => option.wardName || ''}
-              getOptionValue={(option: OptionType) => option.id.toString()}
-              className={`!basic-select shadow-none ${error ? 'is-invalid' : ''}`}
-              classNamePrefix="select"
-              placeholder="Chọn xã"
-              isDisabled={!districtId}
-              onChange={(selectedOption: OptionType | null) => {
-                field.onChange(selectedOption);
-              }}
-            />
-          )}
-        />
+        {renderSelect(wardName, errorWard, wards?.data || [], isLoadingWards, 'Chọn Xã', 'wardName', 'id')}
+        {errorWard && <p className="top-full mt-[2px] text-[13px] text-red-500">{errorWard}</p>}
       </div>
+
+      {children}
     </div>
   );
 };

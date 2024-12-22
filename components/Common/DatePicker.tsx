@@ -20,7 +20,7 @@ const DatePickerComponent: FC<DatePickerComponentProps> = ({ startDate, setStart
           onChange={(date: Date | null) => setStartDate(date)}
           placeholderText="Chọn ngày bắt đầu"
           isClearable
-          className="!borer-[#c4c4c4] rounded-md"
+          className="!borer-[#dfdede] rounded-md"
         />
       </div>
       <div className="flex flex-col">

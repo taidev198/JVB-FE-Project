@@ -20,6 +20,7 @@ export interface IJobCompany {
   maxSalary: number;
   minSalary: number;
 }
+
 export interface IJobCompanyPortal {
   id: number;
   jobTitle: string;
@@ -50,6 +51,7 @@ export interface IJobAllResponse {
     currentPage: number;
   };
 }
+
 export interface IJobAllResponsePortal {
   code: number;
   message: string;
