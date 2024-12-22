@@ -145,7 +145,7 @@ const AcademicOfficeManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">STT</p>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Ảnh đại diện</th>
+
               <th className="p-3 text-left sm:px-5 sm:py-4">Mã nhân viên</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Họ và tên</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Số điện thoại</th>
@@ -165,9 +165,7 @@ const AcademicOfficeManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <Image src={item?.avatarUrl} alt="anh" width={50} height={50} className="h-[50px] rounded-full" />
-                  </td>
+
                   <td className="p-3 sm:px-5 sm:py-4">{item.employeeCode}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.fullName}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.phoneNumber}</td>

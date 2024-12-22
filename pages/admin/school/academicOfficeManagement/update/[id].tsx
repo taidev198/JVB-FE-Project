@@ -103,7 +103,8 @@ const UpdateAdemic = () => {
         fullName: ademic.data.fullName,
         avatarUrl: ademic.data.avatarUrl,
         gender: ademic.data.gender,
-        dateOfBirth: ademic.data.dateOfBirth,
+        // dateOfBirth: ademic.data.dateOfBirth,
+        dateOfBirth: ademic.data.dateOfBirth ? new Date(ademic.data.dateOfBirth).toISOString().split('T')[0] : '', // Chuyển đổi định dạng
         phoneNumber: ademic.data.phoneNumber,
         houseNumber: ademic.data.address.houseNumber,
         email: ademic.data.account.email,
