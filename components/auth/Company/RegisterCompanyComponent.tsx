@@ -13,6 +13,7 @@ import { setLoading } from '@/store/slices/global';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import Address from '@/components/Common/Address';
+import DateComponent from '@/components/Common/DateComponent';
 
 const RegisterCompanyComponent = () => {
   const dispatch = useDispatch();
@@ -124,17 +125,14 @@ const RegisterCompanyComponent = () => {
             />
           </>
           {/* Establihed date */}
-          <>
-            <Input
-              type="date"
-              name="establishDate"
-              label="Ngày thành lập"
-              placeholder=""
-              control={control}
-              error={errors.establishDate?.message}
-              required={true}
-            />
-          </>
+          <DateComponent
+            name="establishDate"
+            control={control}
+            error={errors.establishDate?.message}
+            placeholder={'Nhập ngày thành lập'}
+            label={'Ngày thành lập'}
+            required={true}
+          />
         </div>
         {/* Địa chỉ */}
         <FormProvider {...methods}>

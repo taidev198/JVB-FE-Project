@@ -110,7 +110,7 @@ const AdminSchoolDetailWorkshop = () => {
             <div className="absolute right-1" onClick={() => dispatch(setBackdrop(null))}>
               <ClearIcon className="cursor-pointer" />
             </div>
-            <ImageComponent src={imageURL} alt="Workshop" width={600} height={600} className="rounded" />
+            <ImageComponent src={imageURL} alt="Workshop" width={600} height={600} className="rounded object-cover" />
           </div>
         </BackDrop>
       )}

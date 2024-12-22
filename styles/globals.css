@@ -165,6 +165,10 @@ body > div#__next > main {
   font-weight: 500 !important;
 }
 
+.react-datepicker__input-container .react-datepicker__calendar-icon{
+  margin-top: 2px;
+}
+
 .ql-toolbar {
   border: 1px solid #e5e7eb;
   border-bottom: none;

@@ -10,7 +10,7 @@ const PaginationComponent = ({ count, page, onPageChange, size, totalItem, total
     dispatch(setPage(1));
   };
   return (
-    <div className="flex items-center  justify-between bg-white p-5">
+    <div className="flex items-center  justify-between rounded-b-lg border border-t border-solid bg-white p-5">
       <p className="text-sm text-[#3e3e3e]">
         Tổng {totalItem} {totalTitle}
       </p>
