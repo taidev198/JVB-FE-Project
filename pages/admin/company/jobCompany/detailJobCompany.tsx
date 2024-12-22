@@ -47,42 +47,47 @@ const detailJobCompany = () => {
                   <span className="mr-2 font-semibold">Hình thức:</span> {jobCompany?.data.jobType}
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-5 flex items-center  gap-3 ">
                 <div>
                   <span className="mr-2 font-semibold">Thời gian làm việc:</span> {jobCompany?.data.workTime}
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-5 flex items-center  gap-3 ">
                 <div>
                   <span className="mr-2 font-semibold">Phúc lợi:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.benifits ?? '' }}></p>
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-5 flex items-center  gap-3 ">
                 <div>
                   <span className="mr-2 font-semibold">Cấp bậc:</span> {jobCompany?.data.jobLevel}
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-5 flex items-center  gap-3 ">
                 <div>
                   <span className="mr-2 font-semibold">Số lượng cần tuyển:</span> {jobCompany?.data.memberOfCandidate}
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-5 flex items-center  gap-3 ">
                 <div>
                   <span className="mr-2 font-semibold">Ngày hết hạn:</span> {jobCompany?.data.expirationDate}
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-5 flex items-center  gap-3 ">
                 <div>
                   <span className="mr-2 font-semibold">Trạng Thái:</span> {jobCompany?.data.status}
                 </div>
               </li>
-              <li className="mt-4 flex items-center  gap-3 ">
+              <li className="mt-5 flex items-center gap-3">
+                <div>
+                  <span className="mr-2 font-semibold">Mô tả:</span> {jobCompany?.data.jobDescription}
+                </div>
+              </li>
+              <li className="mt-5 flex items-center  gap-3 ">
                 <div>
                   <span className="mr-2 font-semibold">Lương:</span> {jobCompany?.data.maxSalary} - {jobCompany?.data.minSalary}
                 </div>
               </li>
-              <li className="mt-4 flex items-center gap-3 ">
+              <li className="mt-5 flex items-center gap-3 ">
                 <div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
                   <span className="mr-2 font-semibold">Loại công việc:</span>

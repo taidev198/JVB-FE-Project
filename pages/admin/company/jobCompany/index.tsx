@@ -146,7 +146,6 @@ console.log(idJob);
               </th>
               <th className="px-5 py-4 text-left">STT</th>
               <th className="px-5 py-4 text-left">Tên công việc</th>
-              <th className="px-5 py-4 text-left">Mô tả</th>
               <th className="px-5 py-4 text-left">Mức lương</th>
               <th className="px-5 py-4 text-left">Thời hạn</th>
               <th className="px-5 py-4 text-left">Hành động</th>
@@ -160,7 +159,6 @@ console.log(idJob);
                 </td>
                 <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.jobTitle}</td>
-                <td className="px-5 py-4"><p dangerouslySetInnerHTML={{ __html: item.jobDescription ?? '' }}></p></td>
                 <td className="px-5 py-4">{item.maxSalary}-{item.minSalary}</td>
                 <td className="px-5 py-4">{item.expirationDate}</td>
 
