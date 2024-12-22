@@ -18,18 +18,18 @@ import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 interface FormUpdateAddJob {
-  jobTitle: string;
-  jobDescription: string;
+  job_title: string;
+  job_description: string;
   requirements: string;
-  jobType: string;
-  workTime: string;
+  job_type: string;
+  work_time: string;
   benifits: string;
-  jobLevel: string;
-  expirationDate: string;
-  memberOfCandidate: number;
-  maxSalary: number;
-  minSalary: number;
-  jobField: number[];
+  job_level: string;
+  expiration_date: string;
+  member_of_candidate: number;
+  max_salary: number;
+  min_salary: number;
+  job_field: number[];
   salary_type: string;
 }
 const UpdateJob = () => {
@@ -50,8 +50,8 @@ const UpdateJob = () => {
   } = useForm<FormUpdateAddJob>({
     resolver: yupResolver(validationSchemaAddJob),
     defaultValues: {
-      minSalary: 0,
-      maxSalary: 0,
+      min_salary: 0,
+      max_salary: 0,
     },
   });
 
@@ -59,19 +59,19 @@ const UpdateJob = () => {
   useEffect(() => {
    if(detailJob?.data){
       reset({
-        jobTitle: detailJob.data.jobTitle,
-        jobDescription: detailJob.data.jobDescription,
+        job_title: detailJob.data.jobTitle,
+        job_description: detailJob.data.jobDescription,
         requirements: detailJob.data.requirements,
-        jobType: detailJob.data.jobType,
-        workTime: detailJob.data.workTime,
+        job_type: detailJob.data.jobType,
+        work_time: detailJob.data.workTime,
         benifits: detailJob.data.benifits,
-        jobLevel: detailJob.data.jobLevel,
-        expirationDate: detailJob.data.expirationDate,
-        memberOfCandidate: detailJob.data.memberOfCandidate,
+        job_level: detailJob.data.jobLevel,
+        expiration_date: detailJob.data.expirationDate,
+        member_of_candidate: detailJob.data.memberOfCandidate,
         salary_type: detailJob.data.salaryType,
-        maxSalary: detailJob.data.maxSalary,
-        minSalary: detailJob.data.minSalary,
-        jobField: detailJob.data.fields.map((field) => field.id),
+        max_salary: detailJob.data.maxSalary,
+        min_salary: detailJob.data.minSalary,
+        job_field: detailJob.data.fields?.map((field) => field.id),
       })
    }
   },[detailJob?.data])
@@ -85,7 +85,7 @@ const UpdateJob = () => {
   const onSubmit: SubmitHandler<FormUpdateAddJob> = async data => {
     const newData = {
       ...data,
-      expirationDate: formatDateSearch(data.expirationDate),
+      expiration_date: formatDateSearch(data.expiration_date),
        status : "REJECT"
     };
     try {
@@ -118,11 +118,11 @@ const UpdateJob = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
           {/* tiêu đề */}
-          <Input name="jobTitle" control={control} error={errors.jobTitle?.message} placeholder="Tiêu đề công việc" label="Tiêu đề công việc" />
+          <Input name="job_title" control={control} error={errors.job_title?.message} placeholder="Tiêu đề công việc" label="Tiêu đề công việc" />
           {/* mô tả */}
           <div className="mt-5 grid grid-cols-1 gap-4">
             <Controller
-              name="jobDescription"
+              name="job_description"
               control={control}
               defaultValue=""
               render={({ field }) => (
@@ -131,7 +131,7 @@ const UpdateJob = () => {
                   onChange={field.onChange}
                   onBlur={field.onBlur}
                   label="Mô tả công việc"
-                  error={errors.jobDescription?.message}
+                  error={errors.job_description?.message}
                 />
               )}
             />
@@ -159,7 +159,7 @@ const UpdateJob = () => {
           <div className="mt-8 grid grid-cols-1 gap-4 rounded-b-lg sm:grid-cols-2">
             {/* Trạng thái */}
             <SelectMui
-              name="jobType"
+              name="job_type"
               label="Loại công việc"
               placeholder="Nhập loại công việc"
               control={control}
@@ -168,14 +168,14 @@ const UpdateJob = () => {
                 { value: 'PART_TIME', label: 'PART_TIME' },
                 { value: 'FREELANCE', label: 'FREELANCE' },
               ]}
-              error={errors.jobType?.message}
+              error={errors.job_type?.message}
             />
 
             {/* time làm vc */}
-            <Input name="workTime" control={control} error={errors.workTime?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" />
+            <Input name="work_time" control={control} error={errors.work_time?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" />
 
             <SelectReact
-              name="jobField"
+              name="job_field"
               label="Lĩnh vực"
               placeholder="Chọn lĩnh vực"
               options={(faculties?.data || []).map(faculty => ({
@@ -184,11 +184,11 @@ const UpdateJob = () => {
               }))}
               control={control}
               isMultiple={true}
-              error={errors.jobField?.message}
+              error={errors.job_field?.message}
             />
             {/* Trình độ */}
             <SelectMui
-              name="jobLevel"
+              name="job_level"
               label="Trình độ"
               placeholder="Nhập trình độ"
               control={control}
@@ -196,14 +196,14 @@ const UpdateJob = () => {
                 { value: 'JUNIOR', label: 'JUNIOR' },
                 { value: 'SENIOR', label: 'SENIOR' },
               ]}
-              error={errors.jobLevel?.message}
+              error={errors.job_level?.message}
             />
 
             {/*Ngày hết hạn */}
-            <Input type="date" name="expirationDate" control={control} error={errors.expirationDate?.message} placeholder="Ngày hết hạn" label="Ngày hết hạn" />
+            <Input type="date" name="expiration_date" control={control} error={errors.expiration_date?.message} placeholder="Ngày hết hạn" label="Ngày hết hạn" />
 
             {/* số lượng */}
-            <Input name="memberOfCandidate" control={control} error={errors.memberOfCandidate?.message} placeholder="Số lượng tuyển" label="Số lượng tuyển" />
+            <Input name="member_of_candidate" control={control} error={errors.member_of_candidate?.message} placeholder="Số lượng tuyển" label="Số lượng tuyển" />
 
             {/* Lương: cao */}
           </div>{' '}
@@ -220,10 +220,10 @@ const UpdateJob = () => {
             />
             {salaryType === 'FIXED' && (
               <>
-                <Input name="maxSalary" type="number" label="Mức lương từ" placeholder="Cao nhất:" control={control} error={errors.maxSalary?.message} />
+                <Input name="max_salary" type="number" label="Mức lương từ" placeholder="Cao nhất:" control={control} error={errors.max_salary?.message} />
 
                 {/* Lương: thấp */}
-                <Input name="minSalary" type="number" label="Đến mức lương" placeholder="Thấp nhất:" control={control} error={errors.minSalary?.message} />
+                <Input name="min_salary" type="number" label="Đến mức lương" placeholder="Thấp nhất:" control={control} error={errors.min_salary?.message} />
               </>
             )}
           </div>

@@ -13,17 +13,8 @@ import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Text from '@/components/Common/Text';
-import validationSchemaAddStudent from '@/components/Admin/school/Student/validationAddStudent';
 import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
-import SelectReact from '@/components/Common/SelectMui';
-import { gender, typeUniversity } from '@/utils/app/const';
-import {
-  useGetAllMajorsQuery,
-  useGetDetailSchoolQuery,
-  useGetDetailStudentQuery,
-  useUpdateSchoolMutation,
-  useUpdateStudentMutation,
-} from '@/services/adminSchoolApi';
+import { useUpdateSchoolMutation} from '@/services/adminSchoolApi';
 import { setId, setLoading } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
@@ -63,6 +54,7 @@ const UpdateProfileCompany = () => {
   } = useForm<FormDataProfile>({
     resolver: yupResolver(validationSchemaUpdateSchool),
   });
+  console.log(errors);
   const id = useAppSelector(state => state.global.id);
   const { data: detailProfile } = useGetDetailProfileQuery();
   useEffect(() => {
@@ -77,9 +69,9 @@ const UpdateProfileCompany = () => {
   const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
   const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
 
-  const { data: majors } = useGetAllMajorsQuery();
+  // const { data: majors } = useGetAllMajorsQuery();
   const [updateProfile, { isLoading }] = useUpdateSchoolMutation();
-  console.log(detailProfile);
+
   const onSubmit: SubmitHandler<FormDataProfile> = async data => {
     const formData = new FormData();
 

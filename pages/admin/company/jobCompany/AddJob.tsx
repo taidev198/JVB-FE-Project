@@ -17,19 +17,19 @@ import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useRouter } from 'next/router';
 interface FormDataAddJob {
-  jobTitle: number;
-  jobDescription: string;
+  job_title: number;
+  job_description: string;
   requirements: string;
-  jobType: string;
-  workTime: string;
+  job_type: string;
+  work_time: string;
   benifits: string;
-  jobLevel: number;
-  expirationDate: string;
-  memberOfCandidate: number;
+  job_level: number;
+  expiration_date: string;
+  member_of_candidate: number;
   salaryType: string;
-  maxSalary: number;
-  minSalary: number;
-  jobField: number;
+  max_salary: number;
+  min_salary: number;
+  job_field: number[];
   salary_type: string;
 }
 const AddJob = () => {
@@ -42,8 +42,8 @@ const AddJob = () => {
   } = useForm<FormDataAddJob>({
     resolver: yupResolver(validationSchemaAddJob),
     defaultValues: {
-      minSalary: 0,
-      maxSalary: 0,
+      min_salary: 0,
+      max_salary: 0,
     },
   });
 
@@ -57,7 +57,7 @@ const AddJob = () => {
   const onSubmit: SubmitHandler<FormDataAddJob> = async data => {
     const newData = {
       ...data,
-      expirationDate: formatDateSearch(data.expirationDate),
+      expiration_date: formatDateSearch(data.expiration_date),
     };
     try {
       const response = await addJob(newData).unwrap();
@@ -72,7 +72,9 @@ const AddJob = () => {
       }
     }
     // addJob(newData)
+
   };
+  console.log(errors)
 
   return (
     <div className="bg-primary-white px-10">
@@ -89,11 +91,11 @@ const AddJob = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
           {/* tiêu đề */}
-          <Input name="jobTitle" control={control} error={errors.jobTitle?.message} placeholder="Tiêu đề công việc" label="Tiêu đề công việc" required={true} />
+          <Input name="job_title" control={control} error={errors.job_title?.message} placeholder="Tiêu đề công việc" label="Tiêu đề công việc" required={true} />
           {/* mô tả */}
           <div className="mt-5 grid grid-cols-1 gap-4">
             <Controller
-              name="jobDescription"
+              name="job_description"
               control={control}
               defaultValue=""
               render={({ field }) => (
@@ -103,7 +105,7 @@ const AddJob = () => {
                   onBlur={field.onBlur}
                   label="Mô tả công việc"
                   required={true}
-                  error={errors.jobDescription?.message}
+                  error={errors.job_description?.message}
                 />
               )}
             />
@@ -131,7 +133,7 @@ const AddJob = () => {
           <div className="mt-8 grid grid-cols-1 gap-4 rounded-b-lg sm:grid-cols-2">
             {/* Trạng thái */}
             <SelectMui
-              name="jobType"
+              name="job_type"
               label="Loại công việc"
               placeholder="Nhập loại công việc"
               required={true}
@@ -141,14 +143,14 @@ const AddJob = () => {
                 { value: 2, label: 'Part time' },
                 { value: 2, label: 'Freelance' },
               ]}
-              error={errors.jobType?.message}
+              error={errors.job_type?.message}
             />
 
             {/* time làm vc */}
-            <Input  name="workTime" control={control} error={errors.workTime?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" required={true}/>
+            <Input  name="work_time" control={control} error={errors.work_time?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" required={true}/>
 
             <SelectReact
-              name="jobField"
+              name="job_field"
               label="Lĩnh vực"
               required={true}
               placeholder="Chọn lĩnh vực"
@@ -157,12 +159,12 @@ const AddJob = () => {
                 label: faculty.fieldName,
               }))}
               control={control}
-              
-              error={errors.jobField?.message}
+              isMultiple = {true}
+              error={errors.job_field?.message}
             />
             {/* Trình độ */}
             <SelectMui
-              name="jobLevel"
+              name="job_level"
               label="Trình độ"
               required={true}
               placeholder="Nhập trình độ"
@@ -171,14 +173,14 @@ const AddJob = () => {
                 { value: 1, label: 'junior' },
                 { value: 2, label: 'senior' },
               ]}
-              error={errors.jobLevel?.message}
+              error={errors.job_level?.message}
             />
 
             {/*Ngày hết hạn */}
-            <Input type="date" name="expirationDate" control={control} error={errors.expirationDate?.message} placeholder="Ngày hết hạn" required={true} label="Ngày hết hạn" />
+            <Input type="date" name="expiration_date" control={control} error={errors.expiration_date?.message} placeholder="Ngày hết hạn" required={true} label="Ngày hết hạn" />
 
             {/* số lượng */}
-            <Input name="memberOfCandidate" control={control} error={errors.memberOfCandidate?.message} placeholder="Số lượng tuyển" required={true} label="Số lượng tuyển" />
+            <Input name="member_of_candidate" control={control} error={errors.member_of_candidate?.message} placeholder="Số lượng tuyển" required={true} label="Số lượng tuyển" />
 
             {/* Lương: cao */}
           </div>
@@ -197,10 +199,10 @@ const AddJob = () => {
             />
             {salaryType === 'FIXED' && (
               <>
-                <Input name="maxSalary" type="number" label="Mức lương từ" placeholder="Cao nhất:" control={control} error={errors.maxSalary?.message} />
+                <Input name="max_salary" type="number" label="Mức lương từ" placeholder="Cao nhất:" control={control} error={errors.max_salary?.message} />
 
                 {/* Lương: thấp */}
-                <Input name="minSalary" type="number" label="Đến mức lương" placeholder="Thấp nhất:" control={control} error={errors.minSalary?.message} />
+                <Input name="min_salary" type="number" label="Đến mức lương" placeholder="Thấp nhất:" control={control} error={errors.min_salary?.message} />
               </>
             )}
           </div>
