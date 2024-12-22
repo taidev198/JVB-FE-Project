@@ -20,7 +20,7 @@ export const adminSystemApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Company', 'School', 'Partnerships'],
+  tagTypes: ['Workshop', 'Company', 'School', 'Partnerships', 'Job'],
   endpoints: builder => {
     return {
       // Address
@@ -280,6 +280,18 @@ export const adminSystemApi = createApi({
           { type: 'Partnerships' },
         ],
       }),
+
+      // Job
+      getAllJobsAdminSystem: builder.query<any, { page: number; size: number }>({
+        query: ({ page, size }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+
+          return `/admin/jobs?${queryParams.toString()}`;
+        },
+        providesTags: ['Job'],
+      }),
     };
   },
 });
@@ -312,4 +324,5 @@ export const {
   useAcceptPartnershipsMutation,
   useCancelPartnershipsMutation,
   useRemovePartnershipsMutation,
+  useGetAllJobsAdminSystemQuery,
 } = adminSystemApi;

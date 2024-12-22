@@ -1,11 +1,28 @@
 import { format, isValid } from 'date-fns';
 import { parse } from 'date-fns';
+import dayjs from 'dayjs';
 
 export const formatDate = (date: string | null): string => {
   if (!date) {
     return ''; // Or any fallback value you prefer
   }
   return format(date, "yyyy-MM-dd'T'HH:mm:ss");
+};
+
+export const formatDateWorkshop = (date: string | null): string => {
+  if (!date) {
+    return ''; // Giá trị mặc định nếu không có ngày
+  }
+
+  // Sử dụng dayjs để parse và định dạng ngày
+  const formattedDate = dayjs(date).format('YYYY-MM-DDTHH:mm:ss');
+
+  // Kiểm tra nếu ngày không hợp lệ
+  if (!dayjs(date).isValid()) {
+    return ''; // Giá trị fallback nếu ngày không hợp lệ
+  }
+
+  return formattedDate;
 };
 
 export const toISOString = (date: string): string => {
