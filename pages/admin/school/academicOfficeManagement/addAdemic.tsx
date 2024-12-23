@@ -15,8 +15,8 @@ import { gender } from '@/utils/app/const';
 import SelectReact from '@/components/Common/SelectMui';
 import { useRouter } from 'next/router';
 import { setToast } from '@/store/slices/toastSlice';
-import { useAddAcademicOfficeManagementMutation, useDeleteAcademicOfficeManagementMutation, useDeleteAdemicOneMutation } from '@/services/adminSchoolApi';
-import { useGetAllAccountSchoolQuery, useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
+import { useAddAcademicOfficeManagementMutation, useDeleteAdemicOneMutation } from '@/services/adminSchoolApi';
+import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import Text from '@/components/Common/Text';
 import toast from 'react-hot-toast';
 

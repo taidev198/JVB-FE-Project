@@ -90,6 +90,7 @@ const UpdateDepartment = () => {
             error={errors.facultyCode?.message}
             {...register('facultyCode', { required: 'Mã khoa là bắt buộc' })}
             required={true}
+            disabled={true}
           />
           <Input
             type="text"
