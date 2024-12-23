@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import Logo from '../Logo';
-import avt from '@/assets/images/avt.png';
 import { getUserState, logOut } from '@/store/slices/user';
-import { useDispatch, useSelector } from 'react-redux';
+import { ExportOutlined, MenuOutlined } from '@ant-design/icons';
+import { Drawer, Dropdown, Menu, Space } from 'antd';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { DownOutlined, ExportOutlined } from '@ant-design/icons';
-import { Dropdown, Space } from 'antd';
-const PortalHeader = () => {
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import ImageComponent from '../Common/Image';
+import Logo from '../Logo';
+
+const PortalHeader: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
+
   const { token, roleAccount, user } = useSelector(getUserState);
   const router = useRouter(); // Hook lấy thông tin đường dẫn
   const dispatch = useDispatch();
+
   const handleLogout = () => {
     dispatch(logOut());
     router.push('/');
@@ -28,7 +30,6 @@ const PortalHeader = () => {
       ),
       key: '0',
     },
-
     {
       label: (
         <a href="https://www.aliyun.com" target="_blank" rel="noopener noreferrer">
@@ -61,7 +62,6 @@ const PortalHeader = () => {
       ),
       key: '4',
     },
-
     {
       type: 'divider',
     },
@@ -69,36 +69,79 @@ const PortalHeader = () => {
       label: (
         <a onClick={handleLogout} className="flex items-center justify-between">
           <span>Đăng xuất</span>
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <i className="fa-solid fa-arrow-right-from-bracket"></i>
         </a>
       ),
     },
   ];
 
+  const [visible, setVisible] = useState(false);
+  const showDrawer = () => {
+    setVisible(true);
+  };
+
+  const onClose = () => {
+    setVisible(false);
+  };
+  const menuItems = token
+    ? roleAccount === 'UNIVERSITY'
+      ? [
+          { key: 'home', label: <Link href="/">Trang chủ</Link> },
+          { key: 'jobs', label: <Link href="/portal/jobs">Việc Làm</Link> },
+          { key: 'companies', label: <Link href="/portal/companies">Công Ty</Link> },
+        ]
+      : roleAccount === 'COMPANY'
+      ? [
+          { key: 'home', label: <Link href="/">Trang chủ</Link> },
+          { key: 'workshops', label: <Link href="/portal/workshops">Workshop</Link> },
+          { key: 'schools', label: <Link href="/portal/schools">Trường học</Link> },
+        ]
+      : [] // Default hoặc role không xác định
+    : [
+        // Khi chưa đăng nhập
+        { key: 'login', label: <Link href="/auth/login">Đăng nhập</Link> },
+        { key: 'register', label: <Link href="/auth/Register">Đăng ký</Link> },
+      ];
+
   useEffect(() => {
+    const header = document.getElementsByTagName('header')[0];
+
     const handleScroll = () => {
       if (window.scrollY > 0) {
-        setIsSticky(true); // Nếu cuộn xuống trang, đặt state isSticky là true
+        // Transition from fixed to sticky
+        header.classList.add('-translate-y-full');
+        setTimeout(() => {
+          setIsSticky(true);
+          header.classList.remove('-translate-y-full');
+        }, 300); // Smooth transition time
       } else {
-        setIsSticky(false); // Nếu ở đầu trang, đặt state isSticky là false
+        // Transition from sticky to fixed
+        header.classList.add('-translate-y-full');
+        setTimeout(() => {
+          setIsSticky(false);
+          header.classList.remove('-translate-y-full');
+        }, 300);
       }
     };
 
     window.addEventListener('scroll', handleScroll);
 
-    // Cleanup event listener khi component unmount
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
-  const isActiveLink = path => {
+  const isActiveLink = (path: string) => {
     return router.pathname === path ? 'text-primary-main after:w-full' : ''; // Nếu đường dẫn hiện tại trùng với path, thì đánh dấu là active
   };
 
   const isLoggedIn = !!token;
   return (
-    <header className={`${isSticky ? 'mp_header_sticky mp_box_shadow' : 'mp_header_fixed'}`}>
+    <header
+      className={`
+    ${isSticky ? 'mp_header_sticky translate-y-0' : 'mp_header_fixed'} 
+    transition-transform duration-500 ease-in-out
+  `}>
       <div className="container-none">
         <div
           className={`rounded-b-0 mx-auto bg-primary-white px-[15px] xl:container lg:px-[20px] lg:py-0 xl:rounded-b-[30px] xl:px-[45px] ${
@@ -108,9 +151,6 @@ const PortalHeader = () => {
             <div className="flex h-full items-center justify-between">
               <Link href="/" className="rts__logo flex items-center">
                 <Logo />
-                <h2 className="ml-2 font-logo text-3xl font-bold">
-                  <span className="text-primary-main">Job</span>Link
-                </h2>
               </Link>
               <div className="rts__menu flex h-[80px] items-center gap-[3rem] lg:h-[98px] lg:gap-[1.5rem] xl:gap-[3rem]">
                 {/* Hiển thị navigation nếu đã đăng nhập */}
@@ -173,7 +213,7 @@ const PortalHeader = () => {
               <div className="header__right__btn flex items-center justify-between gap-4">
                 {/* Ẩn các thẻ Link đăng nhập và đăng ký nếu đã đăng nhập */}
                 {!isLoggedIn ? (
-                  <>
+                  <div className="hidden items-center gap-4 lg:flex">
                     <Link
                       href="/auth/login"
                       className="mp_button_small mp_transition_4 mp_no_fill_button hidden items-center justify-center gap-2 rounded-md text-sm sm:flex"
@@ -189,21 +229,21 @@ const PortalHeader = () => {
                       aria-label="Job Posting Button">
                       <span>Đăng ký</span>
                     </Link>
-                  </>
+                  </div>
                 ) : (
                   <>
                     <div className="user__menu">
                       <div className="user_wrapper flex items-center justify-between gap-4">
-                        <div className="user-avatar">
-                          <Image
+                        <div className="user-avatar flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary-light">
+                          <ImageComponent
                             src={user?.logoUrl || `/images/user-default.png`}
                             alt=""
                             width={45}
                             height={45}
-                            className="h-[45px] w-[45px]  rounded-full object-cover"
+                            className="h-[45px] w-[45px] rounded-full  object-contain"
                           />
                         </div>
-                        <div className="user-info flex flex-col">
+                        <div className="user-info  hidden flex-col md:flex">
                           <span className="user-name text-primary-black">{user?.universityName || user?.companyName}</span>
                           <span className="user-role text-primary-gray">{roleAccount}</span>
                         </div>
@@ -214,7 +254,7 @@ const PortalHeader = () => {
                           }}>
                           <a onClick={e => e.preventDefault()}>
                             <Space className="cursor-pointer">
-                              <i class="fa-solid fa-chevron-down"></i>
+                              <i className="fa-solid fa-chevron-down"></i>
                             </Space>
                           </a>
                         </Dropdown>
@@ -222,14 +262,15 @@ const PortalHeader = () => {
                     </div>
                   </>
                 )}
-                <button
-                  className="mp_button_small mp_transition_4 block rounded-md text-primary-black lg:hidden"
-                  type="button"
-                  data-bs-toggle="offcanvas"
-                  data-bs-target="#offcanvas"
-                  aria-controls="offcanvas">
-                  <i className="fa-solid fa-bars-staggered"></i>
-                </button>
+                <MenuOutlined onClick={showDrawer} className="block cursor-pointer text-xl lg:hidden" />
+                {/* Drawer hiển thị menu */}
+                <Drawer title="Menu" placement="right" onClose={onClose} visible={visible} bodyStyle={{ padding: 0 }}>
+                  <Menu
+                    mode="inline"
+                    items={menuItems}
+                    onClick={onClose} // Đóng drawer khi chọn menu
+                  />
+                </Drawer>
               </div>
             </div>
           </div>

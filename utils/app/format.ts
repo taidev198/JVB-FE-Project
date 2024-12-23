@@ -76,7 +76,7 @@ export const convertSchoolType = (schoolType: string): string => {
 
 export const formatDateDD_thang_MM_yyyy = (dateTimeStr: string | null): string => {
   if (!dateTimeStr) {
-    return ''; // Handle invalid date input
+    return '';
   }
 
   const date = new Date(dateTimeStr);

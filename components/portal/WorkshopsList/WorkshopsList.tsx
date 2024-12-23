@@ -1,23 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Pagination, Spin, Empty, Form, Input, Checkbox, Button, Space, DatePicker, ConfigProvider, Divider } from 'antd';
-import {
-  AppstoreOutlined,
-  BarsOutlined,
-  EnvironmentOutlined,
-  HistoryOutlined,
-  SearchOutlined,
-  TagOutlined,
-  TeamOutlined,
-  TransactionOutlined,
-} from '@ant-design/icons';
-import Image from 'next/image';
-import Link from 'next/link';
-import SelectSearch from '../common/SelectSearch';
-import { useGetProvincesQuery, useGetFieldsQuery, useGetSchoolsQuery, useGetWorkshopsQuery } from '@/services/portalHomeApi';
-import { IUniversity } from '@/types/university';
-import Select from 'rc-select';
-import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
+import { useGetFieldsQuery, useGetProvincesQuery, useGetWorkshopsQuery } from '@/services/portalHomeApi';
 import { IWorkshopPortal } from '@/types/workshop';
+import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
+import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
+import { Button, Checkbox, ConfigProvider, DatePicker, Empty, Form, Input, Pagination, Space, Spin } from 'antd';
+import Link from 'next/link';
+import React, { useCallback, useEffect, useState } from 'react';
+import SelectSearch from '../common/SelectSearch';
+import PortalLoading from '../common/PortalLoading';
+import PortalEmpty from '../common/PortalEmpty';
 
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,7 +19,7 @@ const WorkshopsList: React.FC = () => {
   const [filteredWorkshops, setFilteredWorkshops] = useState<IWorkshopPortal[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedWorkshops, setPaginatedWorkshops] = useState<IWorkshopPortal[]>([]);
-  const pageSize = 8;
+  const [pageSize, setPageSize] = useState(8); // Initial page size
   const [form] = Form.useForm();
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
@@ -71,10 +61,13 @@ const WorkshopsList: React.FC = () => {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
     setPaginatedWorkshops(filteredWorkshops.slice(start, end));
-  }, [filteredWorkshops, currentPage]);
+  }, [filteredWorkshops, currentPage, pageSize]);
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page: number, size?: number) => {
     setCurrentPage(page);
+    if (size && size !== pageSize) {
+      setPageSize(size);
+    }
   };
 
   const handleSearch = useCallback(() => {
@@ -210,9 +203,7 @@ const WorkshopsList: React.FC = () => {
 
               <div className="mt-[40px]">
                 {isWorkshopsLoading ? (
-                  <div className="flex w-full items-center justify-center">
-                    <Spin size="large" />
-                  </div>
+                  <PortalLoading />
                 ) : paginatedWorkshops.length > 0 ? (
                   detailedView ? (
                     <div className="grid grid-cols-1 gap-[30px] ">
@@ -308,16 +299,22 @@ const WorkshopsList: React.FC = () => {
                     </div>
                   )
                 ) : (
-                  <div className="flex w-full items-center justify-center">
-                    <Empty description="Không có dữ liệu" />
-                  </div>
+                  <PortalEmpty />
                 )}
               </div>
             </div>
           </div>
           {filteredWorkshops.length > pageSize && (
             <div className="mt-[80px] w-full">
-              <Pagination current={currentPage} total={filteredWorkshops.length} align="center" pageSize={pageSize} onChange={handlePageChange} />
+              <Pagination
+                current={currentPage}
+                total={filteredWorkshops.length}
+                pageSize={pageSize}
+                showSizeChanger
+                align="center"
+                onChange={handlePageChange}
+                onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
+              />
             </div>
           )}
         </div>

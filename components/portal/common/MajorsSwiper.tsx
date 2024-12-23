@@ -52,7 +52,7 @@ const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
         <SwiperSlide>
           <Link href="/#" className="flex items-center justify-start gap-6 rounded-[10px] bg-primary-white px-[30px] py-[22px] text-white">
             <div className="single__cat__icon flex h-[60px] w-[60px] items-center justify-center rounded-md bg-primary-light">
-              <img src="assets/img/home-1/cat/2.svg" alt="" />
+              <img src="" alt="" />
             </div>
             <div className="single__cat__link flex flex-col">
               <a href="job-list-1.html" aria-label="cat__label" className="text-[24px] text-primary-black">
@@ -65,7 +65,7 @@ const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
         <SwiperSlide>
           <div className="flex items-center justify-start gap-6 rounded-[10px] bg-primary-white px-[30px] py-[22px] text-white">
             <div className="single__cat__icon flex h-[60px] w-[60px] items-center justify-center rounded-md bg-primary-light">
-              <img src="assets/img/home-1/cat/2.svg" alt="" />
+              <img src="" alt="" />
             </div>
             <div className="single__cat__link flex flex-col">
               <a href="job-list-1.html" aria-label="cat__label" className="text-[24px] text-primary-black">
@@ -78,7 +78,7 @@ const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
         <SwiperSlide>
           <div className="flex items-center justify-start gap-6 rounded-[10px] bg-primary-white px-[30px] py-[22px] text-white">
             <div className="single__cat__icon flex h-[60px] w-[60px] items-center justify-center rounded-md bg-primary-light">
-              <img src="assets/img/home-1/cat/2.svg" alt="" />
+              <img src="" alt="" />
             </div>
             <div className="single__cat__link flex flex-col">
               <a href="job-list-1.html" aria-label="cat__label" className="text-[24px] text-primary-black">
@@ -91,7 +91,7 @@ const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
         <SwiperSlide>
           <div className="flex items-center justify-start gap-6 rounded-[10px] bg-primary-white px-[30px] py-[22px] text-white">
             <div className="single__cat__icon flex h-[60px] w-[60px] items-center justify-center rounded-md bg-primary-light">
-              <img src="assets/img/home-1/cat/2.svg" alt="" />
+              <img src="" alt="" />
             </div>
             <div className="single__cat__link flex flex-col">
               <a href="job-list-1.html" aria-label="cat__label" className="text-[24px] text-primary-black">
@@ -104,7 +104,7 @@ const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
         <SwiperSlide>
           <div className="flex items-center justify-start gap-6 rounded-[10px] bg-primary-white px-[30px] py-[22px] text-white">
             <div className="single__cat__icon flex h-[60px] w-[60px] items-center justify-center rounded-md bg-primary-light">
-              <img src="assets/img/home-1/cat/2.svg" alt="" />
+              <img src="" alt="" />
             </div>
             <div className="single__cat__link flex flex-col">
               <a href="job-list-1.html" aria-label="cat__label" className="text-[24px] text-primary-black">

@@ -1,15 +1,15 @@
 // services/portalHomeApi.ts
 
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { IJobAllResponse, IJobAllResponsePortal, IJobDetailResponse } from '@/types/jobCompany';
-import { WorkshopResponse, WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
-import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
-import { IProvinceResponse } from '@/types/addressesTypes';
 import { RootState } from '@/store/store';
-import { FieldsResponse } from '@/types/fields';
 import { IFields } from '@/types';
-import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
+import { IProvinceResponse } from '@/types/addressesTypes';
+import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IFieldsPortal } from '@/types/fieldPortalHomeTypes';
+import { IJobAllResponsePortal, IJobDetailResponse } from '@/types/jobCompany';
+import { IJobByCompany, IJobCompany } from '@/types/portalJobCompanyTypes';
+import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
+import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -48,7 +48,15 @@ export const portalHomeApi = createApi({
 
     // Fetch specific companies details
     getCompanyDetails: builder.query<ICompanyDetailResponse, { id: number }>({
-      query: ({ id }) => `/portal/companies/${id}`,
+      query: ({ id }) => `/portal/company/${id}`,
+    }),
+
+    // Fetch specific jobs company
+    getJobsCompany: builder.query<IJobByCompany, { companyId: number; page: number; size: number }>({
+      query: ({ companyId, page, size }) => {
+        const params = new URLSearchParams({ page: String(page), size: String(size) });
+        return `/portal/jobs/${companyId}?${params.toString()}`;
+      },
     }),
 
     // Fetch all schools with pagination
@@ -104,5 +112,6 @@ export const {
   useGetProvincesQuery,
   useGetFieldsQuery,
   useGetSchoolsQuery,
+  useGetJobsCompanyQuery,
   useGetSchoolDetailsQuery,
 } = portalHomeApi;
