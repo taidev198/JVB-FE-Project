@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useGetDetailEmployeeQuery } from '@/services/adminCompanyApi';
 import { useEffect } from 'react';
 import { setLoading } from '@/store/slices/global';
+import ImageComponent from '@/components/Common/Image';
 
 const DetailUserCompany = () => {
   const idEmployee = useAppSelector(state => state.global.id);
@@ -47,8 +48,12 @@ const DetailUserCompany = () => {
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
+        <div className="rounded-[50%] bg-[#F1F1F1] p-5">
+            <ImageComponent src={employee?.data?.avatarUrl} alt={employee?.data?.fullName} width={75} height={75} className="rounded-full" />
+          </div>
           <div>
             <Link href={'#'}>
+            <h2 className="text-xl font-bold">{employee?.data.fullName}</h2>
               <p className="text-primary-gray">Chi tiết nhân viên</p>
             </Link>
           </div>

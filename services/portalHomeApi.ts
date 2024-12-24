@@ -3,10 +3,10 @@
 import { RootState } from '@/store/store';
 import { IFields } from '@/types';
 import { IProvinceResponse } from '@/types/addressesTypes';
-import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
+import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse, ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IFieldsPortal } from '@/types/fieldPortalHomeTypes';
 import { IJobAllResponsePortal, IJobDetailResponse } from '@/types/jobCompany';
-import { IJobByCompany, IJobCompany } from '@/types/portalJobCompanyTypes';
+import { IJobByCompany } from '@/types/portalJobCompanyTypes';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
@@ -39,7 +39,7 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch all companies with pagination
-    getCompanies: builder.query<ICompanyAllResponse, { page: number; size: number; keyword?: string }>({
+    getCompanies: builder.query<IAccountCompanyAllResponse, { page: number; size: number; keyword?: string }>({
       query: ({ page, size, keyword = '' }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
         return `/portal/company/get-all?${params.toString()}`;
@@ -47,7 +47,7 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch specific companies details
-    getCompanyDetails: builder.query<ICompanyDetailResponse, { id: number }>({
+    getCompanyDetails: builder.query<IAccountCompanyDetailResponse, { id: number }>({
       query: ({ id }) => `/portal/company/${id}`,
     }),
 
@@ -85,6 +85,14 @@ export const portalHomeApi = createApi({
       query: ({ id }) => `/portal/workshops/${id}`,
     }),
 
+    // Fetch specific jobs company
+    getWorkshopsUniversity: builder.query<WorkshopResponsePortal, { universityId: number; page: number; size: number }>({
+      query: ({ universityId, page, size }) => {
+        const params = new URLSearchParams({ page: String(page), size: String(size) });
+        return `/portal/workshops/${universityId}?${params.toString()}`;
+      },
+    }),
+
     // Fetch provinces
     getProvinces: builder.query<IProvinceResponse, void>({
       query: () => `/provinces`,
@@ -114,4 +122,5 @@ export const {
   useGetSchoolsQuery,
   useGetJobsCompanyQuery,
   useGetSchoolDetailsQuery,
+  useGetWorkshopsUniversityQuery,
 } = portalHomeApi;

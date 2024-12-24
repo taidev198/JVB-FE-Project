@@ -44,7 +44,7 @@ const DetailAdemicOfficeManagement = () => {
           <div className="rounded-[50%] bg-[#F1F1F1] p-5">
             <ImageComponent
               src={academicOfficeManagement?.data.avatarUrl}
-              alt={academicOfficeManagement.data.fullName}
+              alt={academicOfficeManagement?.data.fullName}
               width={80}
               height={80}
               className="rounded-full object-cover"

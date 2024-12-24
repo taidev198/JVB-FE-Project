@@ -1,8 +1,7 @@
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
-import Select from 'react-select';
 import { useEffect, useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import validationSchemaAddAdemic from '../../../../components/Admin/school/Ademic/validationAddAdemic';
@@ -13,12 +12,11 @@ import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Link from 'next/link';
 import { gender } from '@/utils/app/const';
 import SelectReact from '@/components/Common/SelectMui';
-import { useRouter } from 'next/router';
-import { setToast } from '@/store/slices/toastSlice';
-import { useAddAcademicOfficeManagementMutation, useDeleteAdemicOneMutation } from '@/services/adminSchoolApi';
-import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
-import Text from '@/components/Common/Text';
+import { useAddAcademicOfficeManagementMutation } from '@/services/adminSchoolApi';
+import Address from '@/components/Common/Address';
+import DateComponent from '@/components/Common/DateComponent';
 import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataAddAdemic {
   fullName: string;
@@ -37,27 +35,29 @@ interface FormDataAddAdemic {
 }
 
 const AddAdemic = () => {
-  const [image, setImage] = useState<File | null>(null);
+  const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
-  const router = useRouter();
-  const {
-    control,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormDataAddAdemic>({
+
+  const methods = useForm<FormDataAddAdemic>({
     resolver: yupResolver(validationSchemaAddAdemic),
+    mode: 'onChange',
+    defaultValues: {
+      wardId: null,
+      districtId: null,
+      provinceId: null,
+    },
   });
 
-  const provinceSelect = watch('provinceId');
-  const districtSelect = watch('districtId');
-  const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvincesQuery();
-  const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
-  const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = methods;
+
   const [addAcademicOfficeManagement, { data, isLoading: isLoadingAddAcademicOfficeManagement, isSuccess, isError, error }] =
     useAddAcademicOfficeManagementMutation();
 
-  const onSubmit: SubmitHandler<FormDataAddAdemic> = data => {
+  const onSubmit: SubmitHandler<FormDataAddAdemic> = async data => {
     const formData = new FormData();
 
     // Append dữ liệu JSON dưới dạng chuỗi
@@ -80,21 +80,22 @@ const AddAdemic = () => {
     formData.append('universityEmployeeRequest', new Blob([JSON.stringify(universityEmployeeRequest)], { type: 'application/json' }));
 
     formData.append('file', image as File);
-    addAcademicOfficeManagement(formData);
+    try {
+      await addAcademicOfficeManagement(formData).unwrap();
+      toast.success('Thêm giáo vụ thành công');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
-    if (isSuccess && data?.message) {
-      dispatch(setToast({ message: data.message }));
-      router.push('/admin/school/academicOfficeManagement');
-    }
-
-    if (isError && error?.data?.message) {
-      toast.error(error?.data?.message);
-    }
-
     dispatch(setLoading(isLoadingAddAcademicOfficeManagement));
-  }, [isSuccess, isError, isLoadingAddAcademicOfficeManagement, data?.message, error?.data?.message, dispatch]);
+  }, [isLoadingAddAcademicOfficeManagement, dispatch]);
 
   return (
     <div className="rounded-lg bg-primary-white p-6">
@@ -170,107 +171,36 @@ const AddAdemic = () => {
               error={errors.confirm_password?.message}
             />
 
-            <Input
-              type="date"
+            <DateComponent
               name="dateOfBirth"
-              label="Ngày sinh"
-              placeholder="Nhập ngày sinh"
               control={control}
               error={errors.dateOfBirth?.message}
+              placeholder={'Nhập ngày sinh'}
+              label={'Ngày sinh'}
               required={true}
             />
-            <div>
-              <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Tỉnh<span className="text-red-600">*</span>
-              </label>
-              <Controller
-                name="provinceId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    className="basic-single"
-                    classNamePrefix="select"
-                    placeholder="Chọn Tỉnh/Thành phố"
-                    isLoading={isLoadingProvinces}
-                    options={provinces?.data || []}
-                    getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id}
-                    onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null);
-                    }}
-                    value={provinces?.data?.find(option => option.id === field.value)}
-                    ref={field.ref}
-                  />
-                )}
-              />
-              {errors.provinceId && <p className="mt-2 text-sm text-red-500">{errors.provinceId.message}</p>}
-            </div>
-            <div>
-              <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Huyện<span className="text-red-600">*</span>
-              </label>
-              <Controller
-                name="districtId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    className="basic-single"
-                    classNamePrefix="select"
-                    placeholder="Chọn Quận/Huyện"
-                    isLoading={isLoadingDistricts}
-                    options={districts?.data || []}
-                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''}
-                    getOptionValue={(option: { id: any }) => option.id}
-                    onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null);
-                    }}
-                    value={districts?.data?.find(option => option.id === field.value)}
-                    ref={field.ref}
-                  />
-                )}
-              />
-              {errors.districtId && <p className="mt-2 text-sm text-red-500">{errors.districtId.message}</p>}
-            </div>
-            <div>
-              <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Xã<span className="text-red-600">*</span>
-              </label>
-              <Controller
-                name="wardId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    className="basic-single"
-                    classNamePrefix="select"
-                    placeholder="Chọn Xã/Phường"
-                    isLoading={isLoadingWard}
-                    options={wards?.data || []}
-                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''}
-                    getOptionValue={(option: { id: any }) => option.id}
-                    onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null);
-                    }}
-                    value={wards?.data?.find(option => option.id === Number(field.value))}
-                    ref={field.ref}
-                  />
-                )}
-              />
-              {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
-            </div>
           </div>
-          <div className="mt-5">
-            <Text
-              type="text"
-              name="houseNumber"
-              label="Địa chỉ cụ thể"
-              placeholder="Nhập địa chỉ cụ thể"
-              control={control}
-              error={errors.houseNumber?.message}
-            />
-          </div>
+          <FormProvider {...methods}>
+            <Address
+              control={methods.control}
+              districtName="districtId"
+              provinceName="provinceId"
+              wardName="wardId"
+              errorDistrict={errors.districtId?.message}
+              errorProvince={errors.provinceId?.message}
+              errorWard={errors.wardId?.message}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                type="text"
+                name="houseNumber"
+                label="Số nhà, đường"
+                placeholder="Nhập số nhà, đường"
+                control={control}
+                error={errors.houseNumber?.message}
+                required={true}
+              />
+            </Address>
+          </FormProvider>
         </div>
         <div className="ml-auto w-fit ">
           <Button text="Thêm mới" type="submit" />

@@ -1,24 +1,19 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import validationSchemaAddBusiness from '../../../../components/Admin/school/Business/validationAddBusiness';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import Text from '@/components/Common/Text';
-import Select from '@/components/Common/Select';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { setBackdrop, setLoading } from '@/store/slices/global';
-import SelectMui from '@/components/Common/SelectMui';
+import { setLoading } from '@/store/slices/global';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { setToast } from '@/store/slices/toastSlice';
 import SelectReact from '@/components/Common/SelectMui';
-import { useAddBusinessMutation, useAddDepartmentMutation, useGetAllFieldsQuery, useGetAllMajorByQuery } from '@/services/adminSchoolApi';
+import { useAddBusinessMutation, useGetAllFieldsQuery, useGetAllMajorByQuery } from '@/services/adminSchoolApi';
 import Link from 'next/link';
-import { Faculty } from '@/types';
-import { log } from 'console';
 
 interface FormDataAddBusiness {
   majorCode: string;

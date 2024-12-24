@@ -185,19 +185,17 @@ const CompaniesList: React.FC = () => {
           )}
         </div>
 
-        {filteredCompanies.length > pageSize && (
-          <div className="mt-[80px] w-full">
-            <Pagination
-              current={currentPage}
-              total={filteredCompanies.length}
-              pageSize={pageSize}
-              showSizeChanger
-              align="center"
-              onChange={handlePageChange}
-              onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
-            />
-          </div>
-        )}
+        <div className="mt-[80px] w-full">
+          <Pagination
+            current={currentPage}
+            total={filteredCompanies.length}
+            pageSize={pageSize}
+            showSizeChanger
+            align="center"
+            onChange={handlePageChange}
+            onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
+          />
+        </div>
       </div>
     </div>
   );

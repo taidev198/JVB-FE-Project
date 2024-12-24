@@ -1,11 +1,11 @@
 // pages/portal/companies/[id].tsx
 
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
-import { Alert, Spin } from 'antd';
+import { Alert, Pagination, Select, Spin } from 'antd';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import ImageComponent from '@/components/Common/Image';
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
@@ -16,6 +16,10 @@ import PortalLoading from '@/components/Portal/common/PortalLoading';
 import PortalLayout from '@/layouts/Portal/PortalLayout';
 import { useGetCompanyDetailsQuery, useGetJobsCompanyQuery } from '@/services/portalHomeApi';
 import { formatJobType } from '@/utils/app/format';
+import { IJobByCompany } from '@/types/portalJobCompanyTypes';
+import CustomPagination from '@/components/Portal/common/CustomPagination';
+import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
+
 interface CompanyDetailsPageProps {
   serverSideApiKeyIsSet: boolean;
 }
@@ -24,13 +28,37 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   const router = useRouter();
   const { id } = router.query;
 
+  const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
+  const triggerPageChange = (page: number) => {
+    setFadeState('fade-out');
+    setTimeout(() => {
+      // eslint-disable-next-line no-use-before-define
+      handlePageChange(page);
+      setFadeState('fade-in');
+    }, 300); // Matches the fade-out duration
+  };
+
   const { data, isLoading, error } = useGetCompanyDetailsQuery({ id: Number(id) });
-  const { data: jobsData, isLoading: isLoadingJobs, error: jobsError } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 4 });
+  const { data: jobsData, isLoading: isLoadingJobs, error: jobsError } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 1000 });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedJobs, setPaginatedJobs] = useState<IJobByCompany[]>([]);
+  const [pageSize, setPageSize] = useState(4);
+
+  useEffect(() => {
+    if (jobsData?.data.content) {
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = startIndex + pageSize;
+      setPaginatedJobs(jobsData.data.content.slice(startIndex, endIndex));
+    } else {
+      setPaginatedJobs([]);
+    }
+  }, [jobsData, currentPage, pageSize]);
 
   if (isLoading) {
     return (
       <PortalLayout type="company-list">
-        <Spin tip="Loading school details..." />
+        <PortalLoadingLarge />
       </PortalLayout>
     );
   }
@@ -38,17 +66,23 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   if (error) {
     return (
       <PortalLayout type="company-list">
-        <Alert message="Error" description="Failed to load school details" type="error" showIcon />
+        <Alert message="Error" description="Failed to load company details" type="error" showIcon />
       </PortalLayout>
     );
   }
 
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
   const companyDetails = data?.data;
-  const jobs = jobsData?.data;
+  const jobs: IJobByCompany[] = isLoadingJobs ? [] : jobsData?.data.content || [];
 
   const address = `${companyDetails?.address?.houseNumber}, ${companyDetails?.address?.ward.wardName}, ${companyDetails?.address?.district.districtName}, ${companyDetails?.address?.province.provinceName}`;
-  const zoomLevel = 20; // Độ zoom, từ 1 đến 21
-  const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=${zoomLevel}&output=embed`;
+  const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
 
   return (
     <>
@@ -89,7 +123,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
                         <TeamOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="block text-lg font-medium text-primary-black">Số lượng sinh viên</span>
+                        <span className="block text-lg font-medium text-primary-black">Số lượng nhân viên</span>
                         <span className="block text-primary-gray">{companyDetails?.quantityEmployee}</span>
                       </div>
                     </div>
@@ -136,50 +170,77 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
                   <p className="text-lg text-primary-gray">{companyDetails?.companyDescription}</p>
                 </div>
                 <div className="workshop">
-                  <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Tin tuyển dụng</h3>
+                  <div className="mb-[20px] flex items-center justify-between">
+                    <h3 className="text-[24px] font-semibold text-primary-black">Tin tuyển dụng</h3>
+
+                    {jobs.length > 0 && (
+                      <Select
+                        value={pageSize}
+                        onChange={value => {
+                          setPageSize(value);
+                          setCurrentPage(1);
+                          setFadeState('fade-out');
+                          setTimeout(() => {
+                            setFadeState('fade-in');
+                          }, 300);
+                        }}
+                        className="w-[120px]">
+                        <Option value={4}>4 / trang</Option>
+                        <Option value={5}>5 / trang</Option>
+                        <Option value={10}>10 / trang</Option>
+                        <Option value={20}>20 / trang</Option>
+                      </Select>
+                    )}
+                  </div>
                   {isLoadingJobs ? (
                     <PortalLoading />
-                  ) : jobs?.content.length > 0 ? (
-                    <div className="grid grid-cols-1 gap-[20px]">
-                      {jobs?.content.map(job => (
-                        <div key={job.id} className="relative rounded-[10px] border border-primary-border px-[24px] py-[34px]">
-                          <div className="overflow-hidden sm:flex sm:w-[calc(100%-150px)] sm:items-center  sm:gap-[33px]">
-                            <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md bg-primary-light">
-                              <ImageComponent src={companyDetails?.logoUrl} alt="logo" width={60} height={60} className="object-contain" />
-                            </div>
-                            <div className="flex min-h-full flex-col justify-between sm:w-[calc(100%-150px)]">
-                              <div className="mt-3 flex w-full flex-col gap-2 sm:mt-0">
-                                <h4 className="truncate text-[22px] font-semibold text-primary-black">{job.jobTitle}</h4>
-                                <p className="truncate text-lg text-primary-gray">{job.jobDescription}</p>
+                  ) : jobs.length > 0 ? (
+                    <>
+                      <div className={`grid grid-cols-1 gap-[20px] transition-opacity duration-500 ${fadeState === 'fade-in' ? 'opacity-100' : 'opacity-0'}`}>
+                        {paginatedJobs?.map(job => (
+                          <div key={job.id} className="relative rounded-[10px] border border-primary-border px-[24px] py-[34px]">
+                            <div className="overflow-hidden sm:flex sm:w-[calc(100%-150px)] sm:items-center sm:gap-[33px]">
+                              <div className="flex h-[100px] w-[100px] flex-shrink-0 items-center justify-center rounded-md bg-primary-light">
+                                <ImageComponent src={companyDetails?.logoUrl} alt="logo" width={60} height={60} className="object-contain" />
                               </div>
-                              <div className="mt-2 flex flex-col items-start gap-2 text-lg text-primary-gray lg:max-w-[60%] lg:flex-col lg:items-start lg:gap-2 xl:max-w-full xl:flex-row xl:items-center xl:gap-4">
-                                <span className="flex items-center gap-1 ">
-                                  <i className="fa-solid fa-briefcase"></i>
-                                  <span className="truncate">{formatJobType(job.jobType)}</span>
-                                </span>
-                                <span className="flex items-center  gap-1 truncate sm:w-full">
-                                  <i className="fa-solid fa-location-dot"></i>
-                                  <span className="truncate ">
-                                    {companyDetails?.address.province.provinceName}, {companyDetails?.address.district.districtName}
+                              <div className="flex min-h-full flex-col justify-between sm:w-[calc(100%-150px)]">
+                                <div className="mt-3 flex w-full flex-col gap-2 sm:mt-0">
+                                  <h4 className="truncate text-[22px] font-semibold text-primary-black">{job.jobTitle}</h4>
+                                  <p className="truncate text-lg text-primary-gray">{job.jobDescription}</p>
+                                </div>
+                                <div className="mt-2 flex flex-col items-start gap-2 text-lg text-primary-gray lg:max-w-[60%] lg:flex-col lg:items-start lg:gap-2 xl:max-w-full xl:flex-row xl:items-center xl:gap-4">
+                                  <span className="flex items-center gap-1 ">
+                                    <i className="fa-solid fa-briefcase"></i>
+                                    <span className="truncate">{formatJobType(job.jobType)}</span>
                                   </span>
-                                </span>
+                                  <span className="flex items-center gap-1 truncate sm:w-full">
+                                    <i className="fa-solid fa-location-dot"></i>
+                                    <span className="truncate ">
+                                      {companyDetails?.address.province.provinceName}, {companyDetails?.address.district.districtName}
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
                             </div>
+                            <div className="absolute hidden items-center justify-end sm:bottom-[30px] sm:right-[24px] sm:flex ">
+                              <Link
+                                href={`/portal/jobs/${job.id}`}
+                                className="mp_transition_4 readmore__btn mf-2 flex items-center gap-2 rounded-md bg-primary-main px-[20px] py-[10px] text-lg text-primary-white hover:bg-primary-black sm:mr-2">
+                                <span className="">Xem chi tiết</span>
+                              </Link>
+                            </div>
                           </div>
-                          <div className="absolute hidden items-center justify-end sm:bottom-[30px] sm:right-[24px] sm:flex ">
-                            <Link
-                              href={`/portal/jobs/${job.id}`}
-                              className="mp_transition_4 readmore__btn mf-2 flex items-center gap-2 rounded-md bg-primary-main px-[20px] py-[10px]  text-lg text-primary-white hover:bg-primary-black sm:mr-2">
-                              <span className="">Xem chi tiết</span>
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                      <div className="mt-[70px] w-full">
+                        <CustomPagination total={jobs?.length} currentPage={currentPage} pageSize={pageSize} onChange={page => triggerPageChange(page)} />
+                      </div>
+                    </>
                   ) : (
                     <PortalEmpty />
                   )}
                 </div>
+                ;
               </div>
               <div className="flex w-full flex-col gap-[54px] lg:basis-5/12 xl:basis-4/12">
                 <GoogleMap googleMapsUrl={googleMapsUrl} title="Vị trí trên Google Maps" height={300} />

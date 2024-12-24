@@ -13,8 +13,10 @@ export interface IJobCompany {
   benifits: string;
   jobLevel: string;
   expirationDate: string;
+  createAt: string;
   memberOfCandidate: number;
   fields: IFields[];
+  company: ICompany;
   status: string;
   salaryType: string;
   maxSalary: number;

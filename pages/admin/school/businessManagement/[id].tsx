@@ -36,11 +36,11 @@ const DetalBusinessManagement = () => {
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
         <div className="flex items-center gap-[30px] ">
-          <div>
+          {/* <div>
             <Link href={'#'}>
               <p className="text-primary-gray">Chi tiết thông tin ngành học</p>
             </Link>
-          </div>
+          </div> */}
         </div>
         <ul className="">
           <li className="mt-5 flex items-center gap-3">
@@ -65,7 +65,7 @@ const DetalBusinessManagement = () => {
           <li className="mt-5 flex items-center gap-3">
             <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Số Sinh Viên:</span> {business?.data.numberOfStudents}
+              <span className="mr-2 font-semibold">Số lượng Sinh Viên:</span> {business?.data.numberOfStudents}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
