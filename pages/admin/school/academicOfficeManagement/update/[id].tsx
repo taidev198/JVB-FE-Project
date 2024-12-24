@@ -40,7 +40,6 @@ const UpdateAdemic = () => {
   const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
-
   const methods = useForm<FormDataUpdateAdemic>({
     resolver: yupResolver(validationSchemaUpdateAdemic),
     mode: 'onChange',
@@ -50,11 +49,9 @@ const UpdateAdemic = () => {
       provinceId: null,
     },
   });
-
   const {
     handleSubmit,
     control,
-
     reset,
     formState: { errors },
   } = methods;

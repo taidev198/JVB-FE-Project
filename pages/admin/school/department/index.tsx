@@ -1,21 +1,20 @@
-import { IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
-import Link from 'next/link';
-import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import AddIcon from '@mui/icons-material/Add';
-import { useEffect, useMemo, useState } from 'react';
-import { debounce } from 'lodash';
-import PaginationComponent from '@/components/Common/Pagination';
-import Select from 'react-select';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import PaginationComponent from '@/components/Common/Pagination';
 import { useDeleteDepartmentMultipleMutation, useDeleteDepartmentOneMutation, useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import toast from 'react-hot-toast';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
+import AddIcon from '@mui/icons-material/Add';
+import { Checkbox, TextField } from '@mui/material';
+import { debounce } from 'lodash';
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 
 const Department = () => {
   const dispatch = useAppDispatch();
@@ -26,9 +25,6 @@ const Department = () => {
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [department, setDepartment] = useState<number | null>(null);
-
   const { data: departments, isLoading } = useGetAllDepartmentsQuery(
     {
       page: page,
@@ -48,11 +44,9 @@ const Department = () => {
       }, 500),
     [dispatch]
   );
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
+    dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
 
   const idDepartment = useAppSelector(state => state.global.id);
@@ -62,11 +56,11 @@ const Department = () => {
   const handleConfirmAction = async () => {
     try {
       if (selectedDepartment.length > 0) {
-        const response = await deleteMultiple({ ids: selectedDepartment }).unwrap();
-        toast.success(response.message);
+        await deleteMultiple({ ids: selectedDepartment }).unwrap();
+        toast.success('Các khoa đã được xóa thành công.');
       } else {
-        const response = await deleteOne({ id: idDepartment }).unwrap();
-        toast.success(response.message);
+        await deleteOne({ id: idDepartment }).unwrap();
+        toast.success('Khoa đã được xóa thành công.');
       }
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -79,7 +73,7 @@ const Department = () => {
       dispatch(setBackdrop(null));
     }
   };
-  console.log(selectedDepartment);
+
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const allAdemicIds = departments?.data.content.map(department => department.id);
@@ -111,7 +105,6 @@ const Department = () => {
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
-              className="w-full"
             />
           </div>
           <div className="ml-auto flex justify-items-center gap-5">

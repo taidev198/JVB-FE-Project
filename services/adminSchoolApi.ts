@@ -405,14 +405,19 @@ export const adminSchoolApi = createApi({
           keyword: string;
           startDate: Date | null;
           endDate: Date | null;
+          majorId: number | null;
           universityId: number | undefined;
+          status: string;
         }
       >({
-        query: ({ page, size, keyword, startDate, endDate, universityId }) => {
+        query: ({ page, size, keyword, startDate, endDate, universityId, majorId, status }) => {
           let queryParams = new URLSearchParams();
           if (universityId) queryParams.append('universityId', String(universityId));
+          if (keyword) queryParams.append('keyword', keyword);
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
+          if (majorId) queryParams.append('majorId', String(majorId));
+          if (status) queryParams.append('status', status);
           if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
           if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/university/applies?${queryParams.toString()}`;
@@ -434,10 +439,10 @@ export const adminSchoolApi = createApi({
       }),
 
       cancelJobs: builder.mutation({
-        query: ({ accountLoginId, cancelToAccountId }) => ({
-          url: `/company/cancel_apply`,
+        query: ({ major, job }) => ({
+          url: `/university/cancel_apply`,
           method: 'POST',
-          body: { accountLoginId, cancelToAccountId },
+          body: { major, job },
         }),
         invalidatesTags: (result, error, { cancelToAccountId }) => [
           { type: 'Jobs', cancelToAccountId },
@@ -447,9 +452,10 @@ export const adminSchoolApi = createApi({
         ],
       }),
       deleteJobs: builder.mutation({
-        query: ({ id }) => ({
-          url: `/company/remove_apply/${id}`,
+        query: ({ major, job }) => ({
+          url: `/remove_apply`,
           method: 'POST',
+          body: { major, job },
         }),
         invalidatesTags: (result, error, { id }) => [{ type: 'Jobs', id }, { type: 'Jobs' }],
       }),
