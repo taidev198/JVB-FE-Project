@@ -2,7 +2,6 @@ import { ICompany } from './companyType';
 import { IJobCompany } from './jobCompany';
 
 export interface IJobsSchool {
-  company: ICompany;
   job: IJobCompany;
   status: string;
 }

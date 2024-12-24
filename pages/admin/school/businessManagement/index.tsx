@@ -1,10 +1,11 @@
-import DeleteIcon from '@mui/icons-material/Delete';
 import React, { useEffect, useMemo, useState } from 'react';
-import { IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
+import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
+import PaginationComponent from '@/components/Common/Pagination';
 import Select from 'react-select';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -15,7 +16,6 @@ import {
   useDeleteBusinessMultipleMutation,
   useDeleteBusinessOneMutation,
   useGetAllBusinessQuery,
-  useGetAllDepartmentsPortalQuery,
   useGetAllFaculityQuery,
   useGetAllMajorsQuery,
 } from '@/services/adminSchoolApi';
@@ -26,6 +26,8 @@ import { setKeyword, setPage, setIdFaculty } from '@/store/slices/filtersSlice';
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const { data: dataMajor } = useGetAllMajorsQuery();
   const { page, keyword, size, idFaculty } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
@@ -52,9 +54,11 @@ const BusinessManagement = () => {
 
   const { data: business, isLoading } = useGetAllBusinessQuery(
     {
-      page,
-      size,
+      page: page,
+      size: size,
       keyword,
+      startDate: startDate,
+      endDate: endDate,
       idFaculty: idFaculty,
     },
     { refetchOnMountOrArgChange: true }
@@ -210,43 +214,23 @@ const BusinessManagement = () => {
                     <p className="min-w-max">{item.faculty.facultyName}</p>
                   </td>
 
-                  <td className="gap-2 py-4">
-                    <div className="flex items-center">
-                      <p className="min-w-max">
-                        <Link href={`/admin/school/businessManagement/${item.id}`}>
-                          <Tooltip title="Xem chi tiết">
-                            <IconButton onClick={() => dispatch(setId(item.id))}>
-                              <VisibilityIcon color="success" />
-                            </IconButton>
-                          </Tooltip>
-                        </Link>
-
-                        <Tooltip title="Sửa Ngành Học">
-                          <Link href={`/admin/school/businessManagement/update/${item.id}`} onClick={() => dispatch(setId(item.id))}>
-                            <IconButton>
-                              <BorderColorIcon className="text-purple-500" />
-                            </IconButton>
-                          </Link>
-                        </Tooltip>
-
-                        <Tooltip title="Xóa Ngành Học">
-                          <IconButton
-                            onClick={() => {
-                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                              dispatch(setId(item.id));
-                              dispatch(setName(item.majorName));
-                            }}>
-                            <DeleteIcon className="text-red-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </p>
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/school/businessManagement/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonUpdate href={`/admin/school/businessManagement/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonDelete
+                        onClick={() => {
+                          handleOpenConfirm(item.id);
+                          dispatch(setName(item.majorName));
+                        }}
+                      />
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="py-4 text-center text-base text-red-500">
+                <td colSpan={7} className="py-4 text-center text-base text-black">
                   <p>Không có dữ liệu nào</p>
                 </td>
               </tr>
@@ -258,7 +242,7 @@ const BusinessManagement = () => {
       {showBackdrop === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa ngành học {name} này kh?</h3>
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa ngành học {name} này không?</h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn ngành học khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
@@ -269,12 +253,14 @@ const BusinessManagement = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex items-center justify-center bg-white p-5">
-        <Pagination count={business?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
-        <p className="text-sm">
-          ({business?.data.currentPage} / {business?.data.totalPages})
-        </p>
-      </div>
+      <PaginationComponent
+        count={business?.data.totalPages}
+        page={page}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        size={size}
+        totalItem={business?.data.totalElements}
+        totalTitle={'Business'}
+      />
     </>
   );
 };
