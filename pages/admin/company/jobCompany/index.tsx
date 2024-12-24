@@ -124,7 +124,7 @@ console.log(idJob);
             
             <MyButton 
               type="submit" 
-              text="Xóa tất cả công việc" 
+              text="Xóa tất cả " 
               className='bg-red-600'
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
                />
@@ -160,7 +160,6 @@ console.log(idJob);
                 </td>
                 <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.jobTitle}</td>
-                <td className="px-5 py-4"><p dangerouslySetInnerHTML={{ __html: item.jobDescription ?? '' }}></p></td>
                 <td className="px-5 py-4">{formatCurrencyVND(item.maxSalary)}-{formatCurrencyVND(item.minSalary)}</td>
                 <td className="px-5 py-4">{item.expirationDate}</td>
 

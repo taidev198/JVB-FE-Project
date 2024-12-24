@@ -51,6 +51,23 @@ export const adminCompanyApi = createApi({
         providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Company', id }] : []),
       }),
 
+      deleteEmployeeCompany: builder.mutation({
+        query: ({ id }) => ({
+          url: `/company/company-employees/delete/${id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: [{ type: 'Company' }],
+      }),
+
+      deleteAllEmployeeCompany: builder.mutation<any, { ids: number[] }>({
+        query: ({ ids }) => ({
+          url: `/company/company-employees/delete-multiple`,
+          method: 'PUT',
+          body: { ids },
+        }),
+        invalidatesTags: [{ type: 'Company' }],
+      }),
+
       //profile Company
       getDetailProfile: builder.query<IProfileCompanyRespone, void>({
         query: () => ({
@@ -60,7 +77,7 @@ export const adminCompanyApi = createApi({
 
       updateProfile: builder.mutation<any, { data: any; id: number | null }>({
         query: ({ data, id }) => ({
-          url: `/company/update_job/${id}`,
+          url: `/company/update-current`,
           method: 'PUT',
           body: data,
         }),
@@ -132,6 +149,13 @@ export const adminCompanyApi = createApi({
         },
         providesTags: ['Workshop'],
       }),
+      deleteWorkShop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/company/workshop/cancel/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: [{ type: 'Workshop' }],
+      }),
     };
   },
 });
@@ -140,11 +164,14 @@ export const {
   useGetAllWorShopsUniversityQuery,
   useGetAllCompanyEmployeQuery,
   useGetDetailEmployeeQuery,
+  useDeleteEmployeeCompanyMutation,
+  useDeleteAllEmployeeCompanyMutation,
   useGetDetailProfileQuery,
   useGetAllCompanyJobQuery,
   useGetDetailCompanyJobQuery,
   useDeleteJobCompanyMutation,
   useGetAllWorkShopCompanyQuery,
+  useDeleteWorkShopMutation,
   useAddJobMutation,
   useUpdateJobMutation,
   useDeleteAllJobCompanyMutation,

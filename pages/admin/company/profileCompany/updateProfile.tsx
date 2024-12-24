@@ -92,6 +92,9 @@ const UpdateProfileCompany = () => {
       },
       phoneNumber: detailProfile.data.phoneNumber,
     };
+
+    console.log('detailProfile', detailProfile)
+    
     formData.append('profileRequest', new Blob([JSON.stringify(profileRequest)], { type: 'application/json' }));
     formData.append('file', image as File);
 
@@ -130,6 +133,7 @@ const UpdateProfileCompany = () => {
     }
     dispatch(setLoading(isLoading));
   }, [isLoading, dispatch, detailProfile?.data, reset]);
+
 
   return (
     <div className="bg-primary-white p-5 rounded-lg">
