@@ -84,8 +84,7 @@ const workShopCompany = () => {
               <th className="px-5 py-4 text-left">Trường học</th>
               <th className="px-5 py-4 text-left">Thời gian bắt đầu</th>
               <th className="px-5 py-4 text-left">Thời gian kết thúc</th>
-              <th className="px-5 py-4 text-left">Địa chỉ</th>
-              <th className="px-5 py-4 text-left">Số lượng công ty</th>
+              <th className="px-5 py-4 text-left">Số lượng công ty ước tính</th>
               <th className="px-5 py-4 text-left">Trạng thái</th>
               <th className="px-5 py-4 text-left">Hành động</th>
             </tr>
@@ -101,7 +100,7 @@ const workShopCompany = () => {
                 <td className="px-5 py-4">{item.workshop.university.universityName}</td>
                 <td className="px-5 py-4">{item.workshop.startTime}</td>
                 <td className="px-5 py-4">{item.workshop.endTime}</td>
-                <td className="px-5 py-4">{item.workshop.address.houseNumber}-{item.workshop.address.ward.id} - {item.workshop.address.district.id} - {item.workshop.address.province.id}</td>
+                {/* <td className="px-5 py-4">{item.workshop.address.houseNumber}-{item.workshop.address.ward.id} - {item.workshop.address.district.id} - {item.workshop.address.province.id}</td> */}
                 <td className="px-5 py-4">{item.workshop.estimateCompanyParticipants}</td>
                 <td className="px-5 py-4">
                   <Chip
@@ -144,8 +143,8 @@ const workShopCompany = () => {
         {backdropType === BackdropType.DeleteConfirmation && (
           <BackDrop isCenter={true}>
            <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa?</h3>
-            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
+            <h3 className="font-bold">Hủy tham gia hội thảo</h3>
+            <p className="mt-1">Bạn có chắc chắn muốn hủy tham gia hội thảo này không?.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
               <Button text="Xác nhận" className="bg-red-800" full={true} />
