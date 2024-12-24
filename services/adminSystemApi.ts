@@ -120,7 +120,7 @@ export const adminSystemApi = createApi({
         invalidatesTags: (result, error, { id }) => [{ type: 'Workshop', id }, { type: 'Workshop' }],
       }),
 
-      // Approve workshop
+      // Approve workshop chấp nhận
       approveWorkshop: builder.mutation({
         query: ({ id }) => ({
           url: `/admin/workshops/approve/${id}`,
@@ -131,7 +131,7 @@ export const adminSystemApi = createApi({
         },
       }),
 
-      // Reject workshop
+      // Reject workshop từ chối
       rejectWorkshop: builder.mutation({
         query: ({ id }) => ({
           url: `/admin/workshops/reject/${id}`,

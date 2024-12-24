@@ -122,7 +122,18 @@ export const statusTextWorkshop = (status: string): AccountStatus => {
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }
 };
-
+export const statusTextJob = (status: string): AccountStatus => {
+  switch (status) {
+    case 'ACCEPT':
+      return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };
+    case 'PENDING':
+      return { title: 'Đang chờ', color: '#FFA726', bg: '#fffae5' };
+    case 'CANCEL':
+      return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
 export const jobType = (status: string | undefined): string => {
   switch (status) {
     case 'FULL_TIME':

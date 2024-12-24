@@ -1,11 +1,12 @@
 import { IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import DeleteIcon from '@mui/icons-material/Delete';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import AddIcon from '@mui/icons-material/Add';
 import { useEffect, useMemo, useState } from 'react';
 import { debounce } from 'lodash';
+import PaginationComponent from '@/components/Common/Pagination';
 import Select from 'react-select';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
@@ -18,7 +19,9 @@ import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 
 const Department = () => {
   const dispatch = useAppDispatch();
-  const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const { page, keyword, size } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
@@ -28,9 +31,11 @@ const Department = () => {
 
   const { data: departments, isLoading } = useGetAllDepartmentsQuery(
     {
-      page,
-      size,
+      page: page,
+      size: size,
       keyword,
+      startDate: startDate,
+      endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -126,7 +131,7 @@ const Department = () => {
 
       {/* Table */}
       <div className="w-full overflow-x-auto">
-        <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
+        <table className="w-full table-auto rounded-lg rounded-b-md bg-white px-24 text-[14px]">
           <thead className="bg-white">
             <tr>
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -180,42 +185,23 @@ const Department = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.establishYear}</p>
                   </td>
-                  <td className="gap-2 py-4">
-                    <div className="flex items-center">
-                      <p className="min-w-max">
-                        <Link href={`/admin/school/department/${item.id}`}>
-                          <Tooltip title="Xem chi tiết">
-                            <IconButton onClick={() => dispatch(setId(item.id))}>
-                              <VisibilityIcon color="success" />
-                            </IconButton>
-                          </Tooltip>
-                        </Link>
-
-                        <Tooltip title="Sửa khoa">
-                          <Link href={`/admin/school/department/updateDepartment/${item.id}`} onClick={() => dispatch(setId(item.id))}>
-                            <IconButton onClick={() => handleOpenConfirm(item.id)}>
-                              <BorderColorIcon className="text-purple-500" />
-                            </IconButton>
-                          </Link>
-                        </Tooltip>
-                        <Tooltip title="Xóa khoa">
-                          <IconButton
-                            onClick={() => {
-                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                              dispatch(setId(item.id));
-                              dispatch(setName(item.facultyName));
-                            }}>
-                            <DeleteIcon className="text-red-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </p>
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/school/department/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonUpdate href={`/admin/school/department/updateDepartment/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonDelete
+                        onClick={() => {
+                          handleOpenConfirm(item.id);
+                          dispatch(setName(item.facultyName));
+                        }}
+                      />
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="py-4 text-center text-base text-red-500">
+                <td colSpan={7} className="py-4 text-center text-base text-black">
                   <p>Không có dữ liệu nào</p>
                 </td>
               </tr>
@@ -238,12 +224,14 @@ const Department = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex items-center justify-center bg-white p-5">
-        <Pagination count={departments?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
-        <p className="text-sm">
-          ({departments?.data.currentPage} / {departments?.data.totalPages})
-        </p>
-      </div>
+      <PaginationComponent
+        count={departments?.data.totalPages}
+        page={page}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        size={size}
+        totalItem={departments?.data.totalElements}
+        totalTitle={'Department'}
+      />
     </>
   );
 };

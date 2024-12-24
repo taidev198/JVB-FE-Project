@@ -1,18 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Checkbox, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
-import Image from 'next/image';
+import { Checkbox, TextField } from '@mui/material';
 import Link from 'next/link';
+import PaginationComponent from '@/components/Common/Pagination';
 import AddIcon from '@mui/icons-material/Add';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-import DeleteIcon from '@mui/icons-material/Delete';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import AddAdemic from '@/pages/admin/school/academicOfficeManagement/addAdemic';
-import { setToast } from '@/store/slices/toastSlice';
 import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
 import { debounce } from 'lodash';
 import toast from 'react-hot-toast';
@@ -24,11 +23,11 @@ const AcademicOfficeManagement = () => {
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
-
   const idAdemic = useAppSelector(state => state.global.id);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
-
+  const { page, keyword, size } = useAppSelector(state => state.filter);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
 
@@ -76,9 +75,11 @@ const AcademicOfficeManagement = () => {
     isSuccess,
   } = useGetAllAcademicOfficeManagementQuery(
     {
-      page: currentPage,
-      size,
+      page: page,
+      size: size,
       keyword,
+      startDate: startDate,
+      endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -156,8 +157,8 @@ const AcademicOfficeManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {academicOfficeManagement?.data.content.map((item, index) => {
-              return (
+            {academicOfficeManagement?.data?.content && academicOfficeManagement.data.content.length > 0 ? (
+              academicOfficeManagement?.data.content.map((item, index) => (
                 <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Checkbox color="primary" checked={selectedAdemic.includes(item.id)} onChange={() => handleSelectAdemic(item.id)} size="small" />
@@ -172,44 +173,32 @@ const AcademicOfficeManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">{item.gender}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.dateOfBirth}</td>
 
-                  <td className="gap-2 py-4">
-                    <div className="flex items-center">
-                      <p className="min-w-max">
-                        <Link href={`/admin/school/academicOfficeManagement/${item.id}`}>
-                          <Tooltip title="Xem chi tiết">
-                            <IconButton onClick={() => dispatch(setId(item.id))}>
-                              <VisibilityIcon color="success" />
-                            </IconButton>
-                          </Tooltip>
-                        </Link>
-                        <Link href={`/admin/school/academicOfficeManagement/update/${item.id}`}>
-                          <Tooltip title="Sửa giáo vụ">
-                            <IconButton onClick={() => dispatch(setId(item.id))}>
-                              <BorderColorIcon className="text-purple-500" />
-                            </IconButton>
-                          </Tooltip>
-                        </Link>
-                        <Tooltip title="Xóa giáo vụ">
-                          <IconButton
-                            onClick={() => {
-                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                              dispatch(setId(item.id));
-                              dispatch(setName(item.fullName));
-                            }}>
-                            <DeleteIcon className="text-red-500" />
-                          </IconButton>
-                        </Tooltip>
-                      </p>
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/school/academicOfficeManagement/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonUpdate href={`/admin/school/academicOfficeManagement/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonDelete
+                        onClick={() => {
+                          handleOpenConfirm(item.id);
+                          dispatch(setName(item.fullName));
+                        }}
+                      />
                     </div>
                   </td>
                 </tr>
-              );
-            })}
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base text-black">
+                  <p>Không có dữ liệu nào</p>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* Xóa Sinh viên */}
+      {/* Xóa */}
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
@@ -231,18 +220,14 @@ const AcademicOfficeManagement = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex items-center justify-center bg-white p-5">
-        <Pagination
-          count={academicOfficeManagement?.data.totalPages}
-          page={page}
-          onChange={(event, value) => dispatch(setPage(value))}
-          color="primary"
-          shape="rounded"
-        />
-        <p className="text-sm">
-          ({academicOfficeManagement?.data.currentPage} / {academicOfficeManagement?.data.totalPages})
-        </p>
-      </div>
+      <PaginationComponent
+        count={academicOfficeManagement?.data.totalPages}
+        page={page}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        size={size}
+        totalItem={academicOfficeManagement?.data.totalElements}
+        totalTitle={'Ademic'}
+      />
     </>
   );
 };

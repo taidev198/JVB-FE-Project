@@ -1,24 +1,36 @@
-import React, { useEffect, useMemo } from 'react';
-import { Chip, IconButton, Pagination, TextField, Tooltip } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Chip, TextField } from '@mui/material';
 import Select from 'react-select';
 import { debounce } from 'lodash';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { useDispatch } from 'react-redux';
-import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
-import { useGetAllJobAppliesUniversityQuery } from '@/services/adminSchoolApi';
-import { jobType, StatusJob } from '@/utils/app/const';
+import { useAcceptJobsMutation, useCancelJobsMutation, useDeleteJobsMutation, useGetAllJobAppliesUniversityQuery } from '@/services/adminSchoolApi';
+import { jobType, statusTextJob } from '@/utils/app/const';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
-
+import makeAnimated from 'react-select/animated';
+import PaginationComponent from '@/components/Common/Pagination';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
+import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+const animatedComponents = makeAnimated();
 const Partnerships = () => {
   const dispatch = useDispatch();
-  const { page, size } = useAppSelector(state => state.filter);
+  const backdropType = useAppSelector(state => state.global.backdropType);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
   const universityId = useAppSelector(state => state.user?.user?.id);
-
+  const { page, keyword, size } = useAppSelector(state => state.filter);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [selectId, setSelectId] = useState<number | null>(null);
+  const [selectedJobsId, setSelectedJobsId] = useState<number | null>(null);
+  const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -28,14 +40,68 @@ const Partnerships = () => {
     [dispatch]
   );
 
-  const { data: jobs, isLoading: isLoadingGetAll } = useGetAllJobAppliesUniversityQuery({ page, size, universityId });
-  const handleConfirmAction = () => {};
+  const { data: jobs, isLoading: isLoadingGetAll } = useGetAllJobAppliesUniversityQuery(
+    {
+      page: page,
+      size: size,
+      keyword,
+      startDate: startDate,
+      endDate: endDate,
+      universityId: universityId,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+  const handleAction = (actionType: BackdropType, JobsId: number) => {
+    setSelectedJobsId(JobsId);
+    setSelectedAction(actionType);
+    dispatch(setBackdrop(actionType));
+  };
+
+  const [acceptJob, { isLoading: isLoadingAccept }] = useAcceptJobsMutation();
+  const [cancelJob, { isLoading: isLoadingCancel }] = useCancelJobsMutation();
+  const [deleteJob, { isLoading: isLoadingDelete }] = useDeleteJobsMutation();
+  const handleConfirmAction = async () => {
+    if (selectedJobsId !== null && selectedAction) {
+      try {
+        switch (selectedAction) {
+          case BackdropType.ApproveConfirmation: {
+            await acceptJob({ id: selectedJobsId }).unwrap();
+            toast.success('Job đã được phê duyệt thành công!');
+            break;
+          }
+          case BackdropType.RefuseConfirmation: {
+            await cancelJob({ id: selectedJobsId }).unwrap();
+            toast.success('Job đã bị từ chối phê duyệt.');
+            break;
+          }
+          case BackdropType.DeleteConfirmation: {
+            await deleteJob({ id: selectedJobsId }).unwrap();
+            toast.success('Job đã được xóa thành công!');
+            break;
+          }
+          default:
+            throw new Error('Invalid action type');
+        }
+      } catch (error) {
+        if (isFetchBaseQueryError(error)) {
+          const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+          toast.error(errMsg);
+        } else if (isErrorWithMessage(error)) {
+          toast.error(error.message);
+        }
+      } finally {
+        dispatch(setBackdrop(null));
+        setSelectedJobsId(null);
+        setSelectedAction(null);
+      }
+    }
+  };
   useEffect(() => {
-    dispatch(setLoading(isLoadingGetAll));
+    dispatch(setLoading(isLoadingGetAll || isLoadingAccept || isLoadingCancel || isLoadingDelete));
     return () => {
       dispatch(resetFilters());
     };
-  }, [dispatch, isLoadingGetAll]);
+  }, [dispatch, isLoadingGetAll, isLoadingAccept, isLoadingCancel, isLoadingDelete]);
   return (
     <>
       {/* Header */}
@@ -46,11 +112,12 @@ const Partnerships = () => {
             <Select
               placeholder="Trạng thái"
               closeMenuOnSelect={true}
+              components={animatedComponents}
               options={[
                 { value: '', label: 'Tất cả' },
                 { value: 'PENDING', label: 'Chờ duyệt' },
-                { value: 'ACTIVE', label: 'Hoạt động' },
-                { value: 'BAN', label: 'Ngưng hoạt động' },
+                { value: 'ACCEPT', label: 'Đã duyệt' },
+                { value: 'CANCEL', label: 'Từ chối' },
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
               className="w-[160px] cursor-pointer"
@@ -87,27 +154,49 @@ const Partnerships = () => {
               jobs?.data.content.map((job, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
-                  <td className="px-5 py-4">{job.company.companyName}</td>
+                  <td className="px-5 py-4">{job.job.company.companyName}</td>
                   <td className="px-5 py-4">{job.job.jobTitle}</td>
                   <td className="px-5 py-4">{jobType(job.job.jobType)}</td>
                   <td className="px-5 py-4">{job.job.jobLevel.charAt(0).toUpperCase() + job.job.jobLevel.slice(1).toLowerCase()}</td>
-                  <td className="px-5 py-4">17/12/2024</td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4">{job.job.createAt.split(' ')[0]}</td>
+                  <td className="px-2 py-4">
                     <Chip
-                      label={StatusJob(job.status).title}
-                      style={{ color: `${StatusJob(job.status).color}`, backgroundColor: `${StatusJob(job.status).bg}` }}
+                      label={statusTextJob(job.status).title}
+                      style={{
+                        color: `${statusTextJob(job.status).color}`,
+                        background: `${statusTextJob(job.status).bg}`,
+                      }}
                     />
                   </td>
-                  <td className="px-5 py-4">
-                    <Tooltip title="Hủy ứng tuyển">
-                      <IconButton
-                        onClick={() => {
-                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                          dispatch(setName(job.job.jobTitle));
-                        }}>
-                        <CancelIcon color="warning" />
-                      </IconButton>
-                    </Tooltip>
+                  <td className="py-4">
+                    <div className="flex items-center gap-3">
+                      <ButtonSee href={`/admin/school/job/${job.job.id}`} onClick={() => dispatch(setId(job.job.id))} />
+                      {job.status === 'PENDING' && (
+                        <>
+                          <ButtonAccept
+                            onClick={() => {
+                              handleAction(BackdropType.ApproveConfirmation, job.job.id);
+                              dispatch(setName(job.job.jobTitle));
+                            }}></ButtonAccept>
+
+                          <ButtonReject
+                            onClick={() => {
+                              handleAction(BackdropType.RefuseConfirmation, job.job.id);
+                              dispatch(setName(job.job.jobTitle));
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {job.status !== 'PENDING' && (
+                        <ButtonDelete
+                          onClick={() => {
+                            handleAction(BackdropType.DeleteConfirmation, job.job.id);
+                            dispatch(setName(job.job.jobTitle));
+                          }}
+                        />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -123,19 +212,28 @@ const Partnerships = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-center bg-white p-5">
-        <Pagination count={jobs?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
-        <p className="text-sm">
-          ({jobs?.data.currentPage} / {jobs?.data.totalPages})
-        </p>
-      </div>
-      {showBackdrop === BackdropType.DeleteConfirmation && (
+      <PaginationComponent
+        count={jobs?.data.totalPages}
+        page={page}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        size={size}
+        totalItem={jobs?.data.totalElements}
+        totalTitle={'Department'}
+      />
+      {/* Backdrops */}
+      {(backdropType === BackdropType.ApproveConfirmation ||
+        backdropType === BackdropType.RefuseConfirmation ||
+        backdropType === BackdropType.DeleteConfirmation) && (
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Hủy ứng tuyển {name}</h3>
+            <h3 className="font-bold">
+              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt job ${name}`}
+              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối job ${name}`}
+              {selectedAction === BackdropType.DeleteConfirmation && `Xóa job ${name}`}
+            </h3>
             <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-700" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
               <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
             </div>
           </div>

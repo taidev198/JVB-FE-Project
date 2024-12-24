@@ -14,9 +14,22 @@ interface SelectProps {
   placeholder: string;
   value?: { value: number | string; label: string }[];
   required?: boolean;
+  disabled?: boolean;
 }
 
-const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, error, className, isMultiple = false, placeholder, value, required = false }) => {
+const SelectReact: React.FC<SelectProps> = ({
+  name,
+  label,
+  options,
+  control,
+  error,
+  className,
+  isMultiple = false,
+  placeholder,
+  value,
+  required = false,
+  disabled = false,
+}) => {
   return (
     <div className={`form-group mt-auto ${className}`}>
       {label && (
@@ -36,7 +49,7 @@ const SelectReact: React.FC<SelectProps> = ({ name, label, options, control, err
               options={options}
               placeholder={placeholder}
               isMulti={isMultiple}
-              className={`!basic-select !h-[42px] shadow-none ${error ? 'is-invalid' : ''}`}
+              className={`!basic-select ${disabled ? 'opacity-8 pointer-events-none' : ''}  0 !h-[42px] shadow-none ${error ? 'is-invalid' : ''}`}
               classNamePrefix="select"
               value={
                 isMultiple
