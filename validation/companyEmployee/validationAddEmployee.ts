@@ -33,17 +33,10 @@ const validationSchemaAddStudent = Yup.object({
     })
     .test('is-not-null', 'Mức lương không thể là rỗng', value => value !== null),
 
-  password: Yup.string().required('Mật khẩu không được bỏ trống').min(6, 'Mật khẩu phải có ít nhất 8 ký tự'),
-  // .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt')
-
-  confirmPassword: Yup.string()
-    .required('Xác nhận mật khẩu không được để trống')
-    .oneOf([Yup.ref('account')], 'Mật khẩu xác nhận không khớp với mật khẩu'),
-
   houseNumber: Yup.string().required('Địa chỉ cụ thể là bắt buộc').max(150, 'Địa chỉ cụ thể không được quá 150 kí tự'),
-  districtName: Yup.string().required('Quận/Huyện là bắt buộc').max(150, 'Quận/Huyện không được quá 150 kí tự'),
-  wardName: Yup.string().required('Xã/Phường là bắt buộc').max(150, 'Xã/Phường không được quá 150 kí tự'),
-  provinceName: Yup.string().required('Tỉnh/Thành phố là bắt buộc').max(150, 'Tỉnh/Thành phố không được quá 150 kí tự'),
+  districtId: Yup.string().required('Quận/Huyện là bắt buộc').max(150, 'Quận/Huyện không được quá 150 kí tự'),
+  wardId: Yup.string().required('Xã/Phường là bắt buộc').max(150, 'Xã/Phường không được quá 150 kí tự'),
+  provinceId: Yup.string().required('Tỉnh/Thành phố là bắt buộc').max(150, 'Tỉnh/Thành phố không được quá 150 kí tự'),
 });
 
 export default validationSchemaAddStudent;

@@ -51,13 +51,17 @@ const detailJobCompany = () => {
                 </div>
               </li>
               <li className="mt-5 flex items-center gap-3">
-              <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
+                <div className='mb-auto'>
+                  <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
+                </div>
                 <div>
                   <span className="mr-2 font-semibold">Yêu cầu:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.requirements ?? '' }}></p>
                 </div>
               </li>
               <li className="mt-5 flex items-center gap-3">
-              <CreditScoreIcon sx={{ color: '#757575' }} />
+                <div className='mb-auto'>
+                 <CreditScoreIcon sx={{ color: '#757575' }} />
+                </div>
                 <div>
                   <span className="mr-2 font-semibold">Hình thức:</span> {jobCompany?.data.jobType}
                 </div>
@@ -68,8 +72,10 @@ const detailJobCompany = () => {
                   <span className="mr-2 font-semibold">Thời gian làm việc:</span> {jobCompany?.data.workTime}
                 </div>
               </li>
-              <li className="mt-5 flex items-center  gap-3 ">
-              <CameraOutdoorIcon sx={{ color: '#757575' }} />
+              <li className="mt-5 flex items-center gap-3 ">
+                <div className='mb-auto'>
+                  <CameraOutdoorIcon sx={{ color: '#757575' }} />
+                </div>
                 <div>
                   <span className="mr-2 font-semibold">Phúc lợi:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.benifits ?? '' }}></p>
                 </div>
@@ -99,7 +105,9 @@ const detailJobCompany = () => {
                 </div>
               </li>
               <li className="mt-5 flex items-center gap-3">
-              <DescriptionIcon sx={{ color: '#757575' }} />
+                <div className='mb-auto'>
+                  <DescriptionIcon sx={{ color: '#757575' }} />
+                </div>
                 <div className='mt-auto'>
                   <span className="mr-2 font-semibold">Mô tả:</span> {jobCompany?.data.jobDescription}
                 </div>

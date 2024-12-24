@@ -18,6 +18,9 @@ export interface ICompany {
   account: IAccount;
   createAt: string;
   updateAt: string;
+  email: string;
+  districtId: number;
+  provinceId: number;
 }
 
 export interface ICompanyEmploy {
@@ -42,6 +45,9 @@ export interface ICompanyEmploy {
     companyName: string;
   };
   isDelete: false;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export interface ICompanyAllResponse {
