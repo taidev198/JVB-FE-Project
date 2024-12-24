@@ -53,15 +53,14 @@ body > div#__next > main {
   }
 
   .mp_nav_menu_item {
-    @apply font-medium capitalize text-primary-black after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-0 after:translate-x-[-50%] after:bg-primary-main after:content-[''] hover:text-primary-main hover:after:w-full;
+    @apply font-medium  text-primary-black after:absolute after:bottom-0 after:left-1/2 after:h-[2px] after:w-0 after:translate-x-[-50%] after:bg-primary-main after:content-[''] hover:text-primary-main hover:after:w-full;
   }
-
   .mp_header_fixed {
-    @apply fixed top-0 left-0 right-0 w-full z-[10] ;
+    @apply fixed top-0 left-0 right-0 w-full z-[10] translate-y-0;
   }
-
+  
   .mp_header_sticky {
-    @apply fixed top-0 left-0 right-0 w-full z-[999] bg-primary-white h-fit;
+    @apply fixed top-0 left-0 right-0 w-full z-[999] shadow-lg bg-primary-white h-fit;
   }
 
   .mp_box_shadow {

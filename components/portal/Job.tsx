@@ -1,8 +1,7 @@
 import { useGetJobsQuery } from '@/services/portalHomeApi';
 import { formatCurrencyVND, formatJobType } from '@/utils/app/format';
-import Image from 'next/image';
 import Link from 'next/link';
-import CustomImage from './common/CustomImage';
+import ImageComponent from '../Common/Image';
 const Job = () => {
   const { data: jobs, isLoading, error } = useGetJobsQuery({ page: 1, size: 6 });
   // eslint-disable-next-line no-console
@@ -25,12 +24,12 @@ const Job = () => {
               className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
               <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
               <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
-                <CustomImage
+                <ImageComponent
                   src={job.company.logoUrl || '/images/user-default.png'}
                   alt={job.company.companyName}
-                  className="h-10 w-10"
-                  width={40}
-                  height={40}
+                  className="aspect-square h-10 w-10 object-contain"
+                  width={50}
+                  height={50}
                 />
               </div>
               <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">

@@ -11,9 +11,6 @@ const PortalFooter = () => {
           <div className="rts__footer__widget max-320">
             <Link href="/" className="footer__logo flex items-end " aria-label="logo">
               <Logo />
-              <h2 className="ml-2 font-logo text-3xl font-semibold">
-                <span className="text-primary-main">Job</span>Link
-              </h2>
             </Link>
             <p className="mt-[1.5rem] text-lg text-primary-gray">
               Cho dù bạn là một doanh nghiệp tìm kiếm nhân tài hay một trường học mong muốn mở rộng kết nối, JobLink luôn có giải pháp phù hợp cho mọi nhu cầu.

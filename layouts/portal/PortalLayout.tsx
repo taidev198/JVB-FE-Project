@@ -4,6 +4,7 @@ import React from 'react';
 import PortalHeader from '@/components/Portal/PortalHeader';
 import PortalFooter from '@/components/Portal/PortalFooter';
 import { ConfigProvider } from 'antd';
+import viVN from 'antd/lib/locale/vi_VN';
 interface ProtolLayoutProps {
   children: React.ReactNode;
   type: string;
@@ -12,6 +13,7 @@ interface ProtolLayoutProps {
 const PortalLayout: FC<ProtolLayoutProps> = ({ children, type }) => (
   <>
     <ConfigProvider
+      locale={viVN}
       theme={{
         token: {
           colorPrimary: '#34a853',

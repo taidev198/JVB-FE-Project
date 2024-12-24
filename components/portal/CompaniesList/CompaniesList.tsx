@@ -5,6 +5,7 @@ import Link from 'next/link';
 import SelectSearch from './SelectSearch';
 import { ICompany } from '@/types/companyType';
 import { useGetProvincesQuery, useGetCompaniesQuery, useGetFieldsQuery } from '@/services/portalHomeApi';
+import ImageComponent from '@/components/Common/Image';
 
 const CompaniesList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,7 +16,7 @@ const CompaniesList: React.FC = () => {
   const [filteredCompanies, setFilteredCompanies] = useState<ICompany[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedCompanies, setPaginatedCompanies] = useState<ICompany[]>([]);
-  const pageSize = 9;
+  const [pageSize, setPageSize] = useState(9); // Initial page size
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
@@ -74,10 +75,13 @@ const CompaniesList: React.FC = () => {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
     setPaginatedCompanies(filteredCompanies.slice(start, end));
-  }, [filteredCompanies, currentPage]);
+  }, [filteredCompanies, currentPage, pageSize]);
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page: number, size?: number) => {
     setCurrentPage(page);
+    if (size && size !== pageSize) {
+      setPageSize(size);
+    }
   };
 
   const handleSearch = useCallback(() => {
@@ -144,11 +148,17 @@ const CompaniesList: React.FC = () => {
               {paginatedCompanies.map(company => (
                 <div
                   key={company.id}
-                  className="item group flex flex-col items-center justify-start rounded-[10px] border-[1px] border-solid border-primary-border bg-primary-white p-[30px]">
+                  className="item group flex flex-col items-center justify-start rounded-[10px] border-[1px] border-solid border-primary-border bg-primary-white p-[30px] text-center">
                   <div className="company__icon mb-[20px] flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light">
-                    <Image src={company.logoUrl || '/images/user-default.png'} alt={company.companyName} width={40} height={40} className="object-cover" />
+                    <ImageComponent
+                      src={company.logoUrl || '/images/user-default.png'}
+                      alt={company.companyName}
+                      width={50}
+                      height={50}
+                      className="object-contain"
+                    />
                   </div>
-                  <h4 className="text-2xl font-semibold text-primary-black">{company.companyName}</h4>
+                  <h4 className="w-full truncate text-2xl font-semibold text-primary-black ">{company.companyName}</h4>
                   <span className="mt-2 text-lg text-primary-gray">{company.companyCode}</span>
                   <div className="mt-2 flex w-full items-center justify-center gap-6 text-lg text-primary-gray">
                     <div className="flex items-center gap-2">
@@ -175,11 +185,17 @@ const CompaniesList: React.FC = () => {
           )}
         </div>
 
-        {filteredCompanies.length > pageSize && (
-          <div className="mt-[80px] w-full">
-            <Pagination current={currentPage} total={filteredCompanies.length} align="center" pageSize={pageSize} onChange={handlePageChange} />
-          </div>
-        )}
+        <div className="mt-[80px] w-full">
+          <Pagination
+            current={currentPage}
+            total={filteredCompanies.length}
+            pageSize={pageSize}
+            showSizeChanger
+            align="center"
+            onChange={handlePageChange}
+            onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
+          />
+        </div>
       </div>
     </div>
   );

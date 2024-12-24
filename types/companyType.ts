@@ -10,8 +10,10 @@ export interface ICompany {
   companyCode: string;
   logoUrl: string;
   companyDescription: string;
+  companyShortDescription: string;
   phoneNumber: string;
   taxCode: string;
+  quantityEmployee: number;
   establishedDate: string;
   fields: IFields[];
   address: IAddress;

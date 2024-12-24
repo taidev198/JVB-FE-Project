@@ -1,8 +1,7 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import React from 'react';
 import { useGetWorkshopsQuery } from '@/services/portalHomeApi';
 import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
+import Link from 'next/link';
+import ImageComponent from '../Common/Image';
 
 const Workshop = () => {
   const { data: workshopsData, isLoading, error } = useGetWorkshopsQuery({ page: 1, size: 6 });
@@ -15,13 +14,13 @@ const Workshop = () => {
   return (
     <div className="rts__section mp_section_padding relative overflow-hidden pb-[180px]">
       <div className="shape__home__one absolute left-[-3%] top-0 z-[-2] hidden lg:block">
-        <Image src="/images/banner-shape.svg" alt="Banner Shape" width={502} height={495} />
+        <ImageComponent src="/images/banner-shape.svg" alt="Banner Shape" width={502} height={495} />
       </div>
       <div className="shape__home__one absolute bottom-[-20%] right-[20%] z-[-3] hidden lg:block">
-        <Image src="/images/banner-shape-2.svg" alt="Banner Shape" width={665} height={796} />
+        <ImageComponent src="/images/banner-shape-2.svg" alt="Banner Shape" width={665} height={796} />
       </div>
       <div className="shape__home__one absolute right-[20%] top-0 z-[-3] hidden lg:block">
-        <Image src="/images/banner-shape-2.svg" alt="Banner Shape" width={665} height={796} />
+        <ImageComponent src="/images/banner-shape-2.svg" alt="Banner Shape" width={665} height={796} />
       </div>
       <div className="container mx-auto">
         <div className="text-center">
