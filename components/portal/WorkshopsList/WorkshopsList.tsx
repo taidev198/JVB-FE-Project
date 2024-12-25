@@ -212,7 +212,7 @@ const WorkshopsList: React.FC = () => {
                           key={workshop.id}
                           className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-row  gap-[20px] overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
                           <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
-                          <Link href={`/workshops/${workshop.id}`} className="blog__img">
+                          <Link href={`/portal/workshops/${workshop.id}`} className="blog__img">
                             <img
                               src={workshop.imageWorkshops || '/images/default-workshop.png'}
                               className="vertical-center min-h-[240px] max-w-[360px] max-w-full overflow-hidden rounded-[10px] object-cover"
@@ -220,7 +220,9 @@ const WorkshopsList: React.FC = () => {
                             />
                           </Link>
                           <div className="flex w-full flex-col">
-                            <Link href={`/workshops/${workshop.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
+                            <Link
+                              href={`/portal/workshops/${workshop.id}`}
+                              className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
                               {workshop.workshopTitle}
                             </Link>
                             <div className="blog__meta pt-[16px]">
@@ -243,7 +245,7 @@ const WorkshopsList: React.FC = () => {
                             </div>
                             <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">{workshop.workshopDescription}</p>
                             <div className="absolute bottom-[30px] right-[24px] flex items-center justify-end ">
-                              <Link href={`/workshops/${workshop.id}`} className="readmore__btn mf-2 mr-2 flex items-center gap-2 text-lg">
+                              <Link href={`/portal/workshops/${workshop.id}`} className="readmore__btn mf-2 mr-2 flex items-center gap-2 text-lg">
                                 <span className="mp_transition_4 font-medium hover:text-primary-main">Chi tiết</span>
                                 <i className="fa-solid fa-arrow-right mp_transition_4 rotate-[-40deg] group-hover:rotate-0 group-hover:text-primary-main" />
                               </Link>
@@ -259,7 +261,7 @@ const WorkshopsList: React.FC = () => {
                           key={workshop.id}
                           className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
                           <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
-                          <Link href={`/workshops/${workshop.id}`} className="blog__img">
+                          <Link href={`/portal/workshops/${workshop.id}`} className="blog__img">
                             <img
                               src={workshop.imageWorkshops || '/images/default-workshop.png'}
                               className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
@@ -278,12 +280,14 @@ const WorkshopsList: React.FC = () => {
                               </span>
                             </div>
                           </div>
-                          <Link href={`/workshops/${workshop.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
+                          <Link
+                            href={`/portal/workshops/${workshop.id}`}
+                            className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
                             {workshop.workshopTitle}
                           </Link>
                           <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">{workshop.workshopDescription}</p>
                           <div className="mt-[20px] flex flex-row items-center justify-between ">
-                            <Link href={`/workshops/${workshop.id}`} className="readmore__btn flex basis-1/2 items-center gap-2 text-lg">
+                            <Link href={`/portal/workshops/${workshop.id}`} className="readmore__btn flex basis-1/2 items-center gap-2 text-lg">
                               <span className="mp_transition_4 font-medium hover:text-primary-main">Chi tiết</span>
                               <i className="fa-solid fa-arrow-right mp_transition_4 rotate-[-40deg] group-hover:rotate-0 group-hover:text-primary-main" />
                             </Link>

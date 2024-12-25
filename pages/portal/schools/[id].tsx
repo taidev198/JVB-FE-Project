@@ -67,7 +67,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
 
   if (isLoading) {
     return (
-      <PortalLayout type="company-list">
+      <PortalLayout type="school-detail">
         <PortalLoadingLarge />
       </PortalLayout>
     );
@@ -75,7 +75,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
 
   if (error) {
     return (
-      <PortalLayout type="company-list">
+      <PortalLayout type="school-detail">
         <Alert message="Error" description="Failed to load school details" type="error" showIcon />
       </PortalLayout>
     );
@@ -98,7 +98,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
       </Head>
 
-      <PortalLayout type="company-list">
+      <PortalLayout type="school-detail">
         <main>
           <BreadCrumbHeaderDetail
             title={universityDetails?.universityName || 'Trường học'}
