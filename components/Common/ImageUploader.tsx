@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import BackupIcon from '@mui/icons-material/Backup';
+import ImageComponent from './Image';
 interface ImageUploaderProps {
   images: File[];
   setImages: (files: File[]) => void;
@@ -84,7 +85,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, setImages, existi
       <div className="mt-4 grid grid-cols-3 gap-4 sm:grid-cols-5">
         {existingImages.map((img, index) => (
           <div key={`existing-${img.id}`} className="text-center">
-            <img src={img.imageUrl} alt={`Existing ${index + 1}`} className="mx-auto mb-2 h-32 w-32 rounded border object-cover" />
+            <ImageComponent src={img.imageUrl} alt={`Existing ${index + 1}`} className="mx-auto mb-2 h-32 w-32 rounded border object-cover" />
             <Stack>
               <Chip label={`Ảnh đã lưu ${index + 1}`} onDelete={() => handleRemoveImage(index)} />
             </Stack>
@@ -93,7 +94,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, setImages, existi
 
         {newPreviews.map((preview, index) => (
           <div key={`new-${index}`} className="text-center">
-            <img src={preview} alt={`New Preview ${index + 1}`} className="mx-auto mb-2 h-32 w-32 rounded border object-cover" />
+            <ImageComponent src={preview} alt={`New Preview ${index + 1}`} className="mx-auto mb-2 h-32 w-32 rounded border object-cover" />
             <Stack>
               <Chip label={images[index]?.name || ''} onDelete={() => handleRemoveImage(existingImages.length + index)} />
             </Stack>

@@ -102,7 +102,6 @@ const StudentsManagement = () => {
   }, [dispatch, isLoadingDeleteOne, isLoadingGetAllDepartment, isLoadingGetAllSt, isLoadingMultiple]);
   return (
     <>
-      {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý sinh viên</h1>
 
@@ -210,10 +209,7 @@ const StudentsManagement = () => {
                     <p className="min-w-max">{student.major.faculty.facultyCode}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <div className="flex min-w-max items-center gap-2">
-                      <ImageComponent src={student?.avatarUrl} alt={student.fullName} width={50} height={50} className="h-[50px] rounded-full" />
-                      <p> {student.fullName}</p>
-                    </div>
+                    <p> {student.fullName}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{student.major.majorName}</p>

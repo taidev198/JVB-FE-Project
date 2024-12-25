@@ -1,52 +1,44 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { createContext, useContext, useEffect, ReactNode } from 'react';
-import { io } from 'socket.io-client';
+// context/SocketContext.js
+import React, { createContext, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useAppSelector } from '@/store/hooks';
 
-// Tạo socket instance
-export const socket = io('localhost:8082/ws', {
-  autoConnect: true,
-  path: '/notifications',
-  query: {
-    accountId: '3',
-  },
-});
+export const SocketContext = createContext(null);
 
-// Định nghĩa kiểu cho context
-type SocketContextType = {
-  socket: typeof socket;
-};
+const SocketProvider = ({ children }) => {
+  const idAccount = useAppSelector(state => state.user.user?.account?.id);
 
-// Tạo context với giá trị mặc định là null
-const SocketContext = createContext<SocketContextType | null>(null);
-
-// Custom hook sử dụng context
-export const useModalContext = () => {
-  const context = useContext(SocketContext);
-  if (!context) {
-    throw new Error('useModalContext must be used within a SocketProvider');
-  }
-  return context;
-};
-
-// Provider
-const SocketProvider = ({ children }: { children: ReactNode }) => {
+  const wsUrl = `ws://192.168.0.152:8082/ws/notifications?accountId=${idAccount}`;
+  const [socket, setSocket] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const [messages, setMessages] = useState([]);
   useEffect(() => {
-    // Lắng nghe các sự kiện
-    socket.on('connect', () => {
-      console.log('Connected to socket server');
-    });
+    const ws = new WebSocket(wsUrl);
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected to socket server');
-    });
-
-    // Clean-up
-    return () => {
-      socket.disconnect();
+    ws.onopen = () => {
+      setIsConnected(true);
     };
-  }, []);
 
-  return <SocketContext.Provider value={{ socket }}>{children}</SocketContext.Provider>;
+    ws.onmessage = event => {
+      const rawMessage = event.data;
+      console.log(rawMessage);
+
+      const titleMatch = rawMessage.match(/notificationTitle=(.*?)(,|$)/);
+      const notificationTitle = titleMatch ? titleMatch[1] : 'Không tìm thấy tiêu đề';
+      setMessages(prevMessages => [...prevMessages, rawMessage]);
+      toast(notificationTitle, {
+        icon: '🔔',
+      });
+    };
+
+    setSocket(ws);
+
+    return () => {
+      ws.close();
+    };
+  }, [wsUrl]);
+
+  return <SocketContext.Provider value={{ socket, isConnected, messages }}>{children}</SocketContext.Provider>;
 };
 
 export default SocketProvider;

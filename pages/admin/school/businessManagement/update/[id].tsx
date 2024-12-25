@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import Text from '@/components/Common/Text';
@@ -13,7 +12,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAppSelector } from '@/store/hooks';
 import SelectReact from '@/components/Common/SelectMui';
 import { useGetAllFieldsQuery, useGetAllMajorByQuery, useGetDetailBusinessQuery, useUpdateBusinessMutation } from '@/services/adminSchoolApi';
-import { setToast } from '@/store/slices/toastSlice';
 import ValidationSchemaUpdateBusiness from '@/components/Admin/school/Business/validationUpdateBusiness ';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
@@ -28,7 +26,6 @@ interface FormDataUpdateBusiness {
   facultyId: number;
   fieldIds: number[];
 }
-
 const UpdateBusiness = () => {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -102,6 +99,7 @@ const UpdateBusiness = () => {
             error={errors.majorCode?.message}
             {...register('majorCode', { required: 'Mã ngành học là bắt buộc' })}
             required={true}
+            disabled={true}
           />
 
           <Input

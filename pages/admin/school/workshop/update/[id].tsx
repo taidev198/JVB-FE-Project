@@ -7,6 +7,7 @@ import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-for
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs, { Dayjs } from 'dayjs';
 import { useRouter } from 'next/router';
+import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -21,6 +22,7 @@ import { formatDateWorkshop } from '@/utils/app/format';
 import { useAppSelector } from '@/store/hooks';
 import DateComponent from '@/components/Common/DateComponent';
 import Address from '@/components/Common/Address';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataWorkShop {
   workshopTitle: string;
@@ -106,10 +108,16 @@ const UpdateWorkshop = () => {
     }
     formData.append('imageDeletes', String(idImageDelete));
     try {
-      await updateWorkshop({ formData, id: IdWorkshop });
+      await updateWorkshop({ formData, id: IdWorkshop }).unwrap();
+      toast.success('Cập nhật workshop thành công');
       router.push('/admin/school/workshop');
-    } catch (err) {
-      console.error('Error creating workshop:', err);
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
     }
   };
 

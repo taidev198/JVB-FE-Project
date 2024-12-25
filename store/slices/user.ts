@@ -1,7 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IAdmin, ICompany, IEmploymentCompany, IEmploymentSchool, ISchool } from '@/types/usersTypes';
+import { IAccount } from '@/types';
 
-type UserRoles = ICompany | ISchool | IAdmin | IEmploymentSchool | IEmploymentCompany;
+type UserRoles = {
+  code: number;
+  message: string;
+  data: {
+    token: string;
+    user: {
+      id: number;
+      account: IAccount;
+    };
+    roleAccount: string;
+  };
+};
 
 export interface UserState {
   token: string | null;

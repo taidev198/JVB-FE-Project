@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TextField, Tooltip } from '@mui/material';
+import { Chip, TextField } from '@mui/material';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
-import CancelIcon from '@mui/icons-material/Cancel';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useDispatch } from 'react-redux';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import WorkIcon from '@mui/icons-material/Work';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
@@ -16,14 +12,19 @@ import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/fil
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { useGetAllJobsAdminSystemQuery } from '@/services/adminSystemApi';
+import { useApproveJobsMutation, useGetAllJobsAdminSystemQuery, useRejectJobsMutation } from '@/services/adminSystemApi';
 import ImageComponent from '@/components/Common/Image';
 import PaginationComponent from '@/components/Common/Pagination';
+import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
+import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import { statusTextJob } from '@/utils/app/const';
 
 const AdminSystemJob = () => {
   const dispatch = useDispatch();
+  const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [active, setActive] = useState('ALL');
-  const { page, size } = useAppSelector(state => state.filter);
+  const { page, size, keyword, status } = useAppSelector(state => state.filter);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
 
@@ -36,19 +37,21 @@ const AdminSystemJob = () => {
     [dispatch]
   );
 
-  const { data: jobs, isLoading: isLoadingGetAll } = useGetAllJobsAdminSystemQuery({ page, size }, { refetchOnMountOrArgChange: true });
-
+  const { data: jobs, isLoading: isLoadingGetAll } = useGetAllJobsAdminSystemQuery({ page, size, keyword, status }, { refetchOnMountOrArgChange: true });
+  const [approveJob, { isLoading: isLoadingApprove }] = useApproveJobsMutation();
+  const [rejectJob, { isLoading: isLoadingReject }] = useRejectJobsMutation();
   const handleConfirmAction = async () => {
     if (showBackdrop) {
       try {
         switch (showBackdrop) {
           case BackdropType.ApproveConfirmation: {
+            await approveJob({ id: selectedJobId }).unwrap();
+            toast.success('Job đã được duyệt thành công!');
             break;
           }
           case BackdropType.RefuseConfirmation: {
-            break;
-          }
-          case BackdropType.DeleteConfirmation: {
+            await rejectJob({ id: selectedJobId }).unwrap();
+            toast.success('Đã từ chối job thành công!');
             break;
           }
           default:
@@ -67,11 +70,11 @@ const AdminSystemJob = () => {
     }
   };
   useEffect(() => {
-    dispatch(setLoading(isLoadingGetAll));
+    dispatch(setLoading(isLoadingApprove || isLoadingReject || isLoadingGetAll));
     return () => {
       dispatch(resetFilters());
     };
-  }, [dispatch, isLoadingGetAll]);
+  }, [dispatch, isLoadingApprove, isLoadingReject, isLoadingGetAll]);
 
   return (
     <>
@@ -82,7 +85,7 @@ const AdminSystemJob = () => {
           <div className="flex items-center gap-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm tên, mã"
+              label="Tìm kiếm tên job"
               type="search"
               variant="outlined"
               size="small"
@@ -99,7 +102,7 @@ const AdminSystemJob = () => {
           <div className="p-5">
             <div className="grid grid-cols-1 items-center justify-between pb-4 sm:grid-cols-2">
               <div>
-                <h6 className="mb-4 sm:mb-0">Doanh nghiệp đối tác</h6>
+                <h6 className="mb-4 sm:mb-0">Danh sách jobs</h6>
               </div>
               <div className="mx-auto flex items-center gap-2  sm:ml-auto sm:mr-0">
                 <button
@@ -108,7 +111,7 @@ const AdminSystemJob = () => {
                     setActive('ALL');
                   }}
                   className={`rounded-lg ${active === 'ALL' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Tất cả: 200
+                  Tất cả
                 </button>
                 <button
                   onClick={() => {
@@ -116,23 +119,23 @@ const AdminSystemJob = () => {
                     setActive('PENDING');
                   }}
                   className={`rounded-lg ${active === 'PENDING' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Đang chờ: 100
+                  Đang chờ
                 </button>
                 <button
                   onClick={() => {
-                    dispatch(setStatus('ACCEPT'));
-                    setActive('ACCEPT');
+                    dispatch(setStatus('APPROVED'));
+                    setActive('APPROVED');
                   }}
-                  className={`rounded-lg ${active === 'ACCEPT' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Chấp nhận: 100
+                  className={`rounded-lg ${active === 'APPROVED' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
+                  Chấp nhận
                 </button>
                 <button
                   onClick={() => {
-                    dispatch(setStatus('CANCEL'));
-                    setActive('CANCEL');
+                    dispatch(setStatus('REJECT'));
+                    setActive('REJECT');
                   }}
-                  className={`rounded-lg ${active === 'CANCEL' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Từ chối: 100
+                  className={`rounded-lg ${active === 'REJECT' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
+                  Từ chối
                 </button>
               </div>
             </div>
@@ -144,17 +147,15 @@ const AdminSystemJob = () => {
                       {/* Image */}
                       <Link href={''}>
                         <ImageComponent
-                          src={job.company?.logoUrl}
+                          src={job.company.logoUrl}
                           alt={job.company?.companyName}
                           width={80}
                           height={80}
-                          className="h-20 rounded-full border border-solid"
+                          className="h-20 rounded-full border border-solid object-contain"
                         />
                       </Link>
                       <div className="ml-0 font-semibold sm:ml-4">
-                        <Link href={''}>
-                          <h4 className="mb-[6px] font-semibold hover:text-primary-main">{job.jobTitle}</h4>
-                        </Link>
+                        <h4 className="mb-[6px] font-semibold">{job.jobTitle}</h4>
                         <div className="flex items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
                           <div className="flex items-center gap-1">
                             <WorkIcon sx={{ fontSize: '15px' }} />
@@ -162,7 +163,7 @@ const AdminSystemJob = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <LocationOnIcon sx={{ fontSize: '15px' }} />
-                            Nam Từ Liêm, Ha Noi
+                            {job.company.address.district.districtName}, {job.company.address.province.provinceName}
                           </div>
                         </div>
                       </div>
@@ -171,72 +172,56 @@ const AdminSystemJob = () => {
                     <div className="font-bold text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
                       <div>
                         <span>Ngày đăng: </span>
-                        <span className="text-primary-main"> 17 Apr 2023</span>
+                        <span className="text-primary-main">{job.createAt.split(' ')[0]}</span>
                       </div>
                       <div>
                         <span>Hết hạn:</span>
-                        <span className="text-[#a70a29]">12 Jun 2024</span>
+                        <span className="text-[#a70a29]">{job.expirationDate}</span>
                       </div>
                     </div>
+                    <div>
+                      <Chip
+                        label={statusTextJob(job.status)?.title}
+                        sx={{
+                          backgroundColor: statusTextJob(job.status)?.bg,
+                          color: statusTextJob(job.status)?.color,
+                        }}
+                      />
+                    </div>
                     {/* Button */}
-                    <div className="flex items-center gap-3">
-                      {job.status === 'CANCEL' ? null : job.status === 'ACCEPT' ? (
-                        <Tooltip title="Xóa">
-                          <div
-                            className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2943]"
-                            onClick={() => {
-                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                              dispatch(setName(job.jobTitle));
-                            }}>
-                            <DeleteIcon color="error" fontSize="small" />
-                          </div>
-                        </Tooltip>
-                      ) : (
+                    <div className="flex items-center gap-2">
+                      {job.status === 'PENDING' ? (
                         <>
-                          <Tooltip title="Chấp nhận">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:bg-[#00986849]"
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
-                                dispatch(setName(job.jobTitle));
-                              }}>
-                              <DoneAllIcon color="success" fontSize="small" />
-                            </div>
-                          </Tooltip>
+                          <ButtonSee
+                            href="#"
+                            onClick={() => {
+                              setSelectedJobId(job?.id);
+                            }}
+                          />
 
-                          <Tooltip title="Từ chối">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.RefuseConfirmation));
-                                dispatch(setName(job.jobTitle));
-                              }}>
-                              <CancelIcon color="warning" fontSize="small" />
-                            </div>
-                          </Tooltip>
+                          <ButtonAccept
+                            onClick={() => {
+                              dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                              dispatch(setName(job.jobTitle));
+                              setSelectedJobId(job?.id);
+                            }}
+                          />
 
-                          <Tooltip title="Xóa">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2934]"
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                                dispatch(setName(job.jobTitle));
-                              }}>
-                              <DeleteIcon color="error" fontSize="small" />
-                            </div>
-                          </Tooltip>
-
-                          <Tooltip title="Chỉnh sửa">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#1966d227] px-2 py-[6px] transition-all hover:bg-[#1966d254]"
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
-                                dispatch(setName(job.jobTitle));
-                              }}>
-                              <RemoveRedEyeIcon color="info" fontSize="small" />
-                            </div>
-                          </Tooltip>
+                          <ButtonReject
+                            onClick={() => {
+                              dispatch(setBackdrop(BackdropType.RefuseConfirmation));
+                              dispatch(setName(job.jobTitle));
+                              setSelectedJobId(job?.id);
+                            }}
+                          />
                         </>
+                      ) : (
+                        <ButtonSee
+                          href="#"
+                          onClick={() => {
+                            setSelectedJobId(job?.id);
+                          }}
+                        />
                       )}
                     </div>
                   </div>
@@ -260,9 +245,8 @@ const AdminSystemJob = () => {
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">
             <h3 className="font-bold">
-              {showBackdrop === BackdropType.ApproveConfirmation && `Duyệt tài khoản ${name}`}
-              {showBackdrop === BackdropType.RefuseConfirmation && `Từ chối tài khoản ${name}`}
-              {showBackdrop === BackdropType.DeleteConfirmation && `Xóa ${name}`}
+              {showBackdrop === BackdropType.ApproveConfirmation && `Duyệt job ${name}`}
+              {showBackdrop === BackdropType.RefuseConfirmation && `Từ chối job ${name}`}
             </h3>
             <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div className="mt-9 flex items-center gap-5">

@@ -1,8 +1,10 @@
+import { IBusiness } from './businesTypes';
 import { ICompany } from './companyType';
 import { IJobCompany } from './jobCompany';
 
 export interface IJobsSchool {
   job: IJobCompany;
+  major: IBusiness;
   status: string;
 }
 
@@ -20,6 +22,7 @@ export interface IJobCompanyResponse {
 
 export interface IPartnershipsSchool {
   company: ICompany;
+  startDate: string;
   partnershipStatus: string;
 }
 

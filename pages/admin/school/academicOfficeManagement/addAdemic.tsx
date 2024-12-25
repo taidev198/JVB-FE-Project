@@ -59,8 +59,6 @@ const AddAdemic = () => {
 
   const onSubmit: SubmitHandler<FormDataAddAdemic> = async data => {
     const formData = new FormData();
-
-    // Append dữ liệu JSON dưới dạng chuỗi
     const universityEmployeeRequest = {
       employeeCode: data.employeeCode,
       fullName: data.fullName,

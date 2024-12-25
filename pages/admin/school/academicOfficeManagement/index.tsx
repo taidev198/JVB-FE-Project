@@ -16,21 +16,19 @@ import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllA
 import { debounce } from 'lodash';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { genderTitle } from '@/utils/app/const';
 
 const AcademicOfficeManagement = () => {
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
-  const idAdemic = useAppSelector(state => state.global.id);
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
-  const showBackdrop = useAppSelector(state => state.global.backdropType);
-
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -51,11 +49,11 @@ const AcademicOfficeManagement = () => {
   const handleDelete = async () => {
     try {
       if (selectedAdemic.length > 0) {
-        const response = await deleteMultiple({ ids: selectedAdemic }).unwrap();
-        toast.success(response.message);
+        await deleteMultiple({ ids: selectedAdemic }).unwrap();
+        toast.success('Các giáo vụ đã được xóa thành công');
       } else {
-        const response = await deleteOne({ id: idAdemic }).unwrap();
-        toast.success(response.message);
+        await deleteOne({ id: selectId }).unwrap();
+        toast.success('Giáo vụ đã được xóa thành công');
       }
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -83,7 +81,6 @@ const AcademicOfficeManagement = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
-
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const allAdemicIds = academicOfficeManagement?.data.content.map(ademic => ademic.id);
@@ -97,6 +94,9 @@ const AcademicOfficeManagement = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
+    return () => {
+      dispatch(resetFilters());
+    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
@@ -170,7 +170,7 @@ const AcademicOfficeManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">{item.employeeCode}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.fullName}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.phoneNumber}</td>
-                  <td className="p-3 sm:px-5 sm:py-4">{item.gender}</td>
+                  <td className="p-3 sm:px-5 sm:py-4">{genderTitle(item.gender)}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.dateOfBirth}</td>
 
                   <td className="py-4">
@@ -198,7 +198,7 @@ const AcademicOfficeManagement = () => {
         </table>
       </div>
 
-      {/* Xóa */}
+      {/* delete */}
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">

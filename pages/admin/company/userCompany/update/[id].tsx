@@ -1,23 +1,28 @@
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
+import Address from '@/components/Common/Address';
+import { useRouter } from 'next/router';
 import validationSchemaAddStudent from '@/validation/companyEmployee/validationAddEmployee';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
-import Address from '@/components/Common/Address';
 import DateComponent from '@/components/Common/DateComponent';
-import { useRouter } from 'next/router';
-import { useAddEmployeeMutation } from '@/services/adminCompanyApi';
+import { formatDateDd_MM_yyyy } from '@/utils/app/format';
+import { useGetDetailEmployeeQuery, useUpdateEmployeeMutation } from '@/services/adminCompanyApi';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { formatDateDd_MM_yyyy } from '@/utils/app/format';
+import { useAppSelector } from '@/store/hooks';
+import dayjs from 'dayjs';
+import { useDispatch } from 'react-redux';
+import { setLoading } from '@/store/slices/global';
+
 
 interface FormDataAddEmployee {
   employeeCode: string;
@@ -34,50 +39,51 @@ interface FormDataAddEmployee {
   dateOfBirth: Date;
   password: string;
   confirmPassword: string;
+  employeeStatus: string
+
 }
 
-const AddEmployee = () => {
-  const [image, setImage] = useState<File | string | null>(null);
-  const router = useRouter();
-  const methods = useForm<FormDataAddEmployee>({
-    resolver: yupResolver(validationSchemaAddStudent),
-    mode: 'onChange',
-    defaultValues: {
-      wardId: null,
-      districtId: null,
-      provinceId: null,
-    },
-  });
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = methods;
+const UpdateEmployee = () => {
+    const [image, setImage] = useState<File | string | null>(null);
+    const dispatch = useDispatch()
+    const router = useRouter();
+    const methods = useForm<FormDataAddEmployee>({
+      resolver: yupResolver(validationSchemaAddStudent),
+      mode: 'onChange',
+      defaultValues: {
+        wardId: null,
+        districtId: null,
+        provinceId: null,
+      },
+    });
 
-  console.log('errors: ', errors)
+    const {
+      handleSubmit,
+      control,
+      reset,
+      formState: { errors },
+    } = methods;
 
-  const [addEmployee, { isLoading }] = useAddEmployeeMutation();
+    console.log(errors)
+
+    const id = useAppSelector(state => state.global.id);
+    const [updateEmployee, {isLoading}] = useUpdateEmployeeMutation()
 
   const onSubmit: SubmitHandler<FormDataAddEmployee> = async data => {
-    // console.log({ data, image });
     const formData = new FormData();
 
     const companyEmployeeRequest = {
-      employeeCode: data.employeeCode,
-      account: {
-        email: data.email,
-        password: data.password
+      
+      phoneNumber: data.phoneNumber,
+      fullName: data.fullName,
+      address: {
+        houseNumber: data.houseNumber,
+        wardId: data.wardId
       },
-     phoneNumber: data.phoneNumber,
-     fullName: data.fullName,
-     address: {
-       houseNumber: data.houseNumber,
-       wardId: data.wardId
-      },
-     employeePosition: data.employeePosition,
-     dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
-     gender: data.gender,
-     salary: data.salary
+      employeePosition: data.employeePosition,
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
+      gender: data.gender,
+      salary: data.salary
     }
 
     // Chuyển đổi đối tượng studentRequest thành chuỗi JSON và append vào FormData
@@ -85,7 +91,7 @@ const AddEmployee = () => {
     // Append file vào FormData
     formData.append('file', image as File);
     try {
-      const response = await addEmployee(formData).unwrap();
+      const response = await updateEmployee({ formData: formData, id: id }).unwrap();
       toast.success(response.messages);
       router.push('/admin/company/userCompany');
     } catch (error) {
@@ -98,6 +104,31 @@ const AddEmployee = () => {
     }
   };
 
+  const {data: detailEmployee} = useGetDetailEmployeeQuery({id})
+  console.log('detailEmployee', detailEmployee)
+  // console.log('data: ', data)
+  useEffect(() => {
+    if (detailEmployee?.data) {
+      reset({
+        employeeCode: detailEmployee.data.employeeCode,
+        fullName: detailEmployee.data.fullName,
+        dateOfBirth: detailEmployee.data.dateOfBirth ? dayjs(detailEmployee?.data.dateOfBirth, 'DD/MM/YYYY') : null,
+        phoneNumber: detailEmployee.data.phoneNumber,
+        email: detailEmployee.data.account.email,
+        gender: detailEmployee.data.gender,
+        employeePosition: detailEmployee.data.employeePosition,
+        salary: detailEmployee.data.salary,
+        districtId: detailEmployee.data.address.district.id,
+        provinceId: detailEmployee.data.address.province.id,
+        wardId: detailEmployee.data.address.ward.id,
+        houseNumber: detailEmployee.data.address.houseNumber,
+
+      })
+    }
+    dispatch(setLoading(isLoading))
+  }, [isLoading, dispatch, detailEmployee?.data, reset])
+
+
   return (
     <div className="rounded-lg bg-primary-white p-5">
       {/* Icon */}
@@ -108,7 +139,7 @@ const AddEmployee = () => {
           </IconButton>
         </Link>
         Trở về
-        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm nhân viên </h1>
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Cập nhập nhân viên </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
@@ -119,7 +150,7 @@ const AddEmployee = () => {
           {/* Block 1 */}
           <div className="mt-8 grid grid-cols-1 gap-4 rounded-b-lg sm:grid-cols-2">
             {/* employee code */}
-            <Input name="employeeCode" control={control} error={errors.employeeCode?.message} placeholder="Mã nhân viên" label="Mã nhân viên" required={true} />
+            <Input name="employeeCode" control={control} error={errors.employeeCode?.message} placeholder="Mã nhân viên" label="Mã nhân viên" required={true} disabled={true} />
 
             {/* employee name */}
             <Input name="fullName" control={control} error={errors.fullName?.message} placeholder="Tên nhân viên" label="Tên nhân viên" required={true} />
@@ -175,19 +206,6 @@ const AddEmployee = () => {
             {/* lương */}
             <Input type="number" name="salary" label="Mức lương" required={true} placeholder="mức lương" control={control} error={errors.salary?.message} />
 
-            {/* mật khẩu */}
-            <Input type="password" name="password" label="Mật khẩu" required={true} placeholder="Mật khẩu" control={control} error={errors.password?.message} />
-
-            {/*mật khẩu */}
-            <Input
-              type="password"
-              name="confirmPassword"
-              label="Nhập lại mật khẩu"
-              required={true}
-              placeholder="Nhập lại mật khẩu"
-              control={control}
-              error={errors.confirmPassword?.message}
-            />
           </div>
           {/* Address */}
           <FormProvider {...methods}>
@@ -213,10 +231,12 @@ const AddEmployee = () => {
           </FormProvider>
         </div>
         <div className="ml-auto w-fit py-5">
-          <Button text="Thêm mới" type="submit" />
+          {' '}
+          <Button text="Cập nhập" type="submit" />
         </div>
       </form>
     </div>
-  );
+  )
 }
-export default AddEmployee;
+
+export default UpdateEmployee
