@@ -14,6 +14,8 @@ import { setToast } from '@/store/slices/toastSlice';
 import SelectReact from '@/components/Common/SelectMui';
 import { useAddBusinessMutation, useGetAllFieldsQuery, useGetAllMajorByQuery } from '@/services/adminSchoolApi';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataAddBusiness {
   majorCode: string;
@@ -38,18 +40,22 @@ const AddBussiness = () => {
   const { data: majores, isLoading: isLoadingMajor } = useGetAllMajorByQuery();
   const [addBusiness, { data, isLoading: isLoadingAddBusiness, isSuccess }] = useAddBusinessMutation();
   const router = useRouter();
-  console.log(errors);
   const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();
-  const onSubmit: SubmitHandler<FormDataAddBusiness> = data => {
-    console.log({ data });
-
-    addBusiness(data);
-    router.push('/admin/school/businessManagement');
+  const onSubmit: SubmitHandler<FormDataAddBusiness> = async data => {
+    try {
+      await addBusiness(data).unwrap();
+      toast.success('Thêm ngành học thành công');
+      router.push('/admin/school/businessManagement');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
   useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data.message }));
-    }
     dispatch(setLoading(isLoadingMajor || isLoadingAddBusiness || isLoadingFaculies));
   }, [dispatch, isLoadingAddBusiness, isLoadingMajor, isLoadingFaculies, data?.message, isSuccess]);
 
@@ -66,8 +72,6 @@ const AddBussiness = () => {
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-primary-white px-5 sm:px-0 ">
         <div className=" grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Các trường thông tin khác */}
-
           <Input
             type="text"
             name="majorCode"

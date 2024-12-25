@@ -35,7 +35,7 @@ const AddDepartment = () => {
   const [addDepartment, { data, isLoading: isLoadingAddDepartment, isSuccess }] = useAddDepartmentMutation();
   const router = useRouter();
   const onSubmit: SubmitHandler<FormDataAddDepartment> = async data => {
-    const updatedData = { ...data, universityId: 12 };
+    const updatedData = { ...data };
     try {
       await addDepartment(updatedData).unwrap();
       toast.success('Thêm khoa thành công');
@@ -67,7 +67,6 @@ const AddDepartment = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-primary-white px-5">
         {/* Icon */}
         <div className="grid grid-cols-1 gap-4 bg-primary-white sm:grid-cols-2">
-          
           <Input
             type="text"
             name="facultyCode"

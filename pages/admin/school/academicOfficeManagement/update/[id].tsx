@@ -75,7 +75,6 @@ const UpdateAdemic = () => {
     };
 
     formData.append('universityEmployeeRequest', new Blob([JSON.stringify(universityEmployeeRequest)], { type: 'application/json' }));
-
     formData.append('file', image as File);
 
     if (IdAdemic) {

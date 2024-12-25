@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
@@ -15,14 +15,14 @@ import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Text from '@/components/Common/Text';
 import SelectReact from '@/components/Common/SelectMui';
 import { typeUniversity } from '@/utils/app/const';
-import { useGetAllMajorsQuery, useGetDetailSchoolQuery, useUpdateSchoolMutation } from '@/services/adminSchoolApi';
+import { useGetDetailSchoolQuery, useUpdateSchoolMutation } from '@/services/adminSchoolApi';
 import { setLoading } from '@/store/slices/global';
-import { useAppSelector } from '@/store/hooks';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import validationSchemaUpdateSchool from '@/components/Admin/school/profileSchool/validationUpdateSchool';
 import Address from '@/components/Common/Address';
 import DateComponent from '@/components/Common/DateComponent';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
+import TextEditor from '@/components/Common/TextEditor';
 
 interface FormDataAddStudent {
   universityName: string;
@@ -47,7 +47,6 @@ const UpdateSchoolManagement = () => {
   const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
-
   const methods = useForm<FormDataAddStudent>({
     resolver: yupResolver(validationSchemaUpdateSchool),
     mode: 'onChange',
@@ -64,8 +63,6 @@ const UpdateSchoolManagement = () => {
     control,
     formState: { errors },
   } = methods;
-
-  const id = useAppSelector(state => state.global.id);
   const { data: detailSchool } = useGetDetailSchoolQuery();
   useEffect(() => {
     if (detailSchool?.data.logoUrl) {
@@ -97,8 +94,8 @@ const UpdateSchoolManagement = () => {
     formData.append('file', image as File);
 
     try {
-      const response = await updateSchool({ formData: formData }).unwrap();
-      toast.success(response.message);
+      await updateSchool({ formData: formData }).unwrap();
+      toast.success('Sửa hồ sơ trường thành công');
       router.push('/admin/school/schoolManagement');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -147,7 +144,6 @@ const UpdateSchoolManagement = () => {
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
-          {/* Avatar */}
           <ImageUploaderOne image={image} setImage={setImage} />
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
@@ -169,8 +165,9 @@ const UpdateSchoolManagement = () => {
               control={control}
               error={errors.universityName?.message}
               required={true}
+              disabled={true}
             />
-            {/* Phone */}
+
             <Input
               type="text"
               name="phoneNumber"
@@ -180,10 +177,17 @@ const UpdateSchoolManagement = () => {
               error={errors.phoneNumber?.message}
               required={true}
             />
-            {/* Email */}
-            <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} required={true} />
 
-            {/* Date Of Birth */}
+            <Input
+              type="email"
+              name="email"
+              label="Email"
+              placeholder="Nhập Email"
+              control={control}
+              error={errors.email?.message}
+              required={true}
+              disabled={true}
+            />
             <DateComponent
               name="establishedDate"
               control={control}
@@ -236,7 +240,6 @@ const UpdateSchoolManagement = () => {
             </Address>
           </FormProvider>
 
-          {/* Type school */}
           <div className="mt-[16px]">
             <SelectReact
               name="universityType"
@@ -253,13 +256,22 @@ const UpdateSchoolManagement = () => {
             />
           </div>
           <div className="mt-[16px]">
-            <Text
-              label="Mô tả hồ sơ trường "
-              placeholder="Nhập mô tả hồ sơ trường"
+            
+            <Controller
+              name="universityDescription"
               control={control}
-              error={errors.universityDescription?.message}
               {...register('universityDescription')}
-              required={true}
+              defaultValue=""
+              render={({ field }) => (
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Nhập mô tả hồ sơ trường"
+                  error={errors.universityDescription?.message}
+                  required={true}
+                />
+              )}
             />
           </div>
         </div>

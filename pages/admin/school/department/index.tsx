@@ -50,7 +50,6 @@ const Department = () => {
   };
 
   const idDepartment = useAppSelector(state => state.global.id);
-  console.log(departments);
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteDepartmentOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteDepartmentMultipleMutation();
   const handleConfirmAction = async () => {
@@ -93,14 +92,14 @@ const Department = () => {
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
-      {/* Header */}
+   
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý khoa</h1>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm tên khoa"
+              label="Tìm kiếm tên, mã khoa"
               type="search"
               variant="outlined"
               size="small"
@@ -122,7 +121,7 @@ const Department = () => {
         </div>
       </div>
 
-      {/* Table */}
+  
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white px-24 text-[14px]">
           <thead className="bg-white">
@@ -202,7 +201,7 @@ const Department = () => {
           </tbody>
         </table>
       </div>
-      {/* Xóa Khoa */}
+      
       {showBackdrop === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
@@ -216,14 +215,14 @@ const Department = () => {
         </BackDrop>
       )}
 
-      {/* Pagination */}
+     
       <PaginationComponent
         count={departments?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={departments?.data.totalElements}
-        totalTitle={'Department'}
+        totalTitle={'Khoa'}
       />
     </>
   );
