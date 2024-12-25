@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
 import { useGetDetailAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
 import ImageComponent from '@/components/Common/Image';
+import { genderTitle } from '@/utils/app/const';
 const DetailAdemicOfficeManagement = () => {
   const idAdemicOfficeManagement = useAppSelector(state => state.global.id);
   const dispatch = useAppDispatch();
@@ -44,7 +45,7 @@ const DetailAdemicOfficeManagement = () => {
           <div className="rounded-[50%] bg-[#F1F1F1] p-5">
             <ImageComponent
               src={academicOfficeManagement?.data.avatarUrl}
-              alt={academicOfficeManagement.data.fullName}
+              alt={academicOfficeManagement?.data.fullName}
               width={80}
               height={80}
               className="rounded-full object-cover"
@@ -71,7 +72,7 @@ const DetailAdemicOfficeManagement = () => {
           <li className="mt-5 flex items-center gap-3">
             <TransgenderIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Giới tính :</span> {academicOfficeManagement?.data.gender}
+              <span className="mr-2 font-semibold">Giới tính :</span> {genderTitle(academicOfficeManagement?.data.gender)}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">

@@ -6,7 +6,7 @@ const WhyWe = () => {
       <div className="container mx-auto 3xl:px-40">
         <div className="flex w-full flex-col items-center gap-12 lg:flex-row">
           <div className="rts__image__section overflow-hidden rounded-[10px] bg-why-us-bg pl-[40px] pr-[30px] pt-[25px] md:mx-11 lg:mx-0">
-            <img src="/images/image_ww.webp" alt="" />
+            <img src="/images/image_ww.webp" alt="" loading="eager" />
           </div>
           <div className="rts__content__section ms-lg-4 ms-md-0 wow  fadeInUp animated" style={{ visibility: 'visible', animationName: 'fadeInUp' }}>
             <h3 className="mp_section_title mb-[13px]">Vì sao chọn bạn nên chọn JobLink?</h3>

@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, SubmitHandler } from 'react-hook-form';
-// import SearchIcon from '@mui/icons-material/Search';
+import { useForm} from 'react-hook-form';
+
 import { Chip, IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -21,6 +21,9 @@ import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import AddIcon from '@mui/icons-material/Add';
 import { formatCurrencyVND } from '@/utils/app/format';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 
 
 
@@ -40,13 +43,10 @@ const jobCompany = () => {
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
   const {
-    control,
-    handleSubmit,
     formState: { errors },
   } = useForm<FormDataRegisterCompany>({
     resolver: yupResolver(validationSchema),
   });
-console.log(idJob);
 
   const debouncedSearch = useMemo(
     () =>
@@ -124,7 +124,7 @@ console.log(idJob);
             
             <MyButton 
               type="submit" 
-              text="Xóa tất cả công việc" 
+              text="Xóa tất cả " 
               className='bg-red-600'
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
                />
@@ -160,42 +160,23 @@ console.log(idJob);
                 </td>
                 <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.jobTitle}</td>
-                <td className="px-5 py-4"><p dangerouslySetInnerHTML={{ __html: item.jobDescription ?? '' }}></p></td>
                 <td className="px-5 py-4">{formatCurrencyVND(item.maxSalary)}-{formatCurrencyVND(item.minSalary)}</td>
                 <td className="px-5 py-4">{item.expirationDate}</td>
 
-                <td className="flex gap-2 px-5 py-4">
-                  <>
-                    <Link href={'/admin/company/jobCompany/detailJobCompany'}>
-                    <Tooltip title="Xem chi tiết" onClick={() => dispatch(setId(item.id))}>
-                      <IconButton>
-                        <VisibilityIcon color="success" />
-                      </IconButton>
-                    </Tooltip>
-                    </Link>
+                <td className=" py-4">
+                  <div className="flex items-center gap-2">
+                    <ButtonSee href={`/admin/company/jobCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
 
-                    <Link href={`/admin/company/jobCompany/update/${item.id}`}>
-                      <Tooltip title="Sửa">
-                        <IconButton onClick={() => {
-                          dispatch(setId(item.id))
-                        }}>
-                          <BorderColorIcon className='text-purple-500' />
-                        </IconButton>
-                      </Tooltip>
-                    </Link>
+                    <ButtonUpdate href={`/admin/company/jobCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
 
-
-                    <Tooltip title="Xóa">
-                      <IconButton onClick={() =>{
-                        dispatch(setBackdrop(BackdropType.DeleteConfirmation))
-                        dispatch(setName(item.jobTitle))
-                        setIdJob(item.id)
-                      } }>
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </Tooltip>
-
-                  </>
+                    <ButtonDelete
+                      onClick={() => {
+                        dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                        setIdJob(item.id);
+                        dispatch(setName(item.jobTitle));
+                      }}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}

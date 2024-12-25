@@ -10,14 +10,19 @@ export interface ICompany {
   companyCode: string;
   logoUrl: string;
   companyDescription: string;
+  companyShortDescription: string;
   phoneNumber: string;
   taxCode: string;
+  quantityEmployee: number;
   establishedDate: string;
   fields: IFields[];
   address: IAddress;
   account: IAccount;
   createAt: string;
   updateAt: string;
+  email: string;
+  districtId: number;
+  provinceId: number;
 }
 
 export interface ICompanyEmploy {
@@ -42,6 +47,9 @@ export interface ICompanyEmploy {
     companyName: string;
   };
   isDelete: false;
+  email: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export interface ICompanyAllResponse {

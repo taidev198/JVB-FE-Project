@@ -42,18 +42,12 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 6,
-    icon: <IconJob />,
-    url: '/admin/company/requestListCompany',
-    label: 'Danh sách yêu cầu',
-  },
-  {
-    id: 7,
     icon: <IconNotification />,
     url: '/admin/company/noticeCompany',
     label: 'Thông báo',
   },
   {
-    id: 8,
+    id: 7,
     icon: <IconChangePassword />,
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',

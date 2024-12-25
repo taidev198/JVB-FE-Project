@@ -19,6 +19,14 @@ export const gender = [
   { value: 'OTHER', label: 'Khác' },
 ];
 
+export const positionEmployee = [
+  { value: 'INTERN', label: 'Intern' },
+  { value: 'FRESHER', label: 'Fresher' },
+  { value: 'JUNIOR', label: 'Junior' },
+  { value: 'MIDDLE', label: 'Middle' },
+  { value: 'SENIOR', label: 'Senior' },
+];
+
 export const genderTitle = (gender: string | undefined): string => {
   switch (gender) {
     case 'MALE':
@@ -83,6 +91,17 @@ export const typeUniversityTitle = (status: string): AccountStatus => {
   }
 };
 
+export const statusEmployee = (status: string): AccountStatus => {
+  switch (status) {
+    case 'WORKING':
+      return { title: 'đang làm', color: '#fff', bg: '#ed6c02' };
+    case 'INACTIVE':
+      return { title: 'Nghỉ việc', color: '#fff', bg: '#2e7d32' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
 export const StatusJob = (status: string): AccountStatus => {
   switch (status) {
     case 'PENDING':
@@ -135,13 +154,26 @@ export const statusTextWorkshop = (status: string): AccountStatus => {
   }
 };
 
-export const statusTextJob = (status: string): AccountStatus => {
+export const statusLabelJob = (status: string): AccountStatus => {
   switch (status) {
     case 'APPROVED':
       return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };
     case 'PENDING':
       return { title: 'Đang chờ', color: '#FFA726', bg: '#fffae5' };
     case 'REJECT':
+      return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
+export const statusTextJob = (status: string): AccountStatus => {
+  switch (status) {
+    case 'ACCEPT':
+      return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };
+    case 'PENDING':
+      return { title: 'Đang chờ', color: '#FFA726', bg: '#fffae5' };
+    case 'CANCEL':
       return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
     default:
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };

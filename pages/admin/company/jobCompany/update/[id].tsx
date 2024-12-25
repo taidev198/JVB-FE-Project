@@ -17,6 +17,9 @@ import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { formatDateDd_MM_yyyy } from '@/utils/app/format';
+import dayjs from 'dayjs';
+import DateComponent from '@/components/Common/DateComponent';
 interface FormUpdateAddJob {
   job_title: string;
   job_description: string;
@@ -66,7 +69,7 @@ const UpdateJob = () => {
         work_time: detailJob.data.workTime,
         benifits: detailJob.data.benifits,
         job_level: detailJob.data.jobLevel,
-        expiration_date: detailJob.data.expirationDate,
+        expiration_date: detailJob?.data.expirationDate ? dayjs(detailJob?.data.expirationDate, 'DD/MM/YYYY') : null,
         member_of_candidate: detailJob.data.memberOfCandidate,
         salary_type: detailJob.data.salaryType,
         max_salary: detailJob.data.maxSalary,
@@ -85,7 +88,7 @@ const UpdateJob = () => {
   const onSubmit: SubmitHandler<FormUpdateAddJob> = async data => {
     const newData = {
       ...data,
-      expiration_date: formatDateSearch(data.expiration_date),
+      expiration_date: formatDateDd_MM_yyyy(data.expiration_date),
        status : "REJECT"
     };
     try {
@@ -100,7 +103,6 @@ const UpdateJob = () => {
         toast.error(error.message);
       }
     }
-    // addJob(newData)
   };
 
   return (
@@ -172,7 +174,12 @@ const UpdateJob = () => {
             />
 
             {/* time làm vc */}
-            <Input name="work_time" control={control} error={errors.work_time?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" />
+            <Input 
+              name="work_time" 
+              control={control} 
+              error={errors.work_time?.message} 
+              placeholder="Thời gian làm việc" 
+              label="Thời gian làm việc" />
 
             <SelectReact
               name="job_field"
@@ -193,17 +200,26 @@ const UpdateJob = () => {
               placeholder="Nhập trình độ"
               control={control}
               options={[
-                { value: 'JUNIOR', label: 'JUNIOR' },
-                { value: 'SENIOR', label: 'SENIOR' },
+                { value: 'INTERN', label: 'Intern' },
+                { value: 'JUNIOR', label: 'Junior' },
+                { value: 'SENIOR', label: 'Senior' },
               ]}
               error={errors.job_level?.message}
             />
 
             {/*Ngày hết hạn */}
-            <Input type="date" name="expiration_date" control={control} error={errors.expiration_date?.message} placeholder="Ngày hết hạn" label="Ngày hết hạn" />
+            <DateComponent 
+              name="expiration_date" 
+              control={control} 
+              error={errors.expiration_date?.message} 
+              placeholder="Ngày hết hạn" label="Ngày hết hạn" />
 
             {/* số lượng */}
-            <Input name="member_of_candidate" control={control} error={errors.member_of_candidate?.message} placeholder="Số lượng tuyển" label="Số lượng tuyển" />
+            <Input 
+              name="member_of_candidate" 
+              control={control} 
+              error={errors.member_of_candidate?.message} 
+              placeholder="Số lượng tuyển" label="Số lượng tuyển" />
 
             {/* Lương: cao */}
           </div>{' '}

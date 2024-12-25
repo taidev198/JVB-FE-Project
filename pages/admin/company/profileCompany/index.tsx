@@ -109,8 +109,10 @@ const profileCompany = () => {
             </div>
           </li>
 
-          <li className="mt-4 flex items-center  gap-3 ">
-            <DescriptionIcon sx={{ color: '#757575' }} />
+          <li className="mt-4 flex items-center gap-3 ">
+            <div className="mb-auto">
+              <DescriptionIcon sx={{ color: '#757575' }} />
+            </div>
             <div>
               <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
               {profile?.data.companyDescription}

@@ -1,9 +1,10 @@
+import { IBusiness } from './businesTypes';
 import { ICompany } from './companyType';
 import { IJobCompany } from './jobCompany';
 
 export interface IJobsSchool {
-  company: ICompany;
   job: IJobCompany;
+  major: IBusiness;
   status: string;
 }
 

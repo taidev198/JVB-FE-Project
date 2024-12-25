@@ -7,6 +7,7 @@ import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
 // import { method, result } from 'lodash';
 // import { error } from 'console';
 import { WorkshopResponse } from '@/types/workshop';
+import { formatDateSearch } from '@/utils/app/format';
 
 export const adminCompanyApi = createApi({
   reducerPath: 'adminCompanyApi',
@@ -51,6 +52,41 @@ export const adminCompanyApi = createApi({
         providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Company', id }] : []),
       }),
 
+      addEmployee: builder.mutation({
+        query: data => ({
+          url: `/company/company-employees/create`,
+          method: 'POST',
+          body: data,
+        }),
+        invalidatesTags: ['Company'],
+      }),
+
+      updateEmployee: builder.mutation({
+        query: ({ formData, id }) => ({
+          url: `/company/company-employees/update/${id}`,
+          method: 'PUT',
+          body: formData,
+        }),
+        invalidatesTags: ['Company'],
+      }),
+
+      deleteEmployeeCompany: builder.mutation({
+        query: ({ id }) => ({
+          url: `/company/company-employees/delete/${id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: [{ type: 'Company' }],
+      }),
+
+      deleteAllEmployeeCompany: builder.mutation<any, { ids: number[] }>({
+        query: ({ ids }) => ({
+          url: `/company/company-employees/delete-multiple`,
+          method: 'PUT',
+          body: { ids },
+        }),
+        invalidatesTags: [{ type: 'Company' }],
+      }),
+
       //profile Company
       getDetailProfile: builder.query<IProfileCompanyRespone, void>({
         query: () => ({
@@ -60,7 +96,7 @@ export const adminCompanyApi = createApi({
 
       updateProfile: builder.mutation<any, { data: any; id: number | null }>({
         query: ({ data, id }) => ({
-          url: `/company/update_job/${id}`,
+          url: `/company/update-current`,
           method: 'PUT',
           body: data,
         }),
@@ -120,17 +156,25 @@ export const adminCompanyApi = createApi({
       }),
 
       // WORKSHOP
-      getAllWorkShopCompany: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string }>({
-        query: ({ page, size, keyword, status }) => {
+      getAllWorkShopCompany: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null;}>({
+        query: ({ page, size, keyword, status, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
-
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/company/workshop/apply/get_all?${queryParams.toString()}`;
         },
         providesTags: ['Workshop'],
+      }),
+      deleteWorkShop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/company/workshop/cancel/${id}`,
+          method: 'DELETE',
+        }),
+        invalidatesTags: [{ type: 'Workshop' }],
       }),
     };
   },
@@ -140,11 +184,16 @@ export const {
   useGetAllWorShopsUniversityQuery,
   useGetAllCompanyEmployeQuery,
   useGetDetailEmployeeQuery,
+  useAddEmployeeMutation,
+  useUpdateEmployeeMutation,
+  useDeleteEmployeeCompanyMutation,
+  useDeleteAllEmployeeCompanyMutation,
   useGetDetailProfileQuery,
   useGetAllCompanyJobQuery,
   useGetDetailCompanyJobQuery,
   useDeleteJobCompanyMutation,
   useGetAllWorkShopCompanyQuery,
+  useDeleteWorkShopMutation,
   useAddJobMutation,
   useUpdateJobMutation,
   useDeleteAllJobCompanyMutation,

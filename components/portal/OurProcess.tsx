@@ -1,6 +1,5 @@
-import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
+import ImageComponent from '../Common/Image';
 
 const OurProcess = () => {
   return (
@@ -17,7 +16,7 @@ const OurProcess = () => {
         <div className="justify-content-center grid grid-cols-1 gap-10 xl:grid-cols-3">
           <div className="rts__workprocess__box mp_ourprocess_item">
             <div className="rts__icon mp_ourprocess_item_icon">
-              <Image src="/icons/iconPortal/OurProcessIcon1.svg" alt="OurProcessIcon1" width={40} height={40} />
+              <ImageComponent src="/icons/iconPortal/OurProcessIcon1.svg" alt="OurProcessIcon1" width={40} height={40} />
             </div>
             <span className="process__title mp_ourprocess_item_title mb-[15px]">Tạo tài khoản miễn phí</span>
             <p className="mp_p">Đăng ký tài khoản dễ dàng để tham gia hệ thống, mở ra cơ hội kết nối hiệu quả giữa doanh nghiệp và trường học.</p>
@@ -29,7 +28,7 @@ const OurProcess = () => {
           </div>
           <div className="rts__workprocess__box mp_ourprocess_item">
             <div className="rts__icon mp_ourprocess_item_icon">
-              <Image src="/icons/iconPortal/OurProcessIcon2.svg" alt="OurProcessIcon2" width={40} height={40} />
+              <ImageComponent src="/icons/iconPortal/OurProcessIcon2.svg" alt="OurProcessIcon2" width={40} height={40} />
             </div>
             <span className="process__title mp_ourprocess_item_title mb-[15px]">Đăng tin tuyển dụng hoặc workshop</span>
             <p className="mp_p">Chia sẻ thông tin về vị trí tuyển dụng, cơ hội hợp tác hoặc workshop để tiếp cận đúng đối tượng.</p>
@@ -41,7 +40,7 @@ const OurProcess = () => {
           </div>
           <div className="rts__workprocess__box mp_ourprocess_item">
             <div className="rts__icon mp_ourprocess_item_icon">
-              <Image src="/icons/iconPortal/OurProcessIcon3.svg" alt="OurProcessIcon3" width={40} height={40} />
+              <ImageComponent src="/icons/iconPortal/OurProcessIcon3.svg" alt="OurProcessIcon3" width={40} height={40} />
             </div>
             <span className="process__title mp_ourprocess_item_title mb-[15px]">Nhận thông báo phú hợp</span>
             <p className="mp_p">

@@ -1,24 +1,12 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Pagination, Spin, Empty, Form, Input, Checkbox, Button, Space, DatePicker, ConfigProvider, Divider } from 'antd';
-import {
-  AppstoreOutlined,
-  BarsOutlined,
-  EnvironmentOutlined,
-  HistoryOutlined,
-  SearchOutlined,
-  TagOutlined,
-  TeamOutlined,
-  TransactionOutlined,
-} from '@ant-design/icons';
-import Image from 'next/image';
-import Link from 'next/link';
-import SelectSearch from '../common/SelectSearch';
-import { useGetProvincesQuery, useGetFieldsQuery, useGetSchoolsQuery, useGetWorkshopsQuery, useGetJobsQuery } from '@/services/portalHomeApi';
-import { IUniversity } from '@/types/university';
-import Select from 'rc-select';
-import { formatCurrencyVND, formatDateDD_thang_MM_yyyy, formatJobType } from '@/utils/app/format';
+import ImageComponent from '@/components/Common/Image';
+import { useGetFieldsQuery, useGetJobsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
 import { IJobCompany } from '@/types/jobCompany';
-import CustomImage from '../common/CustomImage';
+import { formatCurrencyVND, formatJobType } from '@/utils/app/format';
+import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
+import { Button, Checkbox, ConfigProvider, DatePicker, Empty, Form, Input, Pagination, Space, Spin } from 'antd';
+import Link from 'next/link';
+import React, { useCallback, useEffect, useState } from 'react';
+import SelectSearch from '../common/SelectSearch';
 
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,7 +17,7 @@ const WorkshopsList: React.FC = () => {
   const [filteredJobs, setFilteredJobs] = useState<IJobCompany[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedJobs, setPaginatedJobs] = useState<IJobCompany[]>([]);
-  const pageSize = 8;
+  const [pageSize, setPageSize] = useState(8); // Initial page size
   const [form] = Form.useForm();
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
@@ -65,10 +53,13 @@ const WorkshopsList: React.FC = () => {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
     setPaginatedJobs(filteredJobs.slice(start, end));
-  }, [filteredJobs, currentPage]);
+  }, [filteredJobs, currentPage, pageSize]);
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page: number, size?: number) => {
     setCurrentPage(page);
+    if (size && size !== pageSize) {
+      setPageSize(size);
+    }
   };
 
   const handleSearch = useCallback(() => {
@@ -197,12 +188,12 @@ const WorkshopsList: React.FC = () => {
                         className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
                         <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
                         <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
-                          <CustomImage
+                          <ImageComponent
                             src={job.company.logoUrl || '/images/user-default.png'}
                             alt={job.company.companyName}
-                            className="h-10 w-10"
-                            width={40}
-                            height={40}
+                            className="aspect-square h-10 w-10 object-contain"
+                            width={50}
+                            height={50}
                           />
                         </div>
                         <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">
@@ -244,7 +235,15 @@ const WorkshopsList: React.FC = () => {
           </div>
           {filteredJobs.length > pageSize && (
             <div className="mt-[80px] w-full">
-              <Pagination current={currentPage} total={filteredJobs.length} align="center" pageSize={pageSize} onChange={handlePageChange} />
+              <Pagination
+                current={currentPage}
+                total={filteredJobs.length}
+                pageSize={pageSize}
+                showSizeChanger
+                align="center"
+                onChange={handlePageChange}
+                onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
+              />
             </div>
           )}
         </div>

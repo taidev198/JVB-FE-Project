@@ -26,16 +26,20 @@ export const adminSchoolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement', 'School', 'CurrentSchool'],
+  tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement', 'School', 'CurrentSchool', 'Jobs'],
   endpoints: builder => {
     return {
-      getAllDepartments: builder.query<ApiResponse, { page: number; size: number; keyword: string }>({
-        query: ({ page, size, keyword }) => {
+      getAllDepartments: builder.query<
+        ApiResponse,
+        { page: number | null; size: number | null; keyword: string; startDate: Date | null; endDate: Date | null }
+      >({
+        query: ({ page, size, keyword, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
-
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/university/faculties?${queryParams.toString()}`;
         },
         providesTags: result => (result ? [{ type: 'Department', id: 'list' }] : []),
@@ -106,13 +110,18 @@ export const adminSchoolApi = createApi({
       }),
 
       //business
-      getAllBusiness: builder.query<ApiResponseBusiness, { page: number; size: number; keyword: string; idFaculty: number }>({
-        query: ({ page, size, keyword, idFaculty }) => {
+      getAllBusiness: builder.query<
+        ApiResponseBusiness,
+        { page: number | null; size: number | null; keyword: string; startDate: Date | null; endDate: Date | null; idFaculty: number }
+      >({
+        query: ({ page, size, keyword, startDate, endDate, idFaculty }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (idFaculty) queryParams.append('idFaculty', String(idFaculty));
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/university/majors?${queryParams.toString()}`;
         },
         providesTags: [{ type: 'Business', id: 'listBu' }],
@@ -164,13 +173,17 @@ export const adminSchoolApi = createApi({
       }),
 
       //academicOfficeManagement
-      getAllAcademicOfficeManagement: builder.query<ApiResponseAcademicOfficeManagement, { page: number; size: number; keyword: string }>({
-        query: ({ page, size, keyword }) => {
+      getAllAcademicOfficeManagement: builder.query<
+        ApiResponseAcademicOfficeManagement,
+        { page: number | null; size: number | null; keyword: string; startDate: Date | null; endDate: Date | null }
+      >({
+        query: ({ page, size, keyword, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
-
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/university/university-employees?${queryParams.toString()}`;
         },
         providesTags: [{ type: 'AcademicOfficeManagement', id: 'listAc' }],
@@ -384,15 +397,67 @@ export const adminSchoolApi = createApi({
       }),
 
       // Job
-      getAllJobAppliesUniversity: builder.query<IJobCompanyResponse, { universityId: number | undefined; page: number; size: number }>({
-        query: ({ universityId, page, size }) => {
+      getAllJobAppliesUniversity: builder.query<
+        IJobCompanyResponse,
+        {
+          page: number | null;
+          size: number | null;
+          keyword: string;
+          startDate: Date | null;
+          endDate: Date | null;
+          majorId: number | null;
+          universityId: number | undefined;
+          status: string;
+        }
+      >({
+        query: ({ page, size, keyword, startDate, endDate, universityId, majorId, status }) => {
           let queryParams = new URLSearchParams();
           if (universityId) queryParams.append('universityId', String(universityId));
+          if (keyword) queryParams.append('keyword', keyword);
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
-
+          if (majorId) queryParams.append('majorId', String(majorId));
+          if (status) queryParams.append('status', status);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/university/applies?${queryParams.toString()}`;
         },
+        providesTags: ['Jobs'],
+      }),
+      acceptJobs: builder.mutation({
+        query: ({ accountLoginId, acceptToAccountId }) => ({
+          url: `/company/accept_apply`,
+          method: 'POST',
+          body: { accountLoginId, acceptToAccountId },
+        }),
+        invalidatesTags: (result, error, { acceptToAccountId }) => [
+          { type: 'Jobs', acceptToAccountId },
+          { type: 'Jobs', acceptToAccountId },
+          { type: 'Jobs' },
+          { type: 'Jobs' },
+        ],
+      }),
+
+      cancelJobs: builder.mutation({
+        query: ({ major, job }) => ({
+          url: `/university/cancel_apply`,
+          method: 'POST',
+          body: { major, job },
+        }),
+        invalidatesTags: (result, error, { cancelToAccountId }) => [
+          { type: 'Jobs', cancelToAccountId },
+          { type: 'Jobs', cancelToAccountId },
+          { type: 'Jobs' },
+          { type: 'Jobs' },
+        ],
+      }),
+      deleteJobs: builder.mutation({
+        query: ({ major, job }) => ({
+          url: `/remove_apply`,
+          method: 'POST',
+          body: { major, job },
+        }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Jobs', id }, { type: 'Jobs' }],
       }),
     };
   },
@@ -437,4 +502,7 @@ export const {
   useGetAllJobAppliesUniversityQuery,
   useUpdateSchoolMutation,
   useGetAllFaculityQuery,
+  useAcceptJobsMutation,
+  useCancelJobsMutation,
+  useDeleteJobsMutation,
 } = adminSchoolApi;
