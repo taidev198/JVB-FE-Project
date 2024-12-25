@@ -4,6 +4,14 @@ import { useDispatch } from 'react-redux';
 import { Chip, IconButton } from '@mui/material';
 import { useRouter } from 'next/router';
 import ClearIcon from '@mui/icons-material/Clear';
+import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
+import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import WatchIcon from '@mui/icons-material/Watch';
+import WidgetsIcon from '@mui/icons-material/Widgets';
+import TrafficIcon from '@mui/icons-material/Traffic';
+import ImageIcon from '@mui/icons-material/Image';
+import LightbulbIcon from '@mui/icons-material/Lightbulb';
 import { FC, useEffect } from 'react';
 import { statusTextWorkshop } from '@/utils/app/const';
 import { useGetDetailWorkshopQuery } from '@/services/adminSchoolApi';
@@ -41,32 +49,39 @@ const DetailWorkshop: FC = () => {
         Trở về
       </div>
       <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin chi tiết Workshop </h1>
-      <div className="px-20">
+      <div className="p-4 sm:px-20">
         <div className="mt-2 flex flex-col gap-6 rounded-md border-[1px] border-solid border-[#c2c0c0] p-4 ">
           <div className="flex justify-between">
             <h1 className="text-lg font-bold">{workshop?.data.workshopTitle}</h1>
           </div>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-            <p>
+          <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+            <p className="flex items-center gap-1">
+              <AccessAlarmIcon sx={{ color: '#757575' }} />
               <span className="font-semibold">Thời gian bắt đầu:</span> <span>{workshop?.data.startTime}</span>
             </p>
-            <p>
+            <p className="flex items-center gap-1">
+              <AccessAlarmIcon sx={{ color: '#757575' }} />
               <span className="font-semibold">Thời gian kết thúc:</span> <span>{workshop?.data.endTime}</span>
             </p>
-            <p>
+            <p className="flex items-center gap-1">
+              <InterpreterModeIcon sx={{ color: '#757575' }} />
               <span className="font-semibold">Số lượng công ty ước tính:</span> <span>{workshop?.data.estimateCompanyParticipants}</span>
             </p>
-            <p>
-              <span className="font-semibold">Địa điểm tổ chức:</span>
-              <span>
-                {workshop?.data.address.houseNumber},{workshop?.data.address.province.provinceName},{workshop?.data.address.district.districtName},
-                {workshop?.data.address.ward.wardName}
-              </span>
+            <p className="flex">
+              <LocationOnIcon sx={{ color: '#757575' }} />
+              <div className="flex">
+                <p className="mr-2 min-w-fit font-semibold">Mô tả:</p>
+                <p>
+                  {workshop?.data.address.houseNumber},{workshop?.data.address.province.provinceName},{workshop?.data.address.district.districtName},
+                  {workshop?.data.address.ward.wardName}
+                </p>
+              </div>
             </p>
           </div>
           <div>
-            <p>
-              <span className="font-semibold">Lịch trình</span>
+            <p className="flex items-center gap-1">
+              <WatchIcon sx={{ color: '#757575' }} />
+              <span className="font-semibold">Lịch trình:</span>
             </p>
             <ul className="ml-3 mt-3 flex flex-col gap-1">
               {(agendaItems || []).map((item, index) => (
@@ -75,7 +90,8 @@ const DetailWorkshop: FC = () => {
             </ul>
           </div>
           <div>
-            <p>
+            <p className="flex items-center gap-1">
+              <WidgetsIcon sx={{ color: '#757575' }} />
               <span className="font-semibold">Lĩnh vực:</span>
             </p>
             <ul className="ml-3 mt-3 flex gap-4">
@@ -85,7 +101,10 @@ const DetailWorkshop: FC = () => {
             </ul>
           </div>
           <div className="flex items-center gap-3">
-            <span className="font-semibold">Trạng thái: </span>
+            <div className="flex items-center gap-1">
+              <TrafficIcon sx={{ color: '#757575' }} />
+              <span className="font-semibold">Trạng thái: </span>
+            </div>
             <Chip
               label={statusTextWorkshop(workshop?.data.moderationStatus).title}
               style={{
@@ -95,7 +114,10 @@ const DetailWorkshop: FC = () => {
             />
           </div>
           <div>
-            <span className="font-semibold">Hình ảnh:</span>
+            <div className="flex items-center gap-1">
+              <ImageIcon sx={{ color: '#757575' }} />
+              <span className="font-semibold">Hình ảnh:</span>
+            </div>
             <div className="mt-2 flex justify-evenly gap-4">
               {workshop?.data.imageWorkshops.map(image => (
                 <ImageComponent
@@ -113,8 +135,14 @@ const DetailWorkshop: FC = () => {
               ))}
             </div>
           </div>
-          <p>
-            <span className="font-semibold"> Mô tả:</span> <span>{workshop?.data.workshopDescription}</span>
+          <p className="flex gap-3">
+            <LightbulbIcon sx={{ color: '#757575' }} />
+            <div className="flex">
+              <p className="mr-2 min-w-fit font-semibold">Mô tả:</p>
+              <p>
+                <span dangerouslySetInnerHTML={{ __html: workshop?.data.workshopDescription || '' }} />
+              </p>
+            </div>
           </p>
         </div>
         {backdropType === BackdropType.AddModal && (

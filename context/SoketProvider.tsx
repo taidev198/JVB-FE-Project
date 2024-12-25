@@ -1,4 +1,3 @@
-// context/SocketContext.js
 import React, { createContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAppSelector } from '@/store/hooks';
@@ -12,33 +11,74 @@ const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
+
   useEffect(() => {
-    const ws = new WebSocket(wsUrl);
+    if (!wsUrl) return;
 
-    ws.onopen = () => {
-      setIsConnected(true);
+    let ws;
+    let reconnectTimeout;
+    let heartbeatInterval;
+
+    const connectWebSocket = () => {
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        setIsConnected(true);
+        setSocket(ws);
+
+        // Bắt đầu gửi heartbeat
+        heartbeatInterval = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: 'ping' })); // Gửi tín hiệu ping
+          }
+        }, 30000);
+      };
+
+      ws.onmessage = event => {
+        const rawMessage = event.data;
+        const titleMatch = rawMessage.match(/notificationTitle=(.*?)(,|$)/);
+        const notificationTitle = titleMatch ? titleMatch[1] : 'Không tìm thấy tiêu đề';
+        setMessages(prevMessages => [...prevMessages, rawMessage]);
+
+        // Hiển thị thông báo
+        toast(notificationTitle, {
+          icon: '🔔',
+        });
+      };
+
+      ws.onerror = error => {
+        console.error('Lỗi WebSocket:', error);
+        setIsConnected(false);
+      };
+
+      ws.onclose = () => {
+        setIsConnected(false);
+        clearInterval(heartbeatInterval); // Dừng gửi heartbeat
+        reconnectTimeout = setTimeout(connectWebSocket, 1000); // Kết nối lại sau 5 giây
+      };
     };
 
-    ws.onmessage = event => {
-      const rawMessage = event.data;
-      console.log(rawMessage);
-
-      const titleMatch = rawMessage.match(/notificationTitle=(.*?)(,|$)/);
-      const notificationTitle = titleMatch ? titleMatch[1] : 'Không tìm thấy tiêu đề';
-      setMessages(prevMessages => [...prevMessages, rawMessage]);
-      toast(notificationTitle, {
-        icon: '🔔',
-      });
-    };
-
-    setSocket(ws);
+    connectWebSocket();
 
     return () => {
-      ws.close();
+      if (ws) {
+        ws.close();
+      }
+      clearTimeout(reconnectTimeout);
+      clearInterval(heartbeatInterval);
     };
   }, [wsUrl]);
 
-  return <SocketContext.Provider value={{ socket, isConnected, messages }}>{children}</SocketContext.Provider>;
+  // Hàm thủ công để làm mới kết nối
+  const reconnectSocket = () => {
+    if (socket) {
+      socket.close(); // Đóng kết nối hiện tại
+    }
+    setSocket(null);
+    setIsConnected(false);
+  };
+
+  return <SocketContext.Provider value={{ socket, isConnected, messages, reconnectSocket }}>{children}</SocketContext.Provider>;
 };
 
 export default SocketProvider;

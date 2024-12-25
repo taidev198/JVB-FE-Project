@@ -18,7 +18,7 @@ import PaginationComponent from '@/components/Common/Pagination';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { statusTextJob } from '@/utils/app/const';
+import { statusLabelJob } from '@/utils/app/const';
 
 const AdminSystemJob = () => {
   const dispatch = useDispatch();
@@ -147,7 +147,7 @@ const AdminSystemJob = () => {
                       {/* Image */}
                       <Link href={''}>
                         <ImageComponent
-                          src={job.company.logoUrl}
+                          src={job.company?.logoUrl}
                           alt={job.company?.companyName}
                           width={80}
                           height={80}
@@ -163,7 +163,7 @@ const AdminSystemJob = () => {
                           </div>
                           <div className="flex items-center gap-1">
                             <LocationOnIcon sx={{ fontSize: '15px' }} />
-                            {job.company.address.district.districtName}, {job.company.address.province.provinceName}
+                            {job.company?.address.district.districtName}, {job.company?.address.province.provinceName}
                           </div>
                         </div>
                       </div>
@@ -172,7 +172,7 @@ const AdminSystemJob = () => {
                     <div className="font-bold text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
                       <div>
                         <span>Ngày đăng: </span>
-                        <span className="text-primary-main">{job.createAt.split(' ')[0]}</span>
+                        <span className="text-primary-main">{job.createAt?.split(' ')[0]}</span>
                       </div>
                       <div>
                         <span>Hết hạn:</span>
@@ -181,10 +181,10 @@ const AdminSystemJob = () => {
                     </div>
                     <div>
                       <Chip
-                        label={statusTextJob(job.status)?.title}
+                        label={statusLabelJob(job.status)?.title}
                         sx={{
-                          backgroundColor: statusTextJob(job.status)?.bg,
-                          color: statusTextJob(job.status)?.color,
+                          backgroundColor: statusLabelJob(job.status)?.bg,
+                          color: statusLabelJob(job.status)?.color,
                         }}
                       />
                     </div>
