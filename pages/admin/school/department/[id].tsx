@@ -19,7 +19,6 @@ const DetailDepartment = () => {
   useEffect(() => {
     dispatch(setLoading(isLoading));
   }, [dispatch, isLoading]);
-  console.log(departments);
 
   return (
     <div className="rounded-2xl bg-white pb-[90px]">

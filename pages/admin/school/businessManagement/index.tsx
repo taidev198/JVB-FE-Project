@@ -21,7 +21,7 @@ import {
 } from '@/services/adminSchoolApi';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { setKeyword, setPage, setIdFaculty } from '@/store/slices/filtersSlice';
+import { setKeyword, setPage, setIdFaculty, resetFilters } from '@/store/slices/filtersSlice';
 
 const BusinessManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,11 +71,11 @@ const BusinessManagement = () => {
   const handleConfirmAction = async () => {
     try {
       if (selectedBusiness.length > 0) {
-        const response = await deleteMultiple({ ids: selectedBusiness }).unwrap();
-        toast.success(response.message);
+        await deleteMultiple({ ids: selectedBusiness }).unwrap();
+        toast.success('Các ngành học đã được xóa thành công');
       } else {
-        const response = await deleteOne({ id: idBusiness }).unwrap();
-        toast.success(response.message);
+        await deleteOne({ id: selectId }).unwrap();
+        toast.success('Ngành học đã được xóa thành công');
       }
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -102,6 +102,9 @@ const BusinessManagement = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
+    return () => {
+      dispatch(resetFilters());
+    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
@@ -117,7 +120,6 @@ const BusinessManagement = () => {
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
-              className="w-full"
             />
             <Select
               placeholder="Chọn khoa"
@@ -177,10 +179,10 @@ const BusinessManagement = () => {
                 <p className="min-w-max">Số tín chỉ</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Số sinh viên</p>
+                <p className="min-w-max">Số lượng sinh viên</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">khoa</p>
+                <p className="min-w-max">Khoa</p>
               </th>
 
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -205,10 +207,10 @@ const BusinessManagement = () => {
                     <p className="min-w-max">{item.majorName}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.creditRequirement}</p>
+                    <p className="min-w-max text-center">{item.creditRequirement}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.numberOfStudents}</p>
+                    <p className="min-w-max text-center">{item.numberOfStudents}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.faculty.facultyName}</p>

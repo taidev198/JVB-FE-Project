@@ -11,8 +11,9 @@ import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import Text from '@/components/Common/Text';
 import { useAddDepartmentMutation } from '@/services/adminSchoolApi';
-import { setToast } from '@/store/slices/toastSlice';
 import { setLoading } from '@/store/slices/global';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataAddDepartment {
   facultyCode: string;
@@ -22,7 +23,6 @@ interface FormDataAddDepartment {
   address: string;
   facultyDescription?: string;
 }
-
 const AddDepartment = () => {
   const dispatch = useDispatch();
   const {
@@ -32,21 +32,25 @@ const AddDepartment = () => {
   } = useForm<FormDataAddDepartment>({
     resolver: yupResolver(validationSchemaAddDepartment),
   });
-
   const [addDepartment, { data, isLoading: isLoadingAddDepartment, isSuccess }] = useAddDepartmentMutation();
   const router = useRouter();
-  const onSubmit: SubmitHandler<FormDataAddDepartment> = data => {
+  const onSubmit: SubmitHandler<FormDataAddDepartment> = async data => {
     const updatedData = { ...data, universityId: 12 };
-
-    addDepartment(updatedData);
-
-    router.push('/admin/school/department');
+    try {
+      await addDepartment(updatedData).unwrap();
+      toast.success('Thêm khoa thành công');
+      router.push('/admin/school/department');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
   };
 
   useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data.message }));
-    }
     dispatch(setLoading(isLoadingAddDepartment));
   }, [dispatch, isLoadingAddDepartment, data?.message, isSuccess]);
   return (
@@ -63,8 +67,7 @@ const AddDepartment = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="w-full bg-primary-white px-5">
         {/* Icon */}
         <div className="grid grid-cols-1 gap-4 bg-primary-white sm:grid-cols-2">
-          {/* Các trường thông tin khác */}
-
+          
           <Input
             type="text"
             name="facultyCode"

@@ -72,16 +72,10 @@ const UpdateSchoolManagement = () => {
       setImage(detailSchool?.data.logoUrl);
     }
   }, [detailSchool?.data.logoUrl]);
-
-  // Fetch data
-
-  const { data: majors } = useGetAllMajorsQuery();
   const [updateSchool, { isLoading }] = useUpdateSchoolMutation();
   console.log(detailSchool);
   const onSubmit: SubmitHandler<FormDataAddStudent> = async data => {
     const formData = new FormData();
-
-    // Append dữ liệu JSON dưới dạng chuỗi
     const universityRequest = {
       universityCode: data.universityCode,
       universityName: data.universityName,
