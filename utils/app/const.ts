@@ -91,17 +91,6 @@ export const typeUniversityTitle = (status: string): AccountStatus => {
   }
 };
 
-export const statusEmployee = (status: string): AccountStatus => {
-  switch (status) {
-    case 'WORKING':
-      return { title: 'đang làm', color: '#fff', bg: '#ed6c02' };
-    case 'INACTIVE':
-      return { title: 'Nghỉ việc', color: '#fff', bg: '#2e7d32' };
-    default:
-      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
-  }
-};
-
 export const StatusJob = (status: string): AccountStatus => {
   switch (status) {
     case 'PENDING':
@@ -168,6 +157,30 @@ export const statusLabelJob = (status: string): AccountStatus => {
 };
 
 export const statusTextJob = (status: string): AccountStatus => {
+  switch (status) {
+    case 'ACCEPT':
+      return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };
+    case 'PENDING':
+      return { title: 'Đang chờ', color: '#FFA726', bg: '#fffae5' };
+    case 'CANCEL':
+      return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
+export const statusEmployee = (status: string): AccountStatus => {
+  switch (status) {
+    case 'WORKING':
+      return { title: 'đang làm', color: '#fff', bg: '#ed6c02' };
+    case 'INACTIVE':
+      return { title: 'Nghỉ việc', color: '#fff', bg: '#2e7d32' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
+export const statusTextWorkshopJob = (status: string): AccountStatus => {
   switch (status) {
     case 'ACCEPT':
       return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };

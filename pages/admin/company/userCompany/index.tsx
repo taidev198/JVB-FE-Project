@@ -26,6 +26,8 @@ const userCompany = () => {
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -35,7 +37,13 @@ const userCompany = () => {
     [dispatch]
   );
 
-  const {data: employee, isLoading} = useGetAllCompanyEmployeQuery({ page, keyword, size, status},{ refetchOnMountOrArgChange: true })
+  const {data: employee, isLoading} = useGetAllCompanyEmployeQuery({ 
+    status: status,
+    page: page,
+    size: size,
+    keyword,
+    startDate: startDate,
+    endDate: endDate,},{ refetchOnMountOrArgChange: true })
   
   const [deleteOne,{isLoading: isLoadingOne}] = useDeleteEmployeeCompanyMutation()
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllEmployeeCompanyMutation()
@@ -89,9 +97,14 @@ const userCompany = () => {
         <h1 className="mb-5 font-bold">Doanh sách tài khoản nhân viên</h1>
         <div className="flex items-center gap-3 justify-between ">
           <div className="w-[220px]">
-          <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
-
+          <TextField id="filled-search" 
+            label="Tìm kiếm tên nhân viên,..." 
+            type="search" 
+            variant="outlined" 
+            size="small" 
+            onChange={e => debouncedSearch(e.target.value)} />
           </div>
+
           <div className='flex items-center gap-5'>
             <Link href={'/admin/company/userCompany/AddEmployee'}>
             <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
@@ -193,7 +206,7 @@ const userCompany = () => {
           onPageChange={(event, value) => dispatch(setPage(value))}
           size={size}
           totalItem={employee?.data.totalElements}
-          totalTitle={'Company'}
+          totalTitle={'Nhân viên'}
         />
     </>
   );

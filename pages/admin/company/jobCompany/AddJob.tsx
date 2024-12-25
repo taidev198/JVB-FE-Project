@@ -5,7 +5,7 @@ import SelectMui from '@/components/Common/SelectMui';
 import Link from 'next/link';
 import React, { useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import validationSchemaAddJob from '@/validation/companyEmployee/validationAddJob';
+import validationSchemaAddJob from '@/validation/companyEmployee/job/validationAddJob';
 import { yupResolver } from '@hookform/resolvers/yup';
 import TextEditor from '@/components/Common/TextEditor';
 import { Button } from '@/components/Common/Button';
@@ -42,10 +42,12 @@ const AddJob = () => {
   } = useForm<FormDataAddJob>({
     resolver: yupResolver(validationSchemaAddJob),
     defaultValues: {
-      min_salary: 0,
       max_salary: 0,
+      min_salary: 0,
     },
   });
+
+  console.log(errors, 'errors')
 
   const salaryType = watch('salary_type');
   const { data: faculties } = useGetAllFieldsQuery();
@@ -69,21 +71,19 @@ const AddJob = () => {
         toast.error(error.message);
       }
     }
-    // addJob(newData)
-
   };
 
   return (
-    <div className="bg-primary-white px-10">
+    <div className="rounded-lg bg-primary-white p-5">
       {/* Icon */}
-      <div className="rounded-t-lg ">
+      <div className="">
         <Link href={'/admin/company/jobCompany'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
         </Link>
         Trở về
-        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm Công việc </h1>
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thêm công việc </h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
@@ -136,9 +136,9 @@ const AddJob = () => {
               required={true}
               control={control}
               options={[
-                { value: 1, label: 'Full time' },
-                { value: 2, label: 'Part time' },
-                { value: 2, label: 'Freelance' },
+                { value: 'FULL_TIME', label: 'Full time' },
+                { value: 'PART_TIME', label: 'Part time' },
+                { value: 'FREELANCE', label: 'Freelance' },
               ]}
               error={errors.job_type?.message}
             />
@@ -167,8 +167,10 @@ const AddJob = () => {
               placeholder="Nhập trình độ"
               control={control}
               options={[
-                { value: 1, label: 'junior' },
-                { value: 2, label: 'senior' },
+                { value: 'INTERN', label: 'Intern' },
+                { value: 'JUNIOR', label: 'Junior' },
+                { value: 'SENIOR', label: 'Senior' },
+                { value: 'FRESHER', label: 'Fresher' },
               ]}
               error={errors.job_level?.message}
             />

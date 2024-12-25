@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
-import validationSchemaAddStudent from '@/validation/companyEmployee/validationAddEmployee';
+import validationSchemaAddStudent from '@/validation/companyEmployee/employee/validationAddEmployee';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
 import Address from '@/components/Common/Address';
