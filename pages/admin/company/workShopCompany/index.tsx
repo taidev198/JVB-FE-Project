@@ -1,17 +1,19 @@
-import React, { useMemo, useState } from 'react';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm, SubmitHandler } from 'react-hook-form';
-import { Chip, IconButton, Tooltip, Pagination,FormControl, TextField, InputLabel, Select, MenuItem, Checkbox } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { Button, Button as MyButton } from '@/components/Common/Button';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
-import { debounce } from 'lodash';
-import { useGetAllWorkShopCompanyQuery} from '@/services/adminCompanyApi';
+import { Button } from '@/components/Common/Button';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import PaginationComponent from '@/components/Common/Pagination';
+import { useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
+import { useAppSelector } from '@/store/hooks';
 import { setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { BackdropType, setBackdrop, setName } from '@/store/slices/global';
+import { statusTextWorkshop } from '@/utils/app/const';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Checkbox, Chip, TextField } from '@mui/material';
+import { debounce } from 'lodash';
+import { useMemo, useState } from 'react';
+import { useForm, } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import * as Yup from 'yup';
 
 
 interface FormDataRegisterCompany {
@@ -25,17 +27,24 @@ const validationSchema = Yup.object({
 
 const workShopCompany = () => {
   const dispatch = useDispatch();
+  const [selectId, setSelectId] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedWorkShop, setselectedWorkShop] = useState<number[]>([]);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+
 
   const {
-    control,
-    handleSubmit,
     formState: { errors },
   } = useForm<FormDataRegisterCompany>({
     resolver: yupResolver(validationSchema),
   });
+
+  const handleOpenConfirm = (id: number) => {
+    setSelectId(id);
+    dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+  };
 
   const debouncedSearch = useMemo(
     () =>
@@ -45,15 +54,15 @@ const workShopCompany = () => {
       }, 500),
     [dispatch]
   );
-
-
-  const {data: companyWorkShop, isLoading} = useGetAllWorkShopCompanyQuery({ page, keyword, size, status},{ refetchOnMountOrArgChange: true })
+  const {data: companyWorkShop, isLoading} = useGetAllWorkShopCompanyQuery(
+    { page, keyword, size, status, 
+      startDate: startDate,
+      endDate: endDate,},
+    { refetchOnMountOrArgChange: true })
   console.log('companyWorkShop: ', companyWorkShop);
-  
   const handleSelectWorkShop = (id: number) => {
     setselectedWorkShop(prev => (prev.includes(id) ? prev.filter(employeeId => employeeId !== id) : [...prev, id]));
   };
-   
   return (
     <>
       {/* Header */}
@@ -75,8 +84,7 @@ const workShopCompany = () => {
                 <Checkbox
                   color="primary"
                   checked={selectedWorkShop.length === companyWorkShop?.data.content.length}
-                  indeterminate={selectedWorkShop.length > 0 && selectedWorkShop.length < (companyWorkShop?.data.content||[]).length}
-                                
+                  indeterminate={selectedWorkShop.length > 0 && selectedWorkShop.length < (companyWorkShop?.data.content || []).length}
                 />
               </th>
               <th className="px-5 py-4 text-left">STT</th>
@@ -95,50 +103,37 @@ const workShopCompany = () => {
                 <td className="p-3 sm:px-5 sm:py-4">
                   <Checkbox color="primary" checked={selectedWorkShop.includes(item.id)} onChange={() => handleSelectWorkShop(item.id)} />
                 </td>
-                <td className="px-5 py-4">{index + 1}</td>
+                <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
                 <td className="px-5 py-4">{item.workshop.university.universityName}</td>
-                <td className="px-5 py-4">{item.workshop.startTime}</td>
-                <td className="px-5 py-4">{item.workshop.endTime}</td>
-                {/* <td className="px-5 py-4">{item.workshop.address.houseNumber}-{item.workshop.address.ward.id} - {item.workshop.address.district.id} - {item.workshop.address.province.id}</td> */}
-                <td className="px-5 py-4">{item.workshop.estimateCompanyParticipants}</td>
+                <td className="px-5 py-4 text-center">{item.workshop.startTime.split(' ')[0]}</td>
+                <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
+                <td className="px-5 py-4 text-center">{item.workshop.estimateCompanyParticipants}</td>
                 <td className="px-5 py-4">
                   <Chip
-                    label={item.workshop.moderationStatus}
-                    sx={{
-                      // Màu nền dựa trên trạng thái
-                      backgroundColor: 
-                        item.workshop.moderationStatus === 'REJECTED' ? '#EBF9F1' : 
-                        item.workshop.moderationStatus === 'APPROVED' ? '#FFFFE0' : 
-                        '#FFCDD2',  
-                  
-                      // Màu chữ dựa trên trạng thái
-                      color: 
-                        item.workshop.moderationStatus === 'REJECTED' ? '#1F9254' :  // Màu chữ xanh cho "Đã duyệt"
-                        item.workshop.moderationStatus === 'APPROVED' ? '#FFA726' :  // Màu chữ cam cho "Chờ duyệt"
-                        '#D32F2F',  // Màu chữ đỏ cho "Từ chối"
-
-                        paddingLeft: '16px',  // Tăng padding bên trái
-                        paddingRight: '16px', // Tăng padding bên phải
+                    label={statusTextWorkshop(item.workshop.moderationStatus).title}
+                    style={{
+                      color: `${statusTextWorkshop(item.workshop.moderationStatus).color}`,
+                      background: `${statusTextWorkshop(item.workshop.moderationStatus).bg}`,
                     }}
                   />
                 </td>
-                <td className="flex gap-2 px-5 py-4">
-                  <>
-                    <Tooltip title="Xóa">
-                      <IconButton onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}>
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </Tooltip>
-                  </>
-                </td>
+
+                 <td className="py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <ButtonDelete
+                        onClick={() => {
+                          handleOpenConfirm(item.workshop.id);
+                          dispatch(setName(item.workshop.workshopTitle));
+                        }}
+                      />
+                    </div>
+                  </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
-
         {/* Xóa Khoa */}
         {backdropType === BackdropType.DeleteConfirmation && (
           <BackDrop isCenter={true}>
@@ -155,12 +150,15 @@ const workShopCompany = () => {
 
 
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={companyWorkShop?.data.totalPages} page={page} onChange={(value, event) => dispatch(setPage(event))}  color="primary" shape="rounded" />
-      </div>
-
+      <PaginationComponent
+          count={companyWorkShop?.data.totalPages}
+          page={page}
+          onPageChange={(event, value) => dispatch(setPage(value))}
+          size={size}
+          totalItem={companyWorkShop?.data.totalElements}
+          totalTitle={'workshops'}
+        />
     </>
   );
 };
-
 export default workShopCompany;
