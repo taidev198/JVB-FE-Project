@@ -5,10 +5,16 @@ interface HtmlContentRendererProps {
 }
 
 const HtmlContentRenderer: React.FC<HtmlContentRendererProps> = ({ htmlContent }) => {
+  // Normalize input to handle commas and irregular formatting
   const cleanContent = htmlContent
-    .split(',')
-    .map(item => item.trim()) // Trim extra whitespace
-    .join(''); // Join into a single string without commas
+    .replace(/<\/ul>,?/g, '</ul>') // Remove commas after closing ul tags
+    .replace(/<\/li>,?/g, '</li>') // Remove commas after closing li tags
+    .replace(/<ul>\s*,\s*/g, '<ul>') // Remove commas after opening ul tags
+    .replace(/<li>\s*,\s*/g, '<li>') // Remove commas inside li tags
+    .replace(/&nbsp;/g, ' ') // Replace non-breaking spaces with regular spaces for consistency
+    .trim(); // Trim extra spaces around the content
+
+  // Render the sanitized and styled HTML
   return (
     <div
       dangerouslySetInnerHTML={{

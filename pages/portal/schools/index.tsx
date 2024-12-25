@@ -20,7 +20,7 @@ const SchoolsListPage: React.FC<SchoolsListProps> = () => {
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
       </Head>
 
-      <PortalLayout type="company-list">
+      <PortalLayout type="school-list">
         <main>
           <BreadCrumbHeader title="Danh sách trường học" currentPage="Trường học" />
           <SchoolsList />

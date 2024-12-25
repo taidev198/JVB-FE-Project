@@ -1,4 +1,9 @@
 // pages/portal/companies/[id].tsx
+import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
+import { Alert } from 'antd';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import React from 'react';
 
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
 import HtmlContentRenderer from '@/components/Portal/common/HtmlContentRenderer';
@@ -8,11 +13,6 @@ import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 import { useGetJobDetailsQuery } from '@/services/portalHomeApi';
 import { formatJobLevel, formatJobType, formatSalaryVND } from '@/utils/app/format';
-import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
-import { Alert } from 'antd';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import React, { useState } from 'react';
 
 interface JobDetailsProps {
   serverSideApiKeyIsSet: boolean;
@@ -23,11 +23,9 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
   const { id } = router.query;
   const { data, isLoading, error } = useGetJobDetailsQuery({ id: Number(id) });
 
-  const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
-
   if (isLoading) {
     return (
-      <PortalLayout type="company-list">
+      <PortalLayout type="job-detail">
         <PortalLoadingLarge />
       </PortalLayout>
     );
@@ -35,16 +33,13 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
 
   if (error) {
     return (
-      <PortalLayout type="company-list">
+      <PortalLayout type="job-detail">
         <Alert message="Error" description="Failed to load company details" type="error" showIcon />
       </PortalLayout>
     );
   }
 
   const jobDetails = data?.data;
-
-  console.log(jobDetails);
-
   const address = `${jobDetails?.company?.address?.houseNumber}, ${jobDetails?.company?.address?.ward.wardName}, ${jobDetails?.company?.address?.district.districtName}, ${jobDetails?.company?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
 
@@ -137,7 +132,9 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
                 </div>
                 <div className="about ">
                   <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Mô tả công việc</h3>
-                  <p className="text-lg text-primary-gray">{jobDetails?.jobDescription}</p>
+                  <div className="text-lg text-primary-gray">
+                    <HtmlContentRenderer htmlContent={jobDetails?.jobDescription || ''} />
+                  </div>
                 </div>
                 <div className="requires">
                   <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Mô tả công việc</h3>

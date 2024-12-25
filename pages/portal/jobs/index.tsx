@@ -19,7 +19,7 @@ const CompanyListPage: React.FC<CompanyListProps> = () => {
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
       </Head>
-      <PortalLayout type="company-list">
+      <PortalLayout type="job-list">
         <main>
           <BreadCrumbHeader title="Danh sách công việc" currentPage="Công việc" />
           <JobsList />
