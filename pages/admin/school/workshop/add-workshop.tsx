@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import { useRouter } from 'next/router';
 
 import { Button } from '@/components/Common/Button';
@@ -20,6 +21,7 @@ import { setToast } from '@/store/slices/toastSlice';
 import Address from '@/components/Common/Address';
 import DateComponent from '@/components/Common/DateComponent';
 import { formatDateWorkshop } from '@/utils/app/format';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataWorkShop {
   workshopTitle: string;
@@ -78,13 +80,17 @@ const AddWorkshop = () => {
     } else if (image) {
       formData.append('imageWorkshops', image);
     }
-
     try {
-      await addWorkshop(formData);
+      await addWorkshop(formData).unwrap();
+      toast.success('Thêm mới workshop thành công');
       router.push('/admin/school/workshop');
-    } catch (err) {
-      // Handle lỗi
-      console.error('Error creating workshop:', err);
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
     }
   };
   useEffect(() => {

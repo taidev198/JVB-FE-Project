@@ -1,8 +1,11 @@
 import { Avatar, Badge, IconButton, Menu } from '@mui/material';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import { useState } from 'react';
+import { useGetNotificationsQuery } from '@/services/adminSystemApi';
 const Notification = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { data: notifications } = useGetNotificationsQuery(undefined, { refetchOnMountOrArgChange: true });
+  console.log(notifications);
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -32,34 +35,18 @@ const Notification = () => {
         </div>
         <ul className="flex flex-col gap-2">
           {/* Mục thông báo */}
-          <li className="flex flex-col items-center gap-1 px-5 py-2">
-            <div className="mr-auto flex items-center gap-2">
-              <Avatar sx={{ width: 30, height: 30 }} />
-              <p className="text-sm font-bold">Doanh nghiệp A</p>
-            </div>
-            <span className="mr-auto break-words text-sm text-gray-600">Vừa đăng tuyển công việc lập trình java yêu cầu 5 năm kinh nghiệm</span>
-            <span className="mr-auto break-words text-sm text-gray-600">02/12/2024</span>
-          </li>
+          {notifications?.data.map(notification => (
+            <li className="flex flex-col items-center gap-1 px-5 py-2" key={notification?.id}>
+              <div className="mr-auto flex items-center gap-2">
+                <Avatar sx={{ width: 30, height: 30 }} />
+                <p className="text-sm font-bold">Doanh nghiệp A</p>
+              </div>
+              <span className="mr-auto break-words text-sm text-gray-600">{notification?.notificationDescription}</span>
+              <span className="mr-auto break-words text-sm text-gray-600">{notification?.createAt}</span>
+            </li>
+          ))}
+
           <hr />
-          {/* Thêm các mục thông báo khác */}
-          <li className="flex flex-col items-center gap-1 px-5 py-2">
-            <div className="mr-auto flex items-center gap-2">
-              <Avatar sx={{ width: 30, height: 30 }} />
-              <p className="text-sm font-bold">Doanh nghiệp B</p>
-            </div>
-            <span className="mr-auto break-words text-sm text-gray-600">Tuyển dụng lập trình viên ReactJS với 3 năm kinh nghiệm</span>
-            <span className="mr-auto break-words text-sm text-gray-600">02/12/2024</span>
-          </li>
-          <hr />
-          {/* Thêm các mục thông báo khác */}
-          <li className="flex flex-col items-center gap-1 px-5 py-2">
-            <div className="mr-auto flex items-center gap-2">
-              <Avatar sx={{ width: 30, height: 30 }} />
-              <p className="text-sm font-bold">Trường học C</p>
-            </div>
-            <span className="mr-auto break-words text-sm text-gray-600">Vừa tạo work shop chủ đề khát vọng tuổi trẻ</span>
-            <span className="mr-auto break-words text-sm text-gray-600">02/12/2024</span>
-          </li>
         </ul>
       </div>
     </Menu>
@@ -71,7 +58,7 @@ const Notification = () => {
 
   return (
     <>
-      <Badge color="error" badgeContent={10} max={99}>
+      <Badge color="error" badgeContent={notifications?.data?.length} max={99}>
         <div className="rounded-xl border border-solid border-[#666] p-0">
           <IconButton className="!p-1" onClick={handleClickNotification}>
             <NotificationsNoneIcon className="!flex items-center justify-center" />

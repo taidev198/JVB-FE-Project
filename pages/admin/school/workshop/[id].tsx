@@ -8,6 +8,7 @@ import { useGetDetailWorkshopQuery } from '@/services/adminSchoolApi';
 import { BackdropType, setBackdrop, setImage } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import ImageComponent from '@/components/Common/Image';
+import { statusTextWorkshop } from '@/utils/app/const';
 
 const AdminSchoolDetailWorkshop = () => {
   const dispatch = useDispatch();
@@ -73,7 +74,13 @@ const AdminSchoolDetailWorkshop = () => {
           {/* Status */}
           <div className="flex items-center gap-3">
             <span className="font-semibold">Trạng thái:</span>
-            <Chip label="Đã duyệt" color="success" />
+            <Chip
+              label={statusTextWorkshop(workshop?.data?.moderationStatus).title}
+              style={{
+                color: `${statusTextWorkshop(workshop?.data?.moderationStatus).color}`,
+                background: `${statusTextWorkshop(workshop?.data?.moderationStatus).bg}`,
+              }}
+            />
           </div>
           {/* schedule */}
           <div>
@@ -92,7 +99,7 @@ const AdminSchoolDetailWorkshop = () => {
                   alt="Workshop"
                   width={140}
                   height={140}
-                  className="cursor-pointer rounded"
+                  className="cursor-pointer rounded object-cover"
                   key={image.id}
                   onclick={() => {
                     dispatch(setImage(image.imageUrl));

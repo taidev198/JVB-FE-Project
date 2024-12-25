@@ -13,10 +13,10 @@ export interface IJobCompany {
   benifits: string;
   jobLevel: string;
   expirationDate: string;
-  createAt: string;
   memberOfCandidate: number;
   fields: IFields[];
   company: ICompany;
+  createAt: string;
   status: string;
   salaryType: string;
   maxSalary: number;
@@ -70,4 +70,16 @@ export interface IJobDetailResponse {
   code: number;
   message: string;
   data: IJobCompany;
+}
+
+export interface IJobAllResponseAdminSystem {
+  code: number;
+  message: string;
+  data: {
+    content: IJobCompany[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
 }
