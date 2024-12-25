@@ -6,6 +6,7 @@ import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { IPartnershipsSchoolResponse } from '@/types/jobAndPartnershipsSchoolType';
+import { IJobAllResponseAdminSystem } from '@/types/jobCompany';
 
 export const adminSystemApi = createApi({
   reducerPath: 'adminSystemApi',
@@ -112,10 +113,10 @@ export const adminSystemApi = createApi({
       }),
 
       deleteWorkshops: builder.mutation({
-        query: ids => ({
+        query: ({ ids }) => ({
           url: `/workshops/delete`,
           method: 'DELETE',
-          body: ids,
+          body: { ids },
         }),
         invalidatesTags: (result, error, { id }) => [{ type: 'Workshop', id }, { type: 'Workshop' }],
       }),
@@ -227,14 +228,14 @@ export const adminSystemApi = createApi({
       }),
 
       // Partnership
-      getAllPartnershipsUniversity: builder.query<IPartnershipsSchoolResponse, { universityId: number | undefined; page: number; size: number }>({
-        query: ({ universityId, page, size }) => {
+      getAllPartnershipsUniversity: builder.query<IPartnershipsSchoolResponse, { page: number; size: number; url: string; keyword: string }>({
+        query: ({ page, size, url, keyword }) => {
           let queryParams = new URLSearchParams();
-          if (universityId) queryParams.append('universityId', String(universityId));
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', String(keyword));
 
-          return `/university/partnerships?${queryParams.toString()}`;
+          return `${url}?${queryParams.toString()}`;
         },
         providesTags: ['Partnerships'],
       }),
@@ -282,15 +283,37 @@ export const adminSystemApi = createApi({
       }),
 
       // Job
-      getAllJobsAdminSystem: builder.query<any, { page: number; size: number }>({
-        query: ({ page, size }) => {
+      getAllJobsAdminSystem: builder.query<IJobAllResponseAdminSystem, { page: number; size: number; keyword: string; status: string }>({
+        query: ({ page, size, keyword, status }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
 
           return `/admin/jobs?${queryParams.toString()}`;
         },
         providesTags: ['Job'],
+      }),
+
+      ApproveJobs: builder.mutation({
+        query: ({ id }) => ({
+          url: `/admin/job/approve/${id}`,
+          method: 'PUT',
+        }),
+      }),
+
+      rejectJobs: builder.mutation({
+        query: ({ id }) => ({
+          url: `/admin/job/reject/${id}`,
+          method: 'PUT',
+        }),
+      }),
+
+      getNotifications: builder.query<void, void>({
+        query: () => ({
+          url: '/portal/notifications',
+        }),
       }),
     };
   },
@@ -325,4 +348,7 @@ export const {
   useCancelPartnershipsMutation,
   useRemovePartnershipsMutation,
   useGetAllJobsAdminSystemQuery,
+  useApproveJobsMutation,
+  useRejectJobsMutation,
+  useGetNotificationsQuery,
 } = adminSystemApi;

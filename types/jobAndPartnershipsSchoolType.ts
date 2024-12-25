@@ -21,6 +21,7 @@ export interface IJobCompanyResponse {
 
 export interface IPartnershipsSchool {
   company: ICompany;
+  startDate: string;
   partnershipStatus: string;
 }
 

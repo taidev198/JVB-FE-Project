@@ -1,7 +1,7 @@
 import toast from 'react-hot-toast';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { Chip, TextField } from '@mui/material';
+import { Checkbox, Chip, TextField } from '@mui/material';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 import debounce from 'lodash.debounce';
@@ -11,7 +11,7 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import {
   useApproveWorkshopMutation,
-  useDeleteWorkshopMutation,
+  useDeleteWorkshopsMutation,
   useGetAllWorkShopsAdminSystemQuery,
   useRejectWorkshopMutation,
 } from '@/services/adminSystemApi';
@@ -20,7 +20,6 @@ import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/fil
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
 
@@ -29,6 +28,7 @@ const animatedComponents = makeAnimated();
 const AdminSystemWorkshop = () => {
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
+  const [selectedWorkshop, setSelectedWorkshop] = useState<number[]>([]);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
@@ -59,12 +59,24 @@ const AdminSystemWorkshop = () => {
     dispatch(setBackdrop(actionType));
   };
 
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const allWorkshopsIds = workshops?.data.content.map(workshop => workshop.id);
+      setSelectedWorkshop(allWorkshopsIds ?? []);
+    } else {
+      setSelectedWorkshop([]);
+    }
+  };
+
+  const handleSelectWorkshops = (id: number) => {
+    setSelectedWorkshop(prev => (prev.includes(id) ? prev.filter(workshopId => workshopId !== id) : [...prev, id]));
+  };
+
   const [approveWorkshop, { isLoading: isLoadingApprove }] = useApproveWorkshopMutation();
   const [rejectWorkshop, { isLoading: isLoadingReject }] = useRejectWorkshopMutation();
-  const [deleteWorkshop, { isLoading: isLoadingDelete }] = useDeleteWorkshopMutation();
-
+  const [deleteWorkshops] = useDeleteWorkshopsMutation();
   const handleConfirmAction = async () => {
-    if (selectedWorkshopId !== null && selectedAction) {
+    if (selectedAction) {
       try {
         switch (selectedAction) {
           case BackdropType.ApproveConfirmation: {
@@ -78,8 +90,9 @@ const AdminSystemWorkshop = () => {
             break;
           }
           case BackdropType.DeleteConfirmation: {
-            await deleteWorkshop({ id: selectedWorkshopId }).unwrap();
-            toast.success('Workshop đã được xóa thành công!');
+            await deleteWorkshops({ ids: selectedWorkshop }).unwrap();
+            setSelectedWorkshop([]);
+            toast.success('Xóa workshop thành công');
             break;
           }
           default:
@@ -101,38 +114,51 @@ const AdminSystemWorkshop = () => {
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading || isLoadingApprove || isLoadingReject || isLoadingDelete));
+    dispatch(setLoading(isLoading || isLoadingApprove || isLoadingReject));
     return () => {
       dispatch(resetFilters());
     };
-  }, [dispatch, isLoading, isLoadingApprove, isLoadingReject, isLoadingDelete]);
+  }, [dispatch, isLoading, isLoadingApprove, isLoadingReject]);
 
   return (
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách Workshop</h1>
-        <div className="flex items-center gap-3">
-          <Select
-            placeholder="Trạng thái"
-            closeMenuOnSelect={true}
-            components={animatedComponents}
-            options={[
-              { value: '', label: 'Tất cả' },
-              { value: 'APPROVED', label: 'Đã duyệt' },
-              { value: 'PENDING', label: 'Chờ duyệt' },
-              { value: 'REJECTED', label: 'Từ chối' },
-            ]}
-            onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
-            className="w-[160px] cursor-pointer"
-          />
-          <TextField
-            id="filled-search"
-            label="Tìm kiếm tiêu đề, tên trường"
-            type="search"
-            variant="outlined"
-            size="small"
-            onChange={e => debouncedSearch(e.target.value)}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-5">
+            <Select
+              placeholder="Trạng thái"
+              closeMenuOnSelect={true}
+              components={animatedComponents}
+              options={[
+                { value: '', label: 'Tất cả' },
+                { value: 'APPROVED', label: 'Đã duyệt' },
+                { value: 'PENDING', label: 'Chờ duyệt' },
+                { value: 'REJECTED', label: 'Từ chối' },
+              ]}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              className="w-[160px] cursor-pointer"
+            />
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm tiêu đề, tên trường"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+              className="w-[250px]"
+            />
+          </div>
+          <Button
+            type="submit"
+            text="Xóa workshops đã chọn"
+            onClick={() => {
+              handleAction(BackdropType.DeleteConfirmation, null);
+              dispatch(setName('đã chọn'));
+            }}
+            className="bg-red-custom"
+            disabled={!selectedWorkshop.length}
           />
         </div>
       </div>
@@ -142,6 +168,15 @@ const AdminSystemWorkshop = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
+              <th className="p-3 text-left sm:px-3 sm:py-4">
+                <Checkbox
+                  color="primary"
+                  checked={selectedWorkshop.length === workshops?.data.content.length}
+                  indeterminate={selectedWorkshop.length > 0 && setSelectedWorkshop.length < (workshops?.data.content || []).length}
+                  onChange={handleSelectAll}
+                  size="small"
+                />
+              </th>
               <th className="px-5 py-4">STT</th>
               <th className="px-2 py-4 text-left">Tiêu đề</th>
               <th className="px-2 py-4 text-left">
@@ -160,6 +195,14 @@ const AdminSystemWorkshop = () => {
             {workshops?.data.content.length !== 0 ? (
               workshops?.data.content.map((workshop, index) => (
                 <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                  <td className="p-3 sm:px-3 sm:py-4">
+                    <Checkbox
+                      color="primary"
+                      checked={selectedWorkshop.includes(workshop.id)}
+                      onChange={() => handleSelectWorkshops(workshop.id)}
+                      size="small"
+                    />
+                  </td>
                   <td className="px-5 py-4 text-center">{index + 1 + (page - 1) * size}</td>
                   <td className="cursor-pointer px-2 py-4">
                     <p className="sm:[250px] w-[220px]">{workshop.workshopTitle}</p>
@@ -200,15 +243,6 @@ const AdminSystemWorkshop = () => {
                             }}
                           />
                         </>
-                      )}
-
-                      {workshop.moderationStatus !== 'PENDING' && (
-                        <ButtonDelete
-                          onClick={() => {
-                            handleAction(BackdropType.DeleteConfirmation, workshop.id);
-                            dispatch(setName(workshop.workshopTitle));
-                          }}
-                        />
                       )}
                     </div>
                   </td>

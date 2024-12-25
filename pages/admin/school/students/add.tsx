@@ -1,25 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
-import Select from 'react-select';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Text from '@/components/Common/Text';
 import validationSchemaAddStudent from '@/components/Admin/school/Student/validationAddStudent';
-import { useGetAllDistrictsQuery, useGetAllProvincesQuery, useGetAllWardsQuery } from '@/services/adminSystemApi';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
 import { useAddStudentMutation, useGetAllMajorsQuery } from '@/services/adminSchoolApi';
 import { setLoading } from '@/store/slices/global';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import Address from '@/components/Common/Address';
+import DateComponent from '@/components/Common/DateComponent';
+import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 
 interface FormDataAddStudent {
   studentCode: string;
@@ -43,24 +44,21 @@ const AddStudent = () => {
   const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    watch,
-  } = useForm<FormDataAddStudent>({
+
+  const methods = useForm<FormDataAddStudent>({
     resolver: yupResolver(validationSchemaAddStudent),
+    mode: 'onChange',
     defaultValues: {
-      yearOfEnrollment: undefined,
+      wardId: null,
+      districtId: null,
+      provinceId: null,
     },
   });
-
-  const provinceSelect = watch('provinceId');
-  const districtSelect = watch('districtId');
-  // Fetch data
-  const { data: provinces, isLoading: isLoadingProvinces } = useGetAllProvincesQuery();
-  const { data: districts, isLoading: isLoadingDistricts } = useGetAllDistrictsQuery({ id: provinceSelect }, { skip: !provinceSelect });
-  const { data: wards, isLoading: isLoadingWard } = useGetAllWardsQuery({ id: districtSelect }, { skip: !districtSelect });
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = methods;
 
   const { data: majors } = useGetAllMajorsQuery();
   const [addStudent, { isLoading }] = useAddStudentMutation();
@@ -80,7 +78,7 @@ const AddStudent = () => {
         wardId: data.wardId,
       },
       gpa: data.gpa,
-      dateOfBirth: data.dateOfBirth,
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
       studentStatus: data.studentStatus,
       phoneNumber: data.phoneNumber,
       majorId: data.majorId,
@@ -91,8 +89,8 @@ const AddStudent = () => {
     // Append file vào FormData
     formData.append('file', image as File);
     try {
-      const response = await addStudent(formData).unwrap();
-      toast.success(response.messages);
+      await addStudent(formData).unwrap();
+      toast.success('Thêm mới sinh viên thành công!');
       router.push('/admin/school/students');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -167,7 +165,14 @@ const AddStudent = () => {
               required={true}
             />
             {/* Date Of Birth */}
-            <Input type="date" name="dateOfBirth" label="Ngày sinh" placeholder="" control={control} error={errors.dateOfBirth?.message} required={true} />
+            <DateComponent
+              name="dateOfBirth"
+              control={control}
+              error={errors.dateOfBirth?.message}
+              placeholder={'Nhập ngày sinh'}
+              label={'Ngày sinh'}
+              required={true}
+            />
             {/* GPA */}
             <Input type="number" name="gpa" label="Điểm GPA" placeholder="Nhập Điểm GPA" control={control} error={errors.gpa?.message} required={true} />
             {/* Student status */}
@@ -210,94 +215,19 @@ const AddStudent = () => {
               error={errors.gender?.message}
               required={true}
             />
-
-            {/* Tỉnh */}
-            <div>
-              <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Tỉnh <span className="text-red-600">*</span>
-              </label>
-              <Controller
-                name="provinceId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    className="basic-single"
-                    classNamePrefix="select"
-                    placeholder="Chọn Tỉnh/Thành phố"
-                    isLoading={isLoadingProvinces}
-                    options={provinces?.data || []}
-                    getOptionLabel={(option: { provinceName: any }) => option.provinceName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
-                    onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
-                    }}
-                    value={provinces?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
-                    ref={field.ref}
-                  />
-                )}
-              />
-              {errors.provinceId && <p className="mt-2 text-sm text-red-500">{errors.provinceId.message}</p>}
-            </div>
-
-            {/* Chọn Huyện */}
-            <div>
-              <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Huyện <span className="text-red-600">*</span>
-              </label>
-              <Controller
-                name="districtId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    className="basic-single"
-                    classNamePrefix="select"
-                    placeholder="Chọn Quận/Huyện"
-                    isLoading={isLoadingDistricts}
-                    options={districts?.data || []}
-                    getOptionLabel={(option: { districtName: any }) => option.districtName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
-                    onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
-                    }}
-                    value={districts?.data?.find(option => option.id === field.value)} // Giữ giá trị name (tên tỉnh) khi chọn
-                    ref={field.ref}
-                  />
-                )}
-              />
-              {errors.districtId && <p className="mt-2 text-sm text-red-500">{errors.districtId.message}</p>}
-            </div>
-
-            {/* Chọn Xã */}
-            <div>
-              <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-                Xã <span className="text-red-600">*</span>
-              </label>
-              <Controller
-                name="wardId"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    className="basic-single"
-                    classNamePrefix="select"
-                    placeholder="Chọn Xã/Phường"
-                    isLoading={isLoadingWard}
-                    options={wards?.data || []}
-                    getOptionLabel={(option: { wardName: any }) => option.wardName || ''} // Hiển thị tên tỉnh
-                    getOptionValue={(option: { id: any }) => option.id} // Chỉ lưu id
-                    onChange={(selectedOption: { id: any }) => {
-                      field.onChange(selectedOption ? selectedOption.id : null); // Lưu id vào form
-                    }}
-                    value={wards?.data?.find(option => option.id === Number(field.value))} // Giữ giá trị name (tên tỉnh) khi chọn
-                    ref={field.ref}
-                  />
-                )}
-              />
-              {errors.wardId && <p className="mt-2 text-sm text-red-500">{errors.wardId.message}</p>}
-            </div>
           </div>
+          {/* Address */}
+          <FormProvider {...methods}>
+            <Address
+              control={methods.control}
+              districtName="districtId"
+              provinceName="provinceId"
+              wardName="wardId"
+              errorDistrict={errors.districtId?.message}
+              errorProvince={errors.provinceId?.message}
+              errorWard={errors.wardId?.message}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2"></Address>
+          </FormProvider>
           <div className="mt-4">
             <Text
               type="text"

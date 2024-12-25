@@ -1,18 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Pagination, TextField, Tooltip } from '@mui/material';
-import Link from 'next/link';
+import { Chip, TextField, Tooltip } from '@mui/material';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 import CancelIcon from '@mui/icons-material/Cancel';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useDispatch } from 'react-redux';
-import DoneAllIcon from '@mui/icons-material/DoneAll';
-import DeleteIcon from '@mui/icons-material/Delete';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import BrushIcon from '@mui/icons-material/Brush';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
-import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
+import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
@@ -23,12 +18,17 @@ import {
   useRemovePartnershipsMutation,
 } from '@/services/adminSystemApi';
 import ImageComponent from '@/components/Common/Image';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import { countTimeDifference, StatusPartnership } from '@/utils/app/const';
+import PaginationComponent from '@/components/Common/Pagination';
+import ButtonAddPerson from '@/components/Common/ButtonIcon/addPerson';
+import RemovePerson from '@/components/Common/ButtonIcon/RemovePerson';
 
 const JobAdminSchool = () => {
   const dispatch = useDispatch();
-  const [active, setActive] = useState('ALL');
+  const [partnershipStatus, setPartnershipStatus] = useState<string>('friend');
   const [selectId, setSelectId] = useState<number | null>(null);
-  const { page, size } = useAppSelector(state => state.filter);
+  const { page, size, keyword } = useAppSelector(state => state.filter);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
   const universityId = useAppSelector(state => state.user?.user?.id);
@@ -42,8 +42,15 @@ const JobAdminSchool = () => {
     [dispatch]
   );
 
+  const getUrl = () => {
+    if (partnershipStatus === 'friend') {
+      return '/university-current';
+    }
+    return `/universities/send-by-${partnershipStatus === 'invitation' ? 'company' : 'university'}`;
+  };
+
   const { data: partnerships, isLoading: isLoadingGetAll } = useGetAllPartnershipsUniversityQuery(
-    { page, size, universityId },
+    { page, size, keyword, url: `/partnership${getUrl()}` },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -95,7 +102,38 @@ const JobAdminSchool = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Quản lý đối tác</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="mb-5 font-bold">Quản lý đối tác</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setPartnershipStatus('friend');
+                dispatch(setPage(1));
+                dispatch(setKeyword(''));
+              }}
+              className={`rounded-lg ${partnershipStatus === 'friend' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
+              Đối tác
+            </button>
+            <button
+              onClick={() => {
+                setPartnershipStatus('invitation');
+                dispatch(setPage(1));
+                dispatch(setKeyword(''));
+              }}
+              className={`rounded-lg ${partnershipStatus === 'invitation' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
+              Lời mời
+            </button>
+            <button
+              onClick={() => {
+                setPartnershipStatus('request');
+                dispatch(setPage(1));
+                dispatch(setKeyword(''));
+              }}
+              className={`rounded-lg ${partnershipStatus === 'request' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
+              Yêu cầu
+            </button>
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
             <TextField
@@ -115,148 +153,97 @@ const JobAdminSchool = () => {
         <div>
           {/* Row */}
           <div className="p-5">
-            <div className="grid grid-cols-1 items-center justify-between pb-4 sm:grid-cols-2">
-              <div>
-                <h6 className="mb-4 sm:mb-0">Doanh nghiệp đối tác</h6>
-              </div>
-              <div className="mx-auto flex items-center gap-2 sm:ml-auto sm:mr-0">
-                <button
-                  onClick={() => {
-                    dispatch(setStatus(''));
-                    setActive('ALL');
-                  }}
-                  className={`rounded-lg ${active === 'ALL' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Tất cả: 200
-                </button>
-                <button
-                  onClick={() => {
-                    dispatch(setStatus('PENDING'));
-                    setActive('PENDING');
-                  }}
-                  className={`rounded-lg ${active === 'PENDING' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Đang chờ: 100
-                </button>
-                <button
-                  onClick={() => {
-                    dispatch(setStatus('ACCEPT'));
-                    setActive('ACCEPT');
-                  }}
-                  className={`rounded-lg ${active === 'ACCEPT' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Chấp nhận: 100
-                </button>
-                <button
-                  onClick={() => {
-                    dispatch(setStatus('CANCEL'));
-                    setActive('CANCEL');
-                  }}
-                  className={`rounded-lg ${active === 'CANCEL' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-                  Từ chối: 100
-                </button>
-              </div>
-            </div>
             <div className="flex flex-col flex-wrap justify-start gap-x-3 gap-y-4">
               {partnerships?.data.content.map(partner => (
                 <div className="rounded-lg border border-solid px-4 py-5" key={partner.company.id}>
                   <div className="flex w-full flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap">
-                      <Link href={''}>
-                        <ImageComponent
-                          src={partner.company.logoUrl}
-                          alt={partner.company?.companyName}
-                          width={80}
-                          height={80}
-                          className="h-20 rounded-full border border-solid"
-                        />
-                      </Link>
+                    <div className="flex flex-wrap items-center justify-between">
+                      <ImageComponent
+                        src={partner.company.logoUrl}
+                        alt={partner.company?.companyName}
+                        width={80}
+                        height={80}
+                        className="rounded-full border border-solid object-contain"
+                        pro={partner.partnershipStatus === 'ACCEPT' ? true : false}
+                      />
                       <div className="ml-0 font-semibold sm:ml-4">
-                        <Link href={''}>
-                          <h4 className="mb-[6px] font-semibold hover:text-primary-main">{partner.company.companyName}</h4>
-                        </Link>
+                        <h4 className="mb-[6px] font-semibold">{partner.company.companyName}</h4>
                         <div className="flex items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
-                          <span>{partner.company?.fields[0]?.fieldName}...</span>
+                          <span>Mã công ty: {partner.company.companyCode}</span>
                           <span>
                             <LocationOnIcon fontSize="small" />
-                            {partner.company.address?.province.provinceName}
+                            {partner.company.address?.district.districtName}, {partner.company.address?.province.provinceName}
                           </span>
                           <span>Mã số thuế: {partner.company.taxCode}</span>
                         </div>
                       </div>
                     </div>
+                    <div>
+                      <Chip
+                        label={StatusPartnership(partner.partnershipStatus)?.title}
+                        sx={{
+                          backgroundColor: StatusPartnership(partner.partnershipStatus)?.bg,
+                          color: StatusPartnership(partner.partnershipStatus)?.color,
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-[#002c3fb3]">
+                        {countTimeDifference(partner.startDate) === '0 ngày' ? 'Vừa mới' : countTimeDifference(partner.startDate)}
+                      </span>
+                    </div>
                     {/* Button */}
                     <div className="flex items-center gap-3">
                       {partner.partnershipStatus === 'CANCEL' ? null : partner.partnershipStatus === 'ACCEPT' ? (
-                        <Tooltip title="Xóa">
-                          <div
-                            className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2943]"
-                            onClick={() => {
-                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                              dispatch(setName(partner.company.companyName));
-                              setSelectId(partner.company.account.id);
-                            }}>
-                            <DeleteIcon color="error" fontSize="small" />
-                          </div>
-                        </Tooltip>
+                        <RemovePerson
+                          onClick={() => {
+                            dispatch(setBackdrop(BackdropType.RefuseConfirmation));
+                            dispatch(setName(partner.company.companyName));
+                            setSelectId(partner.company.id);
+                          }}
+                        />
                       ) : (
                         <>
-                          <Tooltip title="Chấp nhận">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:bg-[#00986849]"
+                          <ButtonSee
+                            onClick={() => {
+                              dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                              dispatch(setName(partner.company.companyName));
+                              setSelectId(partner.company.id);
+                            }}
+                            href="#"
+                          />
+                          {partnershipStatus !== 'request' ? (
+                            <ButtonAddPerson
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.ApproveConfirmation));
                                 dispatch(setName(partner.company.companyName));
-                                setSelectId(partner.company.account.id);
-                              }}>
-                              <DoneAllIcon color="success" fontSize="small" />
-                            </div>
-                          </Tooltip>
-
-                          <Tooltip title="Từ chối">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
+                                setSelectId(partner.company.id);
+                              }}
+                            />
+                          ) : (
+                            ''
+                          )}
+                          {partnershipStatus === 'friend' ? (
+                            <RemovePerson
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.RefuseConfirmation));
                                 dispatch(setName(partner.company.companyName));
-                                setSelectId(partner.company.account.id);
-                              }}>
-                              <CancelIcon color="warning" fontSize="small" />
-                            </div>
-                          </Tooltip>
-
-                          <Tooltip title="Xóa">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2934]"
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                                dispatch(setName(partner.company.companyName));
-                                setSelectId(partner.company.account.id);
-                              }}>
-                              <DeleteIcon color="error" fontSize="small" />
-                            </div>
-                          </Tooltip>
-
-                          <Tooltip title="Chỉnh sửa">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#0098681a] px-2 py-[6px] transition-all hover:bg-[#00986849]"
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
-                                dispatch(setName(partner.company.companyName));
-                                setSelectId(partner.company.account.id);
-                              }}>
-                              <BrushIcon color="success" fontSize="small" />
-                            </div>
-                          </Tooltip>
-
-                          <Tooltip title="Chỉnh sửa">
-                            <div
-                              className="cursor-pointer rounded-lg bg-[#1966d227] px-2 py-[6px] transition-all hover:bg-[#1966d254]"
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
-                                dispatch(setName(partner.company.companyName));
-                                setSelectId(partner.company.account.id);
-                              }}>
-                              <RemoveRedEyeIcon color="info" fontSize="small" />
-                            </div>
-                          </Tooltip>
+                                setSelectId(partner.company.id);
+                              }}
+                            />
+                          ) : (
+                            <Tooltip title="Từ chối">
+                              <div
+                                className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
+                                onClick={() => {
+                                  dispatch(setBackdrop(BackdropType.RefuseConfirmation));
+                                  dispatch(setName(partner.company.companyName));
+                                  setSelectId(partner.company.id);
+                                }}>
+                                <CancelIcon color="warning" fontSize="small" />
+                              </div>
+                            </Tooltip>
+                          )}
                         </>
                       )}
                     </div>
@@ -269,12 +256,14 @@ const JobAdminSchool = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-center bg-white p-5">
-        <Pagination count={partnerships?.data.totalPages} page={page} onChange={(event, value) => dispatch(setPage(value))} color="primary" shape="rounded" />
-        <p className="text-sm">
-          ({partnerships?.data.currentPage} / {partnerships?.data.totalPages})
-        </p>
-      </div>
+      <PaginationComponent
+        count={partnerships?.data.totalPages}
+        page={page}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        size={size}
+        totalItem={partnerships?.data.totalElements}
+        totalTitle={'doanh nghiệp'}
+      />
       {showBackdrop && (
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">

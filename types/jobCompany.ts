@@ -15,6 +15,8 @@ export interface IJobCompany {
   expirationDate: string;
   memberOfCandidate: number;
   fields: IFields[];
+  company: ICompany;
+  createAt: string;
   status: string;
   salaryType: string;
   maxSalary: number;
@@ -68,4 +70,16 @@ export interface IJobDetailResponse {
   code: number;
   message: string;
   data: IJobCompany;
+}
+
+export interface IJobAllResponseAdminSystem {
+  code: number;
+  message: string;
+  data: {
+    content: IJobCompany[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
 }

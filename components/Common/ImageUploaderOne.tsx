@@ -2,6 +2,7 @@ import { Chip, Stack } from '@mui/material';
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ImageComponent from './Image';
 
 interface ImageUploaderOneProps {
   image: File | null | string; // Cập nhật để chấp nhận cả File và URL
@@ -61,7 +62,7 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
         })}>
         <input {...getInputProps()} />
         {preview ? (
-          <img src={preview} alt="Preview" className="h-full w-full rounded-full object-cover" />
+          <ImageComponent src={preview} alt="Preview" className="h-full w-full rounded-full object-cover" />
         ) : isDragActive ? (
           <p>Thả file vào đây...</p>
         ) : (

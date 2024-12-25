@@ -48,8 +48,6 @@ const AddJob = () => {
   });
 
   const salaryType = watch('salary_type');
-  console.log(salaryType);
-
   const { data: faculties } = useGetAllFieldsQuery();
 
   const [addJob] = useAddJobMutation();
@@ -74,7 +72,6 @@ const AddJob = () => {
     // addJob(newData)
 
   };
-  console.log(errors)
 
   return (
     <div className="bg-primary-white px-10">

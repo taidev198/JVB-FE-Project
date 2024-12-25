@@ -1,5 +1,5 @@
-import { Faculty, IFields, University } from '.';
 import { IFaculty } from './facultyType';
+import { IFields, University } from '.';
 
 export interface IBusiness {
   id: number;
@@ -12,6 +12,7 @@ export interface IBusiness {
   university: University;
   majorFields: IFields[];
 }
+
 export interface ApiResponseBusiness {
   code: number;
   message: string;
@@ -23,6 +24,7 @@ export interface ApiResponseBusiness {
     currentPage: number;
   };
 }
+
 export interface ApiResponseDetailBusiness {
   code: number;
   message: string;
