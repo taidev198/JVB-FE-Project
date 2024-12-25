@@ -2,8 +2,8 @@
 
 import { IUniversity } from './university';
 import { IAddress } from './addressesTypes';
-import { IFields } from './index';
 import { JobWork } from './workShopCompany';
+import { IFields } from './index';
 
 export interface ImageWorkshops {
   id: number;

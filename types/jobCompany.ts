@@ -71,3 +71,29 @@ export interface IJobDetailResponse {
   message: string;
   data: IJobCompany;
 }
+
+export interface IJobByCompany {
+  length: number;
+  id: number;
+  jobTitle: string;
+  jobDescription: string;
+  jobType: string;
+  jobLevel: string;
+  minSalary: number | null;
+  maxSalary: number | null;
+  salaryType: string;
+  createAt: string;
+  company: ICompany;
+}
+
+export interface IJobByCompanyResponse {
+  code: number;
+  message: string;
+  data: {
+    content: IJobByCompany[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}

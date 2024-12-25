@@ -1,11 +1,12 @@
-import ImageComponent from '@/components/Common/Image';
-import { useGetFieldsQuery, useGetProvincesQuery, useGetSchoolsQuery } from '@/services/portalHomeApi';
-import { IUniversity } from '@/types/university';
-import { Empty, Pagination, Spin } from 'antd';
+import { Empty, Pagination } from 'antd';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
 import SelectSearch from '../common/SelectSearch';
+import PortalLoading from '../common/PortalLoading';
 
+import ImageComponent from '@/components/Common/Image';
+import { useGetFieldsQuery, useGetProvincesQuery, useGetSchoolsQuery } from '@/services/portalHomeApi';
+import { IUniversity } from '@/types/university';
 const SchoolsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
@@ -142,7 +143,7 @@ const SchoolsList: React.FC = () => {
         <div className="mt-[40px]">
           {isSchoolsLoading ? (
             <div className="my-[60px] flex w-full items-center justify-center">
-              <Spin size="large" />
+              <PortalLoading />
             </div>
           ) : paginatedSchools.length > 0 ? (
             <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3">

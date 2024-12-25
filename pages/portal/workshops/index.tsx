@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import React from 'react';
-import PortalLayout from '@/layouts/Portal/PortalLayout';
+
 import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
 import WorkshopsList from '@/components/Portal/WorkshopsList/WorkshopsList';
+import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface WorkshopsListProp {
   serverSideApiKeyIsSet: boolean;

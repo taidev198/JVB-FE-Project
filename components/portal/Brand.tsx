@@ -1,7 +1,7 @@
 import React from 'react';
 import BrandSwiper from './common/BrandSwiper';
 
-const Brand = () => {
+const Brand: React.FC = () => {
   return (
     <section className="rts__section relative pb-[120px] pt-[50px] ">
       <div className="container mx-auto">

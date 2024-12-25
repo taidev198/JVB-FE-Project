@@ -1,7 +1,6 @@
 // pages/portal/companies/[id].tsx
-
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
-import { Alert, Pagination, Select, Spin } from 'antd';
+import { Alert, Select } from 'antd';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -9,16 +8,16 @@ import React, { useEffect, useState } from 'react';
 
 import ImageComponent from '@/components/Common/Image';
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
+import CustomPagination from '@/components/Portal/common/CustomPagination';
 import LinkCard from '@/components/Portal/common/LinkCard';
 import GoogleMap from '@/components/Portal/common/MapCard';
 import PortalEmpty from '@/components/Portal/common/PortalEmpty';
 import PortalLoading from '@/components/Portal/common/PortalLoading';
-import PortalLayout from '@/layouts/Portal/PortalLayout';
-import { useGetCompanyDetailsQuery, useGetJobsCompanyQuery } from '@/services/portalHomeApi';
-import { formatJobType } from '@/utils/app/format';
-import { IJobByCompany } from '@/types/portalJobCompanyTypes';
-import CustomPagination from '@/components/Portal/common/CustomPagination';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
+import PortalLayout from '@/layouts/portal/PortalLayout';
+import { useGetCompanyDetailsQuery, useGetJobsCompanyQuery } from '@/services/portalHomeApi';
+import { IJobByCompany } from '@/types/jobCompany';
+import { formatJobType } from '@/utils/app/format';
 
 interface CompanyDetailsPageProps {
   serverSideApiKeyIsSet: boolean;
@@ -27,8 +26,24 @@ interface CompanyDetailsPageProps {
 const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   const router = useRouter();
   const { id } = router.query;
+  const { data, isLoading, error } = useGetCompanyDetailsQuery({ id: Number(id) });
+  const { data: jobsData, isLoading: isLoadingJobs, error: jobsError } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 1000 });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [paginatedJobs, setPaginatedJobs] = useState<IJobByCompany[]>([]);
+  const [pageSize, setPageSize] = useState(4);
+
+  const { Option } = Select;
 
   const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
+
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) {
+      setPageSize(pageSize);
+    }
+  };
+
   const triggerPageChange = (page: number) => {
     setFadeState('fade-out');
     setTimeout(() => {
@@ -37,13 +52,6 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
       setFadeState('fade-in');
     }, 300); // Matches the fade-out duration
   };
-
-  const { data, isLoading, error } = useGetCompanyDetailsQuery({ id: Number(id) });
-  const { data: jobsData, isLoading: isLoadingJobs, error: jobsError } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 1000 });
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedJobs, setPaginatedJobs] = useState<IJobByCompany[]>([]);
-  const [pageSize, setPageSize] = useState(4);
 
   useEffect(() => {
     if (jobsData?.data.content) {
@@ -71,13 +79,6 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
     );
   }
 
-  const handlePageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) {
-      setPageSize(pageSize);
-    }
-  };
-
   const companyDetails = data?.data;
   const jobs: IJobByCompany[] = isLoadingJobs ? [] : jobsData?.data.content || [];
 
@@ -101,6 +102,8 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
             schoolType={companyDetails?.companyShortDescription || 'Company details page'}
             address={`${companyDetails?.address?.houseNumber},${companyDetails?.address?.ward.wardName}, ${companyDetails?.address?.district.districtName}, ${companyDetails?.address?.province.provinceName}`}
             logo={companyDetails?.logoUrl}
+            buttonText="Liên kết ngay"
+            onButtonClick={() => {}}
             currentPage="Trường học"
           />
           <div className="mp_section_padding">
@@ -240,7 +243,6 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
                     <PortalEmpty />
                   )}
                 </div>
-                ;
               </div>
               <div className="flex w-full flex-col gap-[54px] lg:basis-5/12 xl:basis-4/12">
                 <GoogleMap googleMapsUrl={googleMapsUrl} title="Vị trí trên Google Maps" height={300} />

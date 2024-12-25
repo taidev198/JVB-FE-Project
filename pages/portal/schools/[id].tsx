@@ -1,7 +1,7 @@
 // pages/portal/companies/[id].tsx
 
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
-import { Alert, Select, Spin } from 'antd';
+import { Alert, Select } from 'antd';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -14,11 +14,11 @@ import LinkCard from '@/components/Portal/common/LinkCard';
 import GoogleMap from '@/components/Portal/common/MapCard';
 import PortalEmpty from '@/components/Portal/common/PortalEmpty';
 import PortalLoading from '@/components/Portal/common/PortalLoading';
-import PortalLayout from '@/layouts/Portal/PortalLayout';
 import { useGetSchoolDetailsQuery, useGetWorkshopsUniversityQuery } from '@/services/portalHomeApi';
 import { IWorkshopPortal } from '@/types/workshop';
 import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
+import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface SchoolDetailsPageProps {
   serverSideApiKeyIsSet: boolean;
@@ -27,6 +27,8 @@ interface SchoolDetailsPageProps {
 const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const router = useRouter();
   const { id } = router.query;
+
+  const { Option } = Select;
 
   const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,6 +41,11 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
     isLoading: isLoadingWorkshops,
     error: workshopsError,
   } = useGetWorkshopsUniversityQuery({ universityId: Number(id), page: 1, size: 1000 });
+
+  const handlePageChange = (page: number, pageSize?: number) => {
+    setCurrentPage(page);
+    if (pageSize) setPageSize(pageSize);
+  };
 
   const triggerPageChange = (page: number) => {
     setFadeState('fade-out');
@@ -57,11 +64,6 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
       setPaginatedWorkshops([]); // Clear paginated data if workshopsData is empty
     }
   }, [workshopsData, currentPage, pageSize]);
-
-  const handlePageChange = (page: number, pageSize?: number) => {
-    setCurrentPage(page);
-    if (pageSize) setPageSize(pageSize);
-  };
 
   if (isLoading) {
     return (
@@ -104,6 +106,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
             address={`${universityDetails?.address?.houseNumber},${universityDetails?.address?.ward.wardName}, ${universityDetails?.address?.district.districtName}, ${universityDetails?.address?.province.provinceName}`}
             logo={universityDetails?.logoUrl}
             currentPage="Trường học"
+            buttonText="Liên kết ngay"
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">
@@ -247,7 +250,6 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
                     <PortalEmpty />
                   )}
                 </div>
-                ;
               </div>
               <div className="flex w-full flex-col gap-[54px] lg:basis-5/12 xl:basis-4/12">
                 <GoogleMap googleMapsUrl={googleMapsUrl} title="Vị trí trên Google Maps" height={300} />

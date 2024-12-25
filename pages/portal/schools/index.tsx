@@ -1,9 +1,9 @@
 import Head from 'next/head';
 import React from 'react';
 
-import PortalLayout from '@/layouts/Portal/PortalLayout';
 import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
 import SchoolsList from '@/components/Portal/SchoolsList/SchoolsList';
+import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface SchoolsListProps {
   serverSideApiKeyIsSet: boolean;
