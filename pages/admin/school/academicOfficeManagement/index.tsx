@@ -22,7 +22,6 @@ import { genderTitle } from '@/utils/app/const';
 const AcademicOfficeManagement = () => {
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size } = useAppSelector(state => state.filter);
@@ -37,9 +36,6 @@ const AcademicOfficeManagement = () => {
       }, 500),
     [dispatch]
   );
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
@@ -67,11 +63,7 @@ const AcademicOfficeManagement = () => {
     }
   };
 
-  const {
-    data: academicOfficeManagement,
-    isLoading,
-    isSuccess,
-  } = useGetAllAcademicOfficeManagementQuery(
+  const { data: academicOfficeManagement, isLoading } = useGetAllAcademicOfficeManagementQuery(
     {
       page: page,
       size: size,
@@ -100,14 +92,13 @@ const AcademicOfficeManagement = () => {
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
-      {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý giáo vụ</h1>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm giáo vụ"
+              label="Tìm kiếm tên, mã giáo vụ"
               type="search"
               variant="outlined"
               size="small"
@@ -129,7 +120,6 @@ const AcademicOfficeManagement = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
@@ -198,7 +188,6 @@ const AcademicOfficeManagement = () => {
         </table>
       </div>
 
-      {/* delete */}
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
@@ -212,21 +201,13 @@ const AcademicOfficeManagement = () => {
         </BackDrop>
       )}
 
-      {/* Form Add */}
-      {backdropType === BackdropType.AddModal && (
-        <BackDrop isCenter={true}>
-          <AddAdemic />
-        </BackDrop>
-      )}
-
-      {/* Pagination */}
       <PaginationComponent
         count={academicOfficeManagement?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={academicOfficeManagement?.data.totalElements}
-        totalTitle={'Ademic'}
+        totalTitle={'Giáo vụ'}
       />
     </>
   );

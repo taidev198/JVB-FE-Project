@@ -19,9 +19,9 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 2,
-    icon: <IconDepartment />,
-    url: '/admin/school/department',
-    label: 'Quản lý khoa',
+    icon: <IconSchool />,
+    url: '/admin/school/schoolManagement',
+    label: 'Quản lý hồ sơ trường',
   },
   {
     id: 3,
@@ -31,9 +31,9 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 4,
-    icon: <IconSchool />,
-    url: '/admin/school/schoolManagement',
-    label: 'Quản lý hồ sơ trường',
+    icon: <IconDepartment />,
+    url: '/admin/school/department',
+    label: 'Quản lý khoa',
   },
   {
     id: 5,

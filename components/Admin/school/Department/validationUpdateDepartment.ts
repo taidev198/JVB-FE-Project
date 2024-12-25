@@ -14,7 +14,6 @@ const validationSchemaUpdateDepartment = Yup.object({
       return value && value <= currentYear;
     }),
 
-  facultyDescription: Yup.string().required('Mô tả khoa là bắt buộc'),
   nameDean: Yup.string().required('Tên trưởng khoa là bắt buộc').max(50, 'Tên trưởng khoa không được quá 50 kí tự'),
   address: Yup.string().required('Địa chỉ khoa cụ thể là bắt buộc').max(150, 'Địa chỉ không được quá 150 kí tự'),
 });

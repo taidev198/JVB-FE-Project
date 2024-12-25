@@ -12,30 +12,21 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
-import {
-  useDeleteBusinessMultipleMutation,
-  useDeleteBusinessOneMutation,
-  useGetAllBusinessQuery,
-  useGetAllFaculityQuery,
-  useGetAllMajorsQuery,
-} from '@/services/adminSchoolApi';
+import { useDeleteBusinessMultipleMutation, useDeleteBusinessOneMutation, useGetAllBusinessQuery, useGetAllFaculityQuery } from '@/services/adminSchoolApi';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { setKeyword, setPage, setIdFaculty, resetFilters } from '@/store/slices/filtersSlice';
 
 const BusinessManagement = () => {
-  const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useAppDispatch();
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const { data: dataMajor } = useGetAllMajorsQuery();
   const { page, keyword, size, idFaculty } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
-  const [major, setMajor] = useState<number | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedBusiness, setSelectedBusiness] = useState<number[]>([]);
-  const { data: dataDepartments, isLoading: isLoadingGetAllDepartment } = useGetAllFaculityQuery();
+  const { data: dataDepartments, isLoading: isLoadingGetAllDepartment } = useGetAllFaculityQuery(undefined, { refetchOnMountOrArgChange: true });
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -44,9 +35,6 @@ const BusinessManagement = () => {
       }, 500),
     [dispatch]
   );
-  const handlePageChange = (event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
@@ -63,9 +51,6 @@ const BusinessManagement = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
-
-  const idBusiness = useAppSelector(state => state.global.id);
-  console.log(business);
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteBusinessOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteBusinessMultipleMutation();
   const handleConfirmAction = async () => {
@@ -88,7 +73,6 @@ const BusinessManagement = () => {
       dispatch(setBackdrop(null));
     }
   };
-  console.log(selectedBusiness);
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const allAdemicIds = business?.data.content.map(ademic => ademic.id);
@@ -101,21 +85,21 @@ const BusinessManagement = () => {
     setSelectedBusiness(prev => (prev.includes(id) ? prev.filter(ademicId => ademicId !== id) : [...prev, id]));
   };
   useEffect(() => {
-    dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
+    dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple || isLoadingGetAllDepartment));
     return () => {
       dispatch(resetFilters());
     };
-  }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
+  }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne, isLoadingGetAllDepartment]);
   return (
     <>
-      {/* Header */}
+    
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản ngành học</h1>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm ngành học "
+              label="Tìm kiếm tên, mã ngành học "
               type="search"
               variant="outlined"
               size="small"
@@ -152,7 +136,7 @@ const BusinessManagement = () => {
         </div>
       </div>
 
-      {/* Table */}
+    
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
@@ -254,14 +238,14 @@ const BusinessManagement = () => {
         </BackDrop>
       )}
 
-      {/* Pagination */}
+    
       <PaginationComponent
         count={business?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={business?.data.totalElements}
-        totalTitle={'Business'}
+        totalTitle={'Ngành học'}
       />
     </>
   );

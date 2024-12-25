@@ -79,7 +79,7 @@ const DetailSchoolManagement = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Số sinh viên:</span>
+              <span className="mr-2 font-semibold">Số lượng sinh viên:</span>
               {detailSchool?.data.numberOfStudents}
             </div>
           </li>
@@ -108,7 +108,7 @@ const DetailSchoolManagement = () => {
             </div>
             <div>
               <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
-              {detailSchool?.data.universityDescription}
+              <span dangerouslySetInnerHTML={{ __html: detailSchool?.data.universityDescription ?? '' }}></span>
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">

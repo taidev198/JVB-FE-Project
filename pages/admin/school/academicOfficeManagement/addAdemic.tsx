@@ -17,6 +17,9 @@ import Address from '@/components/Common/Address';
 import DateComponent from '@/components/Common/DateComponent';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { formatDateDd_MM_yyyy } from '@/utils/app/format';
+import { resetFilters } from '@/store/slices/filtersSlice';
+import { useRouter } from 'next/router';
 
 interface FormDataAddAdemic {
   fullName: string;
@@ -37,7 +40,7 @@ interface FormDataAddAdemic {
 const AddAdemic = () => {
   const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
-
+  const router = useRouter();
   const methods = useForm<FormDataAddAdemic>({
     resolver: yupResolver(validationSchemaAddAdemic),
     mode: 'onChange',
@@ -71,16 +74,16 @@ const AddAdemic = () => {
         wardId: data.wardId,
       },
       gender: data.gender,
-      dateOfBirth: data.dateOfBirth,
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
       phoneNumber: data.phoneNumber,
     };
 
     formData.append('universityEmployeeRequest', new Blob([JSON.stringify(universityEmployeeRequest)], { type: 'application/json' }));
-
     formData.append('file', image as File);
     try {
       await addAcademicOfficeManagement(formData).unwrap();
       toast.success('Thêm giáo vụ thành công');
+      router.push('/admin/school/academicOfficeManagement');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
@@ -90,7 +93,6 @@ const AddAdemic = () => {
       }
     }
   };
-
   useEffect(() => {
     dispatch(setLoading(isLoadingAddAcademicOfficeManagement));
   }, [isLoadingAddAcademicOfficeManagement, dispatch]);
@@ -167,6 +169,7 @@ const AddAdemic = () => {
               placeholder="Nhập lại mật khẩu"
               control={control}
               error={errors.confirm_password?.message}
+              required={true}
             />
 
             <DateComponent
