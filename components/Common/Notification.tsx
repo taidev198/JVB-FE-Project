@@ -5,8 +5,6 @@ import { useGetNotificationsQuery } from '@/services/adminSystemApi';
 const Notification = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { data: notifications } = useGetNotificationsQuery(undefined, { refetchOnMountOrArgChange: true });
-  console.log(notifications);
-
   const handleMenuClose = () => {
     setAnchorEl(null);
   };

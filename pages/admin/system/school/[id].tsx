@@ -26,7 +26,7 @@ const AdminSystemDetailSchool = () => {
     dispatch(setLoading(isLoading));
   }, [dispatch, isLoading]);
   return (
-    <div className="rounded-2xl bg-white pb-[90px]">
+    <div className="rounded-2xl bg-white p-3 pb-[90px] sm:p-0">
       {/* Icon */}
       <div className="p-5">
         <Link href={'/admin/system/school'}>
@@ -38,14 +38,14 @@ const AdminSystemDetailSchool = () => {
       </div>
       <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin tài khoản trường đại học </h1>
       {/* Info */}
-      <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
+      <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-4 sm:p-7">
         <div className="flex items-center gap-[30px] ">
           <div className="rounded-[50%] bg-[#F1F1F1] p-5">
             <ImageComponent src={data?.data.logoUrl} width={80} height={80} className="rounded-full" alt={data?.data.universityName} />
           </div>
           <div>
-            <h2 className="text-xl font-bold">{data?.data.universityName}</h2>
-            <Link href={'#'}>
+            <h2 className="text-lg font-bold lg:text-xl">{data?.data.universityName}</h2>
+            <Link href={`/portal/schools/${data.data.id}`}>
               <p className="text-primary-gray hover:text-primary-main">Xem chi tiết</p>
             </Link>
           </div>
@@ -103,11 +103,13 @@ const AdminSystemDetailSchool = () => {
               <span className="mr-2 font-semibold">Số lượng sinh viên đã tốt nghiệp:</span> {data?.data.numberOfGraduates}
             </div>
           </li>
-          <li className="mt-4 flex items-center  gap-3 ">
+          <li className="mt-4 flex gap-3 ">
             <LightbulbIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Mô tả:</span>
-              <span dangerouslySetInnerHTML={{ __html: data?.data.universityDescription || '' }} />
+            <div className="flex">
+              <p className="mr-2 min-w-fit font-semibold">Mô tả:</p>
+              <p>
+                <span dangerouslySetInnerHTML={{ __html: data?.data.universityDescription || '' }} />
+              </p>
             </div>
           </li>
         </ul>

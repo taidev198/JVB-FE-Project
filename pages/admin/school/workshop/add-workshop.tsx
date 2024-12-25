@@ -94,11 +94,8 @@ const AddWorkshop = () => {
     }
   };
   useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data.message }));
-    }
     dispatch(setLoading(isLoadingFaculies || isLoadingAddworksop));
-  }, [dispatch, isLoadingFaculies, isLoadingAddworksop, data?.message, isSuccess]);
+  }, [dispatch, isLoadingFaculies, isLoadingAddworksop]);
 
   return (
     <div className="">
