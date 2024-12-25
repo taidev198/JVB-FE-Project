@@ -1,8 +1,8 @@
 // types/workshop.ts
 
-import { IAddress } from "./addressesTypes";
-import { IImg } from "./imgWorkShopType";
-import { IUniversity } from "./university";
+import { IAddress } from './addressesTypes';
+import { IImg } from './imgWorkShopType';
+import { IUniversity } from './university';
 
 export interface JobWork {
   id: number;
@@ -13,10 +13,9 @@ export interface JobWork {
   estimateCompanyParticipants: number;
   agenda: string;
   moderationStatus: string;
-  university: IUniversity,
+  university: IUniversity;
   address: IAddress;
   imageWorkshops: IImg;
 }
-
 
 // ---------------------company--------------------

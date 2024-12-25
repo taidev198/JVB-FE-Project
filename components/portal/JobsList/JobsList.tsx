@@ -183,7 +183,8 @@ const WorkshopsList: React.FC = () => {
                 ) : paginatedJobs.length > 0 ? (
                   <div className="grid grid-cols-1 gap-[30px] lg:grid-cols-2 ">
                     {paginatedJobs.map(job => (
-                      <div
+                      <Link
+                        href={`/portal/jobs/${job.id}`}
                         key={job.id}
                         className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
                         <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
@@ -222,7 +223,7 @@ const WorkshopsList: React.FC = () => {
                               : 'Thỏa thuận'}
                           </span>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 ) : (

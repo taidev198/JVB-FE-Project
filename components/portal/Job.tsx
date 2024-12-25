@@ -2,11 +2,12 @@ import { useGetJobsQuery } from '@/services/portalHomeApi';
 import { formatCurrencyVND, formatJobType } from '@/utils/app/format';
 import Link from 'next/link';
 import ImageComponent from '../Common/Image';
-const Job = () => {
+import PortalLoading from './common/PortalLoading';
+const Job: React.FC = () => {
   const { data: jobs, isLoading, error } = useGetJobsQuery({ page: 1, size: 6 });
   // eslint-disable-next-line no-console
   console.log(jobs);
-  if (isLoading) return <p>Loading jobs...</p>;
+  if (isLoading) return <PortalLoading />;
   if (error) return <p>Error loading jobs.</p>;
 
   return (

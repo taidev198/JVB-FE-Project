@@ -3,15 +3,15 @@ import Head from 'next/head';
 import React from 'react';
 import Banner from '../components/Portal/Banner';
 import OurProcess from '../components/Portal/OurProcess';
-import PortalLayout from '@/layouts/Portal/PortalLayout';
+
 import Brand from '@/components/Portal/Brand';
-import Majors from '@/components/Portal/Majors';
-import Job from '@/components/Portal/Job';
-import WhyWe from '@/components/Portal/WhyWe';
 import FeedBack from '@/components/Portal/FeedBack';
+import Job from '@/components/Portal/Job';
+import Majors from '@/components/Portal/Majors';
 import Statistic from '@/components/Portal/Statistic';
+import WhyWe from '@/components/Portal/WhyWe';
 import Workshop from '@/components/Portal/Workshop';
-import { ConfigProvider } from 'antd';
+import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface HomeProps {
   serverSideApiKeyIsSet: boolean;

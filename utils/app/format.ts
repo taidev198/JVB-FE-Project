@@ -1,6 +1,7 @@
 import { format, isValid } from 'date-fns';
 import { parse } from 'date-fns';
 import dayjs from 'dayjs';
+import { jobLever } from './const';
 
 export const formatDate = (date: string | null): string => {
   if (!date) {
@@ -74,6 +75,17 @@ export const convertSchoolType = (schoolType: string): string => {
   return schoolTypeMapping[schoolType] || 'Không xác định';
 };
 
+export const formatJobLevel = (jobLever: string): string => {
+  const jobLeverMapping: Record<string, string> = {
+    INTERN: 'Intern',
+    FRESHER: 'Freshers',
+    JUNIOR: 'Junior',
+    MIDDLE: 'Middle',
+    SENIOR: 'Senior',
+  };
+  return jobLeverMapping[jobLever] || 'Chưa xác định';
+};
+
 export const formatDateDD_thang_MM_yyyy = (dateTimeStr: string | null): string => {
   if (!dateTimeStr) {
     return '';
@@ -83,6 +95,10 @@ export const formatDateDD_thang_MM_yyyy = (dateTimeStr: string | null): string =
   const months = ['tháng 1', 'tháng 2', 'tháng 3', 'tháng 4', 'tháng 5', 'tháng 6', 'tháng 7', 'tháng 8', 'tháng 9', 'tháng 10', 'tháng 11', 'tháng 12'];
 
   return `${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}, ${months[date.getMonth()]}, ${date.getFullYear()}`;
+};
+
+export const formatSalaryVND = (amount: number): string => {
+  return `${(amount / 1_000_000).toFixed()} triệu`;
 };
 
 export const formatCurrencyVND = (value: number | null) => {

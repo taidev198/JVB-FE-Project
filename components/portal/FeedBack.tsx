@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import FeedBackSwiper from './common/FeedBackSwiper';
 
-const FeedBack = () => {
-  const swiperRef = useRef(null); // Khởi tạo tham chiếu đến Swiper
+const FeedBack: React.FC = () => {
+  const swiperRef = useRef(null);
 
   return (
     <section className="rts__section section__padding mp_section_padding bg-feedback-bg bg-cover bg-no-repeat">
@@ -19,7 +19,7 @@ const FeedBack = () => {
             role="button"
             aria-label="Next slide"
             aria-controls="swiper-wrapper-88109e76d8f5dd768"
-            onClick={() => swiperRef.current.swiper.slidePrev()} // Điều khiển slide Prev
+            onClick={() => swiperRef.current?.swiper?.slidePrev()} // Điều khiển slide Prev
           >
             <i className="fa-sharp fa-solid fa-chevron-left" />
           </div>
@@ -34,7 +34,7 @@ const FeedBack = () => {
             role="button"
             aria-label="Previous slide"
             aria-controls="swiper-wrapper-88109e76d8f5dd768"
-            onClick={() => swiperRef.current.swiper.slideNext()} // Điều khiển slide Next
+            onClick={() => swiperRef.current?.swiper?.slideNext()} // Điều khiển slide Next
           >
             <i className="fa-sharp fa-solid fa-chevron-right" />
           </div>

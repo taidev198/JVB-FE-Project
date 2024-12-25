@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import React from 'react';
-import PortalLayout from '@/layouts/Portal/PortalLayout';
+
 import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
 import JobsList from '@/components/Portal/JobsList/JobsList';
+import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface CompanyListProps {
   serverSideApiKeyIsSet: boolean;

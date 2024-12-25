@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Pagination, Spin, Empty } from 'antd';
-import Image from 'next/image';
+import { Empty, Pagination } from 'antd';
 import Link from 'next/link';
+import React, { useCallback, useEffect, useState } from 'react';
+import PortalLoading from '../common/PortalLoading';
 import SelectSearch from './SelectSearch';
-import { ICompany } from '@/types/companyType';
-import { useGetProvincesQuery, useGetCompaniesQuery, useGetFieldsQuery } from '@/services/portalHomeApi';
 import ImageComponent from '@/components/Common/Image';
+import { useGetCompaniesQuery, useGetFieldsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
+import { ICompany } from '@/types/companyType';
 
 const CompaniesList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -140,8 +140,8 @@ const CompaniesList: React.FC = () => {
 
         <div className="mt-[40px]">
           {isCompaniesLoading ? (
-            <div className="flex w-full items-center justify-center">
-              <Spin size="large" />
+            <div className=" my-[60px] flex w-full items-center justify-center">
+              <PortalLoading />
             </div>
           ) : paginatedCompanies.length > 0 ? (
             <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3">
@@ -179,7 +179,7 @@ const CompaniesList: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="flex w-full items-center justify-center">
+            <div className="my-[60px] flex w-full items-center justify-center">
               <Empty description="Không có dữ liệu" />
             </div>
           )}
