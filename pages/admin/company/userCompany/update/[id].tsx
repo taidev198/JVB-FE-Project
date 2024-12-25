@@ -10,7 +10,7 @@ import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Address from '@/components/Common/Address';
 import { useRouter } from 'next/router';
-import validationSchemaAddStudent from '@/validation/companyEmployee/validationAddEmployee';
+import validationSchemaAddStudent from '@/validation/companyEmployee/employee/validationAddEmployee';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
 import DateComponent from '@/components/Common/DateComponent';

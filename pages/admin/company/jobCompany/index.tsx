@@ -2,13 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm} from 'react-hook-form';
-
-import { Chip, IconButton, Tooltip, Pagination, TextField, Checkbox } from '@mui/material';
+import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import DeleteIcon from '@mui/icons-material/Delete';
-import BorderColorIcon from '@mui/icons-material/BorderColor';
-
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
@@ -16,7 +11,7 @@ import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/s
 import { BackDrop } from '@/components/Common/BackDrop';
 import { debounce } from 'lodash';
 import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
-import { setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import AddIcon from '@mui/icons-material/Add';
@@ -24,11 +19,11 @@ import { formatCurrencyVND } from '@/utils/app/format';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-
+import PaginationComponent from '@/components/Common/Pagination';
 
 
 interface FormDataRegisterCompany {
-  search_employee: string;
+  search_jobCompany: string;
 }
 
 const validationSchema = Yup.object({
@@ -42,6 +37,8 @@ const jobCompany = () => {
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const {
     formState: { errors },
   } = useForm<FormDataRegisterCompany>({
@@ -57,19 +54,24 @@ const jobCompany = () => {
     [dispatch]
   );
 
-  const {data: jobCompany, isLoading} = useGetAllCompanyJobQuery({ page, keyword, size, status}, { refetchOnMountOrArgChange: true })
-  console.log(jobCompany)
+  const {data: jobCompany, isLoading} = useGetAllCompanyJobQuery({  
+    status: status,
+    page: page,
+    size: size,
+    keyword,
+    startDate: startDate,
+    endDate: endDate,}, { refetchOnMountOrArgChange: true })
   
-  const [deleteC,{isLoading: isLoadingOne}] = useDeleteJobCompanyMutation()
+  const [deleteOne,{isLoading: isLoadingOne}] = useDeleteJobCompanyMutation()
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
   const handleDelete = async () => {
     try {
       if (selectedJob.length > 0) {
-        const response = await deleteMultiple({ ids: selectedJob }).unwrap();
-        toast.success(response.message);
+         await deleteMultiple({ ids: selectedJob }).unwrap();
+        toast.success('Các công việc đã được xóa thành công');
       } else {
-        const response = await deleteC({ id: idJob }).unwrap();
-        toast.success(response.message);
+        await deleteOne({ id: idJob }).unwrap();
+        toast.success('Công việc đã được xóa thành công');
       }
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -82,7 +84,7 @@ const jobCompany = () => {
       dispatch(setBackdrop(null));
     }
   };
-  console.log(selectedJob)
+
 
     const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.checked) {
@@ -98,6 +100,9 @@ const jobCompany = () => {
 
     useEffect(() => {
       dispatch(setLoading(isLoading || isLoadingOne || isLoadingMultiple));
+      return () => {
+        dispatch(resetFilters());
+      };
     }, [isLoading, dispatch, isLoadingMultiple, isLoadingOne]);
 
   return (
@@ -110,7 +115,7 @@ const jobCompany = () => {
 
           <TextField 
               id="filled-search" 
-              label="Tìm kiếm" 
+              label="Tìm kiếm công việc..." 
               type="search" 
               variant="outlined" 
               size="small" 
@@ -124,9 +129,10 @@ const jobCompany = () => {
             
             <MyButton 
               type="submit" 
-              text="Xóa tất cả " 
-              className='bg-red-600'
+              text="Xóa tất cả công việc " 
+              className="bg-red-custom"
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              disabled={!selectedJob.length}
                />
           </div>
         </div>
@@ -200,9 +206,14 @@ const jobCompany = () => {
       )}
 
       {/* Pagination */}
-      <div className="flex justify-center bg-white p-5">
-        <Pagination count={jobCompany?.data.totalPages} page={page} onChange={(value, event) => dispatch(setPage(event))}  color="primary" shape="rounded" />
-      </div>
+      <PaginationComponent
+          count={jobCompany?.data.totalPages}
+          page={page}
+          onPageChange={(event, value) => dispatch(setPage(value))}
+          size={size}
+          totalItem={jobCompany?.data.totalElements}
+          totalTitle={'Công việc'}
+        />
     </>
   )
 }

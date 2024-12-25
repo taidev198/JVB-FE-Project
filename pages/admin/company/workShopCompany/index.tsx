@@ -1,19 +1,23 @@
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import PaginationComponent from '@/components/Common/Pagination';
 import { useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
-import { setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setName } from '@/store/slices/global';
 import { statusTextWorkshop } from '@/utils/app/const';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Checkbox, Chip, TextField } from '@mui/material';
 import { debounce } from 'lodash';
+import Select from 'react-select';
 import { useMemo, useState } from 'react';
 import { useForm, } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
+import makeAnimated from 'react-select/animated';
 import * as Yup from 'yup';
+const animatedComponents = makeAnimated();
 
 
 interface FormDataRegisterCompany {
@@ -33,6 +37,7 @@ const workShopCompany = () => {
   const [selectedWorkShop, setselectedWorkShop] = useState<number[]>([]);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+    const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
 
 
   const {
@@ -41,9 +46,10 @@ const workShopCompany = () => {
     resolver: yupResolver(validationSchema),
   });
 
-  const handleOpenConfirm = (id: number) => {
-    setSelectId(id);
-    dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+  const handleAction = (actionType: BackdropType, JobsId: number) => {
+    setSelectId(JobsId);
+    setSelectedAction(actionType);
+    dispatch(setBackdrop(actionType));
   };
 
   const debouncedSearch = useMemo(
@@ -68,9 +74,29 @@ const workShopCompany = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Quản lý yêu cầu workShop</h1>
-        <div className="flex items-center gap-3 justify-between">
-        <div className="w-[220px]">
-             <TextField id="filled-search" label="Tìm kiếm" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
+        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3">
+            <TextField 
+              id="filled-search" 
+              label="Tìm kiếm tên...." 
+              type="search" 
+              variant="outlined" 
+              size="small" 
+              onChange={e => debouncedSearch(e.target.value)} />
+
+            <Select
+              placeholder="Trạng thái"
+              closeMenuOnSelect={true}
+              components={animatedComponents}
+              options={[
+                { value: '', label: 'Tất cả' },
+                { value: 'PENDING', label: 'Chờ duyệt' },
+                { value: 'ACCEPT', label: 'Đã duyệt' },
+                { value: 'CANCEL', label: 'Từ chối' },
+              ]}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              className="w-[160px] cursor-pointer"
+            />
           </div>
         </div>
       </div>
@@ -119,16 +145,29 @@ const workShopCompany = () => {
                   />
                 </td>
 
-                 <td className="py-4">
-                    <div className="flex items-center justify-center gap-2">
-                      <ButtonDelete
-                        onClick={() => {
-                          handleOpenConfirm(item.workshop.id);
-                          dispatch(setName(item.workshop.workshopTitle));
-                        }}
-                      />
+                <td className="py-4">
+                    <div className="flex items-center justify-center gap-3">
+                      {item.workshop.moderationStatus === 'PENDING' && (
+                        <>
+                          <ButtonReject
+                            onClick={() => {
+                              handleAction(BackdropType.RefuseConfirmation, item.workshop.id);
+                              dispatch(setName(item.workshop.workshopTitle));
+                            }}
+                          />
+                        </>
+                      )}
+
+                      {item.workshop.moderationStatus !== 'PENDING' && (
+                        <ButtonDelete
+                          onClick={() => {
+                            handleAction(BackdropType.DeleteConfirmation, item.workshop.id);
+                            dispatch(setName(item.workshop.workshopTitle));
+                          }}
+                        />
+                      )}
                     </div>
-                  </td>
+                </td>
               </tr>
             ))}
           </tbody>

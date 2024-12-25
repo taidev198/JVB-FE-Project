@@ -1,11 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
-// import { number } from 'yup';
 import { IProfileCompany, IProfileCompanyRespone } from '@/types/profileCompany';
 import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
-// import { method, result } from 'lodash';
-// import { error } from 'console';
 import { WorkshopResponse } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 
@@ -32,13 +29,18 @@ export const adminCompanyApi = createApi({
       }),
 
       //employe
-      getAllCompanyEmploye: builder.query<ICompanyAllResponse, { page: number; size: number; keyword: string; status: string }>({
-        query: ({ page, size, keyword, status }) => {
+      getAllCompanyEmploye: builder.query<
+        ICompanyAllResponse,
+        { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null }
+      >({
+        query: ({ page, size, keyword, status, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
 
           return `/company/company-employees?${queryParams.toString()}`;
         },
@@ -94,23 +96,28 @@ export const adminCompanyApi = createApi({
         }),
       }),
 
-      updateProfile: builder.mutation<any, { data: any; id: number | null }>({
-        query: ({ data, id }) => ({
+      updateProfile: builder.mutation({
+        query: (args: { formData: FormData }) => ({
           url: `/company/update-current`,
           method: 'PUT',
-          body: data,
+          body: args.formData,
         }),
         invalidatesTags: ['Job'],
       }),
 
       //JOBCOMPANY
-      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string; status: string }>({
-        query: ({ page, size, keyword, status }) => {
+      getAllCompanyJob: builder.query<
+        IJobAllResponse,
+        { page: number | null; size: number | null; keyword: string | null; status: string | null; startDate: Date | null; endDate: Date | null }
+      >({
+        query: ({ page, size, keyword, status, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
 
           return `/company/get_all_jobs?${queryParams.toString()}`;
         },
@@ -120,7 +127,7 @@ export const adminCompanyApi = createApi({
         query: ({ id }) => ({
           url: `/company/get_detail/${id}`,
         }),
-        // providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Employee', id }] : []),
+        providesTags: ['Job'],
       }),
       deleteJobCompany: builder.mutation({
         query: ({ id }) => ({
@@ -131,7 +138,7 @@ export const adminCompanyApi = createApi({
       }),
       deleteAllJobCompany: builder.mutation<any, { ids: number[] }>({
         query: ({ ids }) => ({
-          url: `/company/delete_multi_job`,
+          url: `/delete_multi_job`,
           method: 'DELETE',
           body: { ids },
         }),
@@ -156,7 +163,10 @@ export const adminCompanyApi = createApi({
       }),
 
       // WORKSHOP
-      getAllWorkShopCompany: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null;}>({
+      getAllWorkShopCompany: builder.query<
+        WorkshopResponse,
+        { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null }
+      >({
         query: ({ page, size, keyword, status, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
@@ -189,6 +199,7 @@ export const {
   useDeleteEmployeeCompanyMutation,
   useDeleteAllEmployeeCompanyMutation,
   useGetDetailProfileQuery,
+  useUpdateProfileMutation,
   useGetAllCompanyJobQuery,
   useGetDetailCompanyJobQuery,
   useDeleteJobCompanyMutation,

@@ -1,129 +1,127 @@
 
+import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
+import DomainIcon from '@mui/icons-material/Domain';
 import PhoneIcon from '@mui/icons-material/Phone';
-import PaymentsIcon from '@mui/icons-material/Payments';
 import InsertCommentIcon from '@mui/icons-material/InsertComment';
-import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import HorizontalSplitIcon from '@mui/icons-material/HorizontalSplit';
-import AddLinkIcon from '@mui/icons-material/AddLink';
-import React, { useEffect, useState } from 'react';
-import { useAppDispatch } from '@/store/hooks';
-import { setLoading } from '@/store/slices/global';
-import { useGetDetailProfileQuery } from '@/services/adminCompanyApi';
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { Chip, IconButton } from '@mui/material';
 import { Button } from '@/components/Common/Button';
-import Image from 'next/image';
-import Link from 'next/link';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import DescriptionIcon from '@mui/icons-material/Description';
-
-const profileCompany = () => {
-  // const [image, setImage] = useState<File[]>([]);
-  const dispatch = useAppDispatch();
-  const { data: profile, isLoading } = useGetDetailProfileQuery();
-  console.log(profile);
-
+import { setLoading } from '@/store/slices/global';
+import ImageComponent from '@/components/Common/Image';
+import { useGetDetailProfileQuery } from '@/services/adminCompanyApi';
+import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
+const DetailCompany = () => {
+  const dispatch = useDispatch();
+  const { data: detailCompany, isLoading } = useGetDetailProfileQuery(undefined, { refetchOnMountOrArgChange: true });
   useEffect(() => {
     dispatch(setLoading(isLoading));
   }, [dispatch, isLoading]);
 
   return (
-    <div className="bg-primary-white p-5 rounded-lg">
-     <div className="">
-      <Link href={'/admin/company/profileCompany'}>
-        <IconButton>
-          <ArrowBackIcon />
-        </IconButton>
-      </Link>
-      Trở về
-      <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Chi tiết công ty </h1>
-    </div>
-      {/* Block 2 */}
-      <div className="grid grid-cols-1 gap-4 rounded-lg bg-primary-white ">
-
+    <div className="rounded-2xl bg-white pb-[90px]">
+      <div className="p-5">
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thông tin hồ sơ trường </h1>
       </div>
-      {/* Info */}
+
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
-      <div className="flex items-center gap-[30px] ">
-          <div className="rounded-[50%] bg-[#F1F1F1] p-6">
-            <Image src={profile?.data?.logoUrl ?? ''} alt="name" width={75} height={75} />
+        <div className="flex items-center gap-[30px] ">
+          <div className="rounded-[50%] bg-[#F1F1F1] p-5">
+            <ImageComponent
+              src={detailCompany?.data?.logoUrl}
+              alt={detailCompany?.data?.companyName}
+              width={80}
+              height={80}
+              className="rounded-cover h-20 rounded-full"
+            />
           </div>
           <div>
-            <h2 className="text-xl font-bold">{profile?.data.companyName}</h2>
+            <h2 className="text-xl font-bold">{detailCompany?.data.companyName}</h2>
             <Link href={'#'}>
-              <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin công ty</p>
+              <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin hồ sơ công ty</p>
             </Link>
           </div>
         </div>
-
         <ul className="">
-
           <li className="mt-5 flex items-center gap-3">
-          <DeviceHubIcon sx={{ color: '#757575' }} />
+            <DeviceHubIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mã công ty:</span> {profile?.data.companyCode}
+              <span className="mr-2 font-semibold">Mã công ty:</span> {detailCompany?.data.companyCode}
             </div>
           </li>
 
           <li className="mt-5 flex items-center gap-3">
             <EmailIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Email:</span> {profile?.data.email}
+              <span className="mr-2 font-semibold">Email:</span> {detailCompany?.data.account.email}
             </div>
           </li>
 
           <li className="mt-5 flex items-center gap-3">
-            <AddLinkIcon sx={{ color: '#757575' }} />
+            <EmojiEventsIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Linkwebsite:</span> <Link href={profile?.data.linkWebsite || '#'}>{profile?.data.linkWebsite}</Link>
+              <span className="mr-2 font-semibold">Link Website:</span> {detailCompany?.data.linkWebsite}
             </div>
           </li>
 
           <li className="mt-4 flex items-center  gap-3 ">
             <AccessTimeIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Ngày thành lập:</span> {profile?.data.establishedDate}
+              <span className="mr-2 font-semibold">Ngày thành lập:</span> {detailCompany?.data.establishedDate}
             </div>
           </li>
 
           <li className="mt-4 flex items-center  gap-3 ">
+            <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Số lượng nhân viên:</span>
+              {detailCompany?.data.quantityEmployee}
+            </div>
+          </li>
+
+          <li className="mt-4 flex items-center  gap-3 ">
+            <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Mã code:</span>
+              {detailCompany?.data.taxCode}
+            </div>
+          </li>
+
+          <li className="mt-5 flex items-center gap-3">
             <PhoneIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Số điện thoại:</span> {profile?.data.phoneNumber}
+              <span className="mr-2 font-semibold">Số điện thoại:</span> {detailCompany?.data.phoneNumber}
             </div>
           </li>
-
           <li className="mt-4 flex items-center  gap-3 ">
-            <PaymentsIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Mã code:</span> {profile?.data.taxCode}
-            </div>
-          </li>
-
-          <li className="mt-4 flex items-center  gap-3 ">
-            <InsertCommentIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Mô tả ngắn gọn:</span> {profile?.data.companyShortDescription}
-            </div>
-          </li>
-
-          <li className="mt-4 flex items-center gap-3 ">
             <div className="mb-auto">
               <DescriptionIcon sx={{ color: '#757575' }} />
             </div>
             <div>
               <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
-              {profile?.data.companyDescription}
+              <p dangerouslySetInnerHTML={{ __html: detailCompany?.data.companyDescription ?? '' }}></p>
             </div>
           </li>
-
-          <li className="mt-5 flex items-center gap-3">
-            <AddLocationAltIcon sx={{ color: '#757575' }} />
+          <li className="mt-4 flex items-center  gap-3 ">
+            <div className="mb-auto">
+              <InsertCommentIcon sx={{ color: '#757575' }} />
+            </div>
             <div>
-              <span className="mr-2 font-semibold">Địa chỉ:</span> {profile?.data.address.houseNumber}, {profile?.data.address.ward.wardName},{' '}
-              {profile?.data.address.district.districtName}, {profile?.data.address.province.provinceName}
+              <span className="mr-2 font-semibold">Mô tả ngắn gọn:</span>
+              <p dangerouslySetInnerHTML={{ __html: detailCompany?.data.companyShortDescription ?? '' }}></p>
+            </div>
+          </li>
+          <li className="mt-5 flex items-center gap-3">
+            <DomainIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Địa chỉ:</span> {detailCompany?.data.address.houseNumber}, {detailCompany?.data.address.ward.wardName},{' '}
+              {detailCompany?.data.address.district.districtName}, {detailCompany?.data.address.province.provinceName}
             </div>
           </li>
 
@@ -133,23 +131,21 @@ const profileCompany = () => {
               <span className="mr-2 font-semibold" style={{ fontWeight: 'bold' }}>
                 Lĩnh vực:
               </span>
-              {profile?.data.fields.map(field => (
+              {detailCompany?.data.fields.map(field => (
                 <Chip key={field.id} label={field.fieldName} color="primary" variant="outlined" style={{ fontSize: '14px' }} />
               ))}
             </div>
           </li>
         </ul>
-
-        <div className="mt-9 flex items-center gap-5 justify-center">
-          <Link href={'/admin/company/profileCompany/updateProfile'}>
-            <Button  text="Sửa hồ sơ công ty" full={true} />
+        <div className="mt-9 flex items-center justify-center gap-5">
+          <Link href={`/admin/company/profileCompany/updateProfile`}>
+            <Button text="Sửa hồ sơ công ty" full={true} />
           </Link>
         </div>
       </div>
     </div>
   );
 };
-
-export default profileCompany;
+export default DetailCompany;
 
 
