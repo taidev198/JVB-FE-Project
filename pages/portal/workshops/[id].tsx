@@ -1,5 +1,5 @@
 // pages/portal/companies/[id].tsx
-import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
+import { CalendarOutlined, EnvironmentOutlined, StockOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert } from 'antd';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -12,7 +12,7 @@ import GoogleMap from '@/components/Portal/common/MapCard';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 import { useGetWorkshopDetailsQuery } from '@/services/portalHomeApi';
-import { formatJobLevel, formatJobType, formatSalaryVND } from '@/utils/app/format';
+import { formatWorkshopStatus } from '@/utils/app/format';
 
 interface WorkshopDetailsProps {
   serverSideApiKeyIsSet: boolean;
@@ -46,8 +46,8 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
   return (
     <>
       <Head>
-        <title>JobLink - {workshopDetails?.jobTitle}</title>
-        <meta name="description" content={workshopDetails?.jobTitle || 'Trang chi tiết công việc'} />
+        <title>JobLink - {workshopDetails?.workshopTitle}</title>
+        <meta name="description" content={workshopDetails?.university?.universityName || 'Trang chi tiết workshop'} />
         <meta name="viewport" content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no" />
         <link rel="icon" href="/favicon.ico" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
@@ -56,11 +56,11 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
       <PortalLayout type="workshop-detail">
         <main>
           <BreadCrumbHeaderDetail
-            title={workshopDetails?.workshopTitle || 'Tên công việc'}
+            title={workshopDetails?.workshopTitle || 'Tên workshop'}
             schoolType={workshopDetails?.university?.universityName}
             address={`${workshopDetails?.address?.houseNumber},${workshopDetails?.address?.ward.wardName}, ${workshopDetails?.address?.district.districtName}, ${workshopDetails?.address?.province.provinceName}`}
             logo={workshopDetails?.university?.logoUrl}
-            currentPage="Chi tiết công việc"
+            currentPage="Chi tiết workshop'}"
             buttonText="Tham gia ngay"
           />
           <div className="mp_section_padding">
@@ -68,13 +68,13 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
               <div className="flex flex-col gap-[30px] lg:basis-7/12 xl:basis-8/12">
                 <div className="overview rounded-[10px] bg-custom-gradient-1 p-[30px]">
                   <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Tổng quan về workshop</h3>
-                  <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2">
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
                         <CalendarOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="block text-lg font-medium text-primary-black">Hạn ứng tuyển</span>
+                        <span className="block text-lg font-medium text-primary-black">Thời gian bắt đầu</span>
                         <span className="block text-primary-gray">{workshopDetails?.startTime}</span>
                       </div>
                     </div>
@@ -83,48 +83,27 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
                         <CalendarOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="block text-lg font-medium text-primary-black">Số người</span>
+                        <span className="block text-lg font-medium text-primary-black">Thời gian kết thúc</span>
                         <span className="block text-primary-gray">{workshopDetails?.endTime}</span>
                       </div>
                     </div>
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <PhoneOutlined className="text-lg text-primary-main" />
+                        <TeamOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="block text-lg font-medium text-primary-black">Trình độ</span>
-                        <span className="block text-primary-gray">{workshopDetails?.jobLevel && formatJobLevel(workshopDetails?.jobLevel)}</span>
+                        <span className="block text-lg font-medium text-primary-black">Số công ty ước tính</span>
+                        <span className="block text-primary-gray">{workshopDetails?.estimateCompanyParticipants}</span>
                       </div>
                     </div>
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <EnvironmentOutlined className="text-lg text-primary-main" />
+                        <StockOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="block text-lg font-medium text-primary-black">Hình thức làm việc</span>
-                        <span className="block text-primary-gray">{formatJobType(workshopDetails?.jobType)}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-[15px]">
-                      <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <BookOutlined className="text-lg text-primary-main" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="block text-lg font-medium text-primary-black">Thời gian làm việc</span>
-                        <span className="block text-primary-gray">{workshopDetails?.workTime}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-[15px]">
-                      <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <MailOutlined className="text-lg text-primary-main" />
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="block text-lg font-medium text-primary-black">Mức lương</span>
-
+                        <span className="block text-lg font-medium text-primary-black">Trạng thái</span>
                         <span className="block text-primary-gray">
-                          {workshopDetails?.salaryType === 'FIXED'
-                            ? `${formatSalaryVND(workshopDetails?.minSalary)} - ${formatSalaryVND(workshopDetails?.maxSalary)}`
-                            : 'Thỏa thuận'}
+                          {workshopDetails?.isDelete ? 'Đã hủy' : formatWorkshopStatus(workshopDetails?.workshopStatus)}
                         </span>
                       </div>
                     </div>

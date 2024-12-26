@@ -1,4 +1,3 @@
-import { getUserState, logOut } from '@/store/slices/user';
 import { ExportOutlined, MenuOutlined } from '@ant-design/icons';
 import { Drawer, Dropdown, Menu, Space } from 'antd';
 import Link from 'next/link';
@@ -6,7 +5,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ImageComponent from '../Common/Image';
-import Logo from '../Logo';
+import { getUserState, logOut } from '@/store/slices/user';
 
 const PortalHeader: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);

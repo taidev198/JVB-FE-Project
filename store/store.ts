@@ -11,6 +11,7 @@ import { portalHomeApi } from '@/services/portalHomeApi';
 import { adminSystemApi } from '@/services/adminSystemApi';
 import { adminSchoolApi } from '@/services/adminSchoolApi';
 import { adminCompanyApi } from '@/services/adminCompanyApi';
+import roleRestrictionPortalMiddleware from '@/middlewares/roleRestrictionPortalMiddleware';
 
 const PERSIST_CONFIG = {
   root: {
@@ -40,7 +41,7 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(adminSystemApi.middleware, adminSchoolApi.middleware, adminCompanyApi.middleware, portalHomeApi.middleware),
+    }).concat(roleRestrictionPortalMiddleware, adminSystemApi.middleware, adminSchoolApi.middleware, adminCompanyApi.middleware, portalHomeApi.middleware),
 });
 
 export const persistor = persistStore(store);
