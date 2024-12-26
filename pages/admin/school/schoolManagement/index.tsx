@@ -102,13 +102,11 @@ const DetailSchoolManagement = () => {
               <span className="mr-2 font-semibold">Số điện thoại:</span> {detailSchool?.data.phoneNumber}
             </div>
           </li>
-          <li className="mt-4 flex items-center  gap-3 ">
-            <div className="mb-auto">
-              <DescriptionIcon sx={{ color: '#757575' }} />
-            </div>
+          <li className="mt-5 flex items-center gap-3">
+            <DomainIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
-              <span dangerouslySetInnerHTML={{ __html: detailSchool?.data.universityDescription ?? '' }}></span>
+              <span className="mr-2 font-semibold">Địa chỉ:</span> {detailSchool?.data.address.houseNumber}, {detailSchool?.data.address.ward.wardName},{' '}
+              {detailSchool?.data.address.district.districtName}, {detailSchool?.data.address.province.provinceName}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
@@ -120,11 +118,13 @@ const DetailSchoolManagement = () => {
               {detailSchool?.data.universityShortDescription}
             </div>
           </li>
-          <li className="mt-5 flex items-center gap-3">
-            <DomainIcon sx={{ color: '#757575' }} />
+          <li className="mt-4 flex items-center  gap-3 ">
+            <div className="mb-auto">
+              <DescriptionIcon sx={{ color: '#757575' }} />
+            </div>
             <div>
-              <span className="mr-2 font-semibold">Địa chỉ:</span> {detailSchool?.data.address.houseNumber}, {detailSchool?.data.address.ward.wardName},{' '}
-              {detailSchool?.data.address.district.districtName}, {detailSchool?.data.address.province.provinceName}
+              <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
+              <span dangerouslySetInnerHTML={{ __html: detailSchool?.data.universityDescription ?? '' }}></span>
             </div>
           </li>
         </ul>

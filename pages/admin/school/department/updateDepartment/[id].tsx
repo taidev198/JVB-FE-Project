@@ -5,6 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import toast from 'react-hot-toast';
 import Text from '@/components/Common/Text';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -12,7 +13,6 @@ import { useDetailDepartmentsQuery, useUpdateDepartmentMutation } from '@/servic
 import validationSchemaUpdateDepartment from '@/components/Admin/school/Department/validationUpdateDepartment';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataUpdateDepartment {

@@ -6,13 +6,13 @@ import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import toast from 'react-hot-toast';
 import validationSchemaAddDepartment from '../../../../components/Admin/school/Department/validationAddDepartment';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import Text from '@/components/Common/Text';
 import { useAddDepartmentMutation } from '@/services/adminSchoolApi';
 import { setLoading } from '@/store/slices/global';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataAddDepartment {

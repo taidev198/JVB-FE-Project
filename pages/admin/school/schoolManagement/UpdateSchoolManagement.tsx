@@ -70,7 +70,6 @@ const UpdateSchoolManagement = () => {
     }
   }, [detailSchool?.data.logoUrl]);
   const [updateSchool, { isLoading }] = useUpdateSchoolMutation();
-  console.log(detailSchool);
   const onSubmit: SubmitHandler<FormDataAddStudent> = async data => {
     const formData = new FormData();
     const universityRequest = {
@@ -256,7 +255,6 @@ const UpdateSchoolManagement = () => {
             />
           </div>
           <div className="mt-[16px]">
-            
             <Controller
               name="universityDescription"
               control={control}
