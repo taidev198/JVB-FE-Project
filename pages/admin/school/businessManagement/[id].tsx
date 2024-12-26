@@ -1,6 +1,5 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Chip, IconButton } from '@mui/material';
-
 import Link from 'next/link';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
@@ -8,10 +7,9 @@ import StarBorderIcon from '@mui/icons-material/StarBorder';
 import DescriptionIcon from '@mui/icons-material/Description';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
-
+import { useEffect } from 'react';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { useEffect } from 'react';
 import { setLoading } from '@/store/slices/global';
 import { useGetDetailBusinessQuery } from '@/services/adminSchoolApi';
 const DetalBusinessManagement = () => {

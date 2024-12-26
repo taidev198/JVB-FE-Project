@@ -2,19 +2,19 @@ import React, { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { IconButton } from '@mui/material';
+import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import Text from '@/components/Common/Text';
-import { setBackdrop, setLoading } from '@/store/slices/global';
-import { Button } from '@/components/Common/Button';
-import Input from '@/components/Common/Input';
-import { useRouter } from 'next/router';
+import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useRouter } from 'next/router';
+import Text from '@/components/Common/Text';
+import { setLoading } from '@/store/slices/global';
+import { Button } from '@/components/Common/Button';
+import ValidationSchemaUpdateBusiness from '@/components/Admin/school/Business/validationUpdateBusiness ';
+import Input from '@/components/Common/Input';
 import { useAppSelector } from '@/store/hooks';
 import SelectReact from '@/components/Common/SelectMui';
 import { useGetAllFieldsQuery, useGetAllMajorByQuery, useGetDetailBusinessQuery, useUpdateBusinessMutation } from '@/services/adminSchoolApi';
-import ValidationSchemaUpdateBusiness from '@/components/Admin/school/Business/validationUpdateBusiness ';
-import Link from 'next/link';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataUpdateBusiness {
@@ -48,9 +48,7 @@ const UpdateBusiness = () => {
       try {
         await updateBusiness({ formData: data, id: idBusiness }).unwrap();
         toast.success('Sửa ngành học thành công');
-        if (response) {
-          router.push('/admin/school/businessManagement');
-        }
+        router.push('/admin/school/businessManagement');
       } catch (error) {
         if (isFetchBaseQueryError(error)) {
           const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
