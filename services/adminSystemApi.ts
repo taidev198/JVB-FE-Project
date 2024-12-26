@@ -5,7 +5,7 @@ import { DistrictsResponse, ProvinceResponse, WardResponse } from '@/types/addre
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
-import { IPartnershipsSchoolResponse } from '@/types/jobAndPartnershipsSchoolType';
+import { IPartnershipsSchoolResponse, IPartnershipsUniversityResponse } from '@/types/jobAndPartnershipsSchoolType';
 import { IJobAllResponseAdminSystem } from '@/types/jobCompany';
 
 export const adminSystemApi = createApi({
@@ -240,46 +240,43 @@ export const adminSystemApi = createApi({
         providesTags: ['Partnerships'],
       }),
 
+      getAllPartnershipsCompany: builder.query<IPartnershipsUniversityResponse, { page: number; size: number; url: string; keyword: string }>({
+        query: ({ page, size, url, keyword }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', String(keyword));
+
+          return `${url}?${queryParams.toString()}`;
+        },
+        providesTags: ['Partnerships'],
+      }),
+
       acceptPartnerships: builder.mutation({
-        query: ({ accountLoginId, acceptToAccountId }) => ({
+        query: ({ accountLoginId, toDoAccountId, doBy }) => ({
           url: `/partnership/acceptConnect`,
           method: 'POST',
-          body: { accountLoginId, acceptToAccountId },
+          body: { accountLoginId, toDoAccountId, doBy },
         }),
-        invalidatesTags: (result, error, { acceptToAccountId }) => [
-          { type: 'Partnerships', acceptToAccountId },
-          { type: 'Partnerships', acceptToAccountId },
-          { type: 'Partnerships' },
-          { type: 'Partnerships' },
-        ],
+        invalidatesTags: () => [{ type: 'Partnerships' }],
       }),
 
       cancelPartnerships: builder.mutation({
-        query: ({ accountLoginId, cancelToAccountId }) => ({
+        query: ({ accountLoginId, toDoAccountId, doBy }) => ({
           url: `/partnership/cancelConnect`,
           method: 'POST',
-          body: { accountLoginId, cancelToAccountId },
+          body: { accountLoginId, toDoAccountId, doBy },
         }),
-        invalidatesTags: (result, error, { cancelToAccountId }) => [
-          { type: 'Partnerships', cancelToAccountId },
-          { type: 'Partnerships', cancelToAccountId },
-          { type: 'Partnerships' },
-          { type: 'Partnerships' },
-        ],
+        invalidatesTags: () => [{ type: 'Partnerships' }],
       }),
 
       removePartnerships: builder.mutation({
-        query: ({ accountLoginId, removeToAccountId }) => ({
+        query: ({ accountLoginId, toDoAccountId, doBy }) => ({
           url: `/partnership/removeConnect`,
           method: 'POST',
-          body: { accountLoginId, removeToAccountId },
+          body: { accountLoginId, toDoAccountId, doBy },
         }),
-        invalidatesTags: (result, error, { removeToAccountId }) => [
-          { type: 'Partnerships', removeToAccountId },
-          { type: 'Partnerships', removeToAccountId },
-          { type: 'Partnerships' },
-          { type: 'Partnerships' },
-        ],
+        invalidatesTags: () => [{ type: 'Partnerships' }],
       }),
 
       // Job
@@ -344,6 +341,7 @@ export const {
   useGetAllAccountSchoolQuery,
   useGetDetailAccountSchoolQuery,
   useGetAllPartnershipsUniversityQuery,
+  useGetAllPartnershipsCompanyQuery,
   useAcceptPartnershipsMutation,
   useCancelPartnershipsMutation,
   useRemovePartnershipsMutation,

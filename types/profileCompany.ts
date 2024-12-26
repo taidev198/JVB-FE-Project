@@ -16,6 +16,12 @@ export interface IProfileCompany {
   establishedDate: string;
   fields: IFields[];
   address: IAddress;
+  quantityEmployee: number;
+  account: {
+    id: number;
+    email: string;
+    statusAccount: string;
+  };
 }
 
 export interface IProfileCompanyRespone {

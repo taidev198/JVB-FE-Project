@@ -1,4 +1,17 @@
-import { ExportOutlined, MenuOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  CloseOutlined,
+  ContainerOutlined,
+  DesktopOutlined,
+  EditOutlined,
+  ExportOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+  MailOutlined,
+  MenuOutlined,
+  PieChartOutlined,
+  SettingOutlined,
+} from '@ant-design/icons';
 import { Drawer, Dropdown, Menu, Space } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -68,7 +81,7 @@ const PortalHeader: React.FC = () => {
       label: (
         <a onClick={handleLogout} className="flex items-center justify-between">
           <span>Đăng xuất</span>
-          <i className="fa-solid fa-arrow-right-from-bracket"></i>
+          <LogoutOutlined />
         </a>
       ),
     },
@@ -82,25 +95,145 @@ const PortalHeader: React.FC = () => {
   const onClose = () => {
     setVisible(false);
   };
-  const menuItems = token
-    ? roleAccount === 'UNIVERSITY'
-      ? [
-          { key: 'home', label: <Link href="/">Trang chủ</Link> },
-          { key: 'jobs', label: <Link href="/portal/jobs">Việc Làm</Link> },
-          { key: 'companies', label: <Link href="/portal/companies">Công Ty</Link> },
-        ]
-      : roleAccount === 'COMPANY'
-      ? [
-          { key: 'home', label: <Link href="/">Trang chủ</Link> },
-          { key: 'workshops', label: <Link href="/portal/workshops">Workshop</Link> },
-          { key: 'schools', label: <Link href="/portal/schools">Trường học</Link> },
-        ]
-      : [] // Default hoặc role không xác định
-    : [
-        // Khi chưa đăng nhập
-        { key: 'login', label: <Link href="/auth/login">Đăng nhập</Link> },
-        { key: 'register', label: <Link href="/auth/Register">Đăng ký</Link> },
-      ];
+  // const menuItems = token
+  //   ? roleAccount === 'UNIVERSITY'
+  //     ? [
+  //         { key: 'home', label: <Link href="/">Trang chủ</Link> },
+  //         { key: 'jobs', label: <Link href="/portal/jobs">Việc Làm</Link> },
+  //         { key: 'companies', label: <Link href="/portal/companies">Công Ty</Link> },
+  //       ]
+  //     : roleAccount === 'COMPANY'
+  //     ? [
+  //         { key: 'home', label: <Link href="/">Trang chủ</Link> },
+  //         { key: 'workshops', label: <Link href="/portal/workshops">Workshop</Link> },
+  //         { key: 'schools', label: <Link href="/portal/schools">Trường học</Link> },
+  //       ]
+  //     : [] // Default hoặc role không xác định
+  //   : [
+  //       // Khi chưa đăng nhập
+  //       { key: 'login', label: <Link href="/auth/login">Đăng nhập</Link> },
+  //       { key: 'register', label: <Link href="/auth/Register">Đăng ký</Link> },
+  //     ];
+
+  const getMenuItems = (roleAccount: string, token: boolean, handleLogout: () => void) => {
+    const baseItems = [
+      {
+        key: '1',
+        icon: <AppstoreOutlined />,
+        label: (
+          <Link href="/" className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Trang chủ</span>
+          </Link>
+        ),
+      },
+    ];
+
+    const universityItems = [
+      {
+        key: '2',
+        icon: <DesktopOutlined />,
+        label: (
+          <Link href="/portal/jobs" className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Việc làm</span>
+          </Link>
+        ),
+      },
+      {
+        key: '3',
+        icon: <ContainerOutlined />,
+        label: (
+          <Link href="/portal/companies" className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Công ty</span>
+          </Link>
+        ),
+      },
+    ];
+
+    const companyItems = [
+      {
+        key: '2',
+        icon: <DesktopOutlined />,
+        label: (
+          <Link href="/portal/workshops" className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Workshop</span>
+          </Link>
+        ),
+      },
+      {
+        key: '3',
+        icon: <ContainerOutlined />,
+        label: (
+          <Link href="/portal/schools" className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Trường học</span>
+          </Link>
+        ),
+      },
+    ];
+
+    const sharedItems = [
+      {
+        key: 'sub1',
+        label: (
+          <a className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Cài đặt</span>
+          </a>
+        ),
+        icon: <SettingOutlined />,
+        children: [
+          { key: '5', label: 'Option 5' },
+          { key: '6', label: 'Option 6' },
+          { key: '7', label: 'Option 7' },
+          { key: '8', label: 'Option 8' },
+        ],
+      },
+      {
+        key: '4',
+        label: (
+          <a onClick={handleLogout} className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Đăng xuất</span>
+          </a>
+        ),
+        icon: <LogoutOutlined />,
+      },
+    ];
+
+    const guestItems = [
+      {
+        key: '1',
+        icon: <LoginOutlined />,
+        label: (
+          <Link href="/auth/login" className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Đăng nhập</span>
+          </Link>
+        ),
+      },
+      {
+        key: '2',
+        icon: <EditOutlined />,
+        label: (
+          <Link href="/auth/Register" className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Đăng ký</span>
+          </Link>
+        ),
+      },
+    ];
+
+    if (!token) {
+      return guestItems;
+    }
+
+    if (roleAccount === 'UNIVERSITY') {
+      return [...baseItems, ...universityItems, ...sharedItems];
+    }
+
+    if (roleAccount === 'COMPANY') {
+      return [...baseItems, ...companyItems, ...sharedItems];
+    }
+
+    return [];
+  };
+
+  const menuItems: MenuItem[] = getMenuItems(roleAccount, token, handleLogout);
 
   useEffect(() => {
     const header = document.getElementsByTagName('header')[0];
@@ -169,14 +302,14 @@ const PortalHeader: React.FC = () => {
                           <Link
                             href="/portal/jobs"
                             className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/jobs')}`}>
-                            Việc Làm
+                            Việc làm
                           </Link>
                         </li>
                         <li className="navigation__menu--item relative">
                           <Link
                             href="/portal/companies"
                             className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/companies')}`}>
-                            Công Ty
+                            Công ty
                           </Link>
                         </li>
                       </ul>
@@ -234,7 +367,7 @@ const PortalHeader: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="user__menu">
+                    <div className="user__menu hidden lg:block">
                       <div className="user_wrapper flex items-center justify-between gap-4">
                         <div className="user-avatar flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary-light">
                           <ImageComponent
@@ -245,7 +378,7 @@ const PortalHeader: React.FC = () => {
                             className="h-[45px] w-[45px] rounded-full  object-contain"
                           />
                         </div>
-                        <div className="user-info  hidden flex-col md:flex">
+                        <div className="user-info flex flex-col">
                           <span className="user-name text-primary-black">{user?.universityName || user?.companyName}</span>
                           <span className="user-role text-primary-gray">{roleAccount}</span>
                         </div>
@@ -264,15 +397,46 @@ const PortalHeader: React.FC = () => {
                     </div>
                   </>
                 )}
-                <MenuOutlined onClick={showDrawer} className="block cursor-pointer text-xl lg:hidden" />
-                {/* Drawer hiển thị menu */}
-                <Drawer title="Menu" placement="right" onClose={onClose} visible={visible} bodyStyle={{ padding: 0 }}>
-                  <Menu
-                    mode="inline"
-                    items={menuItems}
-                    onClick={onClose} // Đóng drawer khi chọn menu
-                  />
-                </Drawer>
+                <div>
+                  {/* Nút mở menu */}
+                  <MenuOutlined onClick={showDrawer} className="block cursor-pointer text-xl lg:hidden" />
+
+                  {/* Drawer chứa menu */}
+                  <Drawer
+                    placement="right"
+                    onClose={onClose}
+                    visible={visible}
+                    bodyStyle={{ padding: 0 }}
+                    closeIcon={null} // Hiển thị nút tắt
+                    title={
+                      <div className="flex items-center gap-4">
+                        <div className="user-avatar flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary-light">
+                          <ImageComponent
+                            src={user?.logoUrl || '/images/user-default.png'}
+                            alt="User Avatar"
+                            width={45}
+                            height={45}
+                            className="h-[45px] w-[45px] rounded-full object-contain"
+                          />
+                        </div>
+                        <div className="user-info flex flex-col">
+                          <span className="user-name text-primary-black">{user?.universityName || user?.companyName}</span>
+                          <span className="user-role text-primary-gray">{roleAccount}</span>
+                        </div>
+                      </div>
+                    }>
+                    <Menu
+                      mode="inline"
+                      items={menuItems}
+                      onClick={onClose} // Đóng Drawer khi chọn menu
+                    />
+                  </Drawer>
+
+                  {/* Menu dạng sidebar cho màn hình lớn */}
+                  <div style={{ width: 256, display: 'none', lgDisplay: 'block' }}>
+                    <Menu defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']} mode="inline" items={menuItems} />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

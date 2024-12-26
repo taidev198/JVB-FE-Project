@@ -1,7 +1,7 @@
-
 import IconDepartment from '@/assets/icons/iconNavbarAdminSchool/icon-department.svg';
-import IconJob from '@/assets/icons/iconNavbarAdminSchool/icon-job.svg';
+// import IconJob from '@/assets/icons/iconNavbarAdminSchool/icon-job.svg';
 import IconSchool from '@/assets/icons/iconNavbarAdminSchool/icon-school.svg';
+import IconHand from '@/assets/icons/iconNavbarAdminSchool/icon-hand.svg';
 import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
 import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
 import IconWorkshop from '@/assets/icons/iconNavbar/workshop.svg';
@@ -39,6 +39,12 @@ export const litsNavbarAdminSchoolRouter = [
     icon: <IconDepartment />,
     url: '/admin/company/jobCompany',
     label: 'Quản lý job',
+  },
+  {
+    id: 8,
+    icon: <IconHand />,
+    url: '/admin/company/partnerships',
+    label: 'Quản lý hợp tác',
   },
   {
     id: 6,

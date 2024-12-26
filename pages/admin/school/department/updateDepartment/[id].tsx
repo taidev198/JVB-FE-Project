@@ -12,7 +12,8 @@ import { useDetailDepartmentsQuery, useUpdateDepartmentMutation } from '@/servic
 import validationSchemaUpdateDepartment from '@/components/Admin/school/Department/validationUpdateDepartment';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
-import { setToast } from '@/store/slices/toastSlice';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface FormDataUpdateDepartment {
   facultyCode: string;
@@ -43,14 +44,19 @@ const UpdateDepartment = () => {
   const onSubmit: SubmitHandler<FormDataUpdateDepartment> = async data => {
     if (IdDepartment) {
       try {
-        const response = await updateDepartment({ formData: data, id: IdDepartment }).unwrap();
-        if (response) {
-          await refetch();
-          router.push('/admin/school/department');
-        }
+        await updateDepartment({ formData: data, id: IdDepartment }).unwrap();
+        toast.success('Sửa khoa thành công');
+        router.push('/admin/school/department');
       } catch (error) {
-        console.error('Department ID is missing', error);
+        if (isFetchBaseQueryError(error)) {
+          const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+          toast.error(errMsg);
+        } else if (isErrorWithMessage(error)) {
+          toast.error(error.message);
+        }
       }
+    } else {
+      console.error('Ademic ID is missing');
     }
   };
 
@@ -59,19 +65,11 @@ const UpdateDepartment = () => {
       reset(department?.data);
     }
 
-    if (isSuccess) {
-      dispatch(setToast({ message: department?.message || 'Cập nhật thành công!' }));
-    }
-
     dispatch(setLoading(isLoadingDetailDepartment));
   }, [dispatch, isLoadingDetailDepartment, reset, department, isSuccess]);
-
-  const { refetch } = useDetailDepartmentsQuery({ id: IdDepartment });
-
   return (
     <div className="rounded-lg ">
       <form onSubmit={handleSubmit(onSubmit)} className="h h-screen w-full rounded-lg bg-white px-5">
-        {/* Icon */}
         <div className="p-5">
           <Link href={'/admin/school/department'}>
             <IconButton>
@@ -130,13 +128,7 @@ const UpdateDepartment = () => {
             required={true}
           />
 
-          <Text
-            label="Mô tả khoa"
-            placeholder="Nhập mô tả khoa"
-            control={control}
-            error={errors.facultyDescription?.message}
-            {...register('facultyDescription')}
-          />
+          <Text label="Mô tả khoa" placeholder="Nhập mô tả khoa" control={control} {...register('facultyDescription')} />
           <div className="ml-auto w-fit">
             <Button text="Cập nhật" full={true} type="submit" />
           </div>

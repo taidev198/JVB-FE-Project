@@ -22,7 +22,7 @@ const DetailDepartment = () => {
 
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
-      {/* Icon */}
+    
       <div className="p-5">
         <Link href={'/admin/school/department'}>
           <IconButton>

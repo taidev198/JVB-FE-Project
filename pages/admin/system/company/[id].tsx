@@ -18,7 +18,7 @@ const AdminSystemDetailCompany = () => {
   const id = useAppSelector(state => state.global.id);
   const { data: AccountCompanyDetail } = useGetDetailAccountCompanyQuery({ id: Number(id) });
   return (
-    <div className="rounded-2xl bg-white pb-[90px]">
+    <div className="rounded-2xl bg-white p-3  pb-[90px] sm:p-0">
       {/* Icon */}
       <div className="p-5">
         <Link href={'/admin/system/company'}>
@@ -30,7 +30,7 @@ const AdminSystemDetailCompany = () => {
       </div>
       <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin tài khoản công ty </h1>
       {/* Info */}
-      <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
+      <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-4 sm:p-7">
         <div className="flex items-center gap-[30px] ">
           <div className="rounded-[50%] bg-[#F1F1F1] p-5">
             <ImageComponent
@@ -42,8 +42,8 @@ const AdminSystemDetailCompany = () => {
             />
           </div>
           <div>
-            <h2 className="text-xl font-bold">{AccountCompanyDetail?.data.companyName}</h2>
-            <Link href={'#'}>
+            <h2 className="text-lg font-bold lg:text-xl">{AccountCompanyDetail?.data.companyName}</h2>
+            <Link href={`/portal/companies/${AccountCompanyDetail.data.id}`}>
               <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin công ty</p>
             </Link>
           </div>
@@ -82,28 +82,24 @@ const AdminSystemDetailCompany = () => {
             </div>
           </li>
           <li className="mt-4 flex items-center gap-3">
-            <div>
-              <div className="flex items-center gap-3">
-                <TrafficIcon sx={{ color: '#757575' }} />
-                <span className="mr-2 font-semibold">Trạng thái:</span>
-                <Chip
-                  label={typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').title}
-                  style={{
-                    backgroundColor: typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').bg,
-                    color: typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').color,
-                  }}
-                />
-              </div>
+            <div className="flex items-center gap-3">
+              <TrafficIcon sx={{ color: '#757575' }} />
+              <span className="mr-2 font-semibold">Trạng thái:</span>
+              <Chip
+                label={typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').title}
+                style={{
+                  backgroundColor: typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').bg,
+                  color: typeAccount(AccountCompanyDetail?.data.account.statusAccount ?? '').color,
+                }}
+              />
             </div>
           </li>
           <li className="mt-4">
             <div className="mb-3 flex flex-wrap items-center gap-3">
               <WidgetsIcon sx={{ color: '#757575' }} />
               <p className="mr-2 w-fit font-semibold">Lĩnh vực:</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
               {AccountCompanyDetail?.data.fields.map(field => (
-                <Chip label={field?.fieldName ?? ''} key={field.id} variant="outlined" color="success" />
+                <Chip label={field?.fieldName ?? ''} key={field.id} variant="outlined" color="info" />
               ))}
             </div>
           </li>

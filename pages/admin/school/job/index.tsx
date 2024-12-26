@@ -28,7 +28,7 @@ const Partnerships = () => {
   const [selectedJobsId, setSelectedJobsId] = useState<number | null>(null);
   const [selectedMajorId, setSelectedMajorId] = useState<number | null>(null);
   const [major, setMajor] = useState<number | null>(null);
-  const { data: dataMajor } = useGetAllMajorsQuery();
+  const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const debouncedSearch = useMemo(
     () =>
@@ -98,7 +98,6 @@ const Partnerships = () => {
   }, [dispatch, isLoadingGetAll, isLoadingCancel, isLoadingDelete]);
   return (
     <>
-      {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách công việc đã ứng tuyển</h1>
         <div className="flex items-center gap-3">
@@ -142,7 +141,7 @@ const Partnerships = () => {
           </div>
         </div>
       </div>
-      {/* Table */}
+
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
@@ -189,7 +188,7 @@ const Partnerships = () => {
                         </>
                       )}
 
-                      {job.status !== 'PENDING' && (
+                      {job.status === 'CANCEL' && (
                         <ButtonDelete
                           onClick={() => {
                             handleAction(BackdropType.DeleteConfirmation, job.job.id, job.major.id);

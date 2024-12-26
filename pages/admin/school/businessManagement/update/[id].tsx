@@ -46,8 +46,8 @@ const UpdateBusiness = () => {
   const onSubmit: SubmitHandler<FormDataUpdateBusiness> = async data => {
     if (idBusiness) {
       try {
-        const response = await updateBusiness({ formData: data, id: idBusiness }).unwrap();
-        toast.success(response.message);
+        await updateBusiness({ formData: data, id: idBusiness }).unwrap();
+        toast.success('Sửa ngành học thành công');
         if (response) {
           router.push('/admin/school/businessManagement');
         }

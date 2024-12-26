@@ -73,12 +73,9 @@ const UpdateStudent = () => {
 
   const { data: majors } = useGetAllMajorsQuery();
   const [updateStudent, { isLoading }] = useUpdateStudentMutation();
-
   const onSubmit: SubmitHandler<FormDataAddStudent> = async data => {
-    const formData = new FormData();
-
-    // Append dữ liệu JSON dưới dạng chuỗi
-    const studentRequest = {
+  const formData = new FormData();
+  const studentRequest = {
       studentCode: data.studentCode,
       fullName: data.fullName,
       email: data.email,
@@ -98,7 +95,7 @@ const UpdateStudent = () => {
     formData.append('file', image as File);
 
     try {
-      const response = await updateStudent({ formData: formData, id: id }).unwrap();
+      await updateStudent({ formData: formData, id: id }).unwrap();
       toast.success(response.message);
       router.push('/admin/school/students');
     } catch (error) {

@@ -7,8 +7,9 @@ import { Button, Checkbox, ConfigProvider, DatePicker, Empty, Form, Input, Pagin
 import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
 import SelectSearch from '../common/SelectSearch';
+import { useRouter } from 'next/router';
 
-const WorkshopsList: React.FC = () => {
+const JobsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -27,6 +28,20 @@ const WorkshopsList: React.FC = () => {
     size: 1000,
     keyword: searchTerm,
   });
+
+  const router = useRouter();
+  const { location, field } = router.query;
+
+  useEffect(() => {
+    if (location) {
+      setSelectedLocation(location as string);
+      form.setFieldsValue({ location });
+    }
+    if (field) {
+      setSelectedField(field as string);
+      form.setFieldsValue({ topic: field });
+    }
+  }, [location, field, form]);
 
   useEffect(() => {
     if (jobsData?.data.content) {
@@ -107,7 +122,7 @@ const WorkshopsList: React.FC = () => {
                     onChange={e => setSearchTerm(e.target.value)}
                   />
                 </Form.Item>
-                <Form.Item name="location" label="Địa điểm">
+                <Form.Item name="location" label="Địa điểm" initialValue={location}>
                   <SelectSearch
                     icon={<EnvironmentOutlined className="mr-[4px]" />}
                     label="Chọn địa điểm"
@@ -117,7 +132,7 @@ const WorkshopsList: React.FC = () => {
                   />
                 </Form.Item>
 
-                <Form.Item name="topic" label="Ngành nghề">
+                <Form.Item name="topic" label="Ngành nghề" initialValue={field}>
                   <SelectSearch
                     icon={<TagOutlined className="mr-[4px]" />}
                     label="Chọn ngành nghề"
@@ -253,4 +268,4 @@ const WorkshopsList: React.FC = () => {
   );
 };
 
-export default WorkshopsList;
+export default JobsList;

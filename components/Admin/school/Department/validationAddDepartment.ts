@@ -4,7 +4,7 @@ const validationSchemaAddDepartment = Yup.object({
   facultyName: Yup.string().required('Tên khoa là bắt buộc').max(50, 'Tên khoa không được quá 50 kí tự'),
   facultyCode: Yup.string().required('Mã khoa là bắt buộc').max(50, 'Mã khoa không được quá 50 kí tự'),
   establishYear: Yup.number()
-    .required('Năm thành lập là bắt buộc')
+
     .typeError('Năm thành lập phải là một số hợp lệ')
     .test('valid-year-format', 'Năm thành lập phải bao gồm đúng 4 chữ số', value => {
       return value && /^\d{4}$/.test(value.toString());
@@ -14,7 +14,7 @@ const validationSchemaAddDepartment = Yup.object({
       return value && value <= currentYear;
     }),
 
-  facultyDescription: Yup.string().required('Mô tả khoa là bắt buộc'),
+  facultyDescription: Yup.string(),
   nameDean: Yup.string().required('Tên trưởng khoa là bắt buộc').max(50, 'Tên trưởng khoa không được quá 50 kí tự'),
   address: Yup.string().required('Địa chỉ khoa cụ thể là bắt buộc').max(150, 'Địa chỉ không được quá 150 kí tự'),
 });

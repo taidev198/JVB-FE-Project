@@ -5,7 +5,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ImageComponent from './Image';
 
 interface ImageUploaderOneProps {
-  image: File | null | string; // Cập nhật để chấp nhận cả File và URL
+  image: File | null | string;
   setImage: (file: File | null | string) => void;
 }
 

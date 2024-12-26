@@ -20,11 +20,9 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 
 const detailJobCompany = () => {
   const idJobCompany = useAppSelector(state => state.global.id);
-  // console.log(idEmployee);
   
   const dispatch = useAppDispatch();
   const { data: jobCompany, isLoading } = useGetDetailCompanyJobQuery({ id: idJobCompany });
-  // console.log(employee);
   
   useEffect(() => {
     dispatch(setLoading(isLoading));
@@ -54,7 +52,7 @@ const detailJobCompany = () => {
                 <div className='mb-auto'>
                   <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
                 </div>
-                <div>
+                <div className='flex'>
                   <span className="mr-2 font-semibold">Yêu cầu:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.requirements ?? '' }}></p>
                 </div>
               </li>
@@ -76,7 +74,7 @@ const detailJobCompany = () => {
                 <div className='mb-auto'>
                   <CameraOutdoorIcon sx={{ color: '#757575' }} />
                 </div>
-                <div>
+                <div className='flex'>
                   <span className="mr-2 font-semibold">Phúc lợi:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.benifits ?? '' }}></p>
                 </div>
               </li>
@@ -108,8 +106,8 @@ const detailJobCompany = () => {
                 <div className='mb-auto'>
                   <DescriptionIcon sx={{ color: '#757575' }} />
                 </div>
-                <div className='mt-auto'>
-                  <span className="mr-2 font-semibold">Mô tả:</span> {jobCompany?.data.jobDescription}
+                <div className='mt-auto flex'>
+                  <span className="mr-2 font-semibold">Mô tả:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.jobDescription ?? '' }}></p>
                 </div>
               </li>
               <li className="mt-5 flex items-center  gap-3 ">

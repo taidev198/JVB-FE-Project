@@ -14,12 +14,12 @@ import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import {
   useAcceptPartnershipsMutation,
   useCancelPartnershipsMutation,
-  useGetAllPartnershipsUniversityQuery,
+  useGetAllPartnershipsCompanyQuery,
   useRemovePartnershipsMutation,
 } from '@/services/adminSystemApi';
 import ImageComponent from '@/components/Common/Image';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { countTimeDifference, StatusPartnership } from '@/utils/app/const';
+import { countTimeDifference, StatusPartnership, typeUniversityTitle } from '@/utils/app/const';
 import PaginationComponent from '@/components/Common/Pagination';
 import RemovePerson from '@/components/Common/ButtonIcon/RemovePerson';
 import ButtonAddPerson from '@/components/Common/ButtonIcon/AddPerson';
@@ -45,12 +45,12 @@ const JobAdminSchool = () => {
 
   const getUrl = () => {
     if (partnershipStatus === 'friend') {
-      return '/university-current';
+      return '/company-current';
     }
-    return `/universities/send-by-${partnershipStatus === 'invitation' ? 'company' : 'university'}`;
+    return `/companies/send-by-${partnershipStatus === 'invitation' ? 'university' : 'company'}`;
   };
 
-  const { data: partnerships, isLoading: isLoadingGetAll } = useGetAllPartnershipsUniversityQuery(
+  const { data: partnerships, isLoading: isLoadingGetAll } = useGetAllPartnershipsCompanyQuery(
     { page, size, keyword, url: `/partnership${getUrl()}` },
     { refetchOnMountOrArgChange: true }
   );
@@ -165,26 +165,26 @@ const JobAdminSchool = () => {
           <div className="p-5">
             <div className="flex flex-col flex-wrap justify-start gap-x-3 gap-y-4">
               {partnerships?.data.content.map(partner => (
-                <div className="rounded-lg border border-solid px-4 py-5" key={partner.company.id}>
+                <div className="rounded-lg border border-solid px-4 py-5" key={partner?.university.id}>
                   <div className="flex w-full flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center justify-between">
                       <ImageComponent
-                        src={partner.company.logoUrl}
-                        alt={partner.company?.companyName}
+                        src={partner.university?.logoUrl}
+                        alt={partner.university.universityName}
                         width={80}
                         height={80}
                         className="rounded-full border border-solid object-contain"
                         pro={partner.partnershipStatus === 'ACCEPT' ? true : false}
                       />
                       <div className="ml-0 font-semibold sm:ml-4">
-                        <h4 className="mb-[6px] font-semibold">{partner.company.companyName}</h4>
+                        <h4 className="mb-[6px] font-semibold">{partner.university.universityName}</h4>
                         <div className="flex items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
-                          <span>Mã công ty: {partner.company.companyCode}</span>
+                          <span>Mã trường học: {partner.university.universityCode}</span>
                           <span>
                             <LocationOnIcon fontSize="small" />
-                            {partner.company.address?.district.districtName}, {partner.company.address?.province.provinceName}
+                            {partner.university?.address?.district.districtName}, {partner.university?.address?.province.provinceName}
                           </span>
-                          <span>Mã số thuế: {partner.company.taxCode}</span>
+                          <span>Loại trường: {typeUniversityTitle(partner?.university.universityType).title}</span>
                         </div>
                       </div>
                     </div>
@@ -206,16 +206,16 @@ const JobAdminSchool = () => {
                     <div className="flex items-center gap-3">
                       <ButtonSee
                         onClick={() => {
-                          setSelectId(partner.company.id);
+                          setSelectId(partner.university.id);
                         }}
-                        href={`/portal/companies/${partner.company.id}`}
+                        href={`/portal/schools/${partner.university.id}`}
                       />
                       {partner.partnershipStatus === 'CANCEL' ? null : partner.partnershipStatus === 'ACCEPT' ? (
                         <RemovePerson
                           onClick={() => {
                             dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                            dispatch(setName(partner.company.companyName));
-                            setSelectId(partner.company.id);
+                            dispatch(setName(partner.university.universityName));
+                            setSelectId(partner.university.id);
                           }}
                         />
                       ) : (
@@ -224,29 +224,31 @@ const JobAdminSchool = () => {
                             <ButtonAddPerson
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.ApproveConfirmation));
-                                dispatch(setName(partner.company.companyName));
-                                setSelectId(partner.company.id);
+                                dispatch(setName(partner.university.universityName));
+                                setSelectId(partner.university.id);
                               }}
                             />
                           ) : (
                             ''
                           )}
-                          {partnershipStatus === 'friend' ? (
+                          {partnershipStatus === 'friend' && (
                             <RemovePerson
                               onClick={() => {
                                 dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                                dispatch(setName(partner.company.companyName));
-                                setSelectId(partner.company.id);
+                                dispatch(setName(partner.university.universityName));
+                                setSelectId(partner.university.id);
                               }}
                             />
-                          ) : (
-                            <Tooltip title="Từ chối">
+                          )}
+
+                          {partnershipStatus === 'request' && (
+                            <Tooltip title="Hủy yêu cầu ">
                               <div
                                 className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
                                 onClick={() => {
                                   dispatch(setBackdrop(BackdropType.RefuseConfirmation));
-                                  dispatch(setName(partner.company.companyName));
-                                  setSelectId(partner.company.id);
+                                  dispatch(setName(partner.university.universityName));
+                                  setSelectId(partner.university.id);
                                 }}>
                                 <CancelIcon color="warning" fontSize="small" />
                               </div>
