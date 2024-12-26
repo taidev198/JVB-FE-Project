@@ -35,7 +35,7 @@ const Workshop = () => {
               key={workshop.id}
               className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
               <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
-              <Link href={`/workshops/${workshop.id}`} className="blog__img">
+              <Link href={`/portal/workshops/${workshop.id}`} className="blog__img">
                 <img
                   src={workshop.imageWorkshops || '/images/default-workshop.png'}
                   className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
@@ -54,7 +54,7 @@ const Workshop = () => {
                   </span>
                 </div>
               </div>
-              <Link href={`/workshops/${workshop.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black">
+              <Link href={`/portal/workshops/${workshop.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black">
                 {workshop.workshopTitle}
               </Link>
               <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">{workshop.workshopDescription}</p>

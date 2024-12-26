@@ -149,8 +149,11 @@ const PortalHeader: React.FC = () => {
           }`}>
           <div className="">
             <div className="flex h-full items-center justify-between">
-              <Link href="/" className="rts__logo flex items-center">
-                <Logo />
+              <Link href="/images/logogif.gif" className="rts__logo flex items-center">
+                <ImageComponent src="/images/logogif.gif" alt="logo" width={60} height={60} className=" pointer-events-none h-auto object-cover" />
+                <h2 className="ml-2 font-logo text-3xl font-bold">
+                  <span className="text-primary-main">Job</span>Link
+                </h2>
               </Link>
               <div className="rts__menu flex h-[80px] items-center gap-[3rem] lg:h-[98px] lg:gap-[1.5rem] xl:gap-[3rem]">
                 {/* Hiển thị navigation nếu đã đăng nhập */}

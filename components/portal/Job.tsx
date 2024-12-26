@@ -24,7 +24,9 @@ const Job: React.FC = () => {
               key={job.id}
               className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
               <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
-              <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
+              <Link
+                href={`portal/jobs/${job.id}`}
+                className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
                 <ImageComponent
                   src={job.company.logoUrl || '/images/user-default.png'}
                   alt={job.company.companyName}
@@ -32,7 +34,7 @@ const Job: React.FC = () => {
                   width={50}
                   height={50}
                 />
-              </div>
+              </Link>
               <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">
                 <div className="flex items-center gap-2">
                   <i className="fa-solid fa-location-dot" /> {job.company.address.province.provinceName}
@@ -43,7 +45,7 @@ const Job: React.FC = () => {
                 </div>
               </div>
               <div className="my-4 text-2xl font-bold text-primary-black">
-                <Link href={`/jobs/${job.id}`} aria-label="job" className="line-clamp-2">
+                <Link href={`/portal/jobs/${job.id}`} aria-label="job" className="line-clamp-2">
                   {job.jobTitle}
                 </Link>
               </div>
