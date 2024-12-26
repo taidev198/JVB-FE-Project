@@ -43,7 +43,7 @@ const AdminSystemDetailCompany = () => {
           </div>
           <div>
             <h2 className="text-lg font-bold lg:text-xl">{AccountCompanyDetail?.data.companyName}</h2>
-            <Link href={`/portal/companies/${AccountCompanyDetail.data.id}`}>
+            <Link href={`/portal/companies/${AccountCompanyDetail?.data?.id}`}>
               <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin công ty</p>
             </Link>
           </div>

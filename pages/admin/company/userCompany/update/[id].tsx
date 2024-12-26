@@ -2,27 +2,26 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
+import dayjs from 'dayjs';
+import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Address from '@/components/Common/Address';
-import { useRouter } from 'next/router';
 import validationSchemaAddStudent from '@/validation/companyEmployee/employee/validationAddEmployee';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
 import DateComponent from '@/components/Common/DateComponent';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 import { useGetDetailEmployeeQuery, useUpdateEmployeeMutation } from '@/services/adminCompanyApi';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useAppSelector } from '@/store/hooks';
-import dayjs from 'dayjs';
-import { useDispatch } from 'react-redux';
 import { setLoading } from '@/store/slices/global';
-
 
 interface FormDataAddEmployee {
   employeeCode: string;
@@ -39,52 +38,48 @@ interface FormDataAddEmployee {
   dateOfBirth: Date;
   password: string;
   confirmPassword: string;
-  employeeStatus: string
-
+  employeeStatus: string;
 }
 
 const UpdateEmployee = () => {
-    const [image, setImage] = useState<File | string | null>(null);
-    const dispatch = useDispatch()
-    const router = useRouter();
-    const methods = useForm<FormDataAddEmployee>({
-      resolver: yupResolver(validationSchemaAddStudent),
-      mode: 'onChange',
-      defaultValues: {
-        wardId: null,
-        districtId: null,
-        provinceId: null,
-      },
-    });
+  const [image, setImage] = useState<File | string | null>(null);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const methods = useForm<FormDataAddEmployee>({
+    resolver: yupResolver(validationSchemaAddStudent),
+    mode: 'onChange',
+    defaultValues: {
+      wardId: null,
+      districtId: null,
+      provinceId: null,
+    },
+  });
 
-    const {
-      handleSubmit,
-      control,
-      reset,
-      formState: { errors },
-    } = methods;
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = methods;
 
-    console.log(errors)
-
-    const id = useAppSelector(state => state.global.id);
-    const [updateEmployee, {isLoading}] = useUpdateEmployeeMutation()
+  const id = useAppSelector(state => state.global.id);
+  const [updateEmployee, { isLoading }] = useUpdateEmployeeMutation();
 
   const onSubmit: SubmitHandler<FormDataAddEmployee> = async data => {
     const formData = new FormData();
 
     const companyEmployeeRequest = {
-      
       phoneNumber: data.phoneNumber,
       fullName: data.fullName,
       address: {
         houseNumber: data.houseNumber,
-        wardId: data.wardId
+        wardId: data.wardId,
       },
       employeePosition: data.employeePosition,
       dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
       gender: data.gender,
-      salary: data.salary
-    }
+      salary: data.salary,
+    };
 
     // Chuyển đổi đối tượng studentRequest thành chuỗi JSON và append vào FormData
     formData.append('companyEmployeeRequest', new Blob([JSON.stringify(companyEmployeeRequest)], { type: 'application/json' }));
@@ -104,9 +99,7 @@ const UpdateEmployee = () => {
     }
   };
 
-  const {data: detailEmployee} = useGetDetailEmployeeQuery({id})
-  console.log('detailEmployee', detailEmployee)
-  // console.log('data: ', data)
+  const { data: detailEmployee } = useGetDetailEmployeeQuery({ id });
   useEffect(() => {
     if (detailEmployee?.data) {
       reset({
@@ -122,12 +115,10 @@ const UpdateEmployee = () => {
         provinceId: detailEmployee.data.address.province.id,
         wardId: detailEmployee.data.address.ward.id,
         houseNumber: detailEmployee.data.address.houseNumber,
-
-      })
+      });
     }
-    dispatch(setLoading(isLoading))
-  }, [isLoading, dispatch, detailEmployee?.data, reset])
-
+    dispatch(setLoading(isLoading));
+  }, [isLoading, dispatch, detailEmployee?.data, reset]);
 
   return (
     <div className="rounded-lg bg-primary-white p-5">
@@ -150,20 +141,21 @@ const UpdateEmployee = () => {
           {/* Block 1 */}
           <div className="mt-8 grid grid-cols-1 gap-4 rounded-b-lg sm:grid-cols-2">
             {/* employee code */}
-            <Input name="employeeCode" control={control} error={errors.employeeCode?.message} placeholder="Mã nhân viên" label="Mã nhân viên" required={true} disabled={true} />
+            <Input
+              name="employeeCode"
+              control={control}
+              error={errors.employeeCode?.message}
+              placeholder="Mã nhân viên"
+              label="Mã nhân viên"
+              required={true}
+              disabled={true}
+            />
 
             {/* employee name */}
             <Input name="fullName" control={control} error={errors.fullName?.message} placeholder="Tên nhân viên" label="Tên nhân viên" required={true} />
 
             {/* dateofbirthday */}
-            <DateComponent
-              name="dateOfBirth"
-              control={control}
-              error={errors.dateOfBirth?.message}
-              placeholder="Ngày sinh"
-              label="Ngày sinh"
-              required={true}
-            />
+            <DateComponent name="dateOfBirth" control={control} error={errors.dateOfBirth?.message} placeholder="Ngày sinh" label="Ngày sinh" required={true} />
 
             {/* phonenumber */}
             <Input
@@ -205,7 +197,6 @@ const UpdateEmployee = () => {
 
             {/* lương */}
             <Input type="number" name="salary" label="Mức lương" required={true} placeholder="mức lương" control={control} error={errors.salary?.message} />
-
           </div>
           {/* Address */}
           <FormProvider {...methods}>
@@ -236,7 +227,7 @@ const UpdateEmployee = () => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default UpdateEmployee
+export default UpdateEmployee;

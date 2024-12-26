@@ -1,40 +1,37 @@
-
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
-
 import Link from 'next/link';
 import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
-// import DescriptionIcon from '@mui/icons-material/Description';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-// import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import PhoneIcon from '@mui/icons-material/Phone';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import { useEffect } from 'react';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useGetDetailEmployeeQuery } from '@/services/adminCompanyApi';
-import { useEffect } from 'react';
 import { setLoading } from '@/store/slices/global';
 import ImageComponent from '@/components/Common/Image';
+import { genderTitle } from '@/utils/app/const';
 
 const DetailUserCompany = () => {
   const idEmployee = useAppSelector(state => state.global.id);
   // console.log(idEmployee);
-  
+
   const dispatch = useAppDispatch();
   const { data: employee, isLoading } = useGetDetailEmployeeQuery({ id: idEmployee });
   // console.log(employee);
-  
+
   useEffect(() => {
     dispatch(setLoading(isLoading));
   }, [dispatch, isLoading]);
 
   return (
-    <div className="rounded-2xl bg-white pb-[90px]">
+    <div className="rounded-2xl bg-white p-3 pb-[90px]">
       {/* Icon */}
       <div className="p-5">
         <Link href={'/admin/company/userCompany'}>
@@ -46,14 +43,14 @@ const DetailUserCompany = () => {
       </div>
       <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin quản lý tài khoản nhân viên </h1>
       {/* Info */}
-      <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
+      <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-4 sm:p-7">
         <div className="flex items-center gap-[30px] ">
-        <div className="rounded-[50%] bg-[#F1F1F1] p-5">
+          <div className="rounded-[50%] bg-[#F1F1F1] p-5">
             <ImageComponent src={employee?.data?.avatarUrl} alt={employee?.data?.fullName} width={75} height={75} className="rounded-full" />
           </div>
           <div>
             <Link href={'#'}>
-            <h2 className="text-xl font-bold">{employee?.data.fullName}</h2>
+              <h2 className="text-lg font-bold lg:text-xl">{employee?.data.fullName}</h2>
               <p className="text-primary-gray">Chi tiết nhân viên</p>
             </Link>
           </div>
@@ -92,7 +89,7 @@ const DetailUserCompany = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <PersonOutlineIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Giới tính:</span> {employee?.data.gender}
+              <span className="mr-2 font-semibold">Giới tính:</span> {genderTitle(employee?.data.gender)}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
@@ -110,7 +107,8 @@ const DetailUserCompany = () => {
           <li className="mt-4 flex items-center  gap-3 ">
             <AddLocationAltIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Địa chỉ:</span> {employee?.data.address.houseNumber},{employee?.data.address.ward.wardName},{employee?.data.address.district.districtName},{employee?.data.address.province.provinceName}
+              <span className="mr-2 font-semibold">Địa chỉ:</span> {employee?.data.address.houseNumber},{employee?.data.address.ward.wardName},
+              {employee?.data.address.district.districtName},{employee?.data.address.province.provinceName}
             </div>
           </li>
         </ul>
@@ -119,4 +117,3 @@ const DetailUserCompany = () => {
   );
 };
 export default DetailUserCompany;
-;

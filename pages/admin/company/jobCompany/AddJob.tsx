@@ -1,21 +1,20 @@
 import { IconButton } from '@mui/material';
-import Input from '@/components/Common/Input';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SelectMui from '@/components/Common/SelectMui';
+import { useRouter } from 'next/router';
+import { yupResolver } from '@hookform/resolvers/yup';
 import Link from 'next/link';
-import React, { useState } from 'react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import toast from 'react-hot-toast';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import validationSchemaAddJob from '@/validation/companyEmployee/job/validationAddJob';
-import { yupResolver } from '@hookform/resolvers/yup';
 import TextEditor from '@/components/Common/TextEditor';
 import { Button } from '@/components/Common/Button';
 import { useGetAllFieldsQuery } from '@/services/adminSchoolApi';
 import SelectReact from '@/components/Common/SelectMui';
 import { formatDateSearch } from '@/utils/app/format';
 import { useAddJobMutation } from '@/services/adminCompanyApi';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { useRouter } from 'next/router';
+import SelectMui from '@/components/Common/SelectMui';
+import Input from '@/components/Common/Input';
 interface FormDataAddJob {
   job_title: number;
   job_description: string;
@@ -33,7 +32,7 @@ interface FormDataAddJob {
   salary_type: string;
 }
 const AddJob = () => {
-  const router = useRouter()
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -47,8 +46,6 @@ const AddJob = () => {
     },
   });
 
-  console.log(errors, 'errors')
-
   const salaryType = watch('salary_type');
   const { data: faculties } = useGetAllFieldsQuery();
 
@@ -60,9 +57,9 @@ const AddJob = () => {
       expiration_date: formatDateSearch(data.expiration_date),
     };
     try {
-      const response = await addJob(newData).unwrap();
-      toast.success(response.message);
-      router.push('/admin/company/jobCompany')
+      await addJob(newData).unwrap();
+      toast.success('Thêm mới công việc thành công');
+      router.push('/admin/company/jobCompany');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
@@ -88,7 +85,14 @@ const AddJob = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
           {/* tiêu đề */}
-          <Input name="job_title" control={control} error={errors.job_title?.message} placeholder="Tiêu đề công việc" label="Tiêu đề công việc" required={true} />
+          <Input
+            name="job_title"
+            control={control}
+            error={errors.job_title?.message}
+            placeholder="Tiêu đề công việc"
+            label="Tiêu đề công việc"
+            required={true}
+          />
           {/* mô tả */}
           <div className="mt-5 grid grid-cols-1 gap-4">
             <Controller
@@ -113,7 +117,14 @@ const AddJob = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Yêu cầu" required={true} error={errors.requirements?.message} />
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Yêu cầu"
+                  required={true}
+                  error={errors.requirements?.message}
+                />
               )}
             />
 
@@ -123,7 +134,14 @@ const AddJob = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Phúc lợi" required={true} error={errors.benifits?.message} />
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Phúc lợi"
+                  required={true}
+                  error={errors.benifits?.message}
+                />
               )}
             />
           </div>
@@ -144,7 +162,14 @@ const AddJob = () => {
             />
 
             {/* time làm vc */}
-            <Input  name="work_time" control={control} error={errors.work_time?.message} placeholder="Thời gian làm việc" label="Thời gian làm việc" required={true}/>
+            <Input
+              name="work_time"
+              control={control}
+              error={errors.work_time?.message}
+              placeholder="Thời gian làm việc"
+              label="Thời gian làm việc"
+              required={true}
+            />
 
             <SelectReact
               name="job_field"
@@ -156,7 +181,7 @@ const AddJob = () => {
                 label: faculty.fieldName,
               }))}
               control={control}
-              isMultiple = {true}
+              isMultiple={true}
               error={errors.job_field?.message}
             />
             {/* Trình độ */}
@@ -176,21 +201,37 @@ const AddJob = () => {
             />
 
             {/*Ngày hết hạn */}
-            <Input type="date" name="expiration_date" control={control} error={errors.expiration_date?.message} placeholder="Ngày hết hạn" required={true} label="Ngày hết hạn" />
+            <Input
+              type="date"
+              name="expiration_date"
+              control={control}
+              error={errors.expiration_date?.message}
+              placeholder="Ngày hết hạn"
+              required={true}
+              label="Ngày hết hạn"
+            />
 
             {/* số lượng */}
-            <Input name="member_of_candidate" control={control} error={errors.member_of_candidate?.message} placeholder="Số lượng tuyển" required={true} label="Số lượng tuyển" />
+            <Input
+              name="member_of_candidate"
+              control={control}
+              error={errors.member_of_candidate?.message}
+              placeholder="Số lượng tuyển"
+              required={true}
+              label="Số lượng tuyển"
+            />
 
             {/* Lương: cao */}
           </div>
 
-          <div className="grid grid-cols-3 items-center gap-5 mt-5">
+          <div className="mt-5 grid grid-cols-3 items-center gap-5">
             <SelectMui
               name="salary_type"
               label="Loại lương"
               required={true}
               placeholder="Nhập loại lương"
               control={control}
+              error={errors.salary_type?.message}
               options={[
                 { value: 'NEGOTIABLE', label: 'Thỏa thuận' },
                 { value: 'FIXED', label: 'Cố định' },

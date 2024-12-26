@@ -6,15 +6,15 @@ const validationSchemaAddStudent = Yup.object({
 
   gender: Yup.string().oneOf(['MALE', 'FEMALE', 'OTHER'], 'Giới tính phải là Nam, Nữ hoặc Khác').required('Giới tính là bắt buộc'),
   email: Yup.string()
-    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không đúng định dạng')
     .required('Email là bắt buộc')
+    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không đúng định dạng')
     .max(50, 'Email không được quá 50 kí tự'),
   phoneNumber: Yup.string()
     .required('Số điện thoại là bắt buộc')
     .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
-  employeePosition: Yup.string().required('Chức vụ không được để trống').max(100, 'Chức vụ không được quá 100 kí tự'),
+  employeePosition: Yup.string().required('Chức vụ là bắt buộc').max(100, 'Chức vụ không được quá 100 kí tự'),
   dateOfBirth: Yup.date()
-    .required('Ngày sinh không được để trống')
+    .required('Ngày sinh là bắt buộc')
     .nullable()
     .transform((value, originalValue) => {
       if (originalValue === '') return null;
@@ -23,15 +23,10 @@ const validationSchemaAddStudent = Yup.object({
     .test('is-not-null', 'Ngày sinh thể là rỗng', value => value !== null),
 
   salary: Yup.number()
+    .transform(value => (Number.isNaN(value) ? null : value))
     .nullable()
-    .positive('Lương phải là một số dương')
-    .max(100000000, 'Lương không được vượt quá 100 triệu')
-    .optional()
-    .transform((value, originalValue) => {
-      if (originalValue === '') return null;
-      return value;
-    })
-    .test('is-not-null', 'Mức lương không thể là rỗng', value => value !== null),
+    .required('Lương là bắt buộc')
+    .positive('Lương phải là số dương'),
 
   houseNumber: Yup.string().required('Địa chỉ cụ thể là bắt buộc').max(150, 'Địa chỉ cụ thể không được quá 150 kí tự'),
   districtId: Yup.string().required('Quận/Huyện là bắt buộc').max(150, 'Quận/Huyện không được quá 150 kí tự'),

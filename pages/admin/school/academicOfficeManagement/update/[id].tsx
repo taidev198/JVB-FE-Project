@@ -7,7 +7,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import { setLoading } from '@/store/slices/global';
-import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
+import ImageUploaderOne from '@/components/Common/zzImageUploaderOne';
 import Link from 'next/link';
 import { gender } from '@/utils/app/const';
 import SelectReact from '@/components/Common/SelectMui';

@@ -104,6 +104,19 @@ export const StatusJob = (status: string): AccountStatus => {
   }
 };
 
+export const StatusJobCompanyApply = (status: string): AccountStatus => {
+  switch (status) {
+    case 'PENDING':
+      return { title: 'Chờ duyệt', color: '#FFA726', bg: '#fffae5' };
+    case 'ACCEPT':
+      return { title: 'Tham gia', color: '#359d65', bg: '#ebf9f1' };
+    case 'CANCEL':
+      return { title: 'Không tham gia', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
 export const StatusPartnership = (status: string): AccountStatus => {
   switch (status) {
     case 'PENDING':
