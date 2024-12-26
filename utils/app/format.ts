@@ -2,6 +2,7 @@ import { format, isValid } from 'date-fns';
 import { parse } from 'date-fns';
 import dayjs from 'dayjs';
 import { jobLever } from './const';
+import { CANCELLED } from 'dns';
 
 export const formatDate = (date: string | null): string => {
   if (!date) {
@@ -103,4 +104,14 @@ export const formatSalaryVND = (amount: number): string => {
 
 export const formatCurrencyVND = (value: number | null) => {
   return value ? value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : null;
+};
+
+export const formatWorkshopStatus = (status: string): string => {
+  const statusMapping: Record<string, string> = {
+    UPCOMING: 'Sắp diễn ra',
+    ONGOING: 'Đang diễn ra',
+    FINISHED: 'Đã diễn ra',
+    CANCELLED: 'Huỷ',
+  };
+  return statusMapping[status] || 'Không xác định';
 };

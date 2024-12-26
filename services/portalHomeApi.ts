@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ProvinceResponse } from '@/types/addressesTypes';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
-import { IFieldsPortal } from '@/types/fieldPortalHomeTypes';
+import { FieldsResponsePortal, IFieldsPortal } from '@/types/fieldPortalHomeTypes';
 import { FieldsResponse } from '@/types/fields';
 import { IJobAllResponsePortal, IJobByCompanyResponse, IJobDetailResponse } from '@/types/jobCompany';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
@@ -103,8 +103,8 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch fields count job
-    getFieldsCountJob: builder.query<IFieldsPortal, void>({
-      query: () => `/portal/fields/jobs`,
+    getFieldsCountJob: builder.query<FieldsResponsePortal, void>({
+      query: () => `/portal/field/jobs`,
     }),
   }),
 });
@@ -122,4 +122,5 @@ export const {
   useGetJobsCompanyQuery,
   useGetSchoolDetailsQuery,
   useGetWorkshopsUniversityQuery,
+  useGetFieldsCountJobQuery,
 } = portalHomeApi;
