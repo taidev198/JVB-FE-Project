@@ -13,8 +13,7 @@ interface MajorsSwiperProps {
 
 const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
   const { data: fieldsData, isLoading, error } = useGetFieldsCountJobQuery();
-  console.log(fieldsData, 'firstData');
-  // Mapping field names to images
+
   const fieldImages: Record<string, string> = {
     'Kế toán tài chính': '/images/tc.png',
     'Quản lý hình ảnh thương hiệu': '/images/ha.png',
