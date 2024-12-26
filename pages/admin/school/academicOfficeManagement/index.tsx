@@ -1,20 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Checkbox, TextField } from '@mui/material';
 import Link from 'next/link';
-import PaginationComponent from '@/components/Common/Pagination';
+import toast from 'react-hot-toast';
 import AddIcon from '@mui/icons-material/Add';
+import { useDispatch } from 'react-redux';
+import { debounce } from 'lodash';
+import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
-import AddAdemic from '@/pages/admin/school/academicOfficeManagement/addAdemic';
 import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
-import { debounce } from 'lodash';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { genderTitle } from '@/utils/app/const';
@@ -25,8 +24,6 @@ const AcademicOfficeManagement = () => {
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size } = useAppSelector(state => state.filter);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
   const debouncedSearch = useMemo(
     () =>
@@ -68,8 +65,6 @@ const AcademicOfficeManagement = () => {
       page: page,
       size: size,
       keyword,
-      startDate: startDate,
-      endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -191,7 +186,7 @@ const AcademicOfficeManagement = () => {
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa {name}?</h3>
+            <h3 className="font-bold">Bạn có chắc chắn muốn xóa giáo vụ {name} này không?</h3>
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn giáo vụ khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
@@ -207,7 +202,7 @@ const AcademicOfficeManagement = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={academicOfficeManagement?.data.totalElements}
-        totalTitle={'Giáo vụ'}
+        totalTitle={'giáo vụ'}
       />
     </>
   );

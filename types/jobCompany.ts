@@ -34,7 +34,7 @@ export interface IJobCompanyPortal {
   jobLevel: string;
   expirationDate: string;
   memberOfCandidate: number;
-  company: ICompany[];
+  company: ICompany;
   fields: IFields[];
   status: string;
   salaryType: string;

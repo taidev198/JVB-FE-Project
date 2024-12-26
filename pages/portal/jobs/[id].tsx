@@ -1,5 +1,16 @@
 // pages/portal/companies/[id].tsx
-import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
+import {
+  BookOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  DollarOutlined,
+  EnvironmentOutlined,
+  LaptopOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  SolutionOutlined,
+  TeamOutlined,
+} from '@ant-design/icons';
 import { Alert } from 'antd';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -89,7 +100,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
                     </div>
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <PhoneOutlined className="text-lg text-primary-main" />
+                        <SolutionOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
                         <span className="block text-lg font-medium text-primary-black">Trình độ</span>
@@ -98,7 +109,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
                     </div>
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <EnvironmentOutlined className="text-lg text-primary-main" />
+                        <LaptopOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
                         <span className="block text-lg font-medium text-primary-black">Hình thức làm việc</span>
@@ -107,7 +118,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
                     </div>
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <BookOutlined className="text-lg text-primary-main" />
+                        <ClockCircleOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
                         <span className="block text-lg font-medium text-primary-black">Thời gian làm việc</span>
@@ -116,7 +127,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
                     </div>
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">
-                        <MailOutlined className="text-lg text-primary-main" />
+                        <DollarOutlined className="text-lg text-primary-main" />
                       </div>
                       <div className="flex flex-col">
                         <span className="block text-lg font-medium text-primary-black">Mức lương</span>

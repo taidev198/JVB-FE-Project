@@ -25,16 +25,17 @@ export const litsNavbarAdminSchoolRouter = [
   },
   {
     id: 3,
-    icon: <IconBusiness />,
-    url: '/admin/school/businessManagement',
-    label: 'Quản lý ngành học',
-  },
-  {
-    id: 4,
     icon: <IconDepartment />,
     url: '/admin/school/department',
     label: 'Quản lý khoa',
   },
+  {
+    id: 4,
+    icon: <IconBusiness />,
+    url: '/admin/school/businessManagement',
+    label: 'Quản lý ngành học',
+  },
+
   {
     id: 5,
     icon: <IconAcademic />,

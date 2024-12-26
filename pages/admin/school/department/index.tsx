@@ -1,3 +1,9 @@
+import { Checkbox, TextField } from '@mui/material';
+import { debounce } from 'lodash';
+import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import AddIcon from '@mui/icons-material/Add';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
@@ -9,17 +15,9 @@ import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import AddIcon from '@mui/icons-material/Add';
-import { Checkbox, TextField } from '@mui/material';
-import { debounce } from 'lodash';
-import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
-import toast from 'react-hot-toast';
 
 const Department = () => {
   const dispatch = useAppDispatch();
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
@@ -30,8 +28,6 @@ const Department = () => {
       page: page,
       size: size,
       keyword,
-      startDate: startDate,
-      endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -92,7 +88,6 @@ const Department = () => {
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
-   
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý khoa</h1>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -113,7 +108,10 @@ const Department = () => {
             <MyButton
               type="submit"
               text="Xóa khoa đã chọn"
-              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              onClick={() => {
+                dispatch(setName('đã chọn'));
+                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+              }}
               className="bg-red-custom"
               disabled={!selectedDepartment.length}
             />
@@ -121,7 +119,6 @@ const Department = () => {
         </div>
       </div>
 
-  
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white px-24 text-[14px]">
           <thead className="bg-white">
@@ -175,7 +172,7 @@ const Department = () => {
                     <p className="min-w-max">{item.nameDean}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.establishYear}</p>
+                    <p className="min-w-max ">{item.establishYear}</p>
                   </td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">
@@ -201,7 +198,7 @@ const Department = () => {
           </tbody>
         </table>
       </div>
-      
+
       {showBackdrop === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
@@ -215,14 +212,13 @@ const Department = () => {
         </BackDrop>
       )}
 
-     
       <PaginationComponent
         count={departments?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={departments?.data.totalElements}
-        totalTitle={'Khoa'}
+        totalTitle={'khoa'}
       />
     </>
   );

@@ -3,6 +3,8 @@ import { Chip, TextField } from '@mui/material';
 import Select from 'react-select';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
+import makeAnimated from 'react-select/animated';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
@@ -10,11 +12,10 @@ import { useCancelJobsMutation, useDeleteJobsMutation, useGetAllJobAppliesUniver
 import { jobType, statusTextJob } from '@/utils/app/const';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
-import makeAnimated from 'react-select/animated';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 const animatedComponents = makeAnimated();
 const Partnerships = () => {
@@ -23,13 +24,12 @@ const Partnerships = () => {
   const name = useAppSelector(state => state.global.name);
   const universityId = useAppSelector(state => state.user?.user?.id);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
   const [selectedJobsId, setSelectedJobsId] = useState<number | null>(null);
   const [selectedMajorId, setSelectedMajorId] = useState<number | null>(null);
   const [major, setMajor] = useState<number | null>(null);
   const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
+  const [selectId, setSelectId] = useState<number | null>(null);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -43,9 +43,7 @@ const Partnerships = () => {
       page: page,
       size: size,
       keyword,
-      startDate: startDate,
       majorId: major,
-      endDate: endDate,
       status,
       universityId: universityId,
     },
@@ -104,7 +102,7 @@ const Partnerships = () => {
           <div className="flex items-center gap-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm tên, mã"
+              label="Tìm kiếm tên, mã công việc"
               type="search"
               variant="outlined"
               size="small"
@@ -177,6 +175,14 @@ const Partnerships = () => {
                   </td>
                   <td className="py-4">
                     <div className="flex items-center justify-center gap-3">
+                      {job.status === 'ACCEPT' && (
+                        <ButtonSee
+                          onClick={() => {
+                            setSelectId(job.job.id);
+                          }}
+                          href={`/portal/jobs/${job.job.id}`}
+                        />
+                      )}
                       {job.status === 'PENDING' && (
                         <>
                           <ButtonReject

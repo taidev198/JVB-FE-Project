@@ -106,7 +106,14 @@ const StudentsManagement = () => {
 
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <TextField id="filled-search" label="Tìm kiếm tên" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm tên,mã sinh viên"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+            />
             <Select
               placeholder="Chọn khoa"
               closeMenuOnSelect={true}

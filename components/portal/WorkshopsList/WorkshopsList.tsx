@@ -1,13 +1,14 @@
+import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
+import { Button, Checkbox, ConfigProvider, DatePicker, Form, Input, Pagination, Space } from 'antd';
+import Link from 'next/link';
+import React, { useCallback, useEffect, useState } from 'react';
+import HtmlContentRenderer from '../common/HtmlContentRenderer';
+import PortalEmpty from '../common/PortalEmpty';
+import PortalLoading from '../common/PortalLoading';
+import SelectSearch from '../common/SelectSearch';
 import { useGetFieldsQuery, useGetProvincesQuery, useGetWorkshopsQuery } from '@/services/portalHomeApi';
 import { IWorkshopPortal } from '@/types/workshop';
 import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
-import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
-import { Button, Checkbox, ConfigProvider, DatePicker, Empty, Form, Input, Pagination, Space, Spin } from 'antd';
-import Link from 'next/link';
-import React, { useCallback, useEffect, useState } from 'react';
-import SelectSearch from '../common/SelectSearch';
-import PortalLoading from '../common/PortalLoading';
-import PortalEmpty from '../common/PortalEmpty';
 
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -243,7 +244,9 @@ const WorkshopsList: React.FC = () => {
                                 </span>
                               </div>
                             </div>
-                            <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">{workshop.workshopDescription}</p>
+                            <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">
+                              <HtmlContentRenderer htmlContent={workshop?.workshopDescription || ''} />
+                            </p>
                             <div className="absolute bottom-[30px] right-[24px] flex items-center justify-end ">
                               <Link href={`/portal/workshops/${workshop.id}`} className="readmore__btn mf-2 mr-2 flex items-center gap-2 text-lg">
                                 <span className="mp_transition_4 font-medium hover:text-primary-main">Chi tiết</span>

@@ -25,6 +25,7 @@ const PortalLayout: FC<ProtolLayoutProps> = ({ children, type }) => (
           Select: {
             colorPrimary: '#34a853',
             optionFontSize: 16,
+            fontSize: 16,
             optionPadding: '5px 15px',
             colorBgContainer: '#F1F1F1',
             hoverBorderColor: '#34a853',
@@ -32,6 +33,7 @@ const PortalLayout: FC<ProtolLayoutProps> = ({ children, type }) => (
             multipleItemBg: '#dcdddf',
             optionSelectedColor: '#0b0d28',
             multipleItemColorDisabled: '#7D8087',
+            optionSelectedFontWeight: 400,
           },
           Dropdown: {
             colorBgContainer: '#F1F1F1',

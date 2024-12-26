@@ -1,8 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
-import PaginationComponent from '@/components/Common/Pagination';
+import toast from 'react-hot-toast';
 import Select from 'react-select';
+import { debounce } from 'lodash';
+import AddIcon from '@mui/icons-material/Add';
+import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
@@ -10,17 +13,12 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import AddIcon from '@mui/icons-material/Add';
-import { debounce } from 'lodash';
 import { useDeleteBusinessMultipleMutation, useDeleteBusinessOneMutation, useGetAllBusinessQuery, useGetAllFaculityQuery } from '@/services/adminSchoolApi';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { setKeyword, setPage, setIdFaculty, resetFilters } from '@/store/slices/filtersSlice';
 
 const BusinessManagement = () => {
   const dispatch = useAppDispatch();
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
   const { page, keyword, size, idFaculty } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
@@ -45,8 +43,6 @@ const BusinessManagement = () => {
       page: page,
       size: size,
       keyword,
-      startDate: startDate,
-      endDate: endDate,
       idFaculty: idFaculty,
     },
     { refetchOnMountOrArgChange: true }
@@ -92,7 +88,6 @@ const BusinessManagement = () => {
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne, isLoadingGetAllDepartment]);
   return (
     <>
-    
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản ngành học</h1>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -128,7 +123,10 @@ const BusinessManagement = () => {
             <MyButton
               type="submit"
               text="Xóa ngành đã chọn"
-              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              onClick={() => {
+                dispatch(setName('đã chọn'));
+                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+              }}
               className="bg-red-custom"
               disabled={!selectedBusiness.length}
             />
@@ -136,7 +134,6 @@ const BusinessManagement = () => {
         </div>
       </div>
 
-    
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
@@ -191,10 +188,10 @@ const BusinessManagement = () => {
                     <p className="min-w-max">{item.majorName}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max text-center">{item.creditRequirement}</p>
+                    <p className="min-w-max">{item.creditRequirement}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max text-center">{item.numberOfStudents}</p>
+                    <p className="min-w-max">{item.numberOfStudents}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.faculty.facultyName}</p>
@@ -238,14 +235,13 @@ const BusinessManagement = () => {
         </BackDrop>
       )}
 
-    
       <PaginationComponent
         count={business?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={business?.data.totalElements}
-        totalTitle={'Ngành học'}
+        totalTitle={'ngành học'}
       />
     </>
   );

@@ -4,22 +4,21 @@ import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
 import validationSchemaAddAdemic from '../../../../components/Admin/school/Ademic/validationAddAdemic';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import { setLoading } from '@/store/slices/global';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
-import Link from 'next/link';
 import { gender } from '@/utils/app/const';
 import SelectReact from '@/components/Common/SelectMui';
 import { useAddAcademicOfficeManagementMutation } from '@/services/adminSchoolApi';
 import Address from '@/components/Common/Address';
 import DateComponent from '@/components/Common/DateComponent';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
-import { resetFilters } from '@/store/slices/filtersSlice';
-import { useRouter } from 'next/router';
 
 interface FormDataAddAdemic {
   fullName: string;
