@@ -20,7 +20,6 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
-import ImageComponent from '@/components/Common/Image';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';

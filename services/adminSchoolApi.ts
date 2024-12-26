@@ -26,7 +26,7 @@ export const adminSchoolApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement', 'School', 'CurrentSchool', 'Jobs'],
+  tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement', 'School', 'CurrentSchool', 'Jobs', 'WorkshopApply'],
   endpoints: builder => {
     return {
       getAllDepartments: builder.query<ApiResponse, { page: number | null; size: number | null; keyword: string }>({
@@ -232,8 +232,8 @@ export const adminSchoolApi = createApi({
           };
         },
       }),
-      //school
 
+      //school
       getDetailSchool: builder.query<ApiResponseDetailSchool, void>({
         query: () => {
           return {
@@ -312,6 +312,35 @@ export const adminSchoolApi = createApi({
               ]
             : [{ type: 'Workshop', id: 'LIST' }];
         },
+      }),
+
+      // Apply workshop
+      getAllCompanyApplyWorkshops: builder.query({
+        query: ({ page, size, keyword, id, status }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+          return `/university/workshop/get_apply_workshop/${id}?${queryParams.toString()}`;
+        },
+        providesTags: [{ type: 'WorkshopApply' }],
+      }),
+
+      approveCompanyApplyWorkshop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/university/workshop/apply/approve/${id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: result => [{ type: 'WorkshopApply', id: result.data.id }, { type: 'WorkshopApply' }],
+      }),
+
+      rejectCompanyApplyWorkshop: builder.mutation({
+        query: ({ id }) => ({
+          url: `/university/workshop/apply/reject/${id}`,
+          method: 'PUT',
+        }),
+        invalidatesTags: result => [{ type: 'WorkshopApply', id: result.data.id }, { type: 'WorkshopApply' }],
       }),
 
       // Students
@@ -455,6 +484,9 @@ export const {
   useAddWorkshopMutation,
   useUpdateWorkshopMutation,
   useDeleteWorkshopMutation,
+  useGetAllCompanyApplyWorkshopsQuery,
+  useApproveCompanyApplyWorkshopMutation,
+  useRejectCompanyApplyWorkshopMutation,
   useDeleteDepartmentMultipleMutation,
   useDeleteDepartmentOneMutation,
   useAddDepartmentMutation,

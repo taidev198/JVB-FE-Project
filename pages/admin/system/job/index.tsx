@@ -190,15 +190,8 @@ const AdminSystemJob = () => {
                     </div>
                     {/* Button */}
                     <div className="flex items-center gap-2">
-                      {job.status === 'PENDING' ? (
+                      {job.status === 'PENDING' && (
                         <>
-                          <ButtonSee
-                            href="#"
-                            onClick={() => {
-                              setSelectedJobId(job?.id);
-                            }}
-                          />
-
                           <ButtonAccept
                             onClick={() => {
                               dispatch(setBackdrop(BackdropType.ApproveConfirmation));
@@ -215,9 +208,10 @@ const AdminSystemJob = () => {
                             }}
                           />
                         </>
-                      ) : (
+                      )}
+                      {job.status !== 'REJECT' && (
                         <ButtonSee
-                          href="#"
+                          href={`/portal/jobs/${job?.id}`}
                           onClick={() => {
                             setSelectedJobId(job?.id);
                           }}

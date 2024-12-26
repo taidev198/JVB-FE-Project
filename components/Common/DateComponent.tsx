@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { FC } from 'react';
 import { DatePicker, Space } from 'antd';
 import { Controller } from 'react-hook-form';
-import dayjs from 'dayjs'; // Thêm dayjs để xử lý ngày tháng
 
 interface DatePickerPropsType {
   label?: string;

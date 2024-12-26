@@ -19,6 +19,7 @@ import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import CompanyApplyWorkshop from '@/components/Admin/school/CompanyApplyWorkshop';
 
 const AdminSchoolWorkshop = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -26,6 +27,7 @@ const AdminSchoolWorkshop = () => {
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
+  const id = useAppSelector(state => state.global.id);
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();
 
@@ -152,6 +154,14 @@ const AdminSchoolWorkshop = () => {
                   </td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">
+                      <ButtonSee
+                        href={`#`}
+                        onClick={() => {
+                          dispatch(setBackdrop(BackdropType.AddModal));
+                          dispatch(setId(workshop.id));
+                          dispatch(setName(workshop.workshopTitle));
+                        }}
+                      />
                       <ButtonSee href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
                       <ButtonUpdate href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
                       <ButtonDelete
@@ -188,6 +198,12 @@ const AdminSchoolWorkshop = () => {
                 <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
               </div>
             </div>
+          </BackDrop>
+        )}
+
+        {showBackdrop === BackdropType.AddModal && (
+          <BackDrop isCenter>
+            <CompanyApplyWorkshop idWorkshop={id} workshopTitle={name} />
           </BackDrop>
         )}
       </>

@@ -45,7 +45,7 @@ const AdminSystemDetailSchool = () => {
           </div>
           <div>
             <h2 className="text-lg font-bold lg:text-xl">{data?.data.universityName}</h2>
-            <Link href={`/portal/schools/${data.data.id}`}>
+            <Link href={`/portal/schools/${data?.data.id}`}>
               <p className="text-primary-gray hover:text-primary-main">Xem chi tiết</p>
             </Link>
           </div>

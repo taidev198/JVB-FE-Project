@@ -90,7 +90,7 @@ const DetailAdemicOfficeManagement = () => {
           </li>
           <li className="mt-4 flex items-center gap-3">
             <ContactMailIcon sx={{ color: '#757575' }} />
-            <div>
+            <div>zzz
               <span className="mr-2 font-semibold">Địa chỉ:</span> {academicOfficeManagement?.data.address.houseNumber},
               {academicOfficeManagement?.data.address.ward.wardName},{academicOfficeManagement?.data.address.district.districtName},
               {academicOfficeManagement?.data.address.province.provinceName}

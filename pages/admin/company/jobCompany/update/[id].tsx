@@ -1,24 +1,25 @@
+import { useRouter } from 'next/router';
 import { IconButton } from '@mui/material';
-import Input from '@/components/Common/Input';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SelectMui from '@/components/Common/SelectMui';
+import dayjs from 'dayjs';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import TextEditor from '@/components/Common/TextEditor';
-import { Button } from '@/components/Common/Button';
 import { useGetAllFieldsQuery } from '@/services/adminSchoolApi';
 import SelectReact from '@/components/Common/SelectMui';
 import { useGetDetailCompanyJobQuery, useUpdateJobMutation } from '@/services/adminCompanyApi';
-import toast from 'react-hot-toast';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { useRouter } from 'next/router';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { formatDateDd_MM_yyyy } from '@/utils/app/format';
-import dayjs from 'dayjs';
 import DateComponent from '@/components/Common/DateComponent';
+import TextEditor from '@/components/Common/TextEditor';
 import validationUpdateJob from '@/validation/companyEmployee/job/validationUpdateJob';
+import { Button } from '@/components/Common/Button';
+import { setLoading } from '@/store/slices/global';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import Input from '@/components/Common/Input';
+import SelectMui from '@/components/Common/SelectMui';
 interface FormUpdateAddJob {
   job_title: string;
   job_description: string;
@@ -36,20 +37,15 @@ interface FormUpdateAddJob {
 }
 const UpdateJob = () => {
   const idJob = useAppSelector(state => state.global.id);
-  
   const dispatch = useAppDispatch();
-  const { data: detailJob, isLoading } = useGetDetailCompanyJobQuery({ id: idJob });
-  console.log(detailJob)
-
-
-  const router = useRouter()
+  const router = useRouter();
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
     watch,
-    reset
+    reset,
   } = useForm<FormUpdateAddJob>({
     resolver: yupResolver(validationUpdateJob),
     defaultValues: {
@@ -57,10 +53,11 @@ const UpdateJob = () => {
       max_salary: 0,
     },
   });
+  const { data: detailJob, isLoading } = useGetDetailCompanyJobQuery({ id: idJob });
 
   //useEffect
   useEffect(() => {
-   if(detailJob?.data){
+    if (detailJob?.data) {
       reset({
         job_title: detailJob.data.jobTitle,
         job_description: detailJob.data.jobDescription,
@@ -74,10 +71,11 @@ const UpdateJob = () => {
         salary_type: detailJob.data.salaryType,
         max_salary: detailJob.data.maxSalary,
         min_salary: detailJob.data.minSalary,
-        job_field: detailJob.data.fields?.map((field) => field.id),
-      })
-   }
-  },[detailJob?.data])
+        job_field: detailJob.data.fields?.map(field => field.id),
+      });
+    }
+    dispatch(setLoading(isLoading));
+  }, [detailJob?.data, dispatch, isLoading, reset]);
 
   const salaryType = watch('salary_type');
 
@@ -89,12 +87,12 @@ const UpdateJob = () => {
     const newData = {
       ...data,
       expiration_date: formatDateDd_MM_yyyy(data.expiration_date),
-       status : "REJECT"
+      status: 'REJECT',
     };
     try {
-      const response = await updateJob({data: newData, id: idJob}).unwrap();
+      const response = await updateJob({ data: newData, id: idJob }).unwrap();
       toast.success(response.message);
-      router.push('/admin/company/jobCompany')
+      router.push('/admin/company/jobCompany');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
@@ -120,13 +118,15 @@ const UpdateJob = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="">
           {/* tiêu đề */}
-          <Input name="job_title" 
-            control={control} 
-            error={errors.job_title?.message} 
-            placeholder="Tiêu đề công việc" 
-            label="Tiêu đề công việc" 
-            {...register('job_title', {required: 'Tiêu đề công việc không được để trông'})}
-            required={true}/>
+          <Input
+            name="job_title"
+            control={control}
+            error={errors.job_title?.message}
+            placeholder="Tiêu đề công việc"
+            label="Tiêu đề công việc"
+            {...register('job_title', { required: 'Tiêu đề công việc không được để trông' })}
+            required={true}
+          />
           {/* mô tả */}
           <div className="mt-5 grid grid-cols-1 gap-4">
             <Controller
@@ -140,7 +140,7 @@ const UpdateJob = () => {
                   onBlur={field.onBlur}
                   label="Mô tả công việc"
                   error={errors.job_description?.message}
-                  required= {true}
+                  required={true}
                 />
               )}
             />
@@ -151,13 +151,15 @@ const UpdateJob = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextEditor value={field.value} 
-                  onChange={field.onChange} 
-                  onBlur={field.onBlur} 
-                  label="Yêu cầu" 
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Yêu cầu"
                   error={errors.requirements?.message}
-                  {...register('requirements', {required: 'Yêu cầu công việc không được để trông'})}
-                  required= {true} />
+                  {...register('requirements', { required: 'Yêu cầu công việc không được để trông' })}
+                  required={true}
+                />
               )}
             />
 
@@ -167,12 +169,14 @@ const UpdateJob = () => {
               control={control}
               defaultValue=""
               render={({ field }) => (
-                <TextEditor value={field.value} 
-                 onChange={field.onChange} 
-                 onBlur={field.onBlur} 
-                 label="Phúc lợi" 
-                 error={errors.benifits?.message} 
-                 required= {true}/>
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Phúc lợi"
+                  error={errors.benifits?.message}
+                  required={true}
+                />
               )}
             />
           </div>
@@ -192,14 +196,14 @@ const UpdateJob = () => {
             />
 
             {/* time làm vc */}
-            <Input 
-              name="work_time" 
-              control={control} 
-              error={errors.work_time?.message} 
-              placeholder="Thời gian làm việc" 
+            <Input
+              name="work_time"
+              control={control}
+              error={errors.work_time?.message}
+              placeholder="Thời gian làm việc"
               label="Thời gian làm việc"
               required={true}
-               />
+            />
 
             <SelectReact
               name="job_field"
@@ -224,27 +228,31 @@ const UpdateJob = () => {
                 { value: 'INTERN', label: 'Intern' },
                 { value: 'JUNIOR', label: 'Junior' },
                 { value: 'SENIOR', label: 'Senior' },
-                { value: 'FRESHER', label: 'Fresher'},
+                { value: 'FRESHER', label: 'Fresher' },
               ]}
               error={errors.job_level?.message}
               required={true}
             />
 
             {/*Ngày hết hạn */}
-            <DateComponent 
-              name="expiration_date" 
-              control={control} 
-              error={errors.expiration_date?.message} 
-              placeholder="Ngày hết hạn" label="Ngày hết hạn"
-              required={true} />
+            <DateComponent
+              name="expiration_date"
+              control={control}
+              error={errors.expiration_date?.message}
+              placeholder="Ngày hết hạn"
+              label="Ngày hết hạn"
+              required={true}
+            />
 
             {/* số lượng */}
-            <Input 
-              name="member_of_candidate" 
-              control={control} 
-              error={errors.member_of_candidate?.message} 
-              placeholder="Số lượng tuyển" label="Số lượng tuyển"
-              required={true} />
+            <Input
+              name="member_of_candidate"
+              control={control}
+              error={errors.member_of_candidate?.message}
+              placeholder="Số lượng tuyển"
+              label="Số lượng tuyển"
+              required={true}
+            />
 
             {/* Lương: cao */}
           </div>{' '}
@@ -261,10 +269,26 @@ const UpdateJob = () => {
             />
             {salaryType === 'FIXED' && (
               <>
-                <Input name="max_salary" type="number" label="Mức lương từ" placeholder="Cao nhất:" control={control} error={errors.max_salary?.message} required={true}/>
+                <Input
+                  name="max_salary"
+                  type="number"
+                  label="Mức lương từ"
+                  placeholder="Cao nhất:"
+                  control={control}
+                  error={errors.max_salary?.message}
+                  required={true}
+                />
 
                 {/* Lương: thấp */}
-                <Input name="min_salary" type="number" label="Đến mức lương" placeholder="Thấp nhất:" control={control} error={errors.min_salary?.message} required={true}/>
+                <Input
+                  name="min_salary"
+                  type="number"
+                  label="Đến mức lương"
+                  placeholder="Thấp nhất:"
+                  control={control}
+                  error={errors.min_salary?.message}
+                  required={true}
+                />
               </>
             )}
           </div>

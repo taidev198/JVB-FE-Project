@@ -1,8 +1,8 @@
-import { Chip, Stack } from '@mui/material';
 import { useCallback, useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ImageComponent from './Image';
+import ButtonDelete from './ButtonIcon/ButtonDelete';
 
 interface ImageUploaderOneProps {
   image: File | null | string;
@@ -55,14 +55,15 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
   }, [preview, image]);
 
   return (
-    <div className="w-[160px]">
+    <div className="flex items-center gap-4">
       <div
+        className=" w-[160px]"
         {...getRootProps({
           className: 'border rounded-full w-[160px] h-[160px] text-center bg-slate-100 cursor-pointer flex items-center justify-center',
         })}>
         <input {...getInputProps()} />
         {preview ? (
-          <ImageComponent src={preview} alt="Preview" className="h-full w-full rounded-full object-cover" />
+          <ImageComponent src={preview} width={150} height={150} alt="Preview" className="h-full w-full rounded-full object-cover" />
         ) : isDragActive ? (
           <p>Thả file vào đây...</p>
         ) : (
@@ -70,15 +71,15 @@ const ImageUploaderOne: React.FC<ImageUploaderOneProps> = ({ image, setImage }) 
         )}
       </div>
 
-      {preview && (
-        <div className="mt-4">
-          <Stack>
-            <Chip label={typeof image === 'string' ? 'Current Image' : image?.name || 'No file selected'} onDelete={handleRemoveImage} className="font-bold" />
-          </Stack>
-        </div>
-      )}
+      {preview && <ButtonDelete onClick={handleRemoveImage} />}
     </div>
   );
 };
 
 export default ImageUploaderOne;
+
+{
+  /* <Stack>
+  <Chip label={typeof image === 'string' ? 'Current Image' : image?.name || 'No file selected'} onDelete={handleRemoveImage} className="font-bold" />
+</Stack>; */
+}
