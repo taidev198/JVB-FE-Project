@@ -22,6 +22,7 @@ import Address from '@/components/Common/Address';
 import TextEditor from '@/components/Common/TextEditor';
 import SelectReact from '@/components/Common/SelectMui';
 import { useGetAllFieldsQuery } from '@/services/adminSchoolApi';
+import Text from '@/components/Common/Text';
 
 interface FormDataProfile {
   companyCode: string;
@@ -36,7 +37,7 @@ interface FormDataProfile {
   provinceId: number;
   districtId: number;
   address: string;
-  taxCode: string;
+  taxCode: number;
   quantityEmployee: number;
   companyDescription: string;
   companyShortDescription: string;
@@ -58,6 +59,7 @@ const UpdateSchoolManagement = () => {
     },
   });
   const {
+    register,
     reset,
     handleSubmit,
     control,
@@ -86,7 +88,7 @@ const UpdateSchoolManagement = () => {
         houseNumber: data.houseNumber,
         wardId: data.wardId,
       },
-      phoneNumber: data.phoneNumber,
+      phoneNumber: data.phoneNumber.replace(/\s+/g, ''),
       fieldIds: data.fieldIds,
       taxCode: data.taxCode,
     };
@@ -186,7 +188,7 @@ const UpdateSchoolManagement = () => {
           />
 
           <Input
-            type="string"
+            type="number"
             name="taxCode"
             label="Mã số thuế"
             placeholder="Nhập mã số thuế"
@@ -231,11 +233,12 @@ const UpdateSchoolManagement = () => {
             required={true}
           />
         </div>
-        <div className="mt-[16px] flex flex-col gap-4">
+        <div className="mt-[16px]">
           <>
             <Controller
               name="companyDescription"
               control={control}
+              {...register('companyDescription')}
               defaultValue=""
               render={({ field }) => (
                 <TextEditor
@@ -249,23 +252,16 @@ const UpdateSchoolManagement = () => {
               )}
             />
           </>
-          <>
-            <Controller
-              name="companyShortDescription"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextEditor
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  label="Mô tả ngắn"
-                  error={errors.companyShortDescription?.message}
-                  required={true}
-                />
-              )}
-            />
-          </>
+        </div>
+        <div className="mt-5">
+          <Text
+            label="Mô tả ngắn "
+            placeholder="Nhập mô tả ngắn"
+            control={control}
+            error={errors.companyShortDescription?.message}
+            {...register('companyShortDescription')}
+            required={true}
+          />
         </div>
         <div className="ml-auto w-fit py-4">
           <Button text="Cập nhật" type="submit" />

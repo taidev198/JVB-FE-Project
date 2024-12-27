@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
-import { IProfileCompany, IProfileCompanyRespone } from '@/types/profileCompany';
+import { IProfileCompanyRespone } from '@/types/profileCompany';
 import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
-import { WorkshopResponse } from '@/types/workshop';
+import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 
 export const adminCompanyApi = createApi({
@@ -106,18 +106,13 @@ export const adminCompanyApi = createApi({
       }),
 
       //JOBCOMPANY
-      getAllCompanyJob: builder.query<
-        IJobAllResponse,
-        { page: number | null; size: number | null; keyword: string | null; status: string | null; startDate: Date | null; endDate: Date | null }
-      >({
-        query: ({ page, size, keyword, status, startDate, endDate }) => {
+      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string; status: string }>({
+        query: ({ page, size, keyword, status }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
-          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
-          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
 
           return `/company/get_all_jobs?${queryParams.toString()}`;
         },
@@ -164,8 +159,15 @@ export const adminCompanyApi = createApi({
 
       // WORKSHOP
       getAllWorkShopCompany: builder.query<
-        WorkshopResponse,
-        { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null }
+        WorkshopResponseCompany,
+        {
+          page: number;
+          size: number;
+          keyword: string;
+          status: string;
+          startDate: Date | null;
+          endDate: Date | null;
+        }
       >({
         query: ({ page, size, keyword, status, startDate, endDate }) => {
           let queryParams = new URLSearchParams();

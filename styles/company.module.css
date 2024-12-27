@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    gap: 16px; /* Khoảng cách giữa hai thành phần */
+  }
+  
+  .select-wrapper {
+    flex: 1; /* Đảm bảo hai thành phần có chiều rộng bằng nhau */
+    display: flex;
+    flex-direction: column; /* Đảm bảo label và select nằm theo cột */
+  }
+  
+  .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 4px; /* Khoảng cách giữa dropdown và thông báo lỗi */
+  }
+  

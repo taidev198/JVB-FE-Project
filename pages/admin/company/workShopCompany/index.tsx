@@ -1,19 +1,23 @@
-import { Checkbox, Chip, TextField } from '@mui/material';
+import { Chip, TextField } from '@mui/material';
 import { debounce } from 'lodash';
 import Select from 'react-select';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import makeAnimated from 'react-select/animated';
+import toast from 'react-hot-toast';
 import { Button } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import PaginationComponent from '@/components/Common/Pagination';
 import { BackDrop } from '@/components/Common/BackDrop';
-import { useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
+import { useDeleteWorkShopMutation, useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
 import { setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
-import { statusTextWorkshop } from '@/utils/app/const';
+import { statusLabelJob, statusTextJob, statusTextWorkshop } from '@/utils/app/const';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+
 const animatedComponents = makeAnimated();
 
 const WorkShopCompany = () => {
@@ -21,9 +25,8 @@ const WorkShopCompany = () => {
   const [selectId, setSelectId] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
-  const [selectedWorkShop, setselectedWorkShop] = useState<number[]>([]);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate] = useState<Date | null>(null);
+  const [endDate] = useState<Date | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
 
   const handleAction = (actionType: BackdropType, JobsId: number) => {
@@ -44,13 +47,32 @@ const WorkShopCompany = () => {
     { page, keyword, size, status, startDate: startDate, endDate: endDate },
     { refetchOnMountOrArgChange: true }
   );
-  const handleSelectWorkShop = (id: number) => {
-    setselectedWorkShop(prev => (prev.includes(id) ? prev.filter(employeeId => employeeId !== id) : [...prev, id]));
+
+  const [deleteOne, { isLoading: isLoadingOne }] = useDeleteWorkShopMutation();
+  const handleDelete = async () => {
+    try {
+      if (selectId) {
+        // Điều kiện kiểm tra chỉ liên quan đến `deleteOne`
+        await deleteOne({ id: selectId }).unwrap();
+        toast.success('Công việc đã được xóa thành công');
+      } else {
+        toast.error('Không có công việc nào được chọn để xóa');
+      }
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
+      dispatch(setBackdrop(null));
+    }
   };
 
   useEffect(() => {
-    dispatch(setLoading(isLoading));
-  }, [dispatch, isLoading]);
+    dispatch(setLoading(isLoading || isLoadingOne));
+  }, [dispatch, isLoading, isLoadingOne]);
 
   return (
     <>
@@ -90,13 +112,6 @@ const WorkShopCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <Checkbox
-                  color="primary"
-                  checked={selectedWorkShop.length === companyWorkShop?.data.content.length}
-                  indeterminate={selectedWorkShop.length > 0 && selectedWorkShop.length < (companyWorkShop?.data.content || []).length}
-                />
-              </th>
               <th className="px-5 py-4 text-left">STT</th>
               <th className="px-5 py-4 text-left">Tiêu đề</th>
               <th className="px-5 py-4 text-left">Trường học</th>
@@ -110,9 +125,6 @@ const WorkShopCompany = () => {
           <tbody>
             {companyWorkShop?.data.content.map((item, index) => (
               <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <Checkbox color="primary" checked={selectedWorkShop.includes(item.id)} onChange={() => handleSelectWorkShop(item.id)} />
-                </td>
                 <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
                 <td className="px-5 py-4">{item.workshop.university.universityName}</td>
@@ -121,31 +133,38 @@ const WorkShopCompany = () => {
                 <td className="px-5 py-4 text-center">{item.workshop.estimateCompanyParticipants}</td>
                 <td className="px-5 py-4">
                   <Chip
-                    label={statusTextWorkshop(item.workshop.moderationStatus).title}
+                    label={statusTextJob(item.status).title}
                     style={{
-                      color: `${statusTextWorkshop(item.workshop.moderationStatus).color}`,
-                      background: `${statusTextWorkshop(item.workshop.moderationStatus).bg}`,
+                      color: `${statusTextJob(item.status).color}`,
+                      background: `${statusTextJob(item.status).bg}`,
                     }}
                   />
                 </td>
 
                 <td className="py-4">
                   <div className="flex items-center justify-center gap-3">
-                    {item.workshop.moderationStatus === 'PENDING' && (
+                    <ButtonSee
+                      onClick={() => {
+                        setSelectId(item.workshop.id);
+                      }}
+                      href={`/portal/workshops/${item.workshop.id}`}
+                    />
+
+                    {/* {item.status === 'PENDING' && (
                       <>
                         <ButtonReject
                           onClick={() => {
-                            handleAction(BackdropType.RefuseConfirmation, item.workshop.id);
+                            handleAction(BackdropType.RefuseConfirmation, item.id);
                             dispatch(setName(item.workshop.workshopTitle));
                           }}
                         />
                       </>
-                    )}
+                    )} */}
 
-                    {item.workshop.moderationStatus !== 'PENDING' && (
+                    {item.status !== 'PENDING' && (
                       <ButtonDelete
                         onClick={() => {
-                          handleAction(BackdropType.DeleteConfirmation, item.workshop.id);
+                          handleAction(BackdropType.DeleteConfirmation, item.id);
                           dispatch(setName(item.workshop.workshopTitle));
                         }}
                       />
@@ -164,8 +183,8 @@ const WorkShopCompany = () => {
             <h3 className="font-bold">Hủy tham gia hội thảo</h3>
             <p className="mt-1">Bạn có chắc chắn muốn hủy tham gia hội thảo này không?.</p>
             <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-800" full={true} />
+              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Xác nhận" className="bg-green-600" onClick={handleDelete} full={true} />
             </div>
           </div>
         </BackDrop>
@@ -173,7 +192,7 @@ const WorkShopCompany = () => {
 
       {/* Pagination */}
       <PaginationComponent
-        count={companyWorkShop?.data.currentPage}
+        count={companyWorkShop?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}

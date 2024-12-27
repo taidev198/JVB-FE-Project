@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import EmailIcon from '@mui/icons-material/Email';
 import DomainIcon from '@mui/icons-material/Domain';
@@ -7,16 +6,15 @@ import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import HorizontalSplitIcon from '@mui/icons-material/HorizontalSplit';
+import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { Chip, IconButton } from '@mui/material';
+import CategoryIcon from '@mui/icons-material/Category';
 import { Button } from '@/components/Common/Button';
 import { setLoading } from '@/store/slices/global';
 import ImageComponent from '@/components/Common/Image';
 import { useGetDetailProfileQuery } from '@/services/adminCompanyApi';
-import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 const DetailCompany = () => {
   const dispatch = useDispatch();
   const { data: detailCompany, isLoading } = useGetDetailProfileQuery(undefined, { refetchOnMountOrArgChange: true });
@@ -27,7 +25,7 @@ const DetailCompany = () => {
   return (
     <div className="rounded-2xl bg-white pb-[90px]">
       <div className="p-5">
-        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thông tin hồ sơ trường </h1>
+        <h1 className="mt-5 text-center text-xl font-bold lg:mb-8 lg:mt-0 lg:text-2xl">Thông tin hồ sơ công ty </h1>
       </div>
 
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-7">
@@ -44,7 +42,7 @@ const DetailCompany = () => {
           <div>
             <h2 className="text-xl font-bold">{detailCompany?.data.companyName}</h2>
             <Link href={'#'}>
-              <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin hồ sơ công ty</p>
+              <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin hồ sơ trường</p>
             </Link>
           </div>
         </div>
@@ -76,7 +74,6 @@ const DetailCompany = () => {
               <span className="mr-2 font-semibold">Ngày thành lập:</span> {detailCompany?.data.establishedDate}
             </div>
           </li>
-
           <li className="mt-4 flex items-center  gap-3 ">
             <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
             <div>
@@ -86,40 +83,18 @@ const DetailCompany = () => {
           </li>
 
           <li className="mt-4 flex items-center  gap-3 ">
-            <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
+            <CategoryIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Mã code:</span>
               {detailCompany?.data.taxCode}
             </div>
           </li>
-
           <li className="mt-5 flex items-center gap-3">
             <PhoneIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Số điện thoại:</span> {detailCompany?.data.phoneNumber}
             </div>
           </li>
-
-          <li className="mt-4 flex items-center  gap-3 ">
-            <div className="mb-auto">
-              <InsertCommentIcon sx={{ color: '#757575' }} />
-            </div>
-            <div>
-              <span className="mr-2 font-semibold">Mô tả ngắn gọn:</span>
-              {detailCompany?.data.companyShortDescription}
-            </div>
-          </li>
-
-          <li className="mt-4 flex items-center  gap-3 ">
-            <div className="mb-auto">
-              <DescriptionIcon sx={{ color: '#757575' }} />
-            </div>
-            <div>
-              <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
-              {detailCompany?.data.companyDescription}
-            </div>
-          </li>
-
           <li className="mt-5 flex items-center gap-3">
             <DomainIcon sx={{ color: '#757575' }} />
             <div>
@@ -127,16 +102,22 @@ const DetailCompany = () => {
               {detailCompany?.data.address.district.districtName}, {detailCompany?.data.address.province.provinceName}
             </div>
           </li>
-
-          <li className="mt-4 flex  gap-3 ">
-            <HorizontalSplitIcon sx={{ color: '#757575' }} />
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-              <span className="mr-2 font-semibold" style={{ fontWeight: 'bold' }}>
-                Lĩnh vực:
-              </span>
-              {detailCompany?.data.fields.map(field => (
-                <Chip key={field.id} label={field.fieldName} color="primary" variant="outlined" style={{ fontSize: '14px' }} />
-              ))}
+          <li className="mt-4 flex items-center  gap-3 ">
+            <div className="mb-auto">
+              <InsertCommentIcon sx={{ color: '#757575' }} />
+            </div>
+            <div>
+              <span className="mr-2 font-semibold">Mô tả ngắn gọn:</span>
+              <span dangerouslySetInnerHTML={{ __html: detailCompany?.data.companyShortDescription ?? '' }}></span>
+            </div>
+          </li>
+          <li className="mt-4 flex items-center  gap-3 ">
+            <div className="mb-auto">
+              <DescriptionIcon sx={{ color: '#757575' }} />
+            </div>
+            <div>
+              <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
+              <span dangerouslySetInnerHTML={{ __html: detailCompany?.data.companyDescription ?? '' }}></span>
             </div>
           </li>
         </ul>
@@ -150,5 +131,3 @@ const DetailCompany = () => {
   );
 };
 export default DetailCompany;
-
-
