@@ -105,12 +105,7 @@ const AcademicOfficeManagement = () => {
             <Link href={'/admin/school/academicOfficeManagement/addAdemic'}>
               <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
             </Link>
-            <MyButton
-              type="submit"
-              text="Xóa tất cả đã chọn"
-              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
-              className="bg-red-custom"
-            />
+            <MyButton type="submit" text="Xóa giáo vụ" onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))} className="bg-red-custom" />
           </div>
         </div>
       </div>
@@ -149,7 +144,7 @@ const AcademicOfficeManagement = () => {
                     <Checkbox color="primary" checked={selectedAdemic.includes(item.id)} onChange={() => handleSelectAdemic(item.id)} size="small" />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
+                    <p className="min-w-max ">{index + 1 + (page - 1) * size}</p>
                   </td>
 
                   <td className="p-3 sm:px-5 sm:py-4">{item.employeeCode}</td>
@@ -197,7 +192,7 @@ const AcademicOfficeManagement = () => {
       )}
 
       <PaginationComponent
-        count={academicOfficeManagement?.data.totalPages}
+        count={academicOfficeManagement?.data.currentPage}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}

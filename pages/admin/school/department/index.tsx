@@ -107,7 +107,7 @@ const Department = () => {
             </Link>
             <MyButton
               type="submit"
-              text="Xóa khoa đã chọn"
+              text="Xóa khoa"
               onClick={() => {
                 dispatch(setName('đã chọn'));
                 dispatch(setBackdrop(BackdropType.DeleteConfirmation));
@@ -213,7 +213,7 @@ const Department = () => {
       )}
 
       <PaginationComponent
-        count={departments?.data.totalPages}
+        count={departments?.data.currentPage}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}

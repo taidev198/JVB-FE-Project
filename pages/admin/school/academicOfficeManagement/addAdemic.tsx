@@ -142,6 +142,14 @@ const AddAdemic = () => {
               required={true}
               error={errors.gender?.message}
             />
+            <DateComponent
+              name="dateOfBirth"
+              control={control}
+              error={errors.dateOfBirth?.message}
+              placeholder={'Nhập ngày sinh'}
+              label={'Ngày sinh'}
+              required={true}
+            />
             <Input
               type="text"
               name="phoneNumber"
@@ -168,15 +176,6 @@ const AddAdemic = () => {
               placeholder="Nhập lại mật khẩu"
               control={control}
               error={errors.confirm_password?.message}
-              required={true}
-            />
-
-            <DateComponent
-              name="dateOfBirth"
-              control={control}
-              error={errors.dateOfBirth?.message}
-              placeholder={'Nhập ngày sinh'}
-              label={'Ngày sinh'}
               required={true}
             />
           </div>

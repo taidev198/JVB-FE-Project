@@ -165,13 +165,12 @@ const UpdateAdemic = () => {
               error={errors.gender?.message}
               required={true}
             />
-            <Input
-              type="text"
-              name="phoneNumber"
-              label="Số điện thoại"
-              placeholder="Nhập số điện thoại"
+            <DateComponent
+              name="dateOfBirth"
               control={control}
-              error={errors.phoneNumber?.message}
+              error={errors.dateOfBirth?.message}
+              placeholder={'Nhập ngày sinh'}
+              label={'Ngày sinh'}
               required={true}
             />
           </div>
@@ -185,12 +184,13 @@ const UpdateAdemic = () => {
               errorProvince={errors.provinceId?.message}
               errorWard={errors.wardId?.message}
               className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DateComponent
-                name="dateOfBirth"
+              <Input
+                type="text"
+                name="phoneNumber"
+                label="Số điện thoại"
+                placeholder="Nhập số điện thoại"
                 control={control}
-                error={errors.dateOfBirth?.message}
-                placeholder={'Nhập ngày sinh'}
-                label={'Ngày sinh'}
+                error={errors.phoneNumber?.message}
                 required={true}
               />
             </Address>

@@ -122,7 +122,7 @@ const BusinessManagement = () => {
             </Link>
             <MyButton
               type="submit"
-              text="Xóa ngành đã chọn"
+              text="Xóa ngành"
               onClick={() => {
                 dispatch(setName('đã chọn'));
                 dispatch(setBackdrop(BackdropType.DeleteConfirmation));
@@ -236,7 +236,7 @@ const BusinessManagement = () => {
       )}
 
       <PaginationComponent
-        count={business?.data.totalPages}
+        count={business?.data.currentPage}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
