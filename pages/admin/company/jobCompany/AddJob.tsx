@@ -161,16 +161,6 @@ const AddJob = () => {
               error={errors.job_type?.message}
             />
 
-            {/* time làm vc */}
-            <Input
-              name="work_time"
-              control={control}
-              error={errors.work_time?.message}
-              placeholder="Thời gian làm việc"
-              label="Thời gian làm việc"
-              required={true}
-            />
-
             <SelectReact
               name="job_field"
               label="Lĩnh vực"
@@ -184,6 +174,17 @@ const AddJob = () => {
               isMultiple={true}
               error={errors.job_field?.message}
             />
+
+            {/* time làm vc */}
+            <Input
+              name="work_time"
+              control={control}
+              error={errors.work_time?.message}
+              placeholder="Thời gian làm việc"
+              label="Thời gian làm việc"
+              required={true}
+            />
+
             {/* Trình độ */}
             <SelectMui
               name="job_level"

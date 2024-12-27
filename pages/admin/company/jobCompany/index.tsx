@@ -129,7 +129,7 @@ const jobCompany = () => {
             
             <MyButton 
               type="submit" 
-              text="Xóa tất cả công việc " 
+              text="Xóa công việc " 
               className="bg-red-custom"
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
               disabled={!selectedJob.length}
@@ -207,7 +207,7 @@ const jobCompany = () => {
 
       {/* Pagination */}
       <PaginationComponent
-          count={jobCompany?.data.totalPages}
+          count={jobCompany?.data.currentPage}
           page={page}
           onPageChange={(event, value) => dispatch(setPage(value))}
           size={size}

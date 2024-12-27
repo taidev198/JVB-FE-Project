@@ -13,7 +13,6 @@ import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
 import Address from '@/components/Common/Address';
-import validationSchemaAddStudent from '@/validation/companyEmployee/employee/validationAddEmployee';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
 import DateComponent from '@/components/Common/DateComponent';
@@ -22,8 +21,9 @@ import { useGetDetailEmployeeQuery, useUpdateEmployeeMutation } from '@/services
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
+import validationUpdateEmployy from '@/validation/companyEmployee/employee/validationUpdateEmployy';
 
-interface FormDataAddEmployee {
+interface FormDataUpdateEmployee {
   employeeCode: string;
   fullName: string;
   phoneNumber: string;
@@ -45,8 +45,8 @@ const UpdateEmployee = () => {
   const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
-  const methods = useForm<FormDataAddEmployee>({
-    resolver: yupResolver(validationSchemaAddStudent),
+  const methods = useForm<FormDataUpdateEmployee>({
+    resolver: yupResolver(validationUpdateEmployy),
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -62,10 +62,12 @@ const UpdateEmployee = () => {
     formState: { errors },
   } = methods;
 
+  console.log('lỗi: ', errors)
+
   const id = useAppSelector(state => state.global.id);
   const [updateEmployee, { isLoading }] = useUpdateEmployeeMutation();
 
-  const onSubmit: SubmitHandler<FormDataAddEmployee> = async data => {
+  const onSubmit: SubmitHandler<FormDataUpdateEmployee> = async data => {
     const formData = new FormData();
 
     const companyEmployeeRequest = {
