@@ -86,15 +86,15 @@ const AddEmployee = () => {
     // Append file vào FormData
     formData.append('file', image as File);
     try {
-      const response = await addEmployee(formData).unwrap();
-      toast.success(response.messages);
+      await addEmployee(formData).unwrap();
+      toast.success('Thêm nhân viên thành công');
       router.push('/admin/company/userCompany');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
         toast.error(errMsg);
       } else if (isErrorWithMessage(error)) {
-        toast.error(error.message);
+        toast.error('Thêm nhân viên thất bại');
       }
     }
   };

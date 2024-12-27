@@ -60,6 +60,27 @@ export interface WorkshopResponse {
     currentPage: number;
   };
 }
+
+export interface WorkshopResponseCompany {
+  code: number;
+  message: string;
+  data: {
+    content: {
+      id: number;
+      status: string;
+      createAt: string;
+      updateAt: string;
+      createBy: string;
+      updateBy: string;
+      workshop: IWorkshop;
+    }[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}
+
 export interface WorkshopResponsePortal {
   code: number;
   message: string;

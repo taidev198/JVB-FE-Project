@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import * as Yup from 'yup';
 
 const validationUpdateCompany = Yup.object({
@@ -12,12 +13,12 @@ const validationUpdateCompany = Yup.object({
       return inputDate <= currentDate;
     }),
   houseNumber: Yup.string().required('Địa chỉ cụ thể sinh viên là bắt buộc').max(255, 'Địa chỉ cụ thể không được quá 255 kí tự'),
-  taxCode: Yup.string().required('Mã số thuế là bắt buộc').min(10, 'Mã số thuế tối thiểu 10 kí tự').max(15, 'Mã số thuế tối đa 15 kí tự'),
+  taxCode: Yup.number().typeError('Mã số thuế phải là số nguyên').required('Mã số thuế là bắt buộc').test('length','Mã số thuế phải có từ 10 đến 15 chữ số',value => value && value.toString().length >= 10 && value.toString().length <= 15),
   wardId: Yup.number().required('Xã/Phường là bắt buộc'),
   districtId: Yup.number().required('Quận/Huyện là bắt buộc'),
   provinceId: Yup.number().required('Tỉnh/Thành phố là bắt buộc'),
   companyDescription: Yup.string().required('Mô tả  là bắt buộc').max(500, 'Mô tả không được quá 500 kí tự'),
-  companyShortDescription: Yup.string().required('Mô tả chi tiết là bắt buộc').max(500, 'Mô tả không được quá 500 kí tự'),
+  companyShortDescription: Yup.string().required('Mô tả chi tiết là bắt buộc').max(1000, 'Mô tả không được quá 500 kí tự'),
   quantityEmployee: Yup.number()
     .transform(value => (Number.isNaN(value) ? null : value))
     .nullable()

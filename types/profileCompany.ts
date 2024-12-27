@@ -1,4 +1,3 @@
-import { adminCompanyApi } from '@/services/adminCompanyApi';
 import { IFields } from '.';
 import { IAddress } from './addressesTypes';
 

@@ -1,7 +1,11 @@
-import { Button, Button as MyButton } from '@/components/Common/Button';
-import { Checkbox, Chip, Pagination, TextField } from '@mui/material';
+import { useDispatch } from 'react-redux';
+import AddIcon from '@mui/icons-material/Add';
+import { debounce } from 'lodash';
+import { Checkbox, Chip, TextField } from '@mui/material';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Button as MyButton } from '@/components/Common/Button';
 
 import { BackDrop } from '@/components/Common/BackDrop';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
@@ -12,15 +16,10 @@ import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import AddIcon from '@mui/icons-material/Add';
-import { debounce } from 'lodash';
-import toast from 'react-hot-toast';
-import { useDispatch } from 'react-redux';
 import PaginationComponent from '@/components/Common/Pagination';
 
-
-const userCompany = () => {
-  const [idEmployee, setIdEmployee] = useState <number>()
+const UserCompany = () => {
+  const [idEmployee, setIdEmployee] = useState<number>();
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
@@ -37,16 +36,20 @@ const userCompany = () => {
     [dispatch]
   );
 
-  const {data: employee, isLoading} = useGetAllCompanyEmployeQuery({ 
-    status: status,
-    page: page,
-    size: size,
-    keyword,
-    startDate: startDate,
-    endDate: endDate,},{ refetchOnMountOrArgChange: true })
-  
-  const [deleteOne,{isLoading: isLoadingOne}] = useDeleteEmployeeCompanyMutation()
-  const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllEmployeeCompanyMutation()
+  const { data: employee, isLoading } = useGetAllCompanyEmployeQuery(
+    {
+      status: status,
+      page: page,
+      size: size,
+      keyword,
+      startDate: startDate,
+      endDate: endDate,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
+
+  const [deleteOne, { isLoading: isLoadingOne }] = useDeleteEmployeeCompanyMutation();
+  const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllEmployeeCompanyMutation();
 
   const handleDelete = async () => {
     try {
@@ -68,7 +71,6 @@ const userCompany = () => {
       dispatch(setBackdrop(null));
     }
   };
-  console.log(selectedEmployee)
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -95,19 +97,21 @@ const userCompany = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách tài khoản nhân viên</h1>
-        <div className="flex items-center gap-3 justify-between ">
+        <div className="flex items-center justify-between gap-3 ">
           <div className="w-[220px]">
-          <TextField id="filled-search" 
-            label="Tìm kiếm tên nhân viên,..." 
-            type="search" 
-            variant="outlined" 
-            size="small" 
-            onChange={e => debouncedSearch(e.target.value)} />
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm tên nhân viên,..."
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+            />
           </div>
 
-          <div className='flex items-center gap-5'>
+          <div className="flex items-center gap-5">
             <Link href={'/admin/company/userCompany/AddEmployee'}>
-            <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
+              <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
             </Link>
             <MyButton
               type="submit"
@@ -129,7 +133,7 @@ const userCompany = () => {
                 <Checkbox
                   color="primary"
                   checked={selectedEmployee.length === employee?.data.content.length}
-                  indeterminate={selectedEmployee.length > 0 && selectedEmployee.length < (employee?.data.content||[]).length}
+                  indeterminate={selectedEmployee.length > 0 && selectedEmployee.length < (employee?.data.content || []).length}
                   onChange={handleSelectAll}
                 />
               </th>
@@ -159,26 +163,24 @@ const userCompany = () => {
                   <Chip
                     label={item.employeeStatus}
                     sx={{
-                      backgroundColor: 
-                        item.employeeStatus === 'WORKING' ? '#EBF9F1' : '#FFF4E5',
-                      color: 
-                        item.employeeStatus === 'WORKING' ? '#1F9254' : '#CD0000',
+                      backgroundColor: item.employeeStatus === 'WORKING' ? '#EBF9F1' : '#FFF4E5',
+                      color: item.employeeStatus === 'WORKING' ? '#1F9254' : '#CD0000',
                     }}
                   />
                 </td>
                 <td className=" py-4">
-                    <div className="flex items-center gap-2">
-                      <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
-                      <ButtonUpdate href={`/admin/company/userCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
-                      <ButtonDelete
-                        onClick={() => {
-                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                          setIdEmployee(item.id);
-                          dispatch(setName(item.fullName));
-                        }}
-                      />
-                    </div>
-                  </td>
+                  <div className="flex items-center gap-2">
+                    <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                    <ButtonUpdate href={`/admin/company/userCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                    <ButtonDelete
+                      onClick={() => {
+                        dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                        setIdEmployee(item.id);
+                        dispatch(setName(item.fullName));
+                      }}
+                    />
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -193,7 +195,7 @@ const userCompany = () => {
             <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-600"  onClick={ handleDelete} full={true}/>
+              <Button text="Xác nhận" className="bg-red-600" onClick={handleDelete} full={true} />
             </div>
           </div>
         </BackDrop>
@@ -201,15 +203,15 @@ const userCompany = () => {
 
       {/* Pagination */}
       <PaginationComponent
-          count={employee?.data.currentPage}
-          page={page}
-          onPageChange={(event, value) => dispatch(setPage(value))}
-          size={size}
-          totalItem={employee?.data.totalElements}
-          totalTitle={'Nhân viên'}
-        />
+        count={employee?.data.totalPages}
+        page={page}
+        onPageChange={(event, value) => dispatch(setPage(value))}
+        size={size}
+        totalItem={employee?.data.totalElements}
+        totalTitle={'Nhân viên'}
+      />
     </>
   );
 };
 
-export default userCompany;
+export default UserCompany;
