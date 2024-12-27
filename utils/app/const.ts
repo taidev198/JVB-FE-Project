@@ -76,6 +76,19 @@ export const typeUniversity = [
   },
 ];
 
+export const StatusStudentTitle = (status: string): AccountStatus => {
+  switch (status) {
+    case 'IN_PROGRESS':
+      return { title: 'Đã tốt nghiệp', color: '#359d65', bg: '#ebf9f1' };
+    case 'GRADUATED':
+      return { title: 'Đang học', color: '#FFA726 ', bg: '#fffae5' };
+    case 'DROPPED_OUT':
+      return { title: 'Thôi học', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
 export const typeUniversityTitle = (status: string): AccountStatus => {
   switch (status) {
     case 'UNIVERSITY':
@@ -137,7 +150,7 @@ export const typeAccount = (status: string): AccountStatus => {
     case 'ACTIVE':
       return { title: 'Hoạt động', color: '#359d65', bg: '#ebf9f1' };
     case 'BAN':
-      return { title: 'Ngừng hoạt động', color: '#d32f2f', bg: '#FFE5E5' };
+      return { title: 'Đã khóa', color: '#d32f2f', bg: '#FFE5E5' };
     default:
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }

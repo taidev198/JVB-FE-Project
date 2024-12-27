@@ -8,6 +8,7 @@ const Notification = () => {
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
+
   const renderNotification = (
     <Menu
       className="mt-3"

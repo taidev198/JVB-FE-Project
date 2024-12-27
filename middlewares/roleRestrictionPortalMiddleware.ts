@@ -19,8 +19,7 @@ const roleRestrictionMiddleware: Middleware = store => next => action => {
       return;
     }
 
-    // Redirect logged-in users trying to access login page
-    if ((token && currentPath === '/auth/login') || currentPath === '/auth/Register') {
+    if (token && (currentPath === '/auth/login' || currentPath === '/auth/Register')) {
       window.location.href = '/';
       return;
     }

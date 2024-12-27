@@ -11,11 +11,11 @@ import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/s
 import {
   useDeleteStudentMultipleMutation,
   useDeleteStudentOneMutation,
-  useGetAllDepartmentsPortalQuery,
-  useGetAllMajorsQuery,
+  useGetAllFaculityQuery,
+  useGetAllMajorByIdFacultyQuery,
   useGetAllStudentsQuery,
 } from '@/services/adminSchoolApi';
-import { StatusStudent } from '@/utils/app/const';
+import { StatusStudentTitle } from '@/utils/app/const';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { Button, Button as MyButton } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
@@ -44,8 +44,8 @@ const StudentsManagement = () => {
   );
 
   // Call api
-  const { data: dataMajor } = useGetAllMajorsQuery();
-  const { data: dataDepartment, isLoading: isLoadingGetAllDepartment } = useGetAllDepartmentsPortalQuery();
+  const { data: dataDepartment, isLoading: isLoadingGetAllDepartment } = useGetAllFaculityQuery(undefined, { refetchOnMountOrArgChange: true });
+  const { data: dataMajor } = useGetAllMajorByIdFacultyQuery({ id: department }, { skip: department === null, refetchOnMountOrArgChange: true });
   const { data: students, isLoading: isLoadingGetAllSt } = useGetAllStudentsQuery(
     {
       page,
@@ -125,16 +125,26 @@ const StudentsManagement = () => {
                 })),
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
-                setDepartment(selectedOption.value ? Number(selectedOption.value) : null);
+                const selectedValue = selectedOption.value ? Number(selectedOption.value) : null;
+                setDepartment(selectedValue);
+                if (selectedValue === null) {
+                  setMajor(null); // Reset giá trị ngành
+                }
               }}
               className="w-full cursor-pointer"
             />
+
             <Select
               placeholder="Chọn ngành"
               closeMenuOnSelect={true}
+              value={
+                major !== null
+                  ? { value: major, label: (dataMajor?.data || []).find(item => item.id === major)?.majorName || 'Tất cả' }
+                  : { value: null, label: 'Tất cả' }
+              }
               options={[
                 { value: null, label: 'Tất cả' },
-                ...(dataMajor?.data || []).map(major => ({
+                ...(Array.isArray(dataMajor?.data) ? dataMajor.data : []).map(major => ({
                   value: major.id,
                   label: major.majorName,
                 })),
@@ -151,7 +161,7 @@ const StudentsManagement = () => {
             </Link>
             <MyButton
               type="submit"
-              text="Xóa sinh viên đã chọn"
+              text="Xóa sinh viên"
               onClick={() => {
                 dispatch(setName('đã chọn'));
                 dispatch(setBackdrop(BackdropType.DeleteConfirmation));
@@ -168,7 +178,7 @@ const StudentsManagement = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-3 sm:py-4">
+              <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedStudents.length === students?.data.content.length}
@@ -177,7 +187,7 @@ const StudentsManagement = () => {
                   size="small"
                 />
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 py-4 text-left sm:px-3">
                 <p className="min-w-max">STT</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -195,7 +205,6 @@ const StudentsManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Trạng thái</p>
               </th>
-
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Hành động</p>
               </th>
@@ -205,11 +214,11 @@ const StudentsManagement = () => {
             {students?.data.content.length > 0 ? (
               students?.data.content.map((student, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="p-3 sm:px-3 sm:py-4">
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
                     <Checkbox color="primary" checked={selectedStudents.includes(student.id)} onChange={() => handleSelectStudent(student.id)} size="small" />
                   </td>
-                  <td className="p-3 text-center sm:px-5 sm:py-4">
-                    <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <p className="w-fit">{index + 1 + (page - 1) * size}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{student.major.faculty.facultyCode}</p>
@@ -225,24 +234,10 @@ const StudentsManagement = () => {
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Chip
-                      label={StatusStudent(student.studentStatus)}
-                      sx={{
-                        backgroundColor:
-                          student.studentStatus === 'GRADUATED'
-                            ? '#EBF9F1'
-                            : student.studentStatus === 'DROPPED_OUT'
-                            ? '#FFF4E5'
-                            : student.studentStatus === 'IN_PROGRESS'
-                            ? '#FFFAE5'
-                            : '#FEE5E5',
-                        color:
-                          student.studentStatus === 'GRADUATED'
-                            ? '#1F9254'
-                            : student.studentStatus === 'DROPPED_OUT'
-                            ? '#FFA726'
-                            : student.studentStatus === 'IN_PROGRESS'
-                            ? '#FFB800'
-                            : '#F44336',
+                      label={StatusStudentTitle(student.studentStatus).title}
+                      style={{
+                        color: `${StatusStudentTitle(student.studentStatus).color}`,
+                        background: `${StatusStudentTitle(student.studentStatus).bg}`,
                       }}
                     />
                   </td>
@@ -293,7 +288,6 @@ const StudentsManagement = () => {
         count={students?.data.totalPages}
         onPageChange={(event, value) => dispatch(setPage(value))}
         totalItem={students?.data.totalElements}
-        totalTitle={'tài khoản'}
       />
     </>
   );

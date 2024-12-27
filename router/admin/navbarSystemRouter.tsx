@@ -28,13 +28,13 @@ export const litsNavbarSystemAdmin = [
     id: 4,
     icon: <IconWorkshop />,
     url: '/admin/system/workshop',
-    label: 'Quản lý Workshop',
+    label: 'Quản lý workshop',
   },
   {
     id: 5,
     icon: <IconJob />,
     url: '/admin/system/job',
-    label: 'Quản lý Jobs',
+    label: 'Quản lý jobs',
   },
   {
     id: 6,
