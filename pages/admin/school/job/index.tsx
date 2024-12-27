@@ -175,14 +175,13 @@ const Partnerships = () => {
                   </td>
                   <td className="py-4">
                     <div className="flex items-center justify-center gap-3">
-                      {job.status === 'ACCEPT' && (
-                        <ButtonSee
-                          onClick={() => {
-                            setSelectId(job.job.id);
-                          }}
-                          href={`/portal/jobs/${job.job.id}`}
-                        />
-                      )}
+                      <ButtonSee
+                        onClick={() => {
+                          setSelectId(job.job.id);
+                        }}
+                        href={`/portal/jobs/${job.job.id}`}
+                      />
+
                       {job.status === 'PENDING' && (
                         <>
                           <ButtonReject
@@ -219,7 +218,7 @@ const Partnerships = () => {
 
       {/* Pagination */}
       <PaginationComponent
-        count={jobs?.data.totalPages}
+        count={jobs?.data.currentPage}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}

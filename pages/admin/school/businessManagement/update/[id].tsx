@@ -162,7 +162,9 @@ const UpdateBusiness = () => {
             error={errors.majorDescription?.message}
             {...register('majorDescription')}
           />
-          <Button text="Cập nhật" full={true} type="submit" />
+          <div className="ml-auto mt-5 w-fit ">
+            <Button text="Cập nhật" type="submit" />
+          </div>
         </div>
       </form>
     </div>

@@ -192,7 +192,7 @@ const UpdateSchoolManagement = () => {
               control={control}
               error={errors.establishedDate?.message}
               placeholder={'Nhập ngày thành lập'}
-              label={'Ngày thàng lập'}
+              label={'Ngày thành lập'}
               required={true}
             />
             <Input type="url" name="linkWebsite" label="Link website" placeholder="Nhập link website" control={control} error={errors.linkWebsite?.message} />
@@ -273,15 +273,16 @@ const UpdateSchoolManagement = () => {
             />
           </div>
         </div>
-        <Text
-          label="Mô tả ngắn "
-          placeholder="Nhập mô tả ngắn"
-          control={control}
-          error={errors.universityShortDescription?.message}
-          {...register('universityShortDescription')}
-          required={true}
-        />
-
+        <div className="mt-5">
+          <Text
+            label="Mô tả ngắn "
+            placeholder="Nhập mô tả ngắn"
+            control={control}
+            error={errors.universityShortDescription?.message}
+            {...register('universityShortDescription')}
+            required={true}
+          />
+        </div>
         <div className="ml-auto w-fit">
           {' '}
           <Button text="Cập nhật" type="submit" />
