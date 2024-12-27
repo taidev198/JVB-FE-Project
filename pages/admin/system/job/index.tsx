@@ -237,7 +237,7 @@ const AdminSystemJob = () => {
       />
       {showBackdrop && (
         <BackDrop isCenter>
-          <div className="max-w-[400px] rounded-md p-6">
+          <div className="max-w-[430px] rounded-md p-6">
             <h3 className="font-bold">
               {showBackdrop === BackdropType.ApproveConfirmation && `Duyệt job ${name}`}
               {showBackdrop === BackdropType.RefuseConfirmation && `Từ chối job ${name}`}

@@ -107,6 +107,14 @@ const AdminSystemSchool = () => {
         <h1 className="mb-5 font-bold">Doanh sách tài khoản trường học</h1>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm tên, mã trường"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+            />
             <Select
               placeholder="Trạng thái"
               closeMenuOnSelect={true}
@@ -114,7 +122,7 @@ const AdminSystemSchool = () => {
                 { value: '', label: 'Tất cả' },
                 { value: 'PENDING', label: 'Chờ duyệt' },
                 { value: 'ACTIVE', label: 'Hoạt động' },
-                { value: 'BAN', label: 'Ngưng hoạt động' },
+                { value: 'BAN', label: 'Đã khóa' },
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
               className="w-[160px] cursor-pointer"
@@ -128,14 +136,6 @@ const AdminSystemSchool = () => {
               }))}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setUniversityType(selectedOption.value))}
               className="w-[160px] cursor-pointer"
-            />
-            <TextField
-              id="filled-search"
-              label="Tìm kiếm tên, mã trường"
-              type="search"
-              variant="outlined"
-              size="small"
-              onChange={e => debouncedSearch(e.target.value)}
             />
           </div>
         </div>
@@ -151,8 +151,8 @@ const AdminSystemSchool = () => {
               <th className="px-5 py-4 text-left">Tên tên trường học</th>
               <th className="px-5 py-4 text-left">Loại trường</th>
               <th className="px-5 py-4 text-left">Email</th>
-              <th className="px-5 py-4 text-left">Trạng Thái</th>
-              <th className="px-5 py-4 text-left">Thao Tác</th>
+              <th className="px-5 py-4 text-left">Trạng thái</th>
+              <th className="px-5 py-4">Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -175,21 +175,23 @@ const AdminSystemSchool = () => {
                       }}
                     />
                   </td>
-                  <td className="flex items-center gap-3 px-5 py-4">
-                    <ButtonSee href={`/admin/system/school/${university.id}`} onClick={() => dispatch(setId(university.id))} />
-                    {university?.account?.statusAccount === 'PENDING' && (
-                      <>
-                        <ButtonAccept onClick={() => handleAction(BackdropType.ApproveConfirmation, university.account.id, university.universityName)} />
+                  <td className="py-4">
+                    <div className="flex items-center justify-center gap-3">
+                      <ButtonSee href={`/admin/system/school/${university.id}`} onClick={() => dispatch(setId(university.id))} />
+                      {university?.account?.statusAccount === 'PENDING' && (
+                        <>
+                          <ButtonAccept onClick={() => handleAction(BackdropType.ApproveConfirmation, university.account.id, university.universityName)} />
 
-                        <ButtonReject onClick={() => handleAction(BackdropType.RefuseConfirmation, university.account.id, university.universityName)} />
-                      </>
-                    )}
-                    {university?.account?.statusAccount === 'ACTIVE' && (
-                      <ButtonLock onClick={() => handleAction(BackdropType.LockConfirmation, university.account.id, university.universityName)} />
-                    )}
-                    {university?.account?.statusAccount === 'BAN' && (
-                      <ButtonUnLock onClick={() => handleAction(BackdropType.UnlockConfirmation, university.account.id, university.universityName)} />
-                    )}
+                          <ButtonReject onClick={() => handleAction(BackdropType.RefuseConfirmation, university.account.id, university.universityName)} />
+                        </>
+                      )}
+                      {university?.account?.statusAccount === 'ACTIVE' && (
+                        <ButtonLock onClick={() => handleAction(BackdropType.LockConfirmation, university.account.id, university.universityName)} />
+                      )}
+                      {university?.account?.statusAccount === 'BAN' && (
+                        <ButtonUnLock onClick={() => handleAction(BackdropType.UnlockConfirmation, university.account.id, university.universityName)} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -210,12 +212,11 @@ const AdminSystemSchool = () => {
         count={universities?.data.totalPages}
         onPageChange={(event, value) => dispatch(setPage(value))}
         totalItem={universities?.data.totalElements}
-        totalTitle={'tài khoản'}
       />
       {/* Backdrops */}
       {showBackdrop && (
         <BackDrop isCenter>
-          <div className="max-w-[400px] rounded-md p-6">
+          <div className="max-w-[430px] rounded-md p-6">
             <h3 className="font-bold">
               {selectedAction === BackdropType.ApproveConfirmation && `Duyệt tài khoản ${name}`}
               {selectedAction === BackdropType.RefuseConfirmation && `Từ chối tài khoản ${name}`}

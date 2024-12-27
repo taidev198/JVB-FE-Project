@@ -31,11 +31,5 @@ export interface ApiResponseDetailBusiness {
   data: {
     id: number;
     majorName: string;
-    majorCode: string;
-    creditRequirement: number;
-    majorDescription: string;
-    numberOfStudents: number;
-    faculty: IFaculty;
-    majorFields: IFields[];
-  };
+  }[];
 }

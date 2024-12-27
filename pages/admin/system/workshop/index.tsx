@@ -124,7 +124,7 @@ const AdminSystemWorkshop = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách Workshop</h1>
+        <h1 className="mb-5 font-bold">Doanh sách workshops</h1>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-5">
             <Select
@@ -152,7 +152,7 @@ const AdminSystemWorkshop = () => {
           </div>
           <Button
             type="submit"
-            text="Xóa workshops đã chọn"
+            text="Xóa workshops"
             onClick={() => {
               handleAction(BackdropType.DeleteConfirmation, null);
               dispatch(setName('đã chọn'));
@@ -168,7 +168,7 @@ const AdminSystemWorkshop = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-3 sm:py-4">
+              <th className="p-3 text-left sm:px-2 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedWorkshop.length === workshops?.data.content.length}
@@ -178,24 +178,27 @@ const AdminSystemWorkshop = () => {
                 />
               </th>
               <th className="px-5 py-4">STT</th>
-              <th className="px-2 py-4 text-left">Tiêu đề</th>
+              <th className="px-5 py-4 text-left">Tiêu đề workshop</th>
               <th className="px-2 py-4 text-left">
                 <p className="min-w-max">Trường học</p>
               </th>
               <th className="px-2 py-4 text-left">
-                <p className="min-w-max">Địa chỉ</p>
+                <p className="min-w-max">Thời gian bắt đầu</p>
+              </th>
+              <th className="px-2 py-4 text-left">
+                <p className="min-w-max">Thời gian kết thúc</p>
               </th>
               <th className="px-2 py-4 text-left">
                 <p className="min-w-max">Trạng thái</p>
               </th>
-              <th className="px-5 py-4 text-left">Thao Tác</th>
+              <th className="px-5 py-4">Thao Tác</th>
             </tr>
           </thead>
           <tbody>
             {workshops?.data.content.length !== 0 ? (
               workshops?.data.content.map((workshop, index) => (
                 <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="p-3 sm:px-3 sm:py-4">
+                  <td className="p-3 sm:px-2 sm:py-4">
                     <Checkbox
                       color="primary"
                       checked={selectedWorkshop.includes(workshop.id)}
@@ -204,17 +207,17 @@ const AdminSystemWorkshop = () => {
                     />
                   </td>
                   <td className="px-5 py-4 text-center">{index + 1 + (page - 1) * size}</td>
-                  <td className="cursor-pointer px-2 py-4">
+                  <td className="px-5 py-4">
                     <p className="sm:[250px] w-[220px]">{workshop.workshopTitle}</p>
                   </td>
                   <td className="px-2 py-4">
                     <p className="sm:[250px] w-[220px]"> {workshop.university.universityName}</p>
                   </td>
                   <td className="px-2 py-4">
-                    <p className="sm:[250px] w-[220px]">
-                      {workshop.address.houseNumber}, {workshop.address.ward.wardName}, {workshop.address.district.districtName},
-                      {workshop.address.province.provinceName}
-                    </p>
+                    <p className="sm:[250px] w-fit">{workshop.startTime}</p>
+                  </td>
+                  <td className="px-2 py-4">
+                    <p className="sm:[250px] w-fit">{workshop.endTime}</p>
                   </td>
                   <td className="px-2 py-4">
                     <Chip
@@ -226,7 +229,7 @@ const AdminSystemWorkshop = () => {
                     />
                   </td>
                   <td className="py-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center gap-3">
                       <ButtonSee href={`/admin/system/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
                       {workshop.moderationStatus === 'PENDING' && (
                         <>
@@ -265,14 +268,13 @@ const AdminSystemWorkshop = () => {
         count={workshops?.data.totalPages}
         onPageChange={(event, value) => dispatch(setPage(value))}
         totalItem={workshops?.data.totalElements}
-        totalTitle={'tài khoản'}
       />
       {/* Backdrops */}
       {(backdropType === BackdropType.ApproveConfirmation ||
         backdropType === BackdropType.RefuseConfirmation ||
         backdropType === BackdropType.DeleteConfirmation) && (
         <BackDrop isCenter>
-          <div className="max-w-[400px] rounded-md p-6">
+          <div className="max-w-[430px] rounded-md p-6">
             <h3 className="font-bold">
               {selectedAction === BackdropType.ApproveConfirmation && `Duyệt workshop ${name}`}
               {selectedAction === BackdropType.RefuseConfirmation && `Từ chối workshop ${name}`}

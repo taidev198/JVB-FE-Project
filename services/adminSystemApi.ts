@@ -307,7 +307,7 @@ export const adminSystemApi = createApi({
         }),
       }),
 
-      getNotifications: builder.query<void, void>({
+      getNotifications: builder.query({
         query: () => ({
           url: '/portal/notifications',
         }),

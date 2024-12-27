@@ -19,7 +19,7 @@ import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import CompanyApplyWorkshop from '@/components/Admin/school/CompanyApplyWorkshop';
+import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
 
 const AdminSchoolWorkshop = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -27,7 +27,6 @@ const AdminSchoolWorkshop = () => {
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const id = useAppSelector(state => state.global.id);
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();
 
@@ -75,7 +74,7 @@ const AdminSchoolWorkshop = () => {
     <div>
       <>
         <div className="rounded-t-md bg-white p-5 pb-5">
-          <h1 className="mb-5 font-bold">Doanh sách Workshop</h1>
+          <h1 className="mb-5 font-bold">Danh sách workshop</h1>
 
           <div className="mt-5 flex flex-wrap items-center justify-between md:mt-0">
             <div className="flex flex-wrap items-center gap-3">
@@ -119,61 +118,68 @@ const AdminSchoolWorkshop = () => {
                 <th className="px-2 py-4 text-left">
                   <p className="min-w-max">Trạng thái</p>
                 </th>
-                <th className="px-5 py-4 text-left">
+                <th className="px-5 py-4">
                   <p className="min-w-max">Hành động</p>
                 </th>
               </tr>
             </thead>
             <tbody>
-              {workshops?.data?.content.map((workshop, index) => (
-                <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-5 py-4 text-center">
-                    <p>{index + 1 + (page - 1) * size}</p>
-                  </td>
-                  <td className="px-2 py-4">
-                    <p className="sm:[230px] w-[210px]">{workshop.workshopTitle}</p>
-                  </td>
-                  <td className="px-2 py-4">
-                    <p className="sm:[230px] w-[210px]">{workshop.university.universityName}</p>
-                  </td>
-                  <td className="px-2 py-4">
-                    <p className="sm:[250px] w-[220px]">
-                      {workshop.address?.houseNumber}, {workshop.address?.ward.wardName}, {workshop.address?.district.districtName},
-                      {workshop.address?.province.provinceName}
-                    </p>
-                  </td>
-                  <td className="px-2 py-4">{workshop.startTime}</td>
-                  <td className="px-3 py-4">
-                    <Chip
-                      label={statusTextWorkshop(workshop.moderationStatus).title}
-                      style={{
-                        color: `${statusTextWorkshop(workshop.moderationStatus).color}`,
-                        background: `${statusTextWorkshop(workshop.moderationStatus).bg}`,
-                      }}
-                    />
-                  </td>
-                  <td className="py-4">
-                    <div className="flex items-center gap-2">
-                      <ButtonSee
-                        href={`#`}
-                        onClick={() => {
-                          dispatch(setBackdrop(BackdropType.AddModal));
-                          dispatch(setId(workshop.id));
-                          dispatch(setName(workshop.workshopTitle));
+              {workshops?.data?.content.length > 0 ? (
+                workshops?.data?.content.map((workshop, index) => (
+                  <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                    <td className="p-3 text-center sm:px-5 sm:py-4">
+                      <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
+                    </td>
+                    <td className="px-2 py-4">
+                      <p className="sm:[230px] w-[210px]">{workshop.workshopTitle}</p>
+                    </td>
+                    <td className="px-2 py-4">
+                      <p className="sm:[230px] w-[210px]">{workshop.university.universityName}</p>
+                    </td>
+                    <td className="px-2 py-4">
+                      <p className="w-[245px]">
+                        {workshop.address?.houseNumber}, {workshop.address?.ward.wardName}, {workshop.address?.district.districtName},
+                        {workshop.address?.province.provinceName}
+                      </p>
+                    </td>
+                    <td className="px-2 py-4">{workshop.startTime}</td>
+                    <td className="px-3 py-4">
+                      <Chip
+                        label={statusTextWorkshop(workshop.moderationStatus).title}
+                        style={{
+                          color: `${statusTextWorkshop(workshop.moderationStatus).color}`,
+                          background: `${statusTextWorkshop(workshop.moderationStatus).bg}`,
                         }}
                       />
-                      <ButtonSee href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
-                      <ButtonUpdate href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
-                      <ButtonDelete
-                        onClick={() => {
-                          handleOpenConfirm(workshop.id);
-                          dispatch(setName(workshop.workshopTitle));
-                        }}
-                      />
-                    </div>
+                    </td>
+                    <td className="py-4">
+                      <div className="flex items-center gap-2">
+                        <ButtonCompanyApply
+                          href={`/admin/school/workshop/company-apply-workshop`}
+                          onClick={() => {
+                            dispatch(setId(workshop.id));
+                            dispatch(setName(workshop.workshopTitle));
+                          }}
+                        />
+                        <ButtonSee href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
+                        <ButtonUpdate href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
+                        <ButtonDelete
+                          onClick={() => {
+                            handleOpenConfirm(workshop.id);
+                            dispatch(setName(workshop.workshopTitle));
+                          }}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={7} className="py-4 text-center text-base">
+                    <p>Không có dữ liệu workshop nào</p>
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
@@ -185,7 +191,6 @@ const AdminSchoolWorkshop = () => {
           onPageChange={(event, value) => dispatch(setPage(value))}
           size={size}
           totalItem={workshops?.data.totalElements}
-          totalTitle={'workshops'}
         />
 
         {showBackdrop === BackdropType.DeleteConfirmation && (
@@ -198,12 +203,6 @@ const AdminSchoolWorkshop = () => {
                 <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
               </div>
             </div>
-          </BackDrop>
-        )}
-
-        {showBackdrop === BackdropType.AddModal && (
-          <BackDrop isCenter>
-            <CompanyApplyWorkshop idWorkshop={id} workshopTitle={name} />
           </BackDrop>
         )}
       </>

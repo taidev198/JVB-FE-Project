@@ -48,7 +48,7 @@ const DetailWorkshop: FC = () => {
         </Link>
         Trở về
       </div>
-      <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin chi tiết Workshop </h1>
+      <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin chi tiết workshop </h1>
       <div className="p-4 sm:px-20">
         <div className="mt-2 flex flex-col gap-6 rounded-md border-[1px] border-solid border-[#c2c0c0] p-4 ">
           <div className="flex justify-between">
@@ -70,7 +70,7 @@ const DetailWorkshop: FC = () => {
             <p className="flex">
               <LocationOnIcon sx={{ color: '#757575' }} />
               <div className="flex">
-                <p className="mr-2 min-w-fit font-semibold">Mô tả:</p>
+                <p className="mr-2 min-w-fit font-semibold">Địa chỉ:</p>
                 <p>
                   {workshop?.data.address.houseNumber},{workshop?.data.address.province.provinceName},{workshop?.data.address.district.districtName},
                   {workshop?.data.address.ward.wardName}
@@ -93,12 +93,12 @@ const DetailWorkshop: FC = () => {
             <p className="flex items-center gap-1">
               <WidgetsIcon sx={{ color: '#757575' }} />
               <span className="font-semibold">Lĩnh vực:</span>
+              <ul className="ml-3 mt-3 flex flex-wrap gap-4">
+                <Chip label="Công nghệ" color="primary" variant="outlined" />
+                <Chip label="Tài chính" color="primary" variant="outlined" />
+                <Chip label="Khoa học" color="primary" variant="outlined" />
+              </ul>
             </p>
-            <ul className="ml-3 mt-3 flex gap-4">
-              <Chip label="Công nghệ" color="primary" variant="outlined" />
-              <Chip label="Tài chính" color="primary" variant="outlined" />
-              <Chip label="Khoa học" color="primary" variant="outlined" />
-            </ul>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">

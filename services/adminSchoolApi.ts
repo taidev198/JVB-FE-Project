@@ -116,6 +116,12 @@ export const adminSchoolApi = createApi({
         },
         providesTags: [{ type: 'Business', id: 'listBu' }],
       }),
+      getAllMajorByIdFaculty: builder.query<ApiResponseDetailBusiness, { id: number | null }>({
+        query: ({ id }) => ({
+          url: `/university/majors/get-by-faculty/${id}`,
+        }),
+        providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Business', id }] : []),
+      }),
       getDetailBusiness: builder.query<ApiResponseDetailBusiness, { id: number | null }>({
         query: ({ id }) => ({
           url: `/university/majors/${id}`,
@@ -332,7 +338,7 @@ export const adminSchoolApi = createApi({
           url: `/university/workshop/apply/approve/${id}`,
           method: 'PUT',
         }),
-        invalidatesTags: result => [{ type: 'WorkshopApply', id: result.data.id }, { type: 'WorkshopApply' }],
+        invalidatesTags: () => [{ type: 'WorkshopApply' }],
       }),
 
       rejectCompanyApplyWorkshop: builder.mutation({
@@ -340,7 +346,7 @@ export const adminSchoolApi = createApi({
           url: `/university/workshop/apply/reject/${id}`,
           method: 'PUT',
         }),
-        invalidatesTags: result => [{ type: 'WorkshopApply', id: result.data.id }, { type: 'WorkshopApply' }],
+        invalidatesTags: () => [{ type: 'WorkshopApply' }],
       }),
 
       // Students
@@ -494,6 +500,7 @@ export const {
   useGetAllStudentsQuery,
   useGetAllBusinessQuery,
   useUpdateBusinessMutation,
+  useGetAllMajorByIdFacultyQuery,
   useGetDetailBusinessQuery,
   useDeleteBusinessMultipleMutation,
   useDeleteBusinessOneMutation,

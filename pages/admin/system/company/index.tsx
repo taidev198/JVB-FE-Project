@@ -106,7 +106,7 @@ const AdminSystemCompany = () => {
                 { value: '', label: 'Tất cả' },
                 { value: 'PENDING', label: 'Chờ duyệt' },
                 { value: 'ACTIVE', label: 'Hoạt động' },
-                { value: 'BAN', label: 'Ngưng hoạt động' },
+                { value: 'BAN', label: 'Đã khóa' },
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
               className="w-[160px] cursor-pointer"
@@ -130,11 +130,11 @@ const AdminSystemCompany = () => {
             <tr>
               <th className="px-5 py-4">STT</th>
               <th className="px-5 py-4 text-left">Mã công ty</th>
-              <th className="px-5 py-4 text-left">Tên Công Ty</th>
+              <th className="px-5 py-4 text-left">Tên công ty</th>
               <th className="px-5 py-4 text-left">Email</th>
               <th className="px-5 py-4 text-left">Ngày đăng ký</th>
-              <th className="px-5 py-4 text-left">Trạng Thái</th>
-              <th className="px-5 py-4 text-left">Thao Tác</th>
+              <th className="px-5 py-4 text-left">Trạng thái</th>
+              <th className="px-5 py-4">Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -157,21 +157,23 @@ const AdminSystemCompany = () => {
                       }}
                     />
                   </td>
-                  <td className="flex items-center gap-3 px-5 py-4">
-                    <ButtonSee href={`/admin/system/company/${company.id}`} onClick={() => dispatch(setId(company.id))} />
-                    {company?.account?.statusAccount === 'PENDING' && (
-                      <>
-                        <ButtonAccept onClick={() => handleAction(BackdropType.ApproveConfirmation, company.account.id, company.companyName)} />
+                  <td className="py-4">
+                    <div className="flex items-center justify-center gap-3">
+                      <ButtonSee href={`/admin/system/company/${company.id}`} onClick={() => dispatch(setId(company.id))} />
+                      {company?.account?.statusAccount === 'PENDING' && (
+                        <>
+                          <ButtonAccept onClick={() => handleAction(BackdropType.ApproveConfirmation, company.account.id, company.companyName)} />
 
-                        <ButtonReject onClick={() => handleAction(BackdropType.RefuseConfirmation, company.account.id, company.companyName)} />
-                      </>
-                    )}
-                    {company?.account?.statusAccount === 'ACTIVE' && (
-                      <ButtonLock onClick={() => handleAction(BackdropType.LockConfirmation, company.account.id, company.companyName)} />
-                    )}
-                    {company?.account?.statusAccount === 'BAN' && (
-                      <ButtonUnLock onClick={() => handleAction(BackdropType.UnlockConfirmation, company.account.id, company.companyName)} />
-                    )}
+                          <ButtonReject onClick={() => handleAction(BackdropType.RefuseConfirmation, company.account.id, company.companyName)} />
+                        </>
+                      )}
+                      {company?.account?.statusAccount === 'ACTIVE' && (
+                        <ButtonLock onClick={() => handleAction(BackdropType.LockConfirmation, company.account.id, company.companyName)} />
+                      )}
+                      {company?.account?.statusAccount === 'BAN' && (
+                        <ButtonUnLock onClick={() => handleAction(BackdropType.UnlockConfirmation, company.account.id, company.companyName)} />
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -192,12 +194,11 @@ const AdminSystemCompany = () => {
         count={companies?.data.totalPages}
         onPageChange={(event, value) => dispatch(setPage(value))}
         totalItem={companies?.data.totalElements}
-        totalTitle={'tài khoản'}
       />
       {/* Backdrops */}
       {showBackdrop && (
         <BackDrop isCenter>
-          <div className="max-w-[400px] rounded-md p-6">
+          <div className="max-w-[430px] rounded-md p-6">
             <h3 className="font-bold">
               {selectedAction === BackdropType.ApproveConfirmation && `Duyệt tài khoản doanh nghiệp ${name}`}
               {selectedAction === BackdropType.RefuseConfirmation && `Từ chối tài khoản doanh nghiệp ${name}`}

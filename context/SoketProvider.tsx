@@ -6,68 +6,78 @@ export const SocketContext = createContext(null);
 
 const SocketProvider = ({ children }) => {
   const idAccount = useAppSelector(state => state.user.user?.account?.id);
-
+  const token = useAppSelector(state => state.user?.token);
   const wsUrl = `ws://192.168.0.152:8082/ws/notifications?accountId=${idAccount}`;
-  const [socket, setSocket] = useState(null);
+
+  const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!wsUrl) return;
+    if (!token) {
+      // Nếu không có token, đóng kết nối WebSocket
+      if (socket) {
+        console.log(socket);
 
-    let ws;
-    let reconnectTimeout;
-    let heartbeatInterval;
-
-    const connectWebSocket = () => {
-      ws = new WebSocket(wsUrl);
-
-      ws.onopen = () => {
-        setIsConnected(true);
-        setSocket(ws);
-
-        // Bắt đầu gửi heartbeat
-        heartbeatInterval = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({ type: 'ping' })); // Gửi tín hiệu ping
-          }
-        }, 30000);
-      };
-
-      ws.onmessage = event => {
-        const rawMessage = event.data;
-        const titleMatch = rawMessage.match(/notificationTitle=(.*?)(,|$)/);
-        const notificationTitle = titleMatch ? titleMatch[1] : 'Không tìm thấy tiêu đề';
-        setMessages(prevMessages => [...prevMessages, rawMessage]);
-
-        // Hiển thị thông báo
-        toast(notificationTitle, {
-          icon: '🔔',
-        });
-      };
-
-      ws.onerror = error => {
-        console.error('Lỗi WebSocket:', error);
+        socket.close();
+        setSocket(null);
         setIsConnected(false);
-      };
-
-      ws.onclose = () => {
-        setIsConnected(false);
-        clearInterval(heartbeatInterval); // Dừng gửi heartbeat
-        reconnectTimeout = setTimeout(connectWebSocket, 1000); // Kết nối lại sau 5 giây
-      };
-    };
-
-    connectWebSocket();
-
-    return () => {
-      if (ws) {
-        ws.close();
       }
-      clearTimeout(reconnectTimeout);
-      clearInterval(heartbeatInterval);
-    };
-  }, [wsUrl]);
+      return;
+    }
+
+    // Nếu có token, kết nối lại WebSocket
+    if (wsUrl && token) {
+      let ws: WebSocket;
+      let reconnectTimeout: NodeJS.Timeout;
+      let heartbeatInterval: NodeJS.Timeout;
+      console.log('ket noi thanh cong');
+      const connectWebSocket = () => {
+        ws = new WebSocket(wsUrl);
+        ws.onopen = () => {
+          setIsConnected(true);
+          setSocket(ws);
+
+          // Bắt đầu gửi heartbeat
+          heartbeatInterval = setInterval(() => {
+            if (ws.readyState === WebSocket.OPEN) {
+              ws.send(JSON.stringify({ type: 'ping' })); // Gửi tín hiệu ping
+            }
+          }, 30000);
+        };
+
+        ws.onmessage = event => {
+          const rawMessage = event.data;
+          const titleMatch = rawMessage.match(/notificationTitle=(.*?)(,|$)/);
+          const notificationTitle = titleMatch ? titleMatch[1] : 'Không tìm thấy tiêu đề';
+          setMessages(prevMessages => [...prevMessages, rawMessage]);
+
+          // Hiển thị thông báo
+          toast(notificationTitle, {
+            icon: '🔔',
+          });
+        };
+
+        ws.onerror = error => {
+          console.error('Lỗi WebSocket:', error);
+          setIsConnected(false);
+        };
+
+        ws.onclose = () => {
+          ws.close();
+          setIsConnected(false);
+          clearInterval(heartbeatInterval); // Dừng gửi heartbeat
+        };
+      };
+
+      connectWebSocket();
+
+      return () => {
+        clearTimeout(reconnectTimeout);
+        clearInterval(heartbeatInterval);
+      };
+    }
+  }, [token, wsUrl]);
 
   // Hàm thủ công để làm mới kết nối
   const reconnectSocket = () => {

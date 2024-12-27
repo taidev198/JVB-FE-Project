@@ -17,7 +17,6 @@ import TextEditor from '@/components/Common/TextEditor';
 import SelectReact from '@/components/Common/SelectMui';
 import { useAddWorkshopMutation, useGetAllFieldsQuery } from '@/services/adminSchoolApi';
 import { setLoading } from '@/store/slices/global';
-import { setToast } from '@/store/slices/toastSlice';
 import Address from '@/components/Common/Address';
 import DateComponent from '@/components/Common/DateComponent';
 import { formatDateWorkshop } from '@/utils/app/format';
@@ -58,7 +57,7 @@ const AddWorkshop = () => {
   } = methods;
 
   const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();
-  const [addWorkshop, { data, isLoading: isLoadingAddworksop, isSuccess }] = useAddWorkshopMutation();
+  const [addWorkshop, { isLoading: isLoadingAddworksop }] = useAddWorkshopMutation();
 
   const onSubmit: SubmitHandler<FormDataWorkShop> = async data => {
     const formData = new FormData();
