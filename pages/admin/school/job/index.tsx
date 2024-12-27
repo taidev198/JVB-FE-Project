@@ -158,7 +158,7 @@ const Partnerships = () => {
             {jobs?.data.content.length !== 0 ? (
               jobs?.data.content.map((job, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4 text-center"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{job.job.company.companyName}</td>
                   <td className="px-5 py-4">{job.job.jobTitle}</td>
                   <td className="px-5 py-4">{jobType(job.job.jobType)}</td>
@@ -218,7 +218,7 @@ const Partnerships = () => {
 
       {/* Pagination */}
       <PaginationComponent
-        count={jobs?.data.currentPage}
+        count={jobs?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}

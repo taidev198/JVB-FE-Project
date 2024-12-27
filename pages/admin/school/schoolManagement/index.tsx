@@ -6,8 +6,6 @@ import InsertCommentIcon from '@mui/icons-material/InsertComment';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import SchoolIcon from '@mui/icons-material/School';
-import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -76,20 +74,7 @@ const DetailSchoolManagement = () => {
               <span className="mr-2 font-semibold">Ngày thành lập:</span> {detailSchool?.data.establishedDate}
             </div>
           </li>
-          <li className="mt-4 flex items-center  gap-3 ">
-            <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Số lượng sinh viên:</span>
-              {detailSchool?.data.numberOfStudents}
-            </div>
-          </li>
-          <li className="mt-4 flex items-center  gap-3 ">
-            <SchoolIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Số lượng sinh viên tốt nghiệp:</span>
-              {detailSchool?.data.numberOfGraduates}
-            </div>
-          </li>
+
           <li className="mt-4 flex items-center  gap-3 ">
             <CategoryIcon sx={{ color: '#757575' }} />
             <div>

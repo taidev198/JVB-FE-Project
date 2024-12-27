@@ -80,27 +80,36 @@ const Address: FC<AddressProps> = ({ provinceName, districtName, wardName, contr
       {/* Province Select */}
       <div>
         <label htmlFor="provinceId" className="mb-1 block text-sm font-semibold text-gray-700">
-          Tỉnh <span className="text-red-600">*</span>
+          Tỉnh/Thành phố <span className="text-red-600">*</span>
         </label>
-        {renderSelect(provinceName, errorProvince, provinces?.data || [], isLoadingProvinces, 'Chọn Tỉnh', 'provinceName', 'id', handleProvinceChange)}
+        {renderSelect(
+          provinceName,
+          errorProvince,
+          provinces?.data || [],
+          isLoadingProvinces,
+          'Chọn Tỉnh/Thành phố',
+          'provinceName',
+          'id',
+          handleProvinceChange
+        )}
         {errorProvince && <p className="top-full mt-[2px] text-[13px] text-red-500">{errorProvince}</p>}
       </div>
 
       {/* District Select */}
       <div>
         <label htmlFor="districtId" className="mb-1 block text-sm font-semibold text-gray-700">
-          Huyện <span className="text-red-600">*</span>
+          Quận/Huyện <span className="text-red-600">*</span>
         </label>
-        {renderSelect(districtName, errorDistrict, districts?.data || [], isLoadingDistricts, 'Chọn Huyện', 'districtName', 'id', handleDistrictChange)}
+        {renderSelect(districtName, errorDistrict, districts?.data || [], isLoadingDistricts, 'Chọn Quận/Huyện', 'districtName', 'id', handleDistrictChange)}
         {errorDistrict && <p className="top-full mt-[2px] text-[13px] text-red-500">{errorDistrict}</p>}
       </div>
 
       {/* Ward Select */}
       <div>
         <label htmlFor="wardId" className="mb-1 block text-sm font-semibold text-gray-700">
-          Xã <span className="text-red-600">*</span>
+          Xã/Phường <span className="text-red-600">*</span>
         </label>
-        {renderSelect(wardName, errorWard, wards?.data || [], isLoadingWards, 'Chọn Xã', 'wardName', 'id')}
+        {renderSelect(wardName, errorWard, wards?.data || [], isLoadingWards, 'Chọn Xã/Phường', 'wardName', 'id')}
         {errorWard && <p className="top-full mt-[2px] text-[13px] text-red-500">{errorWard}</p>}
       </div>
 

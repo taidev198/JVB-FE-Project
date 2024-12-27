@@ -21,23 +21,7 @@ const validationSchemaUpdateSchool = Yup.object({
   provinceId: Yup.number().required('Tỉnh/Thành phố là bắt buộc'),
   universityDescription: Yup.string().max(500, 'Mô tả không được quá 500 kí tự').required('Mô tả là bắt buộc'),
   universityShortDescription: Yup.string().max(200, 'Mô tả không được quá 200 kí tự').required('Mô tả là bắt buộc'),
-  numberOfGraduates: Yup.number()
-    .transform((value, originalValue) => {
-      return originalValue === '' ? undefined : value;
-    })
-    .required('Số lượng sinh viên tốt nghiệp là bắt buộc')
-    .integer('Số lượng sinh viên tốt nghiệp phải là số nguyên')
-    .positive('Số lượng sinh viên tốt nghiệp phải là số dương')
-    .typeError('Vui lòng nhập một số hợp lệ'),
 
-  numberOfStudents: Yup.number()
-    .transform((value, originalValue) => {
-      return originalValue === '' ? undefined : value;
-    })
-    .required('Số lượng sinh viên là bắt buộc')
-    .integer('Số lượng sinh viên phải là số nguyên')
-    .positive('Số lượng sinh viên phải là số dương')
-    .typeError('Vui lòng nhập một số hợp lệ'),
   linkWebsite: Yup.string().url('Địa chỉ không hợp lệ, vui lòng nhập một URL hợp lệ').max(255, 'URL không được quá 255 kí tự'),
 });
 

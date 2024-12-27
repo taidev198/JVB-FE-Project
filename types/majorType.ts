@@ -9,6 +9,7 @@ export interface IMajor {
   numberOfStudents: number;
   faculty: IFaculty;
 }
+
 export interface IMajores {
   id: number;
   facultyName: string;
@@ -19,6 +20,7 @@ export interface MajorResponse {
   message: 'Thành công!';
   data: IMajores[];
 }
+
 export interface IMajorByUniversityResponse {
   code: number;
   message: string;

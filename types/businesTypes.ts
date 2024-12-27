@@ -7,7 +7,6 @@ export interface IBusiness {
   majorCode: string;
   creditRequirement: number;
   majorDescription: string;
-  numberOfStudents: number;
   faculty: IFaculty;
   university: University;
   majorFields: IFields[];
