@@ -99,24 +99,27 @@ const DetailCompany = () => {
               <span className="mr-2 font-semibold">Số điện thoại:</span> {detailCompany?.data.phoneNumber}
             </div>
           </li>
-          <li className="mt-4 flex items-center  gap-3 ">
-            <div className="mb-auto">
-              <DescriptionIcon sx={{ color: '#757575' }} />
-            </div>
-            <div>
-              <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
-              <p dangerouslySetInnerHTML={{ __html: detailCompany?.data.companyDescription ?? '' }}></p>
-            </div>
-          </li>
+
           <li className="mt-4 flex items-center  gap-3 ">
             <div className="mb-auto">
               <InsertCommentIcon sx={{ color: '#757575' }} />
             </div>
             <div>
               <span className="mr-2 font-semibold">Mô tả ngắn gọn:</span>
-              <p dangerouslySetInnerHTML={{ __html: detailCompany?.data.companyShortDescription ?? '' }}></p>
+              {detailCompany?.data.companyShortDescription}
             </div>
           </li>
+
+          <li className="mt-4 flex items-center  gap-3 ">
+            <div className="mb-auto">
+              <DescriptionIcon sx={{ color: '#757575' }} />
+            </div>
+            <div>
+              <span className="mr-2 font-semibold">Mô tả chi tiết:</span>
+              {detailCompany?.data.companyDescription}
+            </div>
+          </li>
+
           <li className="mt-5 flex items-center gap-3">
             <DomainIcon sx={{ color: '#757575' }} />
             <div>

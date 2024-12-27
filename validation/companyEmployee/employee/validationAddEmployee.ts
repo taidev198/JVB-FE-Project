@@ -14,19 +14,33 @@ const validationSchemaAddStudent = Yup.object({
     .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
   employeePosition: Yup.string().required('Chức vụ là bắt buộc').max(100, 'Chức vụ không được quá 100 kí tự'),
   dateOfBirth: Yup.date()
-    .required('Ngày sinh là bắt buộc')
-    .nullable()
-    .transform((value, originalValue) => {
-      if (originalValue === '') return null;
-      return value;
-    })
-    .test('is-not-null', 'Ngày sinh thể là rỗng', value => value !== null),
+  .required('Ngày sinh là bắt buộc')
+  .nullable()
+  .transform((value, originalValue) => {
+    if (originalValue === '') return null;
+    return value;
+  })
+  .test('is-not-null', 'Ngày sinh không thể là rỗng', value => value !== null)
+  .test(
+    'is-in-the-past',
+    'Ngày sinh phải là ngày trước hiện tại',
+    value => value === null || value < new Date() // Kiểm tra ngày sinh nhỏ hơn ngày hiện tại
+  ),
+
 
   salary: Yup.number()
     .transform(value => (Number.isNaN(value) ? null : value))
     .nullable()
     .required('Lương là bắt buộc')
     .positive('Lương phải là số dương'),
+
+  password: Yup.string()
+    .required('Mật khẩu là bắt buộc')
+    .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt'),
+  confirm_password: Yup.string()
+    .oneOf([Yup.ref('password'), ''], 'Mật khẩu không trùng khớp')
+    .required('Xác nhận mật khẩu là bắt buộc'),
 
   houseNumber: Yup.string().required('Địa chỉ cụ thể là bắt buộc').max(150, 'Địa chỉ cụ thể không được quá 150 kí tự'),
   districtId: Yup.string().required('Quận/Huyện là bắt buộc').max(150, 'Quận/Huyện không được quá 150 kí tự'),

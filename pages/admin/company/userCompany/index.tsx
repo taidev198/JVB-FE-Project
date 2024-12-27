@@ -111,7 +111,7 @@ const userCompany = () => {
             </Link>
             <MyButton
               type="submit"
-              text="Xóa nhân viên đã chọn"
+              text="Xóa nhân viên "
               onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
               className="bg-red-custom"
               disabled={!selectedEmployee.length}
@@ -201,7 +201,7 @@ const userCompany = () => {
 
       {/* Pagination */}
       <PaginationComponent
-          count={employee?.data.totalPages}
+          count={employee?.data.currentPage}
           page={page}
           onPageChange={(event, value) => dispatch(setPage(value))}
           size={size}

@@ -35,7 +35,7 @@ interface FormDataAddEmployee {
   houseNumber: string;
   dateOfBirth: Date;
   password: string;
-  confirmPassword: string;
+  confirm_password: string;
 }
 
 const AddEmployee = () => {
@@ -179,12 +179,12 @@ const AddEmployee = () => {
             {/*mật khẩu */}
             <Input
               type="password"
-              name="confirmPassword"
+              name="confirm_password"
               label="Nhập lại mật khẩu"
               required={true}
               placeholder="Nhập lại mật khẩu"
               control={control}
-              error={errors.confirmPassword?.message}
+              error={errors.confirm_password?.message}
             />
           </div>
           {/* Address */}
