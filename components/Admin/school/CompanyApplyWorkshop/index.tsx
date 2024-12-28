@@ -126,7 +126,7 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
                   <div className="flex w-full flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center justify-between">
                       <ImageComponent
-                        src={partner.company.logoUrl}
+                        src={partner.company?.logoUrl}
                         alt={partner.company?.companyName}
                         width={80}
                         height={80}

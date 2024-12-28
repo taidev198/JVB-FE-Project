@@ -34,6 +34,10 @@ body > div#__next > main {
   opacity: 0.6
 }
 
+.css-1toxriw-MuiList-root-MuiMenu-list{
+  padding: 0 !important 
+}
+
 @layer components {}
 @layer components {
   .mp_button_small {

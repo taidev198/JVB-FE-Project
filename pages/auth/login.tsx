@@ -19,18 +19,17 @@ import { setLoading } from '@/store/slices/global';
 import { roles } from '@/utils/app/const';
 
 interface FormDataLogin {
-  password: string;
-  email: string;
+  email?: string;
+  password?: string;
 }
 
 // Đưa validationSchema lên trước
 const validationSchema = Yup.object({
   email: Yup.string()
-    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không hợp lệ')
     .required('Email không được bỏ trống')
+    .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Email không hợp lệ')
     .max(255, 'Email không được quá 255 kí tự'),
   password: Yup.string().required('Mật khẩu không được bỏ trống'),
-  // .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).*$/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 ký tự đặc biệt'),
 });
 
 const Login = () => {
@@ -63,7 +62,17 @@ const Login = () => {
   useEffect(() => {
     dispatch(setLoading(isLoading));
     if (isSuccess) {
-      dispatch(logIn(data.data));
+      // dispatch(logIn(data.data));
+      dispatch(
+        logIn({
+          token: data.data.token,
+          name: data.data.user.fullName || data.data.user.companyName || data.data.user.universityName,
+          id: data.data.user.id,
+          logoUrl: data.data?.user.logoUrl ? data.data?.user.logoUrl : '',
+          idAccount: data.data.user.account.id,
+          roleAccount: data.data.roleAccount,
+        })
+      );
       switch (data?.data.roleAccount) {
         case roles.ADMIN:
           router.push('/admin/system/dashboard');

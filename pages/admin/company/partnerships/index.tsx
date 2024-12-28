@@ -31,7 +31,7 @@ const JobAdminSchool = () => {
   const { page, size, keyword } = useAppSelector(state => state.filter);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const universityId = useAppSelector(state => state.user?.user?.id);
+  const universityId = useAppSelector(state => state.user?.id);
   const role = useAppSelector(state => state.user.roleAccount);
 
   const debouncedSearch = useMemo(
@@ -272,7 +272,6 @@ const JobAdminSchool = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={partnerships?.data.totalElements}
-        totalTitle={'doanh nghiệp'}
       />
       {showBackdrop && (
         <BackDrop isCenter>
