@@ -15,11 +15,22 @@ const validationSchemaAddJob = Yup.object({
     .required('Danh sách lĩnh vực là bắt buộc')
     .of(Yup.number().typeError('Mỗi phần tử trong lĩnh vực phải là số').required('là bắt buộc'))
     .min(1, 'Phải chọn ít nhất một lĩnh vực'),
-  max_salary: Yup.number().typeError('Giá trị không hợp lệ').required('Mức lương tối thiểu là bắt buộc').min(0, 'Mức lương tối thiểu phải lớn hơn hoặc bằng 0'),
   min_salary: Yup.number()
+    .nullable()
     .typeError('Giá trị không hợp lệ')
-    .required('Mức lương tối đa là bắt buộc')
-    .min(Yup.ref('max_salary'), 'Mức lương tối đa phải lớn hơn mức lương tối thiểu'),
+    .when('salary_type', {
+      is: 'FIXED', // Chỉ validate khi salary_type === 'FIXED'
+      then: schema => schema.required('Mức lương tối thiểu là bắt buộc').max(Yup.ref('max_salary'), 'Mức lương tối thiểu phải nhỏ hơn mức lương tối đa'),
+      otherwise: schema => schema.notRequired(),
+    }),
+  max_salary: Yup.number()
+    .nullable()
+    .typeError('Giá trị không hợp lệ')
+    .when('salary_type', {
+      is: 'FIXED', // Chỉ validate khi salary_type === 'FIXED'
+      then: schema => schema.required('Mức lương tối đa là bắt buộc').min(Yup.ref('min_salary'), 'Mức lương tối đa phải lớn hơn mức lương tối thiểu'),
+      otherwise: schema => schema.notRequired(),
+    }),
 });
 
 export default validationSchemaAddJob;

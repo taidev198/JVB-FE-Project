@@ -19,7 +19,7 @@ export const adminCompanyApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Company', 'Job'],
+  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile'],
   endpoints: builder => {
     return {
       getAllWorShopsUniversity: builder.query<void, void>({
@@ -94,6 +94,7 @@ export const adminCompanyApi = createApi({
         query: () => ({
           url: `/company/detail-current`,
         }),
+        providesTags: [{ type: 'Profile' }],
       }),
 
       updateProfile: builder.mutation({
@@ -102,7 +103,7 @@ export const adminCompanyApi = createApi({
           method: 'PUT',
           body: args.formData,
         }),
-        invalidatesTags: ['Job'],
+        invalidatesTags: ['Profile'],
       }),
 
       //JOBCOMPANY
@@ -116,45 +117,49 @@ export const adminCompanyApi = createApi({
 
           return `/company/get_all_jobs?${queryParams.toString()}`;
         },
-        providesTags: ['Job'],
+        providesTags: [{ type: 'JobCompany' }],
       }),
+
       getDetailCompanyJob: builder.query<IJobDetailResponse, { id: number | null }>({
         query: ({ id }) => ({
           url: `/company/get_detail/${id}`,
         }),
-        providesTags: ['Job'],
+        providesTags: [{ type: 'JobCompany' }],
       }),
+
       deleteJobCompany: builder.mutation({
         query: ({ id }) => ({
           url: `/delete_job/${id}`,
           method: 'DELETE',
         }),
-        invalidatesTags: [{ type: 'Job' }],
+        invalidatesTags: () => [{ type: 'JobCompany' }],
       }),
-      deleteAllJobCompany: builder.mutation<any, { ids: number[] }>({
-        query: ({ ids }) => ({
+
+      deleteAllJobCompany: builder.mutation<void, { ids: number[] }>({
+        query: ids => ({
           url: `/delete_multi_job`,
           method: 'DELETE',
-          body: { ids },
+          body: ids,
         }),
-        invalidatesTags: [{ type: 'Job' }],
+        invalidatesTags: () => [{ type: 'JobCompany' }],
       }),
+
       addJob: builder.mutation({
         query: data => ({
           url: `/company/create_job`,
           method: 'POST',
           body: data,
         }),
-        invalidatesTags: ['Job'],
+        invalidatesTags: [{ type: 'JobCompany' }],
       }),
 
-      updateJob: builder.mutation<any, { data: any; id: number | null }>({
+      updateJob: builder.mutation({
         query: ({ data, id }) => ({
           url: `/company/update_job/${id}`,
           method: 'PUT',
           body: data,
         }),
-        invalidatesTags: ['Job'],
+        invalidatesTags: result => [{ type: 'JobCompany', id: result.data.id }, { type: 'JobCompany' }],
       }),
 
       // WORKSHOP

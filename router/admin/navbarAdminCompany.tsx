@@ -18,14 +18,14 @@ export const litsNavbarAdminSchoolRouter = [
   {
     id: 2,
     icon: <IconSchool />,
-    url: '/admin/company/profileCompany',
+    url: '/admin/company/profile',
     label: 'Quản lý hồ sơ công ty',
   },
 
   {
     id: 3,
     icon: <IconWorkshop />,
-    url: '/admin/company/workShopCompany',
+    url: '/admin/company/workShop',
     label: 'Quản lý workShop',
   },
   {
