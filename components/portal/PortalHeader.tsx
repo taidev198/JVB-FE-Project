@@ -19,9 +19,24 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ImageComponent from '../Common/Image';
 import { getUserState, logOut } from '@/store/slices/user';
+import { useAppSelector } from '@/store/hooks';
 
 const PortalHeader: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
+  const role = useAppSelector(state => state.user.roleAccount);
+
+  const url = (role: string) => {
+    switch (role) {
+      case 'ADMIN':
+        return '/admin/system/dashboard';
+      case 'UNIVERSITY':
+        return '/admin/school/dashboard';
+      case 'COMPANY':
+        return '/admin/company/dashboard';
+      default:
+        return '';
+    }
+  };
 
   const { token, roleAccount, user } = useSelector(getUserState);
   const router = useRouter(); // Hook lấy thông tin đường dẫn
@@ -43,36 +58,24 @@ const PortalHeader: React.FC = () => {
       key: '0',
     },
     {
-      label: (
-        <a href="https://www.aliyun.com" target="_blank" rel="noopener noreferrer">
-          Thông báo
-        </a>
-      ),
+      label: <Link href={'#!'}>Thông báo</Link>,
       key: '1',
     },
     {
-      label: (
-        <a href="https://www.aliyun.com" target="_blank" rel="noopener noreferrer">
-          Cài đặt chung
-        </a>
-      ),
+      label: <Link href={'#!'}>Cài đặt chung</Link>,
       key: '2',
     },
     {
-      label: (
-        <a href="https://www.aliyun.com" target="_blank" rel="noopener noreferrer">
-          Cài đặt bảo mật
-        </a>
-      ),
+      label: <Link href={'#!'}>Cài đặt bảo mật</Link>,
       key: '3',
     },
     {
-      label: (
-        <a href="https://www.aliyun.com" target="_blank" rel="noopener noreferrer">
-          Quên mật khẩu
-        </a>
-      ),
+      label: <Link href={'/auth/forgot-password/send-email'}>Quên mật khẩu</Link>,
       key: '4',
+    },
+    {
+      label: <Link href={url(role)}>Vào trang quản trị</Link>,
+      key: '5',
     },
     {
       type: 'divider',

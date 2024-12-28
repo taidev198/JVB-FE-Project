@@ -30,6 +30,14 @@ body > div#__next > main {
   color: #979797  !important;
 }
 
+.react-datepicker__calendar-icon {
+  opacity: 0.6
+}
+
+.css-1toxriw-MuiList-root-MuiMenu-list{
+  padding: 0 !important 
+}
+
 @layer components {}
 @layer components {
   .mp_button_small {

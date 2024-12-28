@@ -21,7 +21,7 @@ export const adminSystemApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Company', 'School', 'Partnerships', 'Job'],
+  tagTypes: ['Workshop', 'Company', 'School', 'Partnerships', 'Job', 'Notifications'],
   endpoints: builder => {
     return {
       // Address
@@ -307,10 +307,19 @@ export const adminSystemApi = createApi({
         }),
       }),
 
-      getNotifications: builder.query<void, void>({
+      getNotifications: builder.query({
         query: () => ({
           url: '/portal/notifications',
         }),
+        providesTags: ['Notifications'],
+      }),
+
+      updateStatusNotifications: builder.mutation<void, void>({
+        query: () => ({
+          url: `/portal/notifications/update-all`,
+          method: 'PUT',
+        }),
+        invalidatesTags: () => ['Notifications'],
       }),
     };
   },
@@ -349,4 +358,5 @@ export const {
   useApproveJobsMutation,
   useRejectJobsMutation,
   useGetNotificationsQuery,
+  useUpdateStatusNotificationsMutation,
 } = adminSystemApi;

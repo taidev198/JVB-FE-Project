@@ -4,17 +4,17 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { useForm } from 'react-hook-form';
 import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
-import { Button, Button as MyButton } from '@/components/Common/Button';
+import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
+import AddIcon from '@mui/icons-material/Add';
+import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
-import { debounce } from 'lodash';
 import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import AddIcon from '@mui/icons-material/Add';
 import { formatCurrencyVND } from '@/utils/app/format';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
@@ -36,8 +36,6 @@ const jobCompany = () => {
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
   const {
     formState: { errors },
   } = useForm<FormDataRegisterCompany>({
@@ -52,6 +50,15 @@ const jobCompany = () => {
       }, 500),
     [dispatch]
   );
+  const { data: jobCompany, isLoading } = useGetAllCompanyJobQuery(
+    {
+      status: status,
+      page: page,
+      size: size,
+      keyword,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   const { data: jobCompany, isLoading } = useGetAllCompanyJobQuery(
     {
@@ -64,7 +71,6 @@ const jobCompany = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
-
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteJobCompanyMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
   const handleDelete = async () => {
@@ -128,7 +134,6 @@ const jobCompany = () => {
             <Link href={'/admin/company/jobCompany/AddJob'}>
               <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
             </Link>
-
             <MyButton
               type="submit"
               text="Xóa công việc "
@@ -161,35 +166,43 @@ const jobCompany = () => {
             </tr>
           </thead>
           <tbody>
-            {jobCompany?.data.content.map((item, index) => (
-              <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <Checkbox color="primary" checked={selectedJob.includes(item.id)} onChange={() => handleSelectJob(item.id)} />
-                </td>
-                <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
-                <td className="px-5 py-4">{item.jobTitle}</td>
-                <td className="px-5 py-4">
-                  {formatCurrencyVND(item.maxSalary)}-{formatCurrencyVND(item.minSalary)}
-                </td>
-                <td className="px-5 py-4">{item.expirationDate}</td>
+            {jobCompany?.data.content && jobCompany.data.content.length > 0 ? (
+              jobCompany?.data.content.map((item, index) => (
+                <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <Checkbox color="primary" checked={selectedJob.includes(item.id)} onChange={() => handleSelectJob(item.id)} />
+                  </td>
+                  <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4">{item.jobTitle}</td>
+                  <td className="px-5 py-4">
+                    {formatCurrencyVND(item.maxSalary)}-{formatCurrencyVND(item.minSalary)}
+                  </td>
+                  <td className="px-5 py-4">{item.expirationDate}</td>
 
-                <td className=" py-4">
-                  <div className="flex items-center gap-2">
-                    <ButtonSee href={`/admin/company/jobCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                  <td className=" py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/company/jobCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
 
-                    <ButtonUpdate href={`/admin/company/jobCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonUpdate href={`/admin/company/jobCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
 
-                    <ButtonDelete
-                      onClick={() => {
-                        dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                        setIdJob(item.id);
-                        dispatch(setName(item.jobTitle));
-                      }}
-                    />
-                  </div>
+                      <ButtonDelete
+                        onClick={() => {
+                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                          setIdJob(item.id);
+                          dispatch(setName(item.jobTitle));
+                        }}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base text-black">
+                  <p>Không có dữ liệu nào</p>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -220,5 +233,4 @@ const jobCompany = () => {
     </>
   );
 };
-
 export default jobCompany;

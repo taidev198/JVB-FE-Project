@@ -17,12 +17,15 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { Button } from '@/components/Common/Button';
 
-const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: number; workshopTitle: string }) => {
+const CompanyApplyWorkshop = () => {
   const dispatch = useDispatch();
-  const [status, setStatus] = useState<string>('PENDING');
+  const [id, setId] = useState();
+  const [status, setStatus] = useState<string>('ACCEPT');
   const [page, setPage] = useState<number>(1);
   const [keyword, setKeyWord] = useState<string | null>(null);
   const { size } = useAppSelector(state => state.filter);
+  const idWorkshop = useAppSelector(state => state.global.id);
+  const workshopTitle = useAppSelector(state => state.global.name);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
 
   const debouncedSearch = useMemo(
@@ -41,43 +44,43 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
   const [approve] = useApproveCompanyApplyWorkshopMutation();
   const [reject] = useRejectCompanyApplyWorkshopMutation();
 
-  // const handleConfirmActionApply = async () => {
-  //   if (showBackdrop) {
-  //     try {
-  //       switch (showBackdrop) {
-  //         case BackdropType.LockConfirmation: {
-  //           approve({ id: idWorkshop }).unwrap();
-  //           toast.success('Đồng ý doanh nghiệp tham gia workshop thành công');
-  //           break;
-  //         }
-  //         case BackdropType.UnlockConfirmation: {
-  //           reject({ id: idWorkshop }).unwrap();
-  //           toast.success('Từ chối doanh nghiệp tham gia workshop thành công');
-  //           break;
-  //         }
-  //         default:
-  //           throw new Error('Invalid action type');
-  //       }
-  //     } catch (error) {
-  //       if (isFetchBaseQueryError(error)) {
-  //         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
-  //         toast.error(errMsg);
-  //       } else if (isErrorWithMessage(error)) {
-  //         toast.error(error.message);
-  //       }
-  //     } finally {
-  //       dispatch(setBackdrop(null));
-  //     }
-  //   }
-  // };
+  const handleConfirmActionApply = async () => {
+    if (showBackdrop) {
+      try {
+        switch (showBackdrop) {
+          case BackdropType.ApproveConfirmation: {
+            await approve({ id }).unwrap();
+            toast.success('Đồng ý doanh nghiệp tham gia workshop thành công');
+            break;
+          }
+          case BackdropType.RefuseConfirmation: {
+            await reject({ id }).unwrap();
+            toast.success('Từ chối doanh nghiệp tham gia workshop thành công');
+            break;
+          }
+          default:
+            throw new Error('Invalid action type');
+        }
+      } catch (error) {
+        if (isFetchBaseQueryError(error)) {
+          const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+          toast.error(errMsg);
+        } else if (isErrorWithMessage(error)) {
+          toast.error(error.message);
+        }
+      } finally {
+        dispatch(setBackdrop(null));
+      }
+    }
+  };
   useEffect(() => {
     dispatch(setLoading(isLoading));
   }, [dispatch, isLoading]);
 
   return (
-    <div className="h-[85%] min-w-[60%] overflow-y-auto">
+    <div className=" overflow-y-auto">
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between">
           <h1 className="mb-5 font-bold">Danh sách công ty tham gia workshop {workshopTitle}</h1>
           <div className="flex items-center gap-3">
             <button
@@ -101,17 +104,16 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3">
-            <TextField
-              id="filled-search"
-              label="Tìm kiếm tên, mã"
-              type="search"
-              variant="outlined"
-              size="small"
-              onChange={e => debouncedSearch(e.target.value)}
-            />
-          </div>
+        <div className="mt-3 flex items-center  gap-3 sm:mt-0">
+          <TextField
+            id="filled-search"
+            label="Tìm kiếm tên, mã công ty"
+            type="search"
+            variant="outlined"
+            size="small"
+            onChange={e => debouncedSearch(e.target.value)}
+            className="w-[310px]"
+          />
         </div>
       </div>
 
@@ -126,12 +128,12 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
                   <div className="flex w-full flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center justify-between">
                       <ImageComponent
-                        src={partner.company?.logoUrl}
+                        src={partner.company.logoUrl}
                         alt={partner.company?.companyName}
                         width={80}
                         height={80}
                         className="rounded-full border border-solid object-contain"
-                        pro={partner.isPartnership === 'ACCEPT' ? true : false}
+                        pro={partner.isPartnership === true ? true : false}
                       />
                       <div className="ml-0 font-semibold sm:ml-4">
                         <h4 className="mb-[6px] font-semibold">{partner.company.companyName}</h4>
@@ -174,12 +176,14 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
                         <>
                           <ButtonAccept
                             onClick={() => {
-                              dispatch(setBackdrop(BackdropType.LockConfirmation));
+                              dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                              setId(partner.id);
                             }}
                           />
                           <ButtonReject
                             onClick={() => {
-                              dispatch(setBackdrop(BackdropType.UnlockConfirmation));
+                              dispatch(setBackdrop(BackdropType.RefuseConfirmation));
+                              setId(partner.id);
                             }}
                           />
                         </>
@@ -200,25 +204,23 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
         onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={companyApply?.data.totalElements}
-        totalTitle={'doanh nghiệp'}
       />
 
-      {/* {showBackdrop === BackdropType.LockConfirmation ||
-        (showBackdrop === BackdropType.UnlockConfirmation && (
-          <BackDrop isCenter>
-            <div className="max-w-[400px] rounded-md p-6">
-              <h3 className="font-bold">
-                {showBackdrop === BackdropType.LockConfirmation && `Chấp nhận doanh nghiệp tham gia`}
-                {showBackdrop === BackdropType.UnlockConfirmation && `Từ chối doanh nghiệp tham gia`}
-              </h3>
-              <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
-              <div className="mt-9 flex items-center gap-5">
-                <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-                <Button text="Xác nhận" full={true} onClick={handleConfirmActionApply} />
-              </div>
+      {showBackdrop && (
+        <BackDrop isCenter>
+          <div className="max-w-[430px] rounded-md p-6">
+            <h3 className="font-bold">
+              {showBackdrop === BackdropType.ApproveConfirmation && `Chấp nhận doanh nghiệp tham gia`}
+              {showBackdrop === BackdropType.RefuseConfirmation && `Từ chối doanh nghiệp tham gia`}
+            </h3>
+            <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
+            <div className="mt-9 flex items-center gap-5">
+              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+              <Button text="Xác nhận" full={true} onClick={handleConfirmActionApply} />
             </div>
-          </BackDrop>
-        ))} */}
+          </div>
+        </BackDrop>
+      )}
     </div>
   );
 };

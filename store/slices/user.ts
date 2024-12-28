@@ -1,29 +1,26 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { IAccount } from '@/types';
-
-type UserRoles = {
-  code: number;
-  message: string;
-  data: {
-    token: string;
-    user: {
-      id: number;
-      account: IAccount;
-    };
-    roleAccount: string;
-  };
-};
+// type UserRoles = {
+//   data: {
+//     token: string;
+//     name: string;
+//     idAccount: number;
+//     roleAccount: string;
+//   };
+// };
 
 export interface UserState {
   token: string | null;
-  user: UserRoles | null;
+  name: string | null;
+  id: number | null;
+  idAccount: number | null;
+  logoUrl: string | null;
   roleAccount: string | null;
 }
 
 /**
  * Default state object with initial values.
  */
-const initialState: Readonly<UserState> = { token: null, user: null, roleAccount: null };
+const initialState: Readonly<UserState> = { token: null, name: null, id: null, idAccount: null, logoUrl: null, roleAccount: null };
 
 /**
  * Create a slice as a reducer containing actions.
@@ -37,7 +34,10 @@ export const userSlice = createSlice({
   reducers: {
     logIn: (state, action) => {
       state.token = action.payload.token;
-      state.user = action.payload.user;
+      state.name = action.payload.name;
+      state.id = action.payload.id;
+      state.idAccount = action.payload.idAccount;
+      state.logoUrl = action.payload.logoUrl;
       state.roleAccount = action.payload.roleAccount;
     },
     logOut: () => {

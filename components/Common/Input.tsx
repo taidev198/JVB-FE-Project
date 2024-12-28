@@ -52,7 +52,7 @@ const Input = ({ name, label, placeholder, control, error, type = 'text', icon, 
         />
         {type === 'password' && (
           <button type="button" className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500" onClick={togglePasswordVisibility}>
-            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+            {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
           </button>
         )}
       </div>

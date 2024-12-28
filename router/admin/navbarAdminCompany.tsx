@@ -49,7 +49,7 @@ export const litsNavbarAdminSchoolRouter = [
   {
     id: 6,
     icon: <IconNotification />,
-    url: '/admin/company/noticeCompany',
+    url: '/admin/company/notification',
     label: 'Thông báo',
   },
   {
