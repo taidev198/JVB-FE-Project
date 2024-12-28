@@ -1,5 +1,5 @@
-import { IAccount, University } from '.';
 import { IAddress } from './addressesTypes';
+import { IAccount, University } from '.';
 
 export interface IAcademicOfficeManagement {
   id: number;
@@ -13,9 +13,11 @@ export interface IAcademicOfficeManagement {
   university: University;
   account: IAccount;
 }
+
 export interface ApiResponseAcademicOfficeManagement {
   code: number;
   message: string;
+
   data: {
     content: IAcademicOfficeManagement[];
     totalPages: number;
@@ -24,9 +26,10 @@ export interface ApiResponseAcademicOfficeManagement {
     currentPage: number;
   };
 }
+
 export interface ApiResponseDetailAdemicOfficeManagement {
-    code: number;
-    message: string;
-    data: IAcademicOfficeManagement;
-  }
-  
+  code: number;
+  message: string;
+
+  data: IAcademicOfficeManagement;
+}

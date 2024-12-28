@@ -1,5 +1,5 @@
-import { IAccount } from '.';
 import { IAddress } from './addressesTypes';
+import { IAccount } from '.';
 
 export interface ISchool {
   id: number;
@@ -15,12 +15,12 @@ export interface ISchool {
   address: IAddress;
   universityType: string;
   account: IAccount;
-  numberOfStudents: number;
-  numberOfGraduates: number;
 }
+
 export interface ApiResponseSchool {
   code: number;
   message: string;
+
   data: {
     content: ISchool[];
     totalPages: number;
@@ -29,8 +29,10 @@ export interface ApiResponseSchool {
     currentPage: number;
   };
 }
+
 export interface ApiResponseDetailSchool {
   code: number;
   message: string;
+
   data: ISchool;
 }

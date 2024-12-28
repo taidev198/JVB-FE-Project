@@ -159,9 +159,7 @@ const BusinessManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Số tín chỉ</p>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Số lượng sinh viên</p>
-              </th>
+
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Khoa</p>
               </th>
@@ -178,7 +176,7 @@ const BusinessManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Checkbox color="primary" checked={selectedBusiness.includes(item.id)} onChange={() => handleSelectBusiness(item.id)} size="small" />
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 text-center sm:px-5 sm:py-4">
                     <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
@@ -190,9 +188,7 @@ const BusinessManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.creditRequirement}</p>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.numberOfStudents}</p>
-                  </td>
+
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.faculty.facultyName}</p>
                   </td>
@@ -236,7 +232,7 @@ const BusinessManagement = () => {
       )}
 
       <PaginationComponent
-        count={business?.data.currentPage}
+        count={business?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}

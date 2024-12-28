@@ -35,8 +35,6 @@ interface FormDataAddStudent {
   phoneNumber: string;
   establishedDate: string | null;
   universityType: string;
-  numberOfStudents: number;
-  numberOfGraduates: number;
   wardId: number;
   houseNumber: string;
   provinceId: number;
@@ -63,6 +61,7 @@ const UpdateSchoolManagement = () => {
     control,
     formState: { errors },
   } = methods;
+
   const { data: detailSchool } = useGetDetailSchoolQuery();
   useEffect(() => {
     if (detailSchool?.data.logoUrl) {
@@ -80,8 +79,6 @@ const UpdateSchoolManagement = () => {
       linkWebsite: data.linkWebsite,
       universityDescription: data.universityDescription,
       universityShortDescription: data.universityShortDescription,
-      numberOfGraduates: data.numberOfGraduates,
-      numberOfStudents: data.numberOfStudents,
       universityType: data.universityType,
       address: {
         houseNumber: data.houseNumber,
@@ -112,8 +109,6 @@ const UpdateSchoolManagement = () => {
         universityCode: detailSchool?.data.universityCode,
         establishedDate: detailSchool?.data.establishedDate ? dayjs(detailSchool?.data.establishedDate, 'DD/MM/YYYY') : null,
         universityName: detailSchool?.data.universityName,
-        numberOfGraduates: detailSchool?.data.numberOfGraduates,
-        numberOfStudents: detailSchool?.data.numberOfStudents,
         linkWebsite: detailSchool?.data.linkWebsite,
         universityType: detailSchool?.data.universityType,
         universityDescription: detailSchool?.data.universityDescription,
@@ -164,7 +159,6 @@ const UpdateSchoolManagement = () => {
               control={control}
               error={errors.universityName?.message}
               required={true}
-              disabled={true}
             />
 
             <Input
@@ -196,25 +190,6 @@ const UpdateSchoolManagement = () => {
               required={true}
             />
             <Input type="url" name="linkWebsite" label="Link website" placeholder="Nhập link website" control={control} error={errors.linkWebsite?.message} />
-
-            <Input
-              type="number"
-              name="numberOfStudents"
-              label="Số lượng sinh viên"
-              placeholder="Nhập số lượng sinh viên"
-              control={control}
-              error={errors.numberOfStudents?.message}
-              required={true}
-            />
-            <Input
-              type="number"
-              name="numberOfGraduates"
-              label="Số lượng sinh viên tốt nghiệp"
-              placeholder="Nhập số lượng sinh viên tốt nghiệp"
-              control={control}
-              error={errors.numberOfGraduates?.message}
-              required={true}
-            />
           </div>
 
           <FormProvider {...methods}>
@@ -251,7 +226,6 @@ const UpdateSchoolManagement = () => {
               control={control}
               error={errors.universityType?.message}
               required={true}
-              disabled={true}
             />
           </div>
           <div className="mt-[16px]">

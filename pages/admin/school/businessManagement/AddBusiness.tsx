@@ -21,7 +21,6 @@ interface FormDataAddBusiness {
   majorName: string;
   creditRequirement: number;
   majorDescription?: string;
-  numberOfStudents: number;
   facultyId: number;
   fieldIds: number[];
 }
@@ -96,16 +95,6 @@ const AddBussiness = () => {
             placeholder="Nhập số tín chỉ ngành học"
             control={control}
             error={errors.creditRequirement?.message}
-            required={true}
-          />
-
-          <Input
-            type="number"
-            name="numberOfStudents"
-            label="Số lượng sinh viên"
-            placeholder="Nhập số lượng sinh viên"
-            control={control}
-            error={errors.numberOfStudents?.message}
             required={true}
           />
 

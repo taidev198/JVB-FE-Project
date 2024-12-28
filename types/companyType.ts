@@ -41,7 +41,7 @@ export interface ICompanyEmploy {
   employeeStatus: string;
   gender: string;
   salary: number;
-  
+
   company: {
     id: number;
     companyCode: string;

@@ -56,8 +56,7 @@ const AddAdemic = () => {
     formState: { errors },
   } = methods;
 
-  const [addAcademicOfficeManagement, { data, isLoading: isLoadingAddAcademicOfficeManagement, isSuccess, isError, error }] =
-    useAddAcademicOfficeManagementMutation();
+  const [addAcademicOfficeManagement, { isLoading: isLoadingAddAcademicOfficeManagement }] = useAddAcademicOfficeManagementMutation();
 
   const onSubmit: SubmitHandler<FormDataAddAdemic> = async data => {
     const formData = new FormData();

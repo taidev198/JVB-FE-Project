@@ -29,7 +29,7 @@ const validationSchema = Yup.object({
   search_employee: Yup.string().required('Tên doanh nghiệp không được bỏ trống').max(100, 'Tên doanh nghiệp không được quá 100 kí tự'),
 });
 
-const JobCompany = () => {
+const jobCompany = () => {
   const [idJob, setIdJob] = useState<number>();
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
@@ -60,6 +60,17 @@ const JobCompany = () => {
     { refetchOnMountOrArgChange: true }
   );
 
+  const { data: jobCompany, isLoading } = useGetAllCompanyJobQuery(
+    {
+      status: status,
+      page: page,
+      size: size,
+      keyword,
+      startDate: startDate,
+      endDate: endDate,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteJobCompanyMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
   const handleDelete = async () => {
@@ -195,6 +206,7 @@ const JobCompany = () => {
           </tbody>
         </table>
       </div>
+
       {/* Xóa Nhân Viên */}
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
@@ -221,4 +233,4 @@ const JobCompany = () => {
     </>
   );
 };
-export default JobCompany;
+export default jobCompany;

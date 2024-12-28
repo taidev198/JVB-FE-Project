@@ -22,7 +22,7 @@ interface FormDataUpdateBusiness {
   majorName: string;
   creditRequirement: number;
   majorDescription?: string;
-  numberOfStudents: number;
+
   facultyId: number;
   fieldIds: number[];
 }
@@ -67,7 +67,6 @@ const UpdateBusiness = () => {
         majorName: business.data.majorName,
         creditRequirement: business.data.creditRequirement,
         majorDescription: business.data.majorDescription,
-        numberOfStudents: business.data.numberOfStudents,
         facultyId: business.data.faculty.id,
         fieldIds: business.data.majorFields.map(field => field.id),
       });
@@ -119,15 +118,6 @@ const UpdateBusiness = () => {
             required={true}
           />
 
-          <Input
-            type="number"
-            label="Số lượng sinh viên"
-            placeholder="Nhập số lượng sinh viên"
-            control={control}
-            error={errors.numberOfStudents?.message}
-            {...register('numberOfStudents', { required: 'Số lượng sinh viên là bắt buộc' })}
-            required={true}
-          />
           <SelectReact
             name="facultyId"
             label="Khoa"
