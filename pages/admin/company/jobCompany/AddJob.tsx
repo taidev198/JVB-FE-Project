@@ -15,6 +15,7 @@ import { useAddJobMutation } from '@/services/adminCompanyApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import SelectMui from '@/components/Common/SelectMui';
 import Input from '@/components/Common/Input';
+import DateComponent from '@/components/Common/DateComponent';
 interface FormDataAddJob {
   job_title: number;
   job_description: string;
@@ -40,10 +41,6 @@ const AddJob = () => {
     watch,
   } = useForm<FormDataAddJob>({
     resolver: yupResolver(validationSchemaAddJob),
-    defaultValues: {
-      max_salary: 0,
-      min_salary: 0,
-    },
   });
 
   const salaryType = watch('salary_type');
@@ -202,8 +199,7 @@ const AddJob = () => {
             />
 
             {/*Ngày hết hạn */}
-            <Input
-              type="date"
+            <DateComponent
               name="expiration_date"
               control={control}
               error={errors.expiration_date?.message}
@@ -215,6 +211,7 @@ const AddJob = () => {
             {/* số lượng */}
             <Input
               name="member_of_candidate"
+              type="number"
               control={control}
               error={errors.member_of_candidate?.message}
               placeholder="Số lượng tuyển"
@@ -240,10 +237,10 @@ const AddJob = () => {
             />
             {salaryType === 'FIXED' && (
               <>
-                <Input name="max_salary" type="number" label="Mức lương từ" placeholder="Cao nhất:" control={control} error={errors.max_salary?.message} />
+                <Input name="min_salary" type="number" label="Mức lương từ" placeholder="Thấp nhất:" control={control} error={errors.min_salary?.message} />
 
                 {/* Lương: thấp */}
-                <Input name="min_salary" type="number" label="Đến mức lương" placeholder="Thấp nhất:" control={control} error={errors.min_salary?.message} />
+                <Input name="max_salary" type="number" label="Đến mức lương" placeholder="Cao nhất:" control={control} error={errors.max_salary?.message} />
               </>
             )}
           </div>

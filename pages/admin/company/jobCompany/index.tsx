@@ -1,7 +1,4 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
 import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
 import { debounce } from 'lodash';
@@ -21,26 +18,13 @@ import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import PaginationComponent from '@/components/Common/Pagination';
 
-interface FormDataRegisterCompany {
-  search_jobCompany: string;
-}
-
-const validationSchema = Yup.object({
-  search_employee: Yup.string().required('Tên doanh nghiệp không được bỏ trống').max(100, 'Tên doanh nghiệp không được quá 100 kí tự'),
-});
-
-const jobCompany = () => {
+const JobCompany = () => {
   const [idJob, setIdJob] = useState<number>();
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
-  const {
-    formState: { errors },
-  } = useForm<FormDataRegisterCompany>({
-    resolver: yupResolver(validationSchema),
-  });
 
   const debouncedSearch = useMemo(
     () =>
@@ -60,17 +44,6 @@ const jobCompany = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  const { data: jobCompany, isLoading } = useGetAllCompanyJobQuery(
-    {
-      status: status,
-      page: page,
-      size: size,
-      keyword,
-      startDate: startDate,
-      endDate: endDate,
-    },
-    { refetchOnMountOrArgChange: true }
-  );
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteJobCompanyMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
   const handleDelete = async () => {
@@ -119,17 +92,15 @@ const jobCompany = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách công việc</h1>
         <div className="flex items-center justify-between gap-3 ">
-          <div className="w-[200px]">
-            <TextField
-              id="filled-search"
-              label="Tìm kiếm công việc..."
-              type="search"
-              variant="outlined"
-              size="small"
-              onChange={e => debouncedSearch(e.target.value)}
-            />
-          </div>
-
+          <TextField
+            id="filled-search"
+            label="Tìm kiếm tên công việc"
+            type="search"
+            variant="outlined"
+            size="small"
+            onChange={e => debouncedSearch(e.target.value)}
+            className="w-[250px]"
+          />
           <div className="flex items-center gap-5">
             <Link href={'/admin/company/jobCompany/AddJob'}>
               <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
@@ -175,10 +146,9 @@ const jobCompany = () => {
                   <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{item.jobTitle}</td>
                   <td className="px-5 py-4">
-                    {formatCurrencyVND(item.maxSalary)}-{formatCurrencyVND(item.minSalary)}
+                    {item.salaryType === 'FIXED' ? formatCurrencyVND(item.maxSalary) + ' - ' + formatCurrencyVND(item.minSalary) : 'Thỏa thuận'}
                   </td>
                   <td className="px-5 py-4">{item.expirationDate}</td>
-
                   <td className=" py-4">
                     <div className="flex items-center gap-2">
                       <ButtonSee href={`/admin/company/jobCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
@@ -228,9 +198,8 @@ const jobCompany = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={jobCompany?.data.totalElements}
-        totalTitle={'Công việc'}
       />
     </>
   );
 };
-export default jobCompany;
+export default JobCompany;

@@ -7,14 +7,13 @@ import makeAnimated from 'react-select/animated';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import PaginationComponent from '@/components/Common/Pagination';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useDeleteWorkShopMutation, useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
 import { setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
-import { statusLabelJob, statusTextJob, statusTextWorkshop } from '@/utils/app/const';
+import { statusTextJob } from '@/utils/app/const';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 
@@ -117,7 +116,6 @@ const WorkShopCompany = () => {
               <th className="px-5 py-4 text-left">Trường học</th>
               <th className="px-5 py-4 text-left">Thời gian bắt đầu</th>
               <th className="px-5 py-4 text-left">Thời gian kết thúc</th>
-              <th className="px-5 py-4 text-left">Số lượng công ty ước tính</th>
               <th className="px-5 py-4 text-left">Trạng thái</th>
               <th className="px-5 py-4 text-left">Hành động</th>
             </tr>
@@ -130,7 +128,6 @@ const WorkShopCompany = () => {
                 <td className="px-5 py-4">{item.workshop.university.universityName}</td>
                 <td className="px-5 py-4 text-center">{item.workshop.startTime.split(' ')[0]}</td>
                 <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
-                <td className="px-5 py-4 text-center">{item.workshop.estimateCompanyParticipants}</td>
                 <td className="px-5 py-4">
                   <Chip
                     label={statusTextJob(item.status).title}
@@ -197,7 +194,6 @@ const WorkShopCompany = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={companyWorkShop?.data.totalElements}
-        totalTitle={'workshops'}
       />
     </>
   );
