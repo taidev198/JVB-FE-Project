@@ -92,7 +92,7 @@ const DetailWorkshop: FC<DetailWorkshopProps> = ({ idWorkshop }) => {
             <span className="font-semibold">Hình ảnh:</span>
             <div className="mt-2 flex justify-evenly gap-4">
               {workshop?.data.imageWorkshops.map(image => (
-                <ImageComponent src={image.imageUrl} alt={workshop.data?.workshopTitle} width={80} height={80} className="rounded" key={image.id} />
+                <ImageComponent src={image?.imageUrl} alt={workshop.data?.workshopTitle} width={80} height={80} className="rounded" key={image.id} />
               ))}
             </div>
           </div>

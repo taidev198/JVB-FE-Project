@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { createContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAppSelector } from '@/store/hooks';
@@ -5,9 +6,9 @@ import { useAppSelector } from '@/store/hooks';
 export const SocketContext = createContext(null);
 
 const SocketProvider = ({ children }) => {
-  const idAccount = useAppSelector(state => state.user.user?.account?.id);
+  const idAccount = useAppSelector(state => state.user.idAccount);
   const token = useAppSelector(state => state.user?.token);
-  const wsUrl = `ws://192.168.0.152:8082/ws/notifications?accountId=${idAccount}`;
+  const wsUrl = `ws://localhost:8082/ws/notifications?accountId=${idAccount}`;
 
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -17,8 +18,6 @@ const SocketProvider = ({ children }) => {
     if (!token) {
       // Nếu không có token, đóng kết nối WebSocket
       if (socket) {
-        console.log(socket);
-
         socket.close();
         setSocket(null);
         setIsConnected(false);
@@ -31,7 +30,7 @@ const SocketProvider = ({ children }) => {
       let ws: WebSocket;
       let reconnectTimeout: NodeJS.Timeout;
       let heartbeatInterval: NodeJS.Timeout;
-      console.log('ket noi thanh cong');
+      console.log('Kết nối socket thành công');
       const connectWebSocket = () => {
         ws = new WebSocket(wsUrl);
         ws.onopen = () => {

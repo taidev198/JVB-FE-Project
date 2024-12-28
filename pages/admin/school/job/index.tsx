@@ -22,7 +22,7 @@ const Partnerships = () => {
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const universityId = useAppSelector(state => state.user?.user?.id);
+  const universityId = useAppSelector(state => state.user?.id);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJobsId, setSelectedJobsId] = useState<number | null>(null);
   const [selectedMajorId, setSelectedMajorId] = useState<number | null>(null);
@@ -156,14 +156,14 @@ const Partnerships = () => {
           </thead>
           <tbody>
             {jobs?.data.content.length !== 0 ? (
-              jobs?.data.content.map((job, index) => (
+              jobs?.data?.content.map((job, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
-                  <td className="px-5 py-4">{job.job.company.companyName}</td>
+                  <td className="px-5 py-4">{job.job.company?.companyName}</td>
                   <td className="px-5 py-4">{job.job.jobTitle}</td>
                   <td className="px-5 py-4">{jobType(job.job.jobType)}</td>
                   <td className="px-5 py-4">{job.job.jobLevel.charAt(0).toUpperCase() + job.job.jobLevel.slice(1).toLowerCase()}</td>
-                  <td className="px-5 py-4">{job.job.createAt.split(' ')[0]}</td>
+                  <td className="px-5 py-4">{job.job?.createAt?.split(' ')[0]}</td>
                   <td className="px-2 py-4">
                     <Chip
                       label={statusTextJob(job.status).title}
@@ -223,7 +223,6 @@ const Partnerships = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={jobs?.data.totalElements}
-        totalTitle={'jobs'}
       />
       {/* Backdrops */}
       {(backdropType === BackdropType.ApproveConfirmation ||
