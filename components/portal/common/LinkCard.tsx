@@ -21,6 +21,7 @@ const LinkCard: React.FC<LinkCardProps> = ({ logoUrl, name, shortDes, websiteUrl
       </div>
       <Link
         href={websiteUrl}
+        target="_blank"
         className="mp_transition_4 z-[2] rounded-md bg-primary-main px-[30px] py-[20px] text-center text-lg font-medium tracking-wide text-white hover:bg-primary-black">
         Truy cập website
       </Link>

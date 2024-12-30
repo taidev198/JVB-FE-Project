@@ -237,7 +237,6 @@ const BusinessManagement = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={business?.data.totalElements}
-        totalTitle={'ngành học'}
       />
     </>
   );

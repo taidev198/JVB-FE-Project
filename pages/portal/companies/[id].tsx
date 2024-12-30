@@ -4,6 +4,8 @@ import { Alert, Select } from 'antd';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
 import React, { useEffect, useState } from 'react';
 
 import ImageComponent from '@/components/Common/Image';
@@ -15,9 +17,12 @@ import PortalEmpty from '@/components/Portal/common/PortalEmpty';
 import PortalLoading from '@/components/Portal/common/PortalLoading';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
-import { useGetCompanyDetailsQuery, useGetJobsCompanyQuery } from '@/services/portalHomeApi';
+import { useGetCompanyDetailsQuery, useGetJobsCompanyQuery, useSendConnectMutation } from '@/services/portalHomeApi';
 import { IJobByCompany } from '@/types/jobCompany';
 import { formatJobType } from '@/utils/app/format';
+import { useAppSelector } from '@/store/hooks';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { setLoading } from '@/store/slices/global';
 
 interface CompanyDetailsPageProps {
   serverSideApiKeyIsSet: boolean;
@@ -25,10 +30,12 @@ interface CompanyDetailsPageProps {
 
 const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   const router = useRouter();
+  const idLogin = useAppSelector(state => state.user.id);
+  const dispatch = useDispatch();
   const { id } = router.query;
   const { data, isLoading, error } = useGetCompanyDetailsQuery({ id: Number(id) });
-  const { data: jobsData, isLoading: isLoadingJobs, error: jobsError } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 1000 });
-
+  const { data: jobsData, isLoading: isLoadingJobs } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 1000 });
+  const [sendRequests, { isLoading: sendRequestsLoading }] = useSendConnectMutation();
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedJobs, setPaginatedJobs] = useState<IJobByCompany[]>([]);
   const [pageSize, setPageSize] = useState(4);
@@ -54,6 +61,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   };
 
   useEffect(() => {
+    dispatch(setLoading(sendRequestsLoading));
     if (jobsData?.data.content) {
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = startIndex + pageSize;
@@ -61,7 +69,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
     } else {
       setPaginatedJobs([]);
     }
-  }, [jobsData, currentPage, pageSize]);
+  }, [jobsData, currentPage, pageSize, dispatch, sendRequestsLoading]);
 
   if (isLoading) {
     return (
@@ -85,6 +93,20 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   const address = `${companyDetails?.address?.houseNumber}, ${companyDetails?.address?.ward.wardName}, ${companyDetails?.address?.district.districtName}, ${companyDetails?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
 
+  const handleSendRequests = async () => {
+    try {
+      await sendRequests({ accountLoginId: idLogin, toDoAccountId: data.data.id, doBy: 0 }).unwrap();
+      toast.success('Đã Gửi yêu cầu hợp tác thành công');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
+  };
+
   return (
     <>
       <Head>
@@ -103,7 +125,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
             address={`${companyDetails?.address?.houseNumber},${companyDetails?.address?.ward.wardName}, ${companyDetails?.address?.district.districtName}, ${companyDetails?.address?.province.provinceName}`}
             logo={companyDetails?.logoUrl}
             buttonText="Liên kết ngay"
-            onButtonClick={() => {}}
+            onButtonClick={handleSendRequests}
             currentPage="Trường học"
           />
           <div className="mp_section_padding">

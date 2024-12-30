@@ -233,7 +233,6 @@ const AdminSystemJob = () => {
         size={size}
         totalItem={jobs?.data.totalElements}
         onPageChange={(event, value) => dispatch(setPage(value))}
-        totalTitle={'jobs'}
       />
       {showBackdrop && (
         <BackDrop isCenter>

@@ -1,6 +1,8 @@
 // types/jobCompany.ts
 
+import { IMajor } from './majorType';
 import { ICompany } from './companyType';
+import { IUniversity } from './university';
 import { IFields } from '.';
 
 export interface IJobCompany {
@@ -96,4 +98,21 @@ export interface IJobByCompany {
   salaryType: string;
   createAt: string;
   company: ICompany;
+}
+
+export interface IJobUniversityApply {
+  code: number;
+  message: string;
+  data: {
+    content: {
+      university: IUniversity;
+      job: IJobCompany;
+      status: string;
+      major: IMajor;
+    }[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
 }

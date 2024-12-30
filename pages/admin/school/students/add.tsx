@@ -152,8 +152,15 @@ const AddStudent = () => {
               error={errors.phoneNumber?.message}
               required={true}
             />
-            {/* Email */}
-            <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} required={true} />
+            {/* Date Of Birth */}
+            <DateComponent
+              name="dateOfBirth"
+              control={control}
+              error={errors.dateOfBirth?.message}
+              placeholder={'Nhập ngày sinh'}
+              label={'Ngày sinh'}
+              required={true}
+            />
             {/* Year Of Enrollment */}
             <Input
               type="number"
@@ -164,15 +171,8 @@ const AddStudent = () => {
               error={errors.yearOfEnrollment?.message}
               required={true}
             />
-            {/* Date Of Birth */}
-            <DateComponent
-              name="dateOfBirth"
-              control={control}
-              error={errors.dateOfBirth?.message}
-              placeholder={'Nhập ngày sinh'}
-              label={'Ngày sinh'}
-              required={true}
-            />
+            {/* Email */}
+            <Input type="email" name="email" label="Email" placeholder="Nhập Email" control={control} error={errors.email?.message} required={true} />
             {/* GPA */}
             <Input type="number" name="gpa" label="Điểm GPA" placeholder="Nhập Điểm GPA" control={control} error={errors.gpa?.message} required={true} />
             {/* Student status */}

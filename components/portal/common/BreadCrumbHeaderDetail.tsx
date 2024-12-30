@@ -42,9 +42,8 @@ const BreadCrumbHeaderDetail: React.FC<BreadCrumbHeaderDetailProps> = ({
             </div>
             <button
               className="mp_transition_4 z-[2] min-w-[200px] rounded-md bg-primary-main px-[30px] py-[20px] text-lg font-medium tracking-wide text-white hover:bg-primary-black"
-              onClick={onButtonClick} // Assign dynamic click handler
-            >
-              {buttonText} {/* Use dynamic button text */}
+              onClick={onButtonClick}>
+              {buttonText}
             </button>
           </div>
         </div>

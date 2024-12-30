@@ -440,6 +440,7 @@ export const adminSchoolApi = createApi({
         },
         providesTags: ['Jobs'],
       }),
+
       acceptJobs: builder.mutation({
         query: ({ accountLoginId, acceptToAccountId }) => ({
           url: `/company/accept_apply`,
@@ -467,6 +468,7 @@ export const adminSchoolApi = createApi({
           { type: 'Jobs' },
         ],
       }),
+
       deleteJobs: builder.mutation({
         query: ({ major, job }) => ({
           url: `/remove_apply`,

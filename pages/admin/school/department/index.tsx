@@ -218,7 +218,6 @@ const Department = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={departments?.data.totalElements}
-        totalTitle={'khoa'}
       />
     </>
   );

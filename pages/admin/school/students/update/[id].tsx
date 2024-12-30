@@ -74,8 +74,8 @@ const UpdateStudent = () => {
   const { data: majors } = useGetAllMajorsQuery();
   const [updateStudent, { isLoading }] = useUpdateStudentMutation();
   const onSubmit: SubmitHandler<FormDataAddStudent> = async data => {
-  const formData = new FormData();
-  const studentRequest = {
+    const formData = new FormData();
+    const studentRequest = {
       studentCode: data.studentCode,
       fullName: data.fullName,
       email: data.email,
@@ -96,7 +96,7 @@ const UpdateStudent = () => {
 
     try {
       await updateStudent({ formData: formData, id: id }).unwrap();
-      toast.success(response.message);
+      await toast.success('Cập nhật thông tin thành công');
       router.push('/admin/school/students');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -118,7 +118,7 @@ const UpdateStudent = () => {
         gender: detailStudent?.data.gender,
         phoneNumber: detailStudent?.data.phoneNumber,
         yearOfEnrollment: detailStudent?.data.yearOfEnrollment,
-        houseNumber: detailStudent?.data.phoneNumber,
+        houseNumber: detailStudent?.data.address.houseNumber,
         gpa: detailStudent?.data.gpa,
         dateOfBirth: detailStudent?.data.dateOfBirth ? dayjs(detailStudent?.data.dateOfBirth, 'DD/MM/YYYY') : null,
         studentStatus: detailStudent?.data.studentStatus,

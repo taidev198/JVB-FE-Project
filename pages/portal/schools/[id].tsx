@@ -14,11 +14,16 @@ import LinkCard from '@/components/Portal/common/LinkCard';
 import GoogleMap from '@/components/Portal/common/MapCard';
 import PortalEmpty from '@/components/Portal/common/PortalEmpty';
 import PortalLoading from '@/components/Portal/common/PortalLoading';
-import { useGetSchoolDetailsQuery, useGetWorkshopsUniversityQuery } from '@/services/portalHomeApi';
+import { useGetSchoolDetailsQuery, useGetWorkshopsUniversityQuery, useSendConnectMutation } from '@/services/portalHomeApi';
 import { IWorkshopPortal } from '@/types/workshop';
 import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
+import { useDispatch } from 'react-redux';
+import { useAppSelector } from '@/store/hooks';
+import { setLoading } from '@/store/slices/global';
+import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface SchoolDetailsPageProps {
   serverSideApiKeyIsSet: boolean;
@@ -27,6 +32,8 @@ interface SchoolDetailsPageProps {
 const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const router = useRouter();
   const { id } = router.query;
+  const dispatch = useDispatch();
+  const idLogin = useAppSelector(state => state.user.id);
 
   const { Option } = Select;
 
@@ -36,11 +43,8 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const [pageSize, setPageSize] = useState(4);
 
   const { data, isLoading, error } = useGetSchoolDetailsQuery({ id: Number(id) });
-  const {
-    data: workshopsData,
-    isLoading: isLoadingWorkshops,
-    error: workshopsError,
-  } = useGetWorkshopsUniversityQuery({ universityId: Number(id), page: 1, size: 1000 });
+  const { data: workshopsData, isLoading: isLoadingWorkshops } = useGetWorkshopsUniversityQuery({ universityId: Number(id), page: 1, size: 1000 });
+  const [sendRequests, { isLoading: sendRequestsLoading }] = useSendConnectMutation();
 
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -56,6 +60,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   };
 
   useEffect(() => {
+    dispatch(setLoading(sendRequestsLoading));
     if (workshopsData?.data.content) {
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = startIndex + pageSize;
@@ -63,7 +68,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
     } else {
       setPaginatedWorkshops([]); // Clear paginated data if workshopsData is empty
     }
-  }, [workshopsData, currentPage, pageSize]);
+  }, [workshopsData, currentPage, pageSize, dispatch, sendRequestsLoading]);
 
   if (isLoading) {
     return (
@@ -87,7 +92,19 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const address = `${universityDetails?.address?.houseNumber}, ${universityDetails?.address?.ward.wardName}, ${universityDetails?.address?.district.districtName}, ${universityDetails?.address?.province.provinceName}`;
   const zoomLevel = 20;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=${zoomLevel}&output=embed`;
-
+  const handleSendRequests = async () => {
+    try {
+      await sendRequests({ accountLoginId: idLogin, toDoAccountId: data.data.id, doBy: 1 }).unwrap();
+      toast.success('Đã Gửi yêu cầu hợp tác thành công');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
+  };
   return (
     <>
       <Head>
@@ -106,6 +123,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
             address={`${universityDetails?.address?.houseNumber},${universityDetails?.address?.ward.wardName}, ${universityDetails?.address?.district.districtName}, ${universityDetails?.address?.province.provinceName}`}
             logo={universityDetails?.logoUrl}
             currentPage="Trường học"
+            onButtonClick={handleSendRequests}
             buttonText="Liên kết ngay"
           />
           <div className="mp_section_padding">
