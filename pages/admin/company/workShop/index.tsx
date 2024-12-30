@@ -82,7 +82,7 @@ const WorkShopCompany = () => {
           <div className="flex items-center gap-3">
             <TextField
               id="filled-search"
-              label="Tìm kiếm tên...."
+              label="Tìm kiếm tiêu đề"
               type="search"
               variant="outlined"
               size="small"
@@ -146,17 +146,6 @@ const WorkShopCompany = () => {
                       }}
                       href={`/portal/workshops/${item.workshop.id}`}
                     />
-
-                    {/* {item.status === 'PENDING' && (
-                      <>
-                        <ButtonReject
-                          onClick={() => {
-                            handleAction(BackdropType.RefuseConfirmation, item.id);
-                            dispatch(setName(item.workshop.workshopTitle));
-                          }}
-                        />
-                      </>
-                    )} */}
 
                     {item.status !== 'PENDING' && (
                       <ButtonDelete

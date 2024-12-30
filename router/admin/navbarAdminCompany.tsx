@@ -26,7 +26,7 @@ export const litsNavbarAdminSchoolRouter = [
     id: 3,
     icon: <IconWorkshop />,
     url: '/admin/company/workShop',
-    label: 'Quản lý workShop',
+    label: 'Yêu cầu tham gia workShop',
   },
   {
     id: 4,
@@ -41,19 +41,26 @@ export const litsNavbarAdminSchoolRouter = [
     label: 'Quản lý job',
   },
   {
-    id: 8,
+    id: 6,
+    icon: <IconDepartment />,
+    url: '/admin/company/school-apply-job',
+    label: 'Quản lý job apply',
+  },
+
+  {
+    id: 7,
     icon: <IconHand />,
     url: '/admin/company/partnerships',
     label: 'Quản lý hợp tác',
   },
   {
-    id: 6,
+    id: 8,
     icon: <IconNotification />,
     url: '/admin/company/notification',
     label: 'Thông báo',
   },
   {
-    id: 7,
+    id: 9,
     icon: <IconChangePassword />,
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',

@@ -113,11 +113,12 @@ const AdminSystemCompany = () => {
             />
             <TextField
               id="filled-search"
-              label="Tìm kiếm tên, mã"
+              label="Tìm kiếm tên, mã doanh nghiệp"
               type="search"
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
+              className="w-fit sm:w-[280px]"
             />
           </div>
         </div>
@@ -129,8 +130,8 @@ const AdminSystemCompany = () => {
           <thead className="bg-white">
             <tr>
               <th className="px-5 py-4">STT</th>
-              <th className="px-5 py-4 text-left">Mã công ty</th>
-              <th className="px-5 py-4 text-left">Tên công ty</th>
+              <th className="px-5 py-4 text-left">Mã doanh nghiệp</th>
+              <th className="px-5 py-4 text-left">Tên doanh nghiệp</th>
               <th className="px-5 py-4 text-left">Email</th>
               <th className="px-5 py-4 text-left">Ngày đăng ký</th>
               <th className="px-5 py-4 text-left">Trạng thái</th>

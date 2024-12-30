@@ -17,6 +17,7 @@ import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import PaginationComponent from '@/components/Common/Pagination';
+import { statusEmployee } from '@/utils/app/const';
 
 const UserCompany = () => {
   const [idEmployee, setIdEmployee] = useState<number>();
@@ -161,10 +162,10 @@ const UserCompany = () => {
                 <td className="px-5 py-4">{item.phoneNumber}</td>
                 <td className="px-5 py-4">
                   <Chip
-                    label={item.employeeStatus}
+                    label={statusEmployee(item.employeeStatus).title}
                     sx={{
-                      backgroundColor: item.employeeStatus === 'WORKING' ? '#EBF9F1' : '#FFF4E5',
-                      color: item.employeeStatus === 'WORKING' ? '#1F9254' : '#CD0000',
+                      backgroundColor: statusEmployee(item.employeeStatus).bg,
+                      color: statusEmployee(item.employeeStatus).color,
                     }}
                   />
                 </td>
@@ -208,7 +209,6 @@ const UserCompany = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={employee?.data.totalElements}
-        totalTitle={'Nhân viên'}
       />
     </>
   );

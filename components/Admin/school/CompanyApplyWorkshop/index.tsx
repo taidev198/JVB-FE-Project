@@ -200,7 +200,6 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
         onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={companyApply?.data.totalElements}
-        totalTitle={'doanh nghiệp'}
       />
 
       {/* {showBackdrop === BackdropType.LockConfirmation ||

@@ -28,7 +28,7 @@ const AdminSystemDetailCompany = () => {
         </Link>
         Trở về
       </div>
-      <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin tài khoản công ty </h1>
+      <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin tài khoản doanh nghiệp</h1>
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-4 sm:p-7">
         <div className="flex items-center gap-[30px] ">

@@ -12,6 +12,7 @@ import Statistic from '@/components/Portal/Statistic';
 import WhyWe from '@/components/Portal/WhyWe';
 import Workshop from '@/components/Portal/Workshop';
 import PortalLayout from '@/layouts/portal/PortalLayout';
+import iconLogo from '@/assets/icons/LogoJobLink.svg';
 
 interface HomeProps {
   serverSideApiKeyIsSet: boolean;
@@ -21,10 +22,10 @@ const Home: React.FC<HomeProps> = () => {
   return (
     <>
       <Head>
-        <title>Base</title>
+        <title>JobLink</title>
         <meta name="description" content="" />
         <meta name="viewport" content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href={iconLogo} />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" />
       </Head>
 

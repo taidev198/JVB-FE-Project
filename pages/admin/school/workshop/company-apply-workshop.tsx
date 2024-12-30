@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 import PaginationComponent from '@/components/Common/Pagination';
 import ImageComponent from '@/components/Common/Image';
-import { setKeyword } from '@/store/slices/filtersSlice';
+import { resetFilters, setKeyword } from '@/store/slices/filtersSlice';
 import { useApproveCompanyApplyWorkshopMutation, useGetAllCompanyApplyWorkshopsQuery, useRejectCompanyApplyWorkshopMutation } from '@/services/adminSchoolApi';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
@@ -75,6 +75,9 @@ const CompanyApplyWorkshop = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoading));
+    return () => {
+      dispatch(resetFilters());
+    };
   }, [dispatch, isLoading]);
 
   return (

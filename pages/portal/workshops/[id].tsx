@@ -4,6 +4,8 @@ import { Alert } from 'antd';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React from 'react';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import toast from 'react-hot-toast';
 
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
 import HtmlContentRenderer from '@/components/Portal/common/HtmlContentRenderer';
@@ -11,7 +13,7 @@ import LinkCard from '@/components/Portal/common/LinkCard';
 import GoogleMap from '@/components/Portal/common/MapCard';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
-import { useGetWorkshopDetailsQuery } from '@/services/portalHomeApi';
+import { useCompanyApplyWorkshopMutation, useGetWorkshopDetailsQuery } from '@/services/portalHomeApi';
 import { formatWorkshopStatus } from '@/utils/app/format';
 
 interface WorkshopDetailsProps {
@@ -22,6 +24,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
   const router = useRouter();
   const { id } = router.query;
   const { data, isLoading, error } = useGetWorkshopDetailsQuery({ id: Number(id) });
+  const [applyWorkshop, { isLoading: applyLoading }] = useCompanyApplyWorkshopMutation();
 
   if (isLoading) {
     return (
@@ -42,7 +45,19 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
   const workshopDetails = data?.data;
   const address = `${workshopDetails?.address?.houseNumber}, ${workshopDetails?.address?.ward.wardName}, ${workshopDetails?.address?.district.districtName}, ${workshopDetails?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
-
+  const handleApply = async () => {
+    try {
+      await applyWorkshop(data.data.id).unwrap();
+      toast.success('Đăng ký tham gia thành công');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    }
+  };
   return (
     <>
       <Head>
@@ -61,7 +76,8 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
             address={`${workshopDetails?.address?.houseNumber},${workshopDetails?.address?.ward.wardName}, ${workshopDetails?.address?.district.districtName}, ${workshopDetails?.address?.province.provinceName}`}
             logo={workshopDetails?.university?.logoUrl}
             currentPage="Chi tiết workshop'}"
-            buttonText="Tham gia ngay"
+            buttonText={`${data.data.isApply ? 'Đã tham gia' : 'Tham gia ngay'}`}
+            onButtonClick={handleApply}
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">

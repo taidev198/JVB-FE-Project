@@ -19,7 +19,7 @@ import {
 } from '@/services/adminSystemApi';
 import ImageComponent from '@/components/Common/Image';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { countTimeDifference, StatusPartnership } from '@/utils/app/const';
+import { StatusPartnership } from '@/utils/app/const';
 import PaginationComponent from '@/components/Common/Pagination';
 import RemovePerson from '@/components/Common/ButtonIcon/RemovePerson';
 import ButtonAddPerson from '@/components/Common/ButtonIcon/AddPerson';
@@ -196,11 +196,6 @@ const JobAdminSchool = () => {
                           color: StatusPartnership(partner.partnershipStatus)?.color,
                         }}
                       />
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-[#002c3fb3]">
-                        {countTimeDifference(partner.startDate) === '0 ngày' ? 'Vừa mới' : countTimeDifference(partner.startDate)}
-                      </span>
                     </div>
                     {/* Button */}
                     <div className="flex items-center gap-3">

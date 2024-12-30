@@ -5,16 +5,30 @@ import { useContext, useEffect, useState } from 'react';
 import ImageComponent from './Image';
 import { useGetNotificationsQuery, useUpdateStatusNotificationsMutation } from '@/services/adminSystemApi';
 import { SocketContext } from '@/context/SoketProvider';
+import { useAppSelector } from '@/store/hooks';
 const Notification = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const role = useAppSelector(state => state.user.roleAccount);
+  const urlNotification = role => {
+    switch (role) {
+      case 'ADMIN':
+        return '/admin/system/notification';
+      case 'UNIVERSITY':
+        return '/admin/school/notification';
+      case 'COMPANY':
+        return '/admin/company/notification';
+      default:
+        return '/admin/dashboard';
+    }
+  };
   const { messages } = useContext(SocketContext);
   const router = useRouter();
   const { data: notifications, refetch } = useGetNotificationsQuery(undefined, {
     refetchOnMountOrArgChange: true,
   });
   const notReadCount = notifications?.data.filter(notification => notification.isRead === false).length;
-
   const [updateStatusNotification] = useUpdateStatusNotificationsMutation();
+
   const handleUpdateStatus = () => {
     updateStatusNotification();
   };
@@ -74,7 +88,7 @@ const Notification = () => {
                     <div className="flex flex-1 flex-col gap-[6px] text-[15px] leading-[18px]">
                       <span className="font-semibold text-[#333]">Doanh nghiệp A</span>{' '}
                       <p className="mr-auto break-words font-normal">{notification?.notificationDescription.split('.')[0]}.</p>
-                      <p className="mr-auto break-words font-semibold text-[#f05123]">01/10/2024</p>
+                      <p className="mr-auto break-words font-semibold text-[#f05123]">{notification?.createAt}</p>
                     </div>
                   </div>
                   {notification.isRead === false && (
@@ -92,7 +106,7 @@ const Notification = () => {
           <p
             className="cursor-pointer font-semibold"
             onClick={() => {
-              router.push('/admin/school/notification');
+              router.push(urlNotification(role));
               handleMenuClose();
             }}>
             Xem tất cả thông báo
