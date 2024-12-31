@@ -159,7 +159,7 @@ const Department = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Checkbox color="primary" checked={selectedDepartment.includes(item.id)} onChange={() => handleSelectDepartment(item.id)} size="small" />
                   </td>
-                  <td className="p-3 text-center sm:px-5 sm:py-4">
+                  <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
@@ -218,7 +218,6 @@ const Department = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={departments?.data.totalElements}
-        totalTitle={'khoa'}
       />
     </>
   );

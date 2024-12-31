@@ -176,7 +176,7 @@ const BusinessManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Checkbox color="primary" checked={selectedBusiness.includes(item.id)} onChange={() => handleSelectBusiness(item.id)} size="small" />
                   </td>
-                  <td className="p-3 text-center sm:px-5 sm:py-4">
+                  <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
@@ -237,7 +237,6 @@ const BusinessManagement = () => {
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
         totalItem={business?.data.totalElements}
-        totalTitle={'ngành học'}
       />
     </>
   );
