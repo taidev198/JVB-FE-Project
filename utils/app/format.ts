@@ -108,3 +108,14 @@ export const formatWorkshopStatus = (status: string): string => {
   };
   return statusMapping[status] || 'Không xác định';
 };
+
+export const formatRoleAccount = (role: string): string => {
+  const roleMapping: Record<string, string> = {
+    ADMIN: 'Quản trị viên',
+    COMPANY: 'Công ty',
+    EMPLOYEE_COMPANY: 'Nhân viên công ty',
+    UNIVERSITY: 'Trường đại học',
+    EMPLOYEE_UNIVERSITY: 'Nhân viên trường đại học',
+  };
+  return roleMapping[role] || 'Không xác định';
+};

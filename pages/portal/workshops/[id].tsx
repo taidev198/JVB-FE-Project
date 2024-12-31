@@ -137,6 +137,10 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
                     <HtmlContentRenderer htmlContent={workshopDetails?.agenda || ''} />
                   </div>
                 </div>
+                {/* <div className="image-swiper-container mt-[20px]">
+                  <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Hình ảnh Workshop</h3>
+
+                </div> */}
               </div>
               <div className="flex w-full flex-col gap-[54px] lg:basis-5/12 xl:basis-4/12">
                 <GoogleMap googleMapsUrl={googleMapsUrl} title="Vị trí trên Google Maps" height={300} />
