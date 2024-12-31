@@ -43,7 +43,10 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const [pageSize, setPageSize] = useState(4);
 
   const { data, isLoading, error } = useGetSchoolDetailsQuery({ id: Number(id) });
-  const { data: workshopsData, isLoading: isLoadingWorkshops } = useGetWorkshopsUniversityQuery({ universityId: Number(id), page: 1, size: 1000 });
+  const { data: workshopsData, isLoading: isLoadingWorkshops } = useGetWorkshopsUniversityQuery(
+    { universityId: Number(id), page: 1, size: 1000 },
+    { refetchOnMountOrArgChange: true }
+  );
   const [sendRequests, { isLoading: sendRequestsLoading }] = useSendConnectMutation();
 
   const handlePageChange = (page: number, pageSize?: number) => {
@@ -229,12 +232,12 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
                               <div className="flex min-h-full flex-col justify-between sm:w-[calc(100%-150px)]">
                                 <div className="mt-3 flex w-full flex-col gap-2 sm:mt-0">
                                   <h4 className="truncate text-[22px] font-semibold text-primary-black">{workshop.workshopTitle}</h4>
-                                  <p className="truncate text-lg text-primary-gray">{workshop.workshopDescription}</p>
+                                  <p className="truncate text-lg text-primary-gray" dangerouslySetInnerHTML={{ __html: workshop.workshopDescription }}></p>
                                 </div>
                                 <div className="mt-2 flex flex-col items-start gap-2 text-lg text-primary-gray lg:max-w-[60%] lg:flex-col lg:items-start lg:gap-2 xl:max-w-full xl:flex-row xl:items-center xl:gap-4">
                                   <span className="flex items-center gap-1 ">
                                     <i className="fa-solid fa-calendar"></i>
-                                    <span className="truncate">{formatDateDD_thang_MM_yyyy(workshop.startTime)}</span>
+                                    <span className="truncate">{workshop.startTime}</span>
                                   </span>
                                   <span className="flex items-center gap-1 truncate sm:w-full">
                                     <i className="fa-solid fa-location-dot"></i>

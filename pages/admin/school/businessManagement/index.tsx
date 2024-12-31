@@ -141,7 +141,7 @@ const BusinessManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <Checkbox
                   color="primary"
-                  checked={selectedBusiness.length === business?.data.content.length}
+                  checked={selectedBusiness.length > 0 && business?.data.content.length > 0}
                   indeterminate={selectedBusiness.length > 0 && selectedBusiness.length < (business?.data.content || []).length}
                   onChange={handleSelectAll}
                   size="small"

@@ -6,7 +6,7 @@ import { debounce } from 'lodash';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useDispatch } from 'react-redux';
 import WorkIcon from '@mui/icons-material/Work';
-import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { BackDrop } from '@/components/Common/BackDrop';
@@ -209,14 +209,13 @@ const AdminSystemJob = () => {
                           />
                         </>
                       )}
-                      {job.status !== 'REJECT' && (
-                        <ButtonSee
-                          href={`/portal/jobs/${job?.id}`}
-                          onClick={() => {
-                            setSelectedJobId(job?.id);
-                          }}
-                        />
-                      )}
+
+                      <ButtonSee
+                        href={`/admin/system/job/${job?.id}`}
+                        onClick={() => {
+                          dispatch(setId(job?.id));
+                        }}
+                      />
                     </div>
                   </div>
                 </div>

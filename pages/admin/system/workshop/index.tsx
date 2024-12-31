@@ -171,7 +171,7 @@ const AdminSystemWorkshop = () => {
               <th className="p-3 text-left sm:px-2 sm:py-4">
                 <Checkbox
                   color="primary"
-                  checked={selectedWorkshop.length === workshops?.data.content.length}
+                  checked={selectedWorkshop.length > 0 && workshops?.data.content.length > 0}
                   indeterminate={selectedWorkshop.length > 0 && setSelectedWorkshop.length < (workshops?.data.content || []).length}
                   onChange={handleSelectAll}
                   size="small"
