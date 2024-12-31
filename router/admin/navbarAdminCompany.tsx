@@ -34,33 +34,28 @@ export const litsNavbarAdminSchoolRouter = [
     url: '/admin/company/userCompany',
     label: 'Quản lý nhân viên',
   },
+
   {
     id: 5,
-    icon: <IconDepartment />,
-    url: '/admin/company/jobCompany',
-    label: 'Quản lý job',
-  },
-  {
-    id: 6,
     icon: <IconDepartment />,
     url: '/admin/company/school-apply-job',
     label: 'Quản lý job apply',
   },
 
   {
-    id: 7,
+    id: 6,
     icon: <IconHand />,
     url: '/admin/company/partnerships',
     label: 'Quản lý hợp tác',
   },
   {
-    id: 8,
+    id: 7,
     icon: <IconNotification />,
     url: '/admin/company/notification',
     label: 'Thông báo',
   },
   {
-    id: 9,
+    id: 8,
     icon: <IconChangePassword />,
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',

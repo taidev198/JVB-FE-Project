@@ -103,7 +103,7 @@ export const adminCompanyApi = createApi({
           method: 'PUT',
           body: args.formData,
         }),
-        invalidatesTags: ['Profile'],
+        invalidatesTags: () => [{ type: 'Profile' }],
       }),
 
       //JOBCOMPANY

@@ -88,8 +88,8 @@ const UpdateEmployee = () => {
     // Append file vào FormData
     formData.append('file', image as File);
     try {
-      const response = await updateEmployee({ formData: formData, id: id }).unwrap();
-      toast.success(response.messages);
+      await updateEmployee({ formData: formData, id: id }).unwrap();
+      toast.success('Cập nhập nhân viên thành công');
       router.push('/admin/company/userCompany');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
