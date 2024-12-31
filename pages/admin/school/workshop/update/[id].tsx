@@ -161,7 +161,14 @@ const UpdateWorkshop = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Block 1 */}
         <div className="rounded-b-lg bg-primary-white p-5">
-          <Input name="workshopTitle" control={control} error={errors.workshopTitle?.message} placeholder="Nhập tiêu đề Workshop" label="Tiêu đề Workshop" />
+          <Input
+            name="workshopTitle"
+            control={control}
+            error={errors.workshopTitle?.message}
+            placeholder="Nhập tiêu đề Workshop"
+            label="Tiêu đề Workshop"
+            required={true}
+          />
           <div>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DateComponent
@@ -171,6 +178,7 @@ const UpdateWorkshop = () => {
                 placeholder="Thời gian bắt đầu"
                 control={control}
                 error={errors.startTime?.message}
+                required={true}
               />
               {/*  */}
               <DateComponent
@@ -180,6 +188,7 @@ const UpdateWorkshop = () => {
                 placeholder="Thời gian kết thúc"
                 control={control}
                 error={errors.endTime?.message}
+                required={true}
               />{' '}
               <Input
                 type="number"
@@ -188,6 +197,7 @@ const UpdateWorkshop = () => {
                 placeholder="Nhập số lượng công ty ước tính"
                 control={control}
                 error={errors.estimateCompanyParticipants?.message}
+                required={true}
               />
               <SelectReact
                 name="fields"
@@ -200,6 +210,7 @@ const UpdateWorkshop = () => {
                 control={control}
                 isMultiple={true}
                 error={errors.fields?.message}
+                required={true}
               />
             </div>
           </div>

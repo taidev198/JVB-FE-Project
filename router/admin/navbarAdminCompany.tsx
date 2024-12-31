@@ -7,6 +7,7 @@ import IconDashboard from '@/assets/icons/iconNavbar/dashboard.svg';
 import IconWorkshop from '@/assets/icons/iconNavbar/workshop.svg';
 import IconNotification from '@/assets/icons/notification.svg';
 import IconChangePassword from '@/assets/icons/iconNavbar/password.svg';
+import IconJob from '@/assets/icons/iconNavbarAdminSchool/icon-job.svg';
 
 export const litsNavbarAdminSchoolRouter = [
   {
@@ -34,15 +35,15 @@ export const litsNavbarAdminSchoolRouter = [
     url: '/admin/company/userCompany',
     label: 'Quản lý nhân viên',
   },
-  {
-    id: 6,
-    icon: <IconDepartment />,
-    url: '/admin/company/jobCompany',
-    label: 'Quản lý job',
-  },
 
   {
     id: 5,
+    icon: <IconJob />,
+    url: '/admin/company/jobCompany',
+    label: 'Quản lý job',
+  },
+  {
+    id: 6,
     icon: <IconDepartment />,
     url: '/admin/company/school-apply-job',
     label: 'Quản lý job apply',

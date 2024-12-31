@@ -3,15 +3,34 @@ import * as Yup from 'yup';
 const updateWorkshopSchema = Yup.object({
   workshopTitle: Yup.string().required('Tên doanh nghiệp là bắt buộc').max(150, 'Tiêu đề tối đa 150 kí tự'),
   workshopDescription: Yup.string().required('Mô tả là bắt buộc'),
-  startTime: Yup.string().nullable().typeError('Giá trị không hợp lệ').required('Thời gian bắt đầu là bắt buộc'),
+  startTime: Yup.string()
+    .nullable()
+    .typeError('Giá trị không hợp lệ')
+    .required('Thời gian bắt đầu là bắt buộc')
+    .test('isValidDate', 'Ngày bắt đầu không được là ngày trong tương lai', value => {
+      if (!value) return true;
+      const inputDate = new Date(value);
+      const now = new Date();
+
+      return (
+        inputDate.getFullYear() <= now.getFullYear() &&
+        (inputDate.getFullYear() < now.getFullYear() || inputDate.getMonth() <= now.getMonth()) &&
+        (inputDate.getFullYear() < now.getFullYear() || inputDate.getMonth() < now.getMonth() || inputDate.getDate() <= now.getDate())
+      );
+    }),
+
   endTime: Yup.string()
     .nullable()
     .typeError('Giá trị không hợp lệ')
     .required('Thời gian kết thúc là bắt buộc')
-    .test('is-greater-than-start', 'Ngày kết thúc không được trước ngày bắt đầu', function (value) {
+    .test('is-greater-than-start', 'Ngày kết thúc phải sau ngày bắt đầu và không được trùng với ngày bắt đầu', function (value) {
       const { startTime } = this.parent;
-      if (startTime && value && new Date(value) < new Date(startTime)) {
-        return false;
+      if (startTime && value) {
+        const startDate = new Date(startTime);
+        const endDate = new Date(value);
+        if (endDate <= startDate) {
+          return false;
+        }
       }
       return true;
     }),

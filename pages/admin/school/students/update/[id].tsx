@@ -148,7 +148,15 @@ const UpdateStudent = () => {
           <ImageUploaderOne image={image} setImage={setImage} />
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Student Code */}
-            <Input type="text" name="studentCode" label="Mã sinh viên" placeholder="Nhập mã sinh viên" control={control} error={errors.studentCode?.message} />
+            <Input
+              type="text"
+              name="studentCode"
+              label="Mã sinh viên"
+              placeholder="Nhập mã sinh viên"
+              control={control}
+              error={errors.studentCode?.message}
+              disabled={true}
+            />
             {/* Student name */}
             <Input type="text" name="fullName" label="Tên sinh viên" placeholder="Nhập tên sinh viên" control={control} error={errors.fullName?.message} />
             {/* Phone */}
