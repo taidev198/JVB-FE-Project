@@ -13,9 +13,10 @@ import { useDeleteWorkShopMutation, useGetAllWorkShopCompanyQuery } from '@/serv
 import { useAppSelector } from '@/store/hooks';
 import { setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
-import { statusTextJob } from '@/utils/app/const';
+import { statusTextWorkShopCompany } from '@/utils/app/const';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 
 const animatedComponents = makeAnimated();
 
@@ -26,11 +27,9 @@ const WorkShopCompany = () => {
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [startDate] = useState<Date | null>(null);
   const [endDate] = useState<Date | null>(null);
-  const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
 
   const handleAction = (actionType: BackdropType, JobsId: number) => {
     setSelectId(JobsId);
-    setSelectedAction(actionType);
     dispatch(setBackdrop(actionType));
   };
 
@@ -53,9 +52,9 @@ const WorkShopCompany = () => {
       if (selectId) {
         // Điều kiện kiểm tra chỉ liên quan đến `deleteOne`
         await deleteOne({ id: selectId }).unwrap();
-        toast.success('Công việc đã được xóa thành công');
+        toast.success('WorkShop đã được xóa thành công');
       } else {
-        toast.error('Không có công việc nào được chọn để xóa');
+        toast.error('Không có workShop nào được chọn để xóa');
       }
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -97,7 +96,8 @@ const WorkShopCompany = () => {
                 { value: '', label: 'Tất cả' },
                 { value: 'PENDING', label: 'Chờ duyệt' },
                 { value: 'ACCEPT', label: 'Đã duyệt' },
-                { value: 'CANCEL', label: 'Từ chối' },
+                { value: 'CANCEL', label: 'Hủy' },
+                { value: 'REJECT', label: 'Từ chối' },
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
               className="w-[160px] cursor-pointer"
@@ -130,10 +130,10 @@ const WorkShopCompany = () => {
                 <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
                 <td className="px-5 py-4">
                   <Chip
-                    label={statusTextJob(item.status).title}
+                    label={statusTextWorkShopCompany(item.status).title}
                     style={{
-                      color: `${statusTextJob(item.status).color}`,
-                      background: `${statusTextJob(item.status).bg}`,
+                      color: `${statusTextWorkShopCompany(item.status).color}`,
+                      background: `${statusTextWorkShopCompany(item.status).bg}`,
                     }}
                   />
                 </td>
@@ -147,7 +147,15 @@ const WorkShopCompany = () => {
                       href={`/portal/workshops/${item.workshop.id}`}
                     />
 
-                    {item.status !== 'PENDING' && (
+                    {item.status === 'PENDING' && (
+                      <ButtonReject
+                        onClick={() => {
+                          handleAction(BackdropType.DeleteConfirmation, item.id);
+                          dispatch(setName(item.workshop.workshopTitle));
+                        }}
+                      />
+                    )}
+                    {item.status === 'ACCEPT' && (
                       <ButtonDelete
                         onClick={() => {
                           handleAction(BackdropType.DeleteConfirmation, item.id);

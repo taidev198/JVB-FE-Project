@@ -152,14 +152,6 @@ const JobCompany = () => {
                   <td className="px-5 py-4">{item.expirationDate}</td>
                   <td className=" py-4">
                     <div className="flex items-center gap-2">
-                      <ButtonCompanyApply
-                        href={`/admin/company/jobCompany/school-apply-job`}
-                        onClick={() => {
-                          dispatch(setId(item.id));
-                          dispatch(setName(item.jobTitle));
-                        }}
-                        title={'Trường học apply'}
-                      />
                       <ButtonSee href={`/admin/company/jobCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
 
                       <ButtonUpdate href={`/admin/company/jobCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
