@@ -85,8 +85,10 @@ const DetailJobCompany = () => {
           <li className="mt-5 flex items-center  gap-3 ">
             <MoneyIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Lương:</span> {formatCurrencyVND(jobCompany?.data.maxSalary)} -{' '}
-              {formatCurrencyVND(jobCompany?.data.minSalary)}
+              <span className="mr-2 font-semibold">Lương:</span>
+              {jobCompany?.data.salaryType === 'NEGOTIABLE' || !jobCompany?.data.minSalary || !jobCompany?.data.maxSalary
+                ? 'Thỏa thuận'
+                : `${formatCurrencyVND(jobCompany?.data.minSalary)} - ${formatCurrencyVND(jobCompany?.data.maxSalary)}`}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3 ">

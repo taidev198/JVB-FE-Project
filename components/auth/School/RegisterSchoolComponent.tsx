@@ -2,6 +2,7 @@ import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-for
 import toast from 'react-hot-toast';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 
 import validationSchemaSchool, { FormDataRegisterSchool } from './validationSchemaSchool';
@@ -19,6 +20,8 @@ import DateComponent from '@/components/Common/DateComponent';
 
 const RegisterSchoolComponent = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
+
   const methods = useForm<FormDataRegisterSchool>({
     resolver: yupResolver(validationSchemaSchool),
     mode: 'onChange',
@@ -49,7 +52,8 @@ const RegisterSchoolComponent = () => {
     const formattedDate = formatDateDd_MM_yyyy(establishDate);
     try {
       const response = await registerSchool({ ...payload, establishDate: formattedDate }).unwrap();
-      toast.success(response?.message);
+      await toast.success(response?.message);
+      router.push('/');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
