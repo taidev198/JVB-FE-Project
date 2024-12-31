@@ -41,9 +41,6 @@ const DetailCompany = () => {
           </div>
           <div>
             <h2 className="text-xl font-bold">{detailCompany?.data.companyName}</h2>
-            <Link href={'#'}>
-              <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin hồ sơ trường</p>
-            </Link>
           </div>
         </div>
         <ul className="">
