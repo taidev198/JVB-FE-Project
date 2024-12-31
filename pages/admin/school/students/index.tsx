@@ -181,7 +181,7 @@ const StudentsManagement = () => {
               <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
-                  checked={selectedStudents.length === students?.data.content.length}
+                  checked={selectedStudents.length > 0 && students?.data.content.length > 0}
                   indeterminate={selectedStudents.length > 0 && selectedStudents.length < (students?.data.content || []).length}
                   onChange={handleSelectAll}
                   size="small"

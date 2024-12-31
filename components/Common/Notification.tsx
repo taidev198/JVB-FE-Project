@@ -71,11 +71,11 @@ const Notification = () => {
             {notifications?.data?.length > 0 ? (
               notifications?.data.map(notification => (
                 <li
-                  className={`relative flex flex-col items-center gap-1 rounded-lg ${
+                  className={`relative flex w-full flex-col items-center gap-1 rounded-lg ${
                     notification.isRead === false ? 'bg-[#4897b615] hover:bg-[#35abda30]' : 'hover:bg-[#5b5a5a18]'
                   }  px-4 py-2 transition-all duration-500 ease-in-out`}
                   key={notification?.id}>
-                  <div className="flex items-center gap-3">
+                  <div className="mr-auto flex items-center gap-3">
                     <ImageComponent
                       src={
                         'https://plus.unsplash.com/premium_photo-1671656349322-41de944d259b?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
@@ -86,7 +86,7 @@ const Notification = () => {
                       className="flex-shrink-0 rounded-full object-cover"
                     />
                     <div className="flex flex-1 flex-col gap-[6px] text-[15px] leading-[18px]">
-                      <span className="font-semibold text-[#333]">Doanh nghiệp A</span>{' '}
+                      <span className="font-semibold text-[#333]">Fig cứng</span>{' '}
                       <p className="mr-auto break-words font-normal">{notification?.notificationDescription.split('.')[0]}.</p>
                       <p className="mr-auto break-words font-semibold text-[#f05123]">{notification?.createAt}</p>
                     </div>

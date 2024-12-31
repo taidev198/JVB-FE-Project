@@ -150,7 +150,7 @@ const WorkshopsList: React.FC = () => {
                     onChange={date => setSelectedDate(date?.toDate() || null)}
                   />
                 </Form.Item>
-                <Form.Item name="format" label="Hình thức">
+                {/* <Form.Item name="format" label="Hình thức">
                   <Space direction="vertical" size={0} className="w-full">
                     <Checkbox name="online" className="w-full  py-[14px]">
                       Trực tuyến (Online)
@@ -162,7 +162,7 @@ const WorkshopsList: React.FC = () => {
                       Kết hợp
                     </Checkbox>
                   </Space>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item>
                   <Button type="primary" htmlType="submit" size="large" className="w-full">
                     Tìm kiếm
@@ -292,7 +292,9 @@ const WorkshopsList: React.FC = () => {
                             className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
                             {workshop.workshopTitle}
                           </Link>
-                          <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">{workshop.workshopDescription}</p>
+                          <p
+                            className="mt-[16px] line-clamp-2 text-lg text-primary-gray"
+                            dangerouslySetInnerHTML={{ __html: workshop.workshopDescription }}></p>
                           <div className="mt-[20px] flex flex-row items-center justify-between ">
                             <Link href={`/portal/workshops/${workshop.id}`} className="readmore__btn flex basis-1/2 items-center gap-2 text-lg">
                               <span className="mp_transition_4 font-medium hover:text-primary-main">Chi tiết</span>

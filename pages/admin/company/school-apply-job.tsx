@@ -41,7 +41,8 @@ const SchoolApplyJob = () => {
     [dispatch]
   );
 
-  const { data: universityApply } = useGetAllJobAppliesCompanyQuery({ companyId, keyword, page, size, status });
+  const { data: universityApply } = useGetAllJobAppliesCompanyQuery({ companyId, keyword, page, size, status }, { refetchOnMountOrArgChange: true });
+
   const [accpect, { isLoading: AccpectLoading }] = useAcceptJobsForUniversityMutation();
   const [cancel, { isLoading: CancelLoading }] = useCancelJobsForUniversityMutation();
   const [remove, { isLoading: RemoveLoading }] = useRemoveJobsForUniversityMutation();
@@ -145,6 +146,7 @@ const SchoolApplyJob = () => {
                         width={80}
                         height={80}
                         className="rounded-full border border-solid object-contain"
+                        pro={apply.isPartnership}
                       />
                       <div className="ml-0 font-semibold sm:ml-4">
                         <h4 className="mb-[6px] font-semibold">{apply.university.universityName}</h4>

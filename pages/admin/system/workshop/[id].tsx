@@ -129,7 +129,7 @@ const DetailWorkshop: FC = () => {
                     dispatch(setImage(image?.imageUrl));
                     dispatch(setBackdrop(BackdropType.AddModal));
                   }}
-                  className="cursor-pointer rounded"
+                  className="cursor-pointer rounded object-cover"
                   key={image.id}
                 />
               ))}

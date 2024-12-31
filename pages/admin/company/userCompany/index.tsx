@@ -133,7 +133,7 @@ const UserCompany = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <Checkbox
                   color="primary"
-                  checked={selectedEmployee.length === employee?.data.content.length}
+                  checked={selectedEmployee.length > 0 && employee?.data.content.length > 0}
                   indeterminate={selectedEmployee.length > 0 && selectedEmployee.length < (employee?.data.content || []).length}
                   onChange={handleSelectAll}
                 />

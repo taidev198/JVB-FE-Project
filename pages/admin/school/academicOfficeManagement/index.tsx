@@ -117,7 +117,7 @@ const AcademicOfficeManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <Checkbox
                   color="primary"
-                  checked={selectedAdemic.length === academicOfficeManagement?.data.content.length}
+                  checked={selectedAdemic.length > 0 && academicOfficeManagement?.data.content.length > 0}
                   indeterminate={selectedAdemic.length > 0 && selectedAdemic.length < (academicOfficeManagement?.data.content || []).length}
                   onChange={handleSelectAll}
                   size="small"

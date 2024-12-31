@@ -151,7 +151,7 @@ const JobsList: React.FC = () => {
                     size="large"
                   />
                 </Form.Item>
-                <Form.Item name="format" label="Hình thức">
+                {/* <Form.Item name="format" label="Hình thức">
                   <Space direction="vertical" size={0} className="w-full">
                     <Checkbox name="online" className="w-full  py-[14px]">
                       Full Time
@@ -163,7 +163,7 @@ const JobsList: React.FC = () => {
                       Freelance
                     </Checkbox>
                   </Space>
-                </Form.Item>
+                </Form.Item> */}
                 <Form.Item>
                   <Button type="primary" htmlType="submit" size="large" className="w-full">
                     Tìm kiếm

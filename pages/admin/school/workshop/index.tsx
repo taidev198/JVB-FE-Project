@@ -1,8 +1,9 @@
 import Link from 'next/link';
-import { Chip, TextField } from '@mui/material';
+import { Checkbox, Chip, TextField } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 
 import DatePickerComponent from '@/components/Common/DatePicker';
@@ -13,20 +14,18 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { useDeleteWorkshopMutation, useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
 import { statusTextWorkshop } from '@/utils/app/const';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
-
-import { setToast } from '@/store/slices/toastSlice';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 const AdminSchoolWorkshop = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
+  const [selectedWorkshops, setSelectedWorkshops] = useState<number[]>([]);
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();
 
@@ -50,26 +49,45 @@ const AdminSchoolWorkshop = () => {
     [dispatch]
   );
 
-  const handleOpenConfirm = (id: number) => {
-    setSelectId(id);
-    dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const allWorkshopIds = workshops?.data.content.map(workshop => workshop.id);
+      setSelectedWorkshops(allWorkshopIds ?? []);
+    } else {
+      setSelectedWorkshops([]);
+    }
   };
 
-  const [deleteWorkshop, { isLoading: isLoadingDelete, isSuccess, data }] = useDeleteWorkshopMutation();
-  const handleConfirmAction = () => {
-    deleteWorkshop({ id: selectId });
+  const handleSelectStudent = (id: number) => {
+    setSelectedWorkshops(prev => (prev.includes(id) ? prev.filter(workshopId => workshopId !== id) : [...prev, id]));
+  };
+
+  const [deleteWorkshop, { isLoading: isLoadingDelete }] = useDeleteWorkshopMutation();
+
+  const handleConfirmAction = async () => {
+    try {
+      if (selectedWorkshops.length > 0) {
+        await deleteWorkshop({ ids: selectedWorkshops }).unwrap();
+        toast.success('Workshop đã được xóa thành công.');
+      }
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
+      dispatch(setBackdrop(null));
+    }
   };
 
   useEffect(() => {
-    if (isSuccess) {
-      dispatch(setToast({ message: data?.message }));
-      dispatch(setBackdrop(null));
-    }
     dispatch(setLoading(isLoading || isLoadingDelete));
     return () => {
       dispatch(resetFilters());
     };
-  }, [isLoading, dispatch, isLoadingDelete, data?.message, isSuccess]);
+  }, [isLoading, dispatch, isLoadingDelete]);
   return (
     <div>
       <>
@@ -90,10 +108,20 @@ const AdminSchoolWorkshop = () => {
 
               <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
             </div>
-            <div className="mt-3 w-full lg:mt-0 lg:w-auto">
+            <div className="mt-3 flex w-full gap-3 lg:mt-0 lg:w-auto">
               <Link href={'/admin/school/workshop/add-workshop'}>
                 <Button text="Thêm mới" icon={<AddIcon />} full={true} />
               </Link>
+              <Button
+                type="submit"
+                text="Xóa workshop"
+                onClick={() => {
+                  dispatch(setName('đã chọn'));
+                  dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                }}
+                className="bg-red-custom"
+                disabled={!selectedWorkshops.length}
+              />
             </div>
           </div>
         </div>
@@ -102,6 +130,15 @@ const AdminSchoolWorkshop = () => {
           <table className="w-full table-auto rounded-lg bg-white text-[14px]">
             <thead className="bg-white">
               <tr>
+                <th className="p-3 sm:px-3 sm:py-4">
+                  <Checkbox
+                    color="primary"
+                    checked={selectedWorkshops.length > 0 && workshops?.data.content.length > 0}
+                    indeterminate={selectedWorkshops.length > 0 && setSelectedWorkshops.length < (workshops?.data.content || []).length}
+                    onChange={handleSelectAll}
+                    size="small"
+                  />
+                </th>
                 <th className="px-5 py-4 text-left">
                   <p className="min-w-max">STT</p>
                 </th>
@@ -127,6 +164,14 @@ const AdminSchoolWorkshop = () => {
               {workshops?.data?.content.length > 0 ? (
                 workshops?.data?.content.map((workshop, index) => (
                   <tr key={workshop.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
+                    <td className="p-3 text-center sm:px-3 sm:py-4">
+                      <Checkbox
+                        color="primary"
+                        checked={selectedWorkshops.includes(workshop.id)}
+                        onChange={() => handleSelectStudent(workshop.id)}
+                        size="small"
+                      />
+                    </td>
                     <td className="p-3 text-center sm:px-5 sm:py-4">
                       <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                     </td>
@@ -164,12 +209,6 @@ const AdminSchoolWorkshop = () => {
                         />
                         <ButtonSee href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
                         <ButtonUpdate href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
-                        <ButtonDelete
-                          onClick={() => {
-                            handleOpenConfirm(workshop.id);
-                            dispatch(setName(workshop.workshopTitle));
-                          }}
-                        />
                       </div>
                     </td>
                   </tr>
@@ -197,7 +236,7 @@ const AdminSchoolWorkshop = () => {
         {showBackdrop === BackdropType.DeleteConfirmation && (
           <BackDrop isCenter>
             <div className="max-w-[400px] rounded-md p-6">
-              <h3 className="font-bold">Xóa workshop {name}</h3>
+              <h3 className="font-bold">Xóa workshop đã chọn</h3>
               <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
               <div className="mt-9 flex items-center gap-5">
                 <Button text="Hủy" className="bg-red-700" full={true} onClick={() => dispatch(setBackdrop(null))} />

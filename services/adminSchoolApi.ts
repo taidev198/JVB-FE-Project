@@ -305,19 +305,13 @@ export const adminSchoolApi = createApi({
         },
       }),
 
-      deleteWorkshop: builder.mutation({
-        query: (args: { id: number | null }) => ({
-          url: `/workshops/delete/${args.id}`,
+      deleteWorkshop: builder.mutation<void, { ids: number[] }>({
+        query: ({ ids }) => ({
+          url: `/workshops/delete`,
           method: 'DELETE',
+          body: { ids },
         }),
-        invalidatesTags: (result, error, { id }) => {
-          return id !== null
-            ? [
-                { type: 'Workshop', id },
-                { type: 'Workshop', id: 'LIST' },
-              ]
-            : [{ type: 'Workshop', id: 'LIST' }];
-        },
+        invalidatesTags: [{ type: 'Workshop' }],
       }),
 
       // Apply workshop

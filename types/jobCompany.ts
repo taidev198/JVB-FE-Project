@@ -107,6 +107,7 @@ export interface IJobUniversityApply {
     content: {
       university: IUniversity;
       job: IJobCompany;
+      isPartnership: boolean;
       status: string;
       major: IMajor;
     }[];

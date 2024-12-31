@@ -1,10 +1,11 @@
-import { Avatar, IconButton, Menu, useMediaQuery, useTheme, MenuItem } from '@mui/material';
+import { IconButton, Menu, useMediaQuery, useTheme, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { memo, useState } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { LogoutOutlined, HomeOutlined } from '@ant-design/icons';
 import Notification from '../Common/Notification';
+import ImageComponent from '../Common/Image';
 
 // import Container from '../Container';
 import Logo from '../Logo';
@@ -91,7 +92,8 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
           <div className="flex items-center gap-4">
             <p>{user.name}</p>
             <IconButton onClick={handleMenuOpen}>
-              <Avatar src={user.logoUrl} />
+              <ImageComponent src={user.logoUrl} alt={user.name} className="rounded-full border-[2px] border-solid object-contain" width={40} height={40} />
+              {/* <Avatar src={user.logoUrl} /> */}
             </IconButton>
 
             {/* Menu cho Avatar */}

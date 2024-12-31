@@ -125,7 +125,7 @@ const JobCompany = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <Checkbox
                   color="primary"
-                  checked={selectedJob.length === jobCompany?.data.content.length}
+                  checked={selectedJob.length > 0 && jobCompany?.data.content.length > 0}
                   indeterminate={selectedJob.length > 0 && selectedJob.length < (jobCompany?.data.content || []).length}
                   onChange={handleSelectAll}
                 />
