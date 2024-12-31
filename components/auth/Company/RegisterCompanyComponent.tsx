@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 
+import { useRouter } from 'next/router';
 import registerValidateCompany, { FormDataRegisterSchool } from './validation';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
@@ -17,6 +18,7 @@ import DateComponent from '@/components/Common/DateComponent';
 
 const RegisterCompanyComponent = () => {
   const dispatch = useDispatch();
+  const router = useRouter();
 
   const methods = useForm<FormDataRegisterSchool>({
     resolver: yupResolver(registerValidateCompany),
@@ -39,7 +41,8 @@ const RegisterCompanyComponent = () => {
     const formattedDate = formatDateDd_MM_yyyy(establishDate);
     try {
       const response = await registerSchool({ ...payload, establishDate: formattedDate }).unwrap();
-      toast.success(response?.message);
+      await toast.success(response?.message);
+      router.push('/');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
