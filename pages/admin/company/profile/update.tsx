@@ -44,7 +44,7 @@ interface FormDataProfile {
   fieldIds: number[];
 }
 
-const UpdateSchoolManagement = () => {
+const UpdateProfileCompany = () => {
   const [image, setImage] = useState<File | string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
@@ -66,7 +66,7 @@ const UpdateSchoolManagement = () => {
     formState: { errors },
   } = methods;
 
-  const { data: detailCompany } = useGetDetailProfileQuery();
+  const { data: detailCompany, refetch } = useGetDetailProfileQuery();
   useEffect(() => {
     if (detailCompany?.data.logoUrl) {
       setImage(detailCompany?.data.logoUrl);
@@ -96,15 +96,18 @@ const UpdateSchoolManagement = () => {
     formData.append('file', image as File);
 
     try {
-      const response = await updateProfile({ formData: formData }).unwrap();
-      toast.success(response.message);
-      router.push('/admin/company/profileCompany');
+      await updateProfile({ formData }).unwrap();
+      await toast.success('Cập nhật hồ sơ thành công');
+      refetch();
+      router.push('/admin/company/profile');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
         toast.error(errMsg);
       } else if (isErrorWithMessage(error)) {
         toast.error(error.message);
+      } else {
+        toast.error('Đã xảy ra lỗi');
       }
     }
   };
@@ -138,7 +141,7 @@ const UpdateSchoolManagement = () => {
   return (
     <div className="bg-primary-white px-10">
       <div className="rounded-t-lg py-5">
-        <Link href={'/admin/company/profileCompany'}>
+        <Link href={'/admin/company/profile'}>
           <IconButton>
             <ArrowBackIcon />
           </IconButton>
@@ -271,4 +274,4 @@ const UpdateSchoolManagement = () => {
   );
 };
 
-export default UpdateSchoolManagement;
+export default UpdateProfileCompany;

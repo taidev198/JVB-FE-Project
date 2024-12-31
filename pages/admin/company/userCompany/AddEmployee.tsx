@@ -79,6 +79,7 @@ const AddEmployee = () => {
       dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
       gender: data.gender,
       salary: data.salary,
+      employeeStatus: 'WORKING',
     };
 
     // Chuyển đổi đối tượng studentRequest thành chuỗi JSON và append vào FormData

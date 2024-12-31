@@ -122,7 +122,7 @@ const DetailCompany = () => {
           </li>
         </ul>
         <div className="mt-9 flex items-center justify-center gap-5">
-          <Link href={`/admin/company/profileCompany/updateProfile`}>
+          <Link href={`/admin/company/profile/update`}>
             <Button text="Sửa hồ sơ công ty" full={true} />
           </Link>
         </div>
