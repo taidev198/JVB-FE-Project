@@ -9,6 +9,7 @@ import SelectSearch from '../common/SelectSearch';
 import { useGetFieldsQuery, useGetProvincesQuery, useGetWorkshopsQuery } from '@/services/portalHomeApi';
 import { IWorkshopPortal } from '@/types/workshop';
 import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
+import ImageComponent from '@/components/Common/Image';
 
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,11 +26,14 @@ const WorkshopsList: React.FC = () => {
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
-  const { data: workshopsData, isLoading: isWorkshopsLoading } = useGetWorkshopsQuery({
-    page: 1,
-    size: 1000,
-    keyword: searchTerm,
-  });
+  const { data: workshopsData, isLoading: isWorkshopsLoading } = useGetWorkshopsQuery(
+    {
+      page: 1,
+      size: 1000,
+      keyword: searchTerm,
+    },
+    { refetchOnMountOrArgChange: true }
+  );
 
   useEffect(() => {
     if (workshopsData?.data.content) {
@@ -214,10 +218,10 @@ const WorkshopsList: React.FC = () => {
                           className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-row  gap-[20px] overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
                           <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
                           <Link href={`/portal/workshops/${workshop.id}`} className="blog__img">
-                            <img
-                              src={workshop.imageWorkshops || '/images/default-workshop.png'}
-                              className="vertical-center min-h-[240px] max-w-[360px] max-w-full overflow-hidden rounded-[10px] object-cover"
+                            <ImageComponent
+                              src={workshop.image}
                               alt={workshop.workshopTitle}
+                              className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
                             />
                           </Link>
                           <div className="flex w-full flex-col">
@@ -265,17 +269,17 @@ const WorkshopsList: React.FC = () => {
                           className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
                           <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
                           <Link href={`/portal/workshops/${workshop.id}`} className="blog__img">
-                            <img
-                              src={workshop.imageWorkshops || '/images/default-workshop.png'}
-                              className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
+                            <ImageComponent
+                              src={workshop.image}
                               alt={workshop.workshopTitle}
+                              className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
                             />
                           </Link>
                           <div className="blog__meta pt-[16px]">
                             <div className="blog__meta__info mb-[16px] flex items-center justify-between gap-4 text-primary-gray">
                               <span className="flex items-center gap-1 ">
                                 <i className="fa-solid fa-calendar"></i>
-                                <span className="truncate whitespace-nowrap">{formatDateDD_thang_MM_yyyy(workshop.startTime)}</span>
+                                <span className="truncate whitespace-nowrap">{workshop.startTime}</span>
                               </span>
                               <span className="flex items-center gap-1 truncate">
                                 <i className="fa-solid fa-user"></i>

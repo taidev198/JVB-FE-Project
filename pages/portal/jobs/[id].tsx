@@ -11,10 +11,12 @@ import {
   SolutionOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-import { Alert } from 'antd';
+import { Alert, Select } from 'antd';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
 import HtmlContentRenderer from '@/components/Portal/common/HtmlContentRenderer';
@@ -22,8 +24,14 @@ import LinkCard from '@/components/Portal/common/LinkCard';
 import GoogleMap from '@/components/Portal/common/MapCard';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
-import { useGetJobDetailsQuery } from '@/services/portalHomeApi';
+import { useGetJobDetailsQuery, useSendApplyJobMutation } from '@/services/portalHomeApi';
 import { formatJobLevel, formatJobType, formatSalaryVND } from '@/utils/app/format';
+import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
+import { useAppSelector } from '@/store/hooks';
+import { BackDrop } from '@/components/Common/BackDrop';
+import { Button } from '@/components/Common/Button';
+import { useGetAllMajorsQuery } from '@/services/adminSchoolApi';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface JobDetailsProps {
   serverSideApiKeyIsSet: boolean;
@@ -31,9 +39,32 @@ interface JobDetailsProps {
 
 const JobDetails: React.FC<JobDetailsProps> = () => {
   const router = useRouter();
+  const dispatch = useDispatch();
+  const [majorId, setMajorId] = useState<number | null>(null);
+  const showBackdrop = useAppSelector(state => state.global.backdropType);
   const { id } = router.query;
   const { data, isLoading, error } = useGetJobDetailsQuery({ id: Number(id) });
+  const { data: majors } = useGetAllMajorsQuery();
+  const [apply, { isLoading: applyLoading }] = useSendApplyJobMutation();
+  const handleConfirmAction = async () => {
+    try {
+      await apply({ major: majorId, job: data.data.id }).unwrap();
+      toast.success('Apply công việc thành công');
+    } catch (error) {
+      if (isFetchBaseQueryError(error)) {
+        const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+        toast.error(errMsg);
+      } else if (isErrorWithMessage(error)) {
+        toast.error(error.message);
+      }
+    } finally {
+      dispatch(setBackdrop(null));
+    }
+  };
 
+  useEffect(() => {
+    dispatch(setLoading(applyLoading));
+  }, [dispatch, applyLoading]);
   if (isLoading) {
     return (
       <PortalLayout type="job-detail">
@@ -73,6 +104,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
             logo={jobDetails?.company?.logoUrl}
             currentPage="Chi tiết công việc"
             buttonText="Ứng tuyển ngay"
+            onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">
@@ -171,6 +203,35 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
               </div>
             </div>
           </div>
+          {showBackdrop === BackdropType.AddModal && (
+            <BackDrop isCenter>
+              <div className="max-w-[400px] rounded-md p-6">
+                <h3 className="font-bold">{showBackdrop === BackdropType.AddModal && `Chọn ngành để ứng tuyển`}</h3>
+                <p className="mb-3 mt-1">Bạn cần chọn ngành học để ứng tuyển vào công việc này</p>
+                <div className="flex items-center justify-center">
+                  <Select
+                    showSearch
+                    placeholder="Chọn nghành học"
+                    optionFilterProp="label"
+                    onChange={value => {
+                      setMajorId(value);
+                    }}
+                    options={majors?.data?.map(major => ({
+                      label: major.majorName,
+                      value: major.id,
+                    }))}
+                    size={'large'}
+                    allowClear={true}
+                    className="w-[250px]"
+                  />
+                </div>
+                <div className="mt-9 flex items-center gap-5">
+                  <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+                  <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
+                </div>
+              </div>
+            </BackDrop>
+          )}
         </main>
       </PortalLayout>
     </>

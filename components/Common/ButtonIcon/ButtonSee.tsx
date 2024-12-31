@@ -5,11 +5,12 @@ import { FC } from 'react';
 interface ButtonSeeProps {
   href: string;
   onClick: () => void;
+  target?: boolean;
 }
-const ButtonSee: FC<ButtonSeeProps> = ({ href, onClick }) => {
+const ButtonSee: FC<ButtonSeeProps> = ({ href, onClick, target }) => {
   return (
     <Tooltip title="Xem chi tiết">
-      <Link href={href}>
+      <Link href={href} {...(target ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
         <div onClick={onClick} className="cursor-pointer rounded-lg bg-[#1966d227] px-2 py-[6px] transition-all hover:bg-[#1966d254]">
           <RemoveRedEyeIcon color="info" fontSize="small" />
         </div>

@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import ImageComponent from '../Common/Image';
 import { getUserState, logOut } from '@/store/slices/user';
 import { useAppSelector } from '@/store/hooks';
+import Notification from '../Common/Notification';
 
 const PortalHeader: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -398,6 +399,7 @@ const PortalHeader: React.FC = () => {
                         </Dropdown>
                       </div>
                     </div>
+                    <Notification />
                   </>
                 )}
                 <div>

@@ -132,7 +132,6 @@ const AcademicOfficeManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">Số điện thoại</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Giới tính</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Ngày sinh</th>
-
               <th className="p-3 text-left sm:px-5 sm:py-4">Hành động</th>
             </tr>
           </thead>

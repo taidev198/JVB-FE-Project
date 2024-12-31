@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IProfileCompanyRespone } from '@/types/profileCompany';
-import { IJobAllResponse, IJobDetailResponse } from '@/types/jobCompany';
+import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply } from '@/types/jobCompany';
 import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 
@@ -19,7 +19,7 @@ export const adminCompanyApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile'],
+  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply'],
   endpoints: builder => {
     return {
       getAllWorShopsUniversity: builder.query<void, void>({
@@ -80,7 +80,7 @@ export const adminCompanyApi = createApi({
         invalidatesTags: [{ type: 'Company' }],
       }),
 
-      deleteAllEmployeeCompany: builder.mutation<any, { ids: number[] }>({
+      deleteAllEmployeeCompany: builder.mutation<void, { ids: number[] }>({
         query: ({ ids }) => ({
           url: `/company/company-employees/delete-multiple`,
           method: 'PUT',
@@ -193,6 +193,56 @@ export const adminCompanyApi = createApi({
         }),
         invalidatesTags: [{ type: 'Workshop' }],
       }),
+
+      // SchoolApplyJob
+      getAllJobAppliesCompany: builder.query<
+        IJobUniversityApply,
+        {
+          page: number | null;
+          size: number | null;
+          keyword: string;
+          companyId: number | undefined;
+          status: string;
+        }
+      >({
+        query: ({ page, size, keyword, companyId, status }) => {
+          let queryParams = new URLSearchParams();
+          if (companyId) queryParams.append('companyId', String(companyId));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (status) queryParams.append('status', status);
+          return `/company/applies?${queryParams.toString()}`;
+        },
+        providesTags: ['UniversityApply'],
+      }),
+
+      acceptJobsForUniversity: builder.mutation({
+        query: ({ major, job }) => ({
+          url: `/company/accept_apply`,
+          method: 'POST',
+          body: { major, job },
+        }),
+        invalidatesTags: (result, error, { job }) => [{ type: 'UniversityApply', job }, { type: 'UniversityApply' }],
+      }),
+
+      cancelJobsForUniversity: builder.mutation({
+        query: ({ major, job }) => ({
+          url: `/company/cancel_apply`,
+          method: 'POST',
+          body: { major, job },
+        }),
+        invalidatesTags: (result, error, { acceptToAccountId }) => [{ type: 'UniversityApply', acceptToAccountId }, { type: 'UniversityApply' }],
+      }),
+
+      removeJobsForUniversity: builder.mutation({
+        query: ({ major, job }) => ({
+          url: `/remove_apply`,
+          method: 'POST',
+          body: { major, job },
+        }),
+        invalidatesTags: (result, error, { acceptToAccountId }) => [{ type: 'UniversityApply', acceptToAccountId }, { type: 'UniversityApply' }],
+      }),
     };
   },
 });
@@ -215,4 +265,8 @@ export const {
   useAddJobMutation,
   useUpdateJobMutation,
   useDeleteAllJobCompanyMutation,
+  useGetAllJobAppliesCompanyQuery,
+  useAcceptJobsForUniversityMutation,
+  useCancelJobsForUniversityMutation,
+  useRemoveJobsForUniversityMutation,
 } = adminCompanyApi;

@@ -5,10 +5,11 @@ import { FC } from 'react';
 interface ButtonCompanyApplyProps {
   href: string;
   onClick: () => void;
+  title: string;
 }
-const ButtonCompanyApply: FC<ButtonCompanyApplyProps> = ({ href, onClick }) => {
+const ButtonCompanyApply: FC<ButtonCompanyApplyProps> = ({ href, onClick, title }) => {
   return (
-    <Tooltip title="Doanh nghiệp apply">
+    <Tooltip title={title}>
       <Link href={href}>
         <div onClick={onClick} className="cursor-pointer rounded-lg bg-[#6137e927] px-2 py-[6px] transition-all hover:bg-[#1966d254]">
           <InterpreterModeIcon color="inherit" fontSize="small" />

@@ -160,6 +160,7 @@ const AdminSchoolWorkshop = () => {
                             dispatch(setId(workshop.id));
                             dispatch(setName(workshop.workshopTitle));
                           }}
+                          title={'Doanh nghiệp tham gia'}
                         />
                         <ButtonSee href={`/admin/school/workshop/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />
                         <ButtonUpdate href={`/admin/school/workshop/update/${workshop.id}`} onClick={() => dispatch(setId(workshop.id))} />

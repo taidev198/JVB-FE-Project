@@ -17,6 +17,8 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
 import { useGetDetailCompanyJobQuery } from '@/services/adminCompanyApi';
+import { formatCurrencyVND } from '@/utils/app/format';
+import { jobLever, jobType, statusLabelJob } from '@/utils/app/const';
 
 const DetailJobCompany = () => {
   const idJobCompany = useAppSelector(state => state.global.id);
@@ -50,24 +52,41 @@ const DetailJobCompany = () => {
           </li>
           <li className="mt-5 flex items-center gap-3">
             <div className="mb-auto">
-              <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
-            </div>
-            <div className="flex">
-              <span className="mr-2 font-semibold">Yêu cầu:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.requirements ?? '' }}></p>
-            </div>
-          </li>
-          <li className="mt-5 flex items-center gap-3">
-            <div className="mb-auto">
               <CreditScoreIcon sx={{ color: '#757575' }} />
             </div>
             <div>
-              <span className="mr-2 font-semibold">Hình thức:</span> {jobCompany?.data.jobType}
+              <span className="mr-2 font-semibold">Hình thức:</span> {jobType(jobCompany?.data.jobType)}
             </div>
           </li>
           <li className="mt-5 flex items-center  gap-3 ">
             <AccessTimeIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Thời gian làm việc:</span> {jobCompany?.data.workTime}
+            </div>
+          </li>
+          <li className="mt-5 flex items-center  gap-3 ">
+            <TextFieldsIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Cấp bậc:</span> {jobLever(jobCompany?.data.jobLevel)}
+            </div>
+          </li>
+          <li className="mt-5 flex items-center  gap-3 ">
+            <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Số lượng cần tuyển:</span> {jobCompany?.data.memberOfCandidate}
+            </div>
+          </li>
+          <li className="mt-5 flex items-center  gap-3 ">
+            <DateRangeIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Ngày hết hạn:</span> {jobCompany?.data.expirationDate}
+            </div>
+          </li>
+          <li className="mt-5 flex items-center  gap-3 ">
+            <MoneyIcon sx={{ color: '#757575' }} />
+            <div>
+              <span className="mr-2 font-semibold">Lương:</span> {formatCurrencyVND(jobCompany?.data.maxSalary)} -{' '}
+              {formatCurrencyVND(jobCompany?.data.minSalary)}
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3 ">
@@ -78,42 +97,33 @@ const DetailJobCompany = () => {
               <span className="mr-2 font-semibold">Phúc lợi:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.benifits ?? '' }}></p>
             </div>
           </li>
-          <li className="mt-5 flex items-center  gap-3 ">
-            <TextFieldsIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Cấp bậc:</span> {jobCompany?.data.jobLevel}
+          <li className="mt-5 flex items-center gap-3">
+            <div className="mb-auto">
+              <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
+            </div>
+            <div className="flex">
+              <span className="mr-2 font-semibold">Yêu cầu:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.requirements ?? '' }}></p>
             </div>
           </li>
-          <li className="mt-5 flex items-center  gap-3 ">
-            <FaceRetouchingNaturalIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Số lượng cần tuyển:</span> {jobCompany?.data.memberOfCandidate}
+          <li className="mt-5">
+            <div className="mb-auto flex items-center gap-3">
+              <DescriptionIcon sx={{ color: '#757575' }} />
+              <span className="mr-2 min-w-fit font-semibold">Mô tả:</span>
             </div>
+            <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.jobDescription ?? '' }} className="mt-3"></p>
           </li>
-          <li className="mt-5 flex items-center  gap-3 ">
-            <DateRangeIcon />
-            <div>
-              <span className="mr-2 font-semibold">Ngày hết hạn:</span> {jobCompany?.data.expirationDate}
-            </div>
-          </li>
+
           <li className="mt-5 flex items-center  gap-3 ">
             <CategoryIcon sx={{ color: '#757575' }} />
             <div>
-              <span className="mr-2 font-semibold">Trạng Thái:</span> {jobCompany?.data.status}
-            </div>
-          </li>
-          <li className="mt-5 flex items-center gap-3">
-            <div className="mb-auto">
-              <DescriptionIcon sx={{ color: '#757575' }} />
-            </div>
-            <div className="mt-auto flex">
-              <span className="mr-2 font-semibold">Mô tả:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.jobDescription ?? '' }}></p>
-            </div>
-          </li>
-          <li className="mt-5 flex items-center  gap-3 ">
-            <MoneyIcon />
-            <div>
-              <span className="mr-2 font-semibold">Lương:</span> {jobCompany?.data.maxSalary} - {jobCompany?.data.minSalary}
+              <span className="mr-2 font-semibold">Trạng Thái:</span>{' '}
+              <Chip
+                label={statusLabelJob(jobCompany?.data.status).title}
+                sx={{
+                  backgroundColor: statusLabelJob(jobCompany?.data.status).bg,
+                  color: statusLabelJob(jobCompany?.data.status).color,
+                }}
+              />
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3 ">

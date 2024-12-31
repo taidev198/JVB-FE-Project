@@ -23,6 +23,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
+  tagTypes: ['WorkshopDetail'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
     getJobs: builder.query<IJobAllResponsePortal, { page: number; size: number; keyword?: string }>({
@@ -82,6 +83,7 @@ export const portalHomeApi = createApi({
     // Fetch specific workshop details
     getWorkshopDetails: builder.query<WorkshopDetailResponse, { id: number }>({
       query: ({ id }) => `/portal/workshops/detail/${id}`,
+      providesTags: (result, error, { id }) => [{ type: 'WorkshopDetail', id }],
     }),
 
     // Fetch workshops by university
@@ -106,6 +108,33 @@ export const portalHomeApi = createApi({
     getFieldsCountJob: builder.query<FieldsResponsePortal, void>({
       query: () => `/portal/field/jobs`,
     }),
+
+    // Send connect
+    sendConnect: builder.mutation({
+      query: ({ accountLoginId, toDoAccountId, doBy }) => ({
+        url: '/partnership/sendConnect',
+        method: 'POST',
+        body: { accountLoginId, toDoAccountId, doBy },
+      }),
+    }),
+
+    // Apply job
+    sendApplyJob: builder.mutation<void, { major: number; job: number }>({
+      query: ({ major, job }) => ({
+        url: '/university/send_apply',
+        method: 'POST',
+        body: { major, job },
+      }),
+    }),
+
+    // Apply workshop
+    companyApplyWorkshop: builder.mutation({
+      query: idWorkshop => ({
+        url: `/company/workshop/apply/${idWorkshop}`,
+        method: 'POST',
+      }),
+      invalidatesTags: (result, error, idWorkshop) => [{ type: 'WorkshopDetail', id: idWorkshop }],
+    }),
   }),
 });
 
@@ -123,4 +152,7 @@ export const {
   useGetSchoolDetailsQuery,
   useGetWorkshopsUniversityQuery,
   useGetFieldsCountJobQuery,
+  useSendConnectMutation,
+  useSendApplyJobMutation,
+  useCompanyApplyWorkshopMutation,
 } = portalHomeApi;

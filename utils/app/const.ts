@@ -198,9 +198,9 @@ export const statusTextJob = (status: string): AccountStatus => {
 export const statusEmployee = (status: string): AccountStatus => {
   switch (status) {
     case 'WORKING':
-      return { title: 'đang làm', color: '#fff', bg: '#ed6c02' };
+      return { title: 'Đang làm', color: '#359d65', bg: ' #ebf9f1' };
     case 'INACTIVE':
-      return { title: 'Nghỉ việc', color: '#fff', bg: '#2e7d32' };
+      return { title: 'Nghỉ việc', color: '#d32f2f', bg: ' #FFE5E5' };
     default:
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }
@@ -222,11 +222,11 @@ export const statusTextWorkshopJob = (status: string): AccountStatus => {
 export const jobType = (status: string | undefined): string => {
   switch (status) {
     case 'FULL_TIME':
-      return 'Toàn thời gian';
+      return 'Full Time';
     case 'PART_TIME':
-      return 'Bán thời gian';
+      return 'Part Time';
     case 'FREELANCE':
-      return 'Tự do';
+      return 'Freelance';
     default:
       return 'Chưa xác định';
   }
@@ -235,15 +235,15 @@ export const jobType = (status: string | undefined): string => {
 export const jobLever = (status: string | undefined): string => {
   switch (status) {
     case 'INTERN':
-      return 'Toàn thời gian';
+      return 'Intern';
     case 'FRESHER':
-      return 'Bán thời gian';
+      return 'Fresher';
     case 'JUNIOR':
-      return 'Tự do';
+      return 'Junior';
     case 'MIDDLE':
-      return 'Tự do';
+      return 'Middle';
     case 'SENIOR':
-      return 'Tự do';
+      return 'Senior';
     default:
       return 'Chưa xác định';
   }

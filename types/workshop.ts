@@ -20,6 +20,7 @@ export interface IWorkshop {
   agenda: string;
   moderationStatus: string;
   imageWorkshops: ImageWorkshops[];
+  isApply: boolean;
   address: IAddress;
   university: IUniversity;
   fields: IFields[];
@@ -40,6 +41,7 @@ export interface IWorkshopPortal {
   agenda: string;
   moderationStatus: string;
   imageWorkshops: string;
+  image: string;
   address: IAddress;
   university: IUniversity;
   fields: IFields[];
