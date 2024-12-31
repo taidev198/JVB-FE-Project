@@ -111,7 +111,14 @@ const AddWorkshop = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Block 1 */}
         <div className="rounded-b-lg bg-primary-white p-5">
-          <Input name="workshopTitle" control={control} error={errors.workshopTitle?.message} placeholder="Nhập tiêu đề Workshop" label="Tiêu đề Workshop" />
+          <Input
+            name="workshopTitle"
+            control={control}
+            error={errors.workshopTitle?.message}
+            placeholder="Nhập tiêu đề Workshop"
+            label="Tiêu đề Workshop"
+            required={true}
+          />
           <div>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DateComponent
@@ -121,6 +128,7 @@ const AddWorkshop = () => {
                 control={control}
                 error={errors.startTime?.message}
                 showTime={true}
+                required={true}
               />
               {/*  */}
               <DateComponent
@@ -130,6 +138,7 @@ const AddWorkshop = () => {
                 control={control}
                 error={errors.endTime?.message}
                 showTime={true}
+                required={true}
               />
               {/*  */}
               <Input
@@ -139,6 +148,7 @@ const AddWorkshop = () => {
                 placeholder="Nhập số lượng công ty ước tính"
                 control={control}
                 error={errors.estimateCompanyParticipants?.message}
+                required={true}
               />
               <SelectReact
                 name="fieldIds"
@@ -151,6 +161,7 @@ const AddWorkshop = () => {
                 control={control}
                 isMultiple={true}
                 error={errors.fieldIds?.message}
+                required={true}
               />
             </div>
           </div>
@@ -169,7 +180,14 @@ const AddWorkshop = () => {
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Mô tả" error={errors.workshopDescription?.message} />
+              <TextEditor
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                label="Mô tả"
+                error={errors.workshopDescription?.message}
+                required={true}
+              />
             )}
           />
         </div>
@@ -182,7 +200,14 @@ const AddWorkshop = () => {
             control={control}
             defaultValue=""
             render={({ field }) => (
-              <TextEditor value={field.value} onChange={field.onChange} onBlur={field.onBlur} label="Lịch trình" error={errors.agenda?.message} />
+              <TextEditor
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                label="Lịch trình"
+                error={errors.agenda?.message}
+                required={true}
+              />
             )}
           />
         </div>
