@@ -21,6 +21,7 @@ import ImageComponent from '../Common/Image';
 import { getUserState, logOut } from '@/store/slices/user';
 import { useAppSelector } from '@/store/hooks';
 import Notification from '../Common/Notification';
+import { formatRoleAccount } from '@/utils/app/format';
 
 const PortalHeader: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -39,7 +40,8 @@ const PortalHeader: React.FC = () => {
     }
   };
 
-  const { token, roleAccount, user } = useSelector(getUserState);
+  const { token, roleAccount } = useSelector(getUserState);
+  const user = useAppSelector(state => state.user);
   const router = useRouter(); // Hook lấy thông tin đường dẫn
   const dispatch = useDispatch();
 
@@ -383,7 +385,7 @@ const PortalHeader: React.FC = () => {
                           />
                         </div>
                         <div className="user-info flex flex-col">
-                          <span className="user-name text-primary-black">{user?.universityName || user?.companyName}</span>
+                          <span className="user-name text-primary-black">{user?.name}</span>
                           <span className="user-role text-primary-gray">{roleAccount}</span>
                         </div>
                         <Dropdown
@@ -426,7 +428,7 @@ const PortalHeader: React.FC = () => {
                         </div>
                         <div className="user-info flex flex-col">
                           <span className="user-name text-primary-black">{user?.universityName || user?.companyName}</span>
-                          <span className="user-role text-primary-gray">{roleAccount}</span>
+                          <span className="user-role text-primary-gray">{formatRoleAccount(role)}</span>
                         </div>
                       </div>
                     }>

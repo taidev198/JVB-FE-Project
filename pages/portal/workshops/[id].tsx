@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { SwiperSlide, Swiper } from 'swiper/react';
 import toast from 'react-hot-toast';
 
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
@@ -15,6 +16,7 @@ import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 import { useCompanyApplyWorkshopMutation, useGetWorkshopDetailsQuery } from '@/services/portalHomeApi';
 import { formatWorkshopStatus } from '@/utils/app/format';
+import ImageComponent from '@/components/Common/Image';
 
 interface WorkshopDetailsProps {
   serverSideApiKeyIsSet: boolean;
@@ -43,6 +45,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
   }
 
   const workshopDetails = data?.data;
+  console.log(workshopDetails);
   const address = `${workshopDetails?.address?.houseNumber}, ${workshopDetails?.address?.ward.wardName}, ${workshopDetails?.address?.district.districtName}, ${workshopDetails?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
   const handleApply = async () => {
@@ -135,6 +138,18 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
                   <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Lịch trình</h3>
                   <div className="text-lg text-primary-gray">
                     <HtmlContentRenderer htmlContent={workshopDetails?.agenda || ''} />
+                  </div>
+                </div>
+                <div className="image-swiper-container mt-[20px]">
+                  <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Hình ảnh Workshop</h3>
+                  <div className="gird-cols-1 grid gap-[30px]">
+                    {workshopDetails?.imageWorkshops?.length > 0 ? (
+                      workshopDetails?.imageWorkshops.map((image, index) => (
+                        <img key={index} src={image.imageUrl} alt="image" className="max-h-[400px] w-full rounded-[10px] object-cover" />
+                      ))
+                    ) : (
+                      <p className="text-lg text-primary-gray">Không có hình ảnh</p>
+                    )}
                   </div>
                 </div>
               </div>
