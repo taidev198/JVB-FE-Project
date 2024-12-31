@@ -45,7 +45,6 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
   }
 
   const workshopDetails = data?.data;
-  console.log(workshopDetails);
   const address = `${workshopDetails?.address?.houseNumber}, ${workshopDetails?.address?.ward.wardName}, ${workshopDetails?.address?.district.districtName}, ${workshopDetails?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
   const handleApply = async () => {
