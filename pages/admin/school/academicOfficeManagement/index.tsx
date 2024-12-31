@@ -142,7 +142,7 @@ const AcademicOfficeManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <Checkbox color="primary" checked={selectedAdemic.includes(item.id)} onChange={() => handleSelectAdemic(item.id)} size="small" />
                   </td>
-                  <td className="p-3 text-center sm:px-5 sm:py-4">
+                  <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max ">{index + 1 + (page - 1) * size}</p>
                   </td>
 
