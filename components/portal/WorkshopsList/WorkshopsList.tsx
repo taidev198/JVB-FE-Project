@@ -150,24 +150,6 @@ const WorkshopsList: React.FC = () => {
                     onChange={date => setSelectedDate(date?.toDate() || null)}
                   />
                 </Form.Item>
-                {/* <Form.Item name="format" label="Hình thức">
-                  <Space direction="vertical" size={0} className="w-full">
-                    <Checkbox name="online" className="w-full  py-[14px]">
-                      Trực tuyến (Online)
-                    </Checkbox>
-                    <Checkbox name="online" className="w-full border-t border-primary-border py-[14px]">
-                      Trực tiếp (Offline)
-                    </Checkbox>
-                    <Checkbox name="online" className="w-full border-t border-primary-border py-[14px]">
-                      Kết hợp
-                    </Checkbox>
-                  </Space>
-                </Form.Item> */}
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" size="large" className="w-full">
-                    Tìm kiếm
-                  </Button>
-                </Form.Item>
               </Form>
             </div>
             <div className="md:basis-2/3">
@@ -217,11 +199,11 @@ const WorkshopsList: React.FC = () => {
                           key={workshop.id}
                           className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-row  gap-[20px] overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
                           <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
-                          <Link href={`/portal/workshops/${workshop.id}`} className="blog__img">
+                          <Link href={`/portal/workshops/${workshop.id}`} className="blog__img flex-shrink-0">
                             <ImageComponent
                               src={workshop.image}
                               alt={workshop.workshopTitle}
-                              className="vertical-center mb-2 min-h-[240px] max-w-full overflow-hidden rounded-[10px] object-cover"
+                              className="aspect-square max-h-[240px] w-full overflow-hidden rounded-[10px] object-cover"
                             />
                           </Link>
                           <div className="flex w-full flex-col">
@@ -230,15 +212,15 @@ const WorkshopsList: React.FC = () => {
                               className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
                               {workshop.workshopTitle}
                             </Link>
-                            <div className="blog__meta pt-[16px]">
-                              <div className="blog__meta__info mb-[16px] flex items-center gap-4 text-primary-gray">
+                            <div className="blog__meta w-full pt-[16px] ">
+                              <div className="blog__meta__info mb-[16px] flex w-full items-center gap-4 text-primary-gray">
                                 <span className="flex items-center gap-1 ">
                                   <i className="fa-solid fa-calendar"></i>
                                   <span className="truncate whitespace-nowrap">{formatDateDD_thang_MM_yyyy(workshop.startTime)}</span>
                                 </span>
                                 <span className="flex items-center gap-1 truncate">
                                   <i className="fa-solid fa-user"></i>
-                                  <span className="truncate whitespace-nowrap">{workshop.university.universityName}</span>
+                                  <span className=" truncate whitespace-nowrap">{workshop.university.universityName}</span>
                                 </span>
                               </div>
                               <div className="readmore__btn flex items-center gap-1 truncate text-primary-gray">
