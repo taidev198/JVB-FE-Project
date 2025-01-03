@@ -8,6 +8,7 @@ import 'swiper/css/autoplay';
 import { useGetFieldsCountJobQuery } from '@/services/portalHomeApi';
 
 interface MajorsSwiperProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   swiperRef: React.RefObject<any>;
 }
 

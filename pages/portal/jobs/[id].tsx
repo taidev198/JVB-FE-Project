@@ -1,16 +1,5 @@
 // pages/portal/companies/[id].tsx
-import {
-  BookOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
-  DollarOutlined,
-  EnvironmentOutlined,
-  LaptopOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  SolutionOutlined,
-  TeamOutlined,
-} from '@ant-design/icons';
+import { CalendarOutlined, ClockCircleOutlined, DollarOutlined, LaptopOutlined, SolutionOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert, Select } from 'antd';
 import Head from 'next/head';
 import { useRouter } from 'next/router';

@@ -1,15 +1,12 @@
 import {
   AppstoreOutlined,
-  CloseOutlined,
   ContainerOutlined,
   DesktopOutlined,
   EditOutlined,
   ExportOutlined,
   LoginOutlined,
   LogoutOutlined,
-  MailOutlined,
   MenuOutlined,
-  PieChartOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 import { Drawer, Dropdown, Menu, Space } from 'antd';
@@ -18,9 +15,9 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ImageComponent from '../Common/Image';
+import Notification from '../Common/Notification';
 import { getUserState, logOut } from '@/store/slices/user';
 import { useAppSelector } from '@/store/hooks';
-import Notification from '../Common/Notification';
 import { formatRoleAccount } from '@/utils/app/format';
 
 const PortalHeader: React.FC = () => {

@@ -30,7 +30,7 @@ const Partnerships = () => {
   const [major, setMajor] = useState<number | null>(null);
   const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
-  const [selectId, setSelectId] = useState<number | null>(null);
+  const [, setSelectId] = useState<number | null>(null);
   const [deletedJobs] = useState([]);
   const debouncedSearch = useMemo(
     () =>

@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import MajorsSwiper from './common/MajorsSwiper';
 
 const Majors = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const swiperRef = useRef<any>(null); // Khởi tạo tham chiếu
 
   // Hàm điều khiển Next Slide

@@ -62,8 +62,6 @@ const UpdateEmployee = () => {
     formState: { errors },
   } = methods;
 
-  console.log('lỗi: ', errors)
-
   const id = useAppSelector(state => state.global.id);
   const [updateEmployee, { isLoading }] = useUpdateEmployeeMutation();
 

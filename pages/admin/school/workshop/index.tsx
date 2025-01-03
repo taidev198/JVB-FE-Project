@@ -24,7 +24,6 @@ const AdminSchoolWorkshop = () => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
-  const name = useAppSelector(state => state.global.name);
   const [selectedWorkshops, setSelectedWorkshops] = useState<number[]>([]);
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();

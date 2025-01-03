@@ -3,12 +3,9 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 
+import { ConfigProvider } from 'antd';
 import SelectSearch from './CompaniesList/SelectSearch';
 import { useGetFieldsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
-import Router, { useRouter } from 'next/router';
-import { ConfigProvider } from 'antd';
-import { components } from 'react-select';
-import { Select } from '@mui/material';
 const Banner = () => {
   const [location, setLocation] = useState<string | null>(null);
   const [field, setField] = useState<string | null>(null);
