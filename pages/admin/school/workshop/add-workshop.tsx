@@ -3,7 +3,7 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
@@ -44,7 +44,7 @@ const AddWorkshop = () => {
   const { address } = useAppSelector(state => state.user);
 
   const methods = useForm<FormDataWorkShop>({
-    resolver: yupResolver(addWorkshopSchema),
+    resolver: yupResolver(addWorkshopSchema) as Resolver<FormDataWorkShop>,
     mode: 'onChange',
     defaultValues: {
       wardId: address?.ward?.id,

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 
 import { ConfigProvider } from 'antd';
+import { useRouter } from 'next/router';
 import SelectSearch from './CompaniesList/SelectSearch';
 import { useGetFieldsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
 const Banner = () => {

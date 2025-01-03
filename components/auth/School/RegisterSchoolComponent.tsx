@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, FormProvider, Resolver } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
@@ -23,7 +23,7 @@ const RegisterSchoolComponent = () => {
   const router = useRouter();
 
   const methods = useForm<FormDataRegisterSchool>({
-    resolver: yupResolver(validationSchemaSchool),
+    resolver: yupResolver(validationSchemaSchool) as Resolver<FormDataRegisterSchool>,
     mode: 'onChange',
     defaultValues: {
       universityName: '',
