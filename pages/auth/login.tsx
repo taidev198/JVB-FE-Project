@@ -62,7 +62,6 @@ const Login = () => {
   useEffect(() => {
     dispatch(setLoading(isLoading));
     if (isSuccess) {
-      // dispatch(logIn(data.data));
       dispatch(
         logIn({
           token: data.data.token,
@@ -71,6 +70,7 @@ const Login = () => {
           logoUrl: data.data?.user.logoUrl ? data.data?.user.logoUrl : '',
           idAccount: data.data.user.account.id,
           roleAccount: data.data.roleAccount,
+          address: data.data?.user?.address,
         })
       );
       switch (data?.data.roleAccount) {

@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { IAddress } from '@/types/addressesTypes';
 // type UserRoles = {
 //   data: {
 //     token: string;
@@ -15,12 +16,13 @@ export interface UserState {
   idAccount: number | null;
   logoUrl: string | null;
   roleAccount: string | null;
+  address: IAddress | null;
 }
 
 /**
  * Default state object with initial values.
  */
-const initialState: Readonly<UserState> = { token: null, name: null, id: null, idAccount: null, logoUrl: null, roleAccount: null };
+const initialState: Readonly<UserState> = { token: null, name: null, id: null, idAccount: null, logoUrl: null, roleAccount: null, address: null };
 
 /**
  * Create a slice as a reducer containing actions.
@@ -39,6 +41,7 @@ export const userSlice = createSlice({
       state.idAccount = action.payload.idAccount;
       state.logoUrl = action.payload.logoUrl;
       state.roleAccount = action.payload.roleAccount;
+      state.address = action.payload.address;
     },
     logOut: () => {
       return initialState;

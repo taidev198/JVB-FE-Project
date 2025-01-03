@@ -7,6 +7,7 @@ import globalReducer from './slices/global';
 import toastReducer from './slices/toastSlice';
 import userReducer from './slices/user';
 import filterReducer from './slices/filtersSlice';
+import { logOutMiddleware } from './middlewares';
 import { portalHomeApi } from '@/services/portalHomeApi';
 import { adminSystemApi } from '@/services/adminSystemApi';
 import { adminSchoolApi } from '@/services/adminSchoolApi';
@@ -41,7 +42,14 @@ export const store = configureStore({
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false,
-    }).concat(roleRestrictionPortalMiddleware, adminSystemApi.middleware, adminSchoolApi.middleware, adminCompanyApi.middleware, portalHomeApi.middleware),
+    }).concat(
+      logOutMiddleware,
+      roleRestrictionPortalMiddleware,
+      adminSystemApi.middleware,
+      adminSchoolApi.middleware,
+      adminCompanyApi.middleware,
+      portalHomeApi.middleware
+    ),
 });
 
 export const persistor = persistStore(store);
