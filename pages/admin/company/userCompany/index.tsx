@@ -26,8 +26,8 @@ const UserCompany = () => {
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate] = useState<Date | null>(null);
+  const [endDate] = useState<Date | null>(null);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {

@@ -1,12 +1,11 @@
 // pages/portal/companies/[id].tsx
-import { CalendarOutlined, EnvironmentOutlined, StockOutlined, TeamOutlined } from '@ant-design/icons';
+import { CalendarOutlined, StockOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert } from 'antd';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React from 'react';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { SwiperSlide, Swiper } from 'swiper/react';
 import toast from 'react-hot-toast';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
 import HtmlContentRenderer from '@/components/Portal/common/HtmlContentRenderer';
@@ -16,8 +15,6 @@ import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 import { useCompanyApplyWorkshopMutation, useGetWorkshopDetailsQuery } from '@/services/portalHomeApi';
 import { formatWorkshopStatus } from '@/utils/app/format';
-import ImageComponent from '@/components/Common/Image';
-
 interface WorkshopDetailsProps {
   serverSideApiKeyIsSet: boolean;
 }
@@ -26,7 +23,7 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
   const router = useRouter();
   const { id } = router.query;
   const { data, isLoading, error } = useGetWorkshopDetailsQuery({ id: Number(id) });
-  const [applyWorkshop, { isLoading: applyLoading }] = useCompanyApplyWorkshopMutation();
+  const [applyWorkshop] = useCompanyApplyWorkshopMutation();
 
   if (isLoading) {
     return (

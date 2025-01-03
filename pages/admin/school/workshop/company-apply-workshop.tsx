@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { Chip, TextField } from '@mui/material';
 import { useDispatch } from 'react-redux';

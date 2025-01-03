@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Empty, Pagination } from 'antd';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';

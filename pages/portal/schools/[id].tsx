@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 
+import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import ImageComponent from '@/components/Common/Image';
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
 import CustomPagination from '@/components/Portal/common/CustomPagination';
@@ -16,13 +18,10 @@ import PortalEmpty from '@/components/Portal/common/PortalEmpty';
 import PortalLoading from '@/components/Portal/common/PortalLoading';
 import { useGetSchoolDetailsQuery, useGetWorkshopsUniversityQuery, useSendConnectMutation } from '@/services/portalHomeApi';
 import { IWorkshopPortal } from '@/types/workshop';
-import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
 import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
-import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
-import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 interface SchoolDetailsPageProps {

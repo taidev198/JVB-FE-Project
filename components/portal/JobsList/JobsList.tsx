@@ -1,20 +1,21 @@
-import ImageComponent from '@/components/Common/Image';
-import { useGetFieldsQuery, useGetJobsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
-import { IJobCompany } from '@/types/jobCompany';
-import { formatCurrencyVND, formatJobType } from '@/utils/app/format';
+/* eslint-disable react-hooks/exhaustive-deps */
 import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
-import { Button, Checkbox, ConfigProvider, DatePicker, Empty, Form, Input, Pagination, Space, Spin } from 'antd';
+import { ConfigProvider, DatePicker, Empty, Form, Input, Pagination, Spin } from 'antd';
 import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
-import SelectSearch from '../common/SelectSearch';
 import { useRouter } from 'next/router';
+import SelectSearch from '../common/SelectSearch';
+import { formatCurrencyVND, formatJobType } from '@/utils/app/format';
+import { IJobCompany } from '@/types/jobCompany';
+import { useGetFieldsQuery, useGetJobsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
+import ImageComponent from '@/components/Common/Image';
 
 const JobsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
+  const [selectedType] = useState<string | null>(null);
   const [filteredJobs, setFilteredJobs] = useState<IJobCompany[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedJobs, setPaginatedJobs] = useState<IJobCompany[]>([]);

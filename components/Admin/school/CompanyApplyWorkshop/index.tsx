@@ -1,21 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { Chip, TextField } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useEffect, useMemo, useState } from 'react';
-import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 import PaginationComponent from '@/components/Common/Pagination';
 import ImageComponent from '@/components/Common/Image';
 import { setKeyword } from '@/store/slices/filtersSlice';
-import { useApproveCompanyApplyWorkshopMutation, useGetAllCompanyApplyWorkshopsQuery, useRejectCompanyApplyWorkshopMutation } from '@/services/adminSchoolApi';
+import { useGetAllCompanyApplyWorkshopsQuery } from '@/services/adminSchoolApi';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import { StatusJobCompanyApply } from '@/utils/app/const';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { Button } from '@/components/Common/Button';
 
 const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: number; workshopTitle: string }) => {
   const dispatch = useDispatch();
@@ -23,7 +20,6 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
   const [page, setPage] = useState<number>(1);
   const [keyword, setKeyWord] = useState<string | null>(null);
   const { size } = useAppSelector(state => state.filter);
-  const showBackdrop = useAppSelector(state => state.global.backdropType);
 
   const debouncedSearch = useMemo(
     () =>
@@ -38,8 +34,6 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
     { page, size, keyword, id: idWorkshop, status },
     { refetchOnMountOrArgChange: true }
   );
-  const [approve] = useApproveCompanyApplyWorkshopMutation();
-  const [reject] = useRejectCompanyApplyWorkshopMutation();
 
   // const handleConfirmActionApply = async () => {
   //   if (showBackdrop) {

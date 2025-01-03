@@ -20,7 +20,7 @@ const Department = () => {
   const dispatch = useAppDispatch();
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
-  const [selectId, setSelectId] = useState<number | null>(null);
+  const [setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
   const { data: departments, isLoading } = useGetAllDepartmentsQuery(
