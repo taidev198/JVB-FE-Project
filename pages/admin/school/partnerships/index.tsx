@@ -197,6 +197,9 @@ const JobAdminSchool = () => {
                         }}
                       />
                     </div>
+                    <div>
+                      <span>Ngày hợp tác:{partner.startDate}</span>
+                    </div>
                     {/* Button */}
                     <div className="flex items-center gap-3">
                       <ButtonSee

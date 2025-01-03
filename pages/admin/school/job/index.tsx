@@ -5,6 +5,7 @@ import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import makeAnimated from 'react-select/animated';
+import AddToDriveIcon from '@mui/icons-material/AddToDrive';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
@@ -30,6 +31,7 @@ const Partnerships = () => {
   const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const [selectId, setSelectId] = useState<number | null>(null);
+  const [deletedJobs] = useState([]);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -49,6 +51,7 @@ const Partnerships = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+
   const handleAction = (actionType: BackdropType, JobsId: number, MajorId: number) => {
     setSelectedJobsId(JobsId);
     setSelectedMajorId(MajorId);
@@ -88,6 +91,7 @@ const Partnerships = () => {
       }
     }
   };
+
   useEffect(() => {
     dispatch(setLoading(isLoadingGetAll || isLoadingCancel || isLoadingDelete));
     return () => {
@@ -194,12 +198,18 @@ const Partnerships = () => {
                       )}
 
                       {job.status === 'CANCEL' && (
-                        <ButtonDelete
-                          onClick={() => {
-                            handleAction(BackdropType.DeleteConfirmation, job.job.id, job.major.id);
-                            dispatch(setName(job.job.jobTitle));
-                          }}
-                        />
+                        <>
+                          {!deletedJobs.includes(job.job.id) ? (
+                            <ButtonDelete
+                              onClick={() => {
+                                handleAction(BackdropType.DeleteConfirmation, job.job.id, job.major.id);
+                                dispatch(setName(job.job.jobTitle));
+                              }}
+                            />
+                          ) : (
+                            <AddToDriveIcon color="success" fontSize="small" />
+                          )}
+                        </>
                       )}
                     </div>
                   </td>
