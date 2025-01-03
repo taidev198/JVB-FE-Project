@@ -8,17 +8,57 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import QrCodeIcon from '@mui/icons-material/QrCode';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import TrafficIcon from '@mui/icons-material/Traffic';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/router';
 
 import { useAppSelector } from '@/store/hooks';
 import { useGetDetailAccountCompanyQuery } from '@/services/adminSystemApi';
 import { typeAccount } from '@/utils/app/const';
 import ImageComponent from '@/components/Common/Image';
+import { Button } from '@/components/Common/Button';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import { BackdropType, setBackdrop } from '@/store/slices/global';
+import { useAccountActionsCompanyAdminSystem } from '@/components/Admin/System/SystemCompany/Action';
 
 const AdminSystemDetailCompany = () => {
+  const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   const id = useAppSelector(state => state.global.id);
-  const { data: AccountCompanyDetail } = useGetDetailAccountCompanyQuery({ id: Number(id) });
+  const showBackdrop = useAppSelector(state => state.global.backdropType);
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { data: AccountCompanyDetail } = useGetDetailAccountCompanyQuery({ id: Number(id) }, { refetchOnMountOrArgChange: true });
+
+  const { approveAccount, rejectAccount, lockAccount, unlockAccount } = useAccountActionsCompanyAdminSystem();
+  const handleConfirmAction = () => {
+    if (selectedCompanyId !== null) {
+      switch (showBackdrop) {
+        case BackdropType.ApproveConfirmation || BackdropType.UnlockConfirmation: {
+          approveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' });
+          break;
+        }
+        case BackdropType.UnlockConfirmation: {
+          unlockAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' });
+          break;
+        }
+        case BackdropType.RefuseConfirmation: {
+          rejectAccount({ id: selectedCompanyId });
+          router.push('/admin/system/company');
+          break;
+        }
+        case BackdropType.LockConfirmation: {
+          lockAccount({ id: selectedCompanyId, statusAccount: 'BAN' });
+          break;
+        }
+        default:
+          throw new Error('Invalid action type');
+      }
+      dispatch(setBackdrop(null));
+      setSelectedCompanyId(null);
+    }
+  };
   return (
-    <div className="rounded-2xl bg-white p-3  pb-[90px] sm:p-0">
+    <div className="h-screen rounded-2xl bg-white  p-3 sm:p-0">
       {/* Icon */}
       <div className="p-5">
         <Link href={'/admin/system/company'}>
@@ -32,20 +72,14 @@ const AdminSystemDetailCompany = () => {
       {/* Info */}
       <div className="mx-auto max-w-[650px] rounded-[10px] border-[1px] border-solid border-[#7D8087] p-4 sm:p-7">
         <div className="flex items-center gap-[30px] ">
-          <div className="rounded-[50%] bg-[#F1F1F1] p-5">
-            <ImageComponent
-              src={AccountCompanyDetail?.data?.logoUrl ?? ''}
-              alt="name"
-              width={80}
-              height={80}
-              className="h-[75px] w-[75px] rounded-full object-cover"
-            />
+          <div className="rounded-[50%] bg-[#F1F1F1] p-2">
+            <ImageComponent src={AccountCompanyDetail?.data?.logoUrl ?? ''} alt="name" width={90} height={90} className="rounded-full object-cover" />
           </div>
           <div>
             <h2 className="text-lg font-bold lg:text-xl">{AccountCompanyDetail?.data.companyName}</h2>
-            <Link href={`/portal/companies/${AccountCompanyDetail?.data?.id}`}>
+            {/* <Link href={`/portal/companies/${AccountCompanyDetail?.data?.id}`}>
               <p className="text-primary-gray hover:text-primary-main">Chi tiết thông tin công ty</p>
-            </Link>
+            </Link> */}
           </div>
         </div>
         <ul className="">
@@ -104,7 +138,66 @@ const AdminSystemDetailCompany = () => {
             </div>
           </li>
         </ul>
+        <div className="flex justify-end gap-2">
+          {AccountCompanyDetail?.data.account.statusAccount === 'PENDING' && (
+            <>
+              <Button
+                text="Từ chối"
+                className="bg-red-500"
+                onClick={() => {
+                  dispatch(setBackdrop(BackdropType.RefuseConfirmation));
+                  setSelectedCompanyId(AccountCompanyDetail.data.account.id);
+                }}
+              />
+              <Button
+                text="Chấp nhận"
+                onClick={() => {
+                  dispatch(setBackdrop(BackdropType.ApproveConfirmation));
+                  setSelectedCompanyId(AccountCompanyDetail.data.account.id);
+                }}
+              />
+            </>
+          )}
+
+          {AccountCompanyDetail?.data.account.statusAccount === 'ACTIVE' && (
+            <Button
+              text="Khóa"
+              onClick={() => {
+                dispatch(setBackdrop(BackdropType.LockConfirmation));
+                setSelectedCompanyId(AccountCompanyDetail.data.account.id);
+              }}
+            />
+          )}
+
+          {AccountCompanyDetail?.data.account.statusAccount === 'BAN' && (
+            <Button
+              text="Mở khóa"
+              onClick={() => {
+                dispatch(setBackdrop(BackdropType.UnlockConfirmation));
+                setSelectedCompanyId(AccountCompanyDetail.data.account.id);
+              }}
+            />
+          )}
+        </div>
       </div>
+
+      {showBackdrop && (
+        <PopupConfirmAction
+          text={
+            showBackdrop === BackdropType.ApproveConfirmation
+              ? 'Duyệt'
+              : showBackdrop === BackdropType.RefuseConfirmation
+              ? 'Từ chối'
+              : showBackdrop === BackdropType.LockConfirmation
+              ? 'Khóa'
+              : showBackdrop === BackdropType.UnlockConfirmation
+              ? 'Mở khóa'
+              : ''
+          }
+          name={`tài khoản doanh nghiệp ${name}`}
+          onClick={handleConfirmAction}
+        />
+      )}
     </div>
   );
 };

@@ -193,7 +193,7 @@ const JobCompany = () => {
 
       {/* Pagination */}
       <PaginationComponent
-        count={jobCompany?.data.currentPage}
+        count={jobCompany?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}

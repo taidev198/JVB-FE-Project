@@ -214,10 +214,10 @@ const AdminSystemWorkshop = () => {
                     <p className="sm:[250px] w-[220px]"> {workshop.university.universityName}</p>
                   </td>
                   <td className="px-2 py-4">
-                    <p className="sm:[250px] w-fit">{workshop.startTime}</p>
+                    <p className="sm:[250px] w-fit">{workshop.startTime.split(' ')[0]}</p>
                   </td>
                   <td className="px-2 py-4">
-                    <p className="sm:[250px] w-fit">{workshop.endTime}</p>
+                    <p className="sm:[250px] w-fit">{workshop.endTime.split(' ')[0]}</p>
                   </td>
                   <td className="px-2 py-4">
                     <Chip

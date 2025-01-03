@@ -14,19 +14,25 @@ const validationSchemaAddStudent = Yup.object({
     .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
   employeePosition: Yup.string().required('Chức vụ là bắt buộc').max(100, 'Chức vụ không được quá 100 kí tự'),
   dateOfBirth: Yup.date()
-  .required('Ngày sinh là bắt buộc')
-  .nullable()
-  .transform((value, originalValue) => {
-    if (originalValue === '') return null;
-    return value;
-  })
-  .test('is-not-null', 'Ngày sinh không thể là rỗng', value => value !== null)
-  .test(
-    'is-in-the-past',
-    'Ngày sinh phải là ngày trước hiện tại',
-    value => value === null || value < new Date() // Kiểm tra ngày sinh nhỏ hơn ngày hiện tại
-  ),
-
+    .required('Ngày sinh là bắt buộc')
+    .nullable()
+    .transform((value, originalValue) => {
+      if (originalValue === '') return null;
+      return value;
+    })
+    .test('is-not-null', 'Ngày sinh không thể là rỗng', value => value !== null)
+    .test(
+      'is-in-the-past',
+      'Ngày sinh phải là ngày trước hiện tại',
+      value => value === null || value < new Date() // Kiểm tra ngày sinh nhỏ hơn ngày hiện tại
+    )
+    .test('is-18-or-older', 'Tuổi phải từ 18 trở lên', value => {
+      if (!value) return true; // Bỏ qua nếu giá trị là null
+      const today = new Date();
+      const age = today.getFullYear() - value.getFullYear();
+      const isBirthdayPassed = today.getMonth() > value.getMonth() || (today.getMonth() === value.getMonth() && today.getDate() >= value.getDate());
+      return age > 18 || (age === 18 && isBirthdayPassed); // Kiểm tra tuổi >= 18
+    }),
 
   salary: Yup.number()
     .transform(value => (Number.isNaN(value) ? null : value))

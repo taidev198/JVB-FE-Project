@@ -142,7 +142,7 @@ const UserCompany = () => {
               <th className="px-5 py-4 text-left">Mã nhân viên</th>
               <th className="px-5 py-4 text-left">Tên nhân viên</th>
               <th className="px-5 py-4 text-left">Email</th>
-              <th className="px-5 py-4 text-left">Vai trò</th>
+              <th className="px-5 py-4 text-left">Chức vụ</th>
               <th className="px-5 py-4 text-left">Số điện thoại</th>
               <th className="px-5 py-4 text-left">Trạng thái</th>
               <th className="px-5 py-4 text-left">Hành động</th>

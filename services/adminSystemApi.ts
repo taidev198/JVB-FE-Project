@@ -1,26 +1,40 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '@/store/store';
+import { persistor, RootState } from '@/store/store';
 import { DistrictsResponse, ProvinceResponse, WardResponse } from '@/types/addressesTypes';
 import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { IPartnershipsSchoolResponse, IPartnershipsUniversityResponse } from '@/types/jobAndPartnershipsSchoolType';
 import { IJobAllResponseAdminSystem } from '@/types/jobCompany';
+import { logOut } from '@/store/slices/user';
+
+const baseQuery = fetchBaseQuery({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  prepareHeaders: (headers, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.user.token;
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+const baseQueryWithForceLogout = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
+
+  if (result?.error?.status === 401) {
+    api.dispatch(logOut());
+    await persistor.purge();
+    window.location.href = '/auth/login';
+  }
+  return result;
+};
 
 export const adminSystemApi = createApi({
   reducerPath: 'adminSystemApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const state = getState() as RootState;
-      const token = state.user.token;
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithForceLogout,
   tagTypes: ['Workshop', 'Company', 'School', 'Partnerships', 'Job', 'Notifications'],
   endpoints: builder => {
     return {

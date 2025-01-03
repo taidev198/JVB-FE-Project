@@ -21,6 +21,7 @@ import Address from '@/components/Common/Address';
 import DateComponent from '@/components/Common/DateComponent';
 import { formatDateWorkshop } from '@/utils/app/format';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { useAppSelector } from '@/store/hooks';
 
 interface FormDataWorkShop {
   workshopTitle: string;
@@ -40,14 +41,16 @@ const AddWorkshop = () => {
   const [image, setImage] = useState<File[]>([]);
   const router = useRouter();
   const dispatch = useDispatch();
+  const { address } = useAppSelector(state => state.user);
 
   const methods = useForm<FormDataWorkShop>({
     resolver: yupResolver(addWorkshopSchema),
     mode: 'onChange',
     defaultValues: {
-      wardId: null,
-      districtId: null,
-      provinceId: null,
+      wardId: address?.ward?.id,
+      districtId: address?.district?.id,
+      provinceId: address?.province?.id,
+      houseNumber: address?.houseNumber,
     },
   });
   const {

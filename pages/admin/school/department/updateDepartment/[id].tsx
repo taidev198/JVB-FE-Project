@@ -106,6 +106,7 @@ const UpdateDepartment = () => {
             placeholder="Nhập năm thành lập"
             control={control}
             error={errors.establishYear?.message}
+            required={true}
           />
           <Input
             type="text"

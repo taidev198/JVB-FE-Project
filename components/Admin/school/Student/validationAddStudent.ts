@@ -23,7 +23,7 @@ const validationSchemaAddStudent = Yup.object({
     .required('Điểm trung bình là bắt buộc')
     .positive('Điểm trung bình không được âm')
     .min(0.0, 'Điểm trung bình không được nhỏ hơn 0.0')
-    .max(10.0, 'Điểm trung bình không được lớn hơn 10.0')
+    .max(4.0, 'Điểm trung bình không được lớn hơn 4.0')
     .test(
       'decimal',
       'Điểm trung bình chỉ được phép có tối đa 2 chữ số thập phân',
