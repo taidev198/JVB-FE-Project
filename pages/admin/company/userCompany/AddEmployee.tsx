@@ -164,9 +164,9 @@ const AddEmployee = () => {
             {/* vị trí công việc */}
             <Input
               name="employeePosition"
-              label="Vị trí công việc"
+              label="Chức vụ công việc"
               required={true}
-              placeholder="vị trí công việc"
+              placeholder="Chức vụ công việc"
               control={control}
               error={errors.employeePosition?.message}
             />

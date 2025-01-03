@@ -17,7 +17,6 @@ import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import PaginationComponent from '@/components/Common/Pagination';
-import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
 
 const JobCompany = () => {
   const [idJob, setIdJob] = useState<number>();
@@ -194,7 +193,7 @@ const JobCompany = () => {
 
       {/* Pagination */}
       <PaginationComponent
-        count={jobCompany?.data.currentPage}
+        count={jobCompany?.data.totalPages}
         page={page}
         onPageChange={(event, value) => dispatch(setPage(value))}
         size={size}
