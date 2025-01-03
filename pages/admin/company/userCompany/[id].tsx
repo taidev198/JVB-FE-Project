@@ -2,7 +2,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
-import StarBorderIcon from '@mui/icons-material/StarBorder';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import PhoneIcon from '@mui/icons-material/Phone';
 import PaymentsIcon from '@mui/icons-material/Payments';
@@ -51,17 +50,10 @@ const DetailUserCompany = () => {
           <div>
             <Link href={'#'}>
               <h2 className="text-lg font-bold lg:text-xl">{employee?.data.fullName}</h2>
-              <p className="text-primary-gray">Chi tiết nhân viên</p>
             </Link>
           </div>
         </div>
         <ul className="">
-          <li className="mt-5 flex items-center gap-3">
-            <StarBorderIcon sx={{ color: '#757575' }} />
-            <div>
-              <span className="mr-2 font-semibold">Mã ngành:</span> {employee?.data.employeePosition}
-            </div>
-          </li>
           <li className="mt-5 flex items-center gap-3">
             <DriveFileRenameOutlineIcon sx={{ color: '#757575' }} />
             <div>

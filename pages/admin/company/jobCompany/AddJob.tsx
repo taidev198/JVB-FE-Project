@@ -90,58 +90,7 @@ const AddJob = () => {
             label="Tiêu đề công việc"
             required={true}
           />
-          {/* mô tả */}
-          <div className="mt-5 grid grid-cols-1 gap-4">
-            <Controller
-              name="job_description"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextEditor
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  label="Mô tả công việc"
-                  required={true}
-                  error={errors.job_description?.message}
-                />
-              )}
-            />
 
-            {/* yêu cầu */}
-            <Controller
-              name="requirements"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextEditor
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  label="Yêu cầu"
-                  required={true}
-                  error={errors.requirements?.message}
-                />
-              )}
-            />
-
-            {/* phúc lợi */}
-            <Controller
-              name="benifits"
-              control={control}
-              defaultValue=""
-              render={({ field }) => (
-                <TextEditor
-                  value={field.value}
-                  onChange={field.onChange}
-                  onBlur={field.onBlur}
-                  label="Phúc lợi"
-                  required={true}
-                  error={errors.benifits?.message}
-                />
-              )}
-            />
-          </div>
           <div className="mt-8 grid grid-cols-1 gap-4 rounded-b-lg sm:grid-cols-2">
             {/* Trạng thái */}
             <SelectMui
@@ -222,6 +171,59 @@ const AddJob = () => {
             {/* Lương: cao */}
           </div>
 
+          {/* mô tả */}
+          <div className="mt-5 grid grid-cols-1 gap-4">
+            <Controller
+              name="job_description"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Mô tả công việc"
+                  required={true}
+                  error={errors.job_description?.message}
+                />
+              )}
+            />
+
+            {/* yêu cầu */}
+            <Controller
+              name="requirements"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Yêu cầu"
+                  required={true}
+                  error={errors.requirements?.message}
+                />
+              )}
+            />
+
+            {/* phúc lợi */}
+            <Controller
+              name="benifits"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
+                <TextEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  label="Phúc lợi"
+                  required={true}
+                  error={errors.benifits?.message}
+                />
+              )}
+            />
+          </div>
+
           <div className="mt-5 grid grid-cols-3 items-center gap-5">
             <SelectMui
               name="salary_type"
@@ -237,10 +239,10 @@ const AddJob = () => {
             />
             {salaryType === 'FIXED' && (
               <>
-                <Input name="min_salary" type="number" label="Mức lương từ" placeholder="Thấp nhất:" control={control} error={errors.min_salary?.message} />
+                <Input name="max_salary" type="number" label="Đến mức lương" placeholder="Cao nhất:" control={control} error={errors.max_salary?.message} />
 
                 {/* Lương: thấp */}
-                <Input name="max_salary" type="number" label="Đến mức lương" placeholder="Cao nhất:" control={control} error={errors.max_salary?.message} />
+                <Input name="min_salary" type="number" label="Mức lương từ" placeholder="Thấp nhất:" control={control} error={errors.min_salary?.message} />
               </>
             )}
           </div>
