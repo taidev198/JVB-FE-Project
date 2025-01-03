@@ -4,21 +4,19 @@ import { useDispatch } from 'react-redux';
 import { Chip, IconButton } from '@mui/material';
 import { useRouter } from 'next/router';
 import ClearIcon from '@mui/icons-material/Clear';
-import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
-import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
+import SchoolIcon from '@mui/icons-material/School';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import MapIcon from '@mui/icons-material/Map';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
-import WatchIcon from '@mui/icons-material/Watch';
-import WidgetsIcon from '@mui/icons-material/Widgets';
-import TrafficIcon from '@mui/icons-material/Traffic';
-import ImageIcon from '@mui/icons-material/Image';
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import { FC, useEffect } from 'react';
-import { statusTextWorkshop } from '@/utils/app/const';
 import { useGetDetailWorkshopQuery } from '@/services/adminSchoolApi';
 import { BackdropType, setBackdrop, setImage, setLoading } from '@/store/slices/global';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useAppSelector } from '@/store/hooks';
 import ImageComponent from '@/components/Common/Image';
+import { statusTextWorkshop } from '@/utils/app/const';
 
 const DetailWorkshop: FC = () => {
   const router = useRouter();
@@ -38,9 +36,9 @@ const DetailWorkshop: FC = () => {
   }
 
   return (
-    <div className="rounded-2xl bg-white pb-[90px]">
+    <div className="rounded-2xl p-5 pb-[90px]">
       {/* Icon */}
-      <div className="p-5">
+      <div className="py-5">
         <Link href={'/admin/system/workshop'}>
           <IconButton>
             <ArrowBackIcon />
@@ -48,103 +46,124 @@ const DetailWorkshop: FC = () => {
         </Link>
         Trở về
       </div>
-      <h1 className="mb-12 mt-3 text-center text-2xl font-bold">Thông tin chi tiết workshop </h1>
-      <div className="p-4 sm:px-20">
-        <div className="mt-2 flex flex-col gap-6 rounded-md border-[1px] border-solid border-[#c2c0c0] p-4 ">
-          <div className="flex justify-between">
-            <h1 className="text-lg font-bold">{workshop?.data.workshopTitle}</h1>
-          </div>
-          <div className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-            <p className="flex items-center gap-1">
-              <AccessAlarmIcon sx={{ color: '#757575' }} />
-              <span className="font-semibold">Thời gian bắt đầu:</span> <span>{workshop?.data.startTime}</span>
-            </p>
-            <p className="flex items-center gap-1">
-              <AccessAlarmIcon sx={{ color: '#757575' }} />
-              <span className="font-semibold">Thời gian kết thúc:</span> <span>{workshop?.data.endTime}</span>
-            </p>
-            <p className="flex items-center gap-1">
-              <InterpreterModeIcon sx={{ color: '#757575' }} />
-              <span className="font-semibold">Số lượng công ty ước tính:</span> <span>{workshop?.data.estimateCompanyParticipants}</span>
-            </p>
-            <p className="flex">
-              <LocationOnIcon sx={{ color: '#757575' }} />
-              <div className="flex">
-                <p className="mr-2 min-w-fit font-semibold">Địa chỉ:</p>
-                <p>
-                  {workshop?.data.address.houseNumber},{workshop?.data.address.province.provinceName},{workshop?.data.address.district.districtName},
-                  {workshop?.data.address.ward.wardName}
-                </p>
-              </div>
-            </p>
-          </div>
-          <div>
-            <p className="flex items-center gap-1">
-              <WatchIcon sx={{ color: '#757575' }} />
-              <span className="font-semibold">Lịch trình:</span>
-            </p>
-            <ul className="ml-3 mt-3 flex flex-col gap-1">
-              {(agendaItems || []).map((item, index) => (
-                <li key={index} dangerouslySetInnerHTML={{ __html: item }}></li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <p className="flex items-center gap-1">
-              <WidgetsIcon sx={{ color: '#757575' }} />
-              <span className="font-semibold">Lĩnh vực:</span>
-              <ul className="ml-3 mt-3 flex flex-wrap gap-4">
-                <Chip label="Công nghệ" color="primary" variant="outlined" />
-                <Chip label="Tài chính" color="primary" variant="outlined" />
-                <Chip label="Khoa học" color="primary" variant="outlined" />
+
+      <div className="grid grid-cols-12 gap-8">
+        <div className="col-span-12 lg:col-span-8">
+          <div className="rounded-md bg-white">
+            <div className="">
+              <ImageComponent
+                src={workshop?.data.imageWorkshops[0].imageUrl}
+                alt={workshop?.data.workshopTitle}
+                height={480}
+                className="w-full rounded-t-md object-cover"
+              />
+            </div>
+            <div className="p-7">
+              <span dangerouslySetInnerHTML={{ __html: workshop?.data.workshopDescription || '' }} />
+              <ul className="mt-3 flex flex-col gap-1">
+                {(agendaItems || []).map((item, index) => (
+                  <li key={index} dangerouslySetInnerHTML={{ __html: item }}></li>
+                ))}
               </ul>
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <TrafficIcon sx={{ color: '#757575' }} />
-              <span className="font-semibold">Trạng thái: </span>
+              <div className="mt-5">
+                <p className="font-semibold">Lĩnh vực</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {workshop?.data.fields.map(field => (
+                    <div className="" key={field.id}>
+                      <Chip label={field.fieldName} color="primary" variant="outlined" />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-            <Chip
-              label={statusTextWorkshop(workshop?.data.moderationStatus).title}
-              style={{
-                color: `${statusTextWorkshop(workshop?.data.moderationStatus).color}`,
-                background: `${statusTextWorkshop(workshop?.data.moderationStatus).bg}`,
-              }}
-            />
           </div>
-          <div>
-            <div className="flex items-center gap-1">
-              <ImageIcon sx={{ color: '#757575' }} />
-              <span className="font-semibold">Hình ảnh:</span>
-            </div>
-            <div className="mt-2 flex justify-evenly gap-4">
-              {workshop?.data.imageWorkshops.map(image => (
+          {/* Photos */}
+          <div className="mt-7 rounded-md bg-white ">
+            <p className="p-7 font-semibold">Hình ảnh</p>
+            <div className="grid grid-cols-2 border-t border-solid p-7">
+              {(workshop?.data.imageWorkshops.slice(1) || []).map(image => (
                 <ImageComponent
                   src={image?.imageUrl}
                   alt={image.imageUrl}
-                  width={120}
-                  height={80}
+                  height={250}
                   onclick={() => {
                     dispatch(setImage(image?.imageUrl));
                     dispatch(setBackdrop(BackdropType.AddModal));
                   }}
-                  className="cursor-pointer rounded object-cover"
+                  className="w-full cursor-pointer rounded object-cover transition-all hover:opacity-90"
                   key={image.id}
                 />
               ))}
             </div>
           </div>
-          <p className="flex gap-3">
-            <LightbulbIcon sx={{ color: '#757575' }} />
-            <div className="flex">
-              <p className="mr-2 min-w-fit font-semibold">Mô tả:</p>
-              <p>
-                <span dangerouslySetInnerHTML={{ __html: workshop?.data.workshopDescription || '' }} />
-              </p>
-            </div>
-          </p>
         </div>
+        <div className="col-span-12 h-fit rounded-md bg-white lg:col-span-4">
+          <div className="border-b border-solid">
+            <p className="p-7 text-lg font-semibold">Chi tiết workshop</p>
+          </div>
+          <div className="px-7">
+            <div className="flex items-center gap-5 border-b border-solid py-7">
+              <SchoolIcon fontSize="large" color="warning" />
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Trường học</span>
+                <span className="text-xs text-[#888]">{workshop?.data.university.universityName}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-5 border-b border-solid py-7">
+              <CalendarMonthIcon fontSize="large" color="warning" />
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Thời gian bắt đầu</span>
+                <span className="text-xs text-[#888]">{workshop?.data.startTime}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-5 border-b border-solid py-7">
+              <CalendarMonthIcon fontSize="large" color="warning" />
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Thời gian kết thúc</span>
+                <span className="text-xs text-[#888]">{workshop?.data.endTime}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-5 border-b border-solid py-7">
+              <PeopleAltIcon fontSize="large" color="warning" />
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Quy mô</span>
+                <span className="text-xs text-[#888]">{workshop?.data.estimateCompanyParticipants} doanh nghiệp</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-5 border-b border-solid py-7">
+              <LocationOnIcon fontSize="large" color="warning" />
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Vị trí</span>
+                <span className="text-xs text-[#888]">{workshop?.data.address.province.provinceName}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-5 border-b border-solid py-7">
+              <MapIcon fontSize="large" color="warning" />
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Địa điểm</span>
+                <span className="text-xs text-[#888]">
+                  {workshop?.data.address.houseNumber}, {workshop?.data.address.ward.wardName}, {workshop?.data.address.district.districtName}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-5 border-b border-solid py-7">
+              <LightModeIcon fontSize="large" color="warning" />
+              <div className="flex flex-col gap-2">
+                <span className="font-medium">Trạng thái</span>
+                <span className="text-xs text-[#888]">{statusTextWorkshop(workshop?.data.moderationStatus).title}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 sm:px-20">
         {backdropType === BackdropType.AddModal && (
           <BackDrop isCenter={true}>
             <div className="relative">

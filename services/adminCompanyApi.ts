@@ -1,24 +1,38 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { RootState } from '@/store/store';
+import { persistor, RootState } from '@/store/store';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IProfileCompanyRespone } from '@/types/profileCompany';
 import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply } from '@/types/jobCompany';
 import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
+import { logOut } from '@/store/slices/user';
+
+const baseQuery = fetchBaseQuery({
+  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  prepareHeaders: (headers, { getState }) => {
+    const state = getState() as RootState;
+    const token = state.user.token;
+    if (token) {
+      headers.set('Authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+const baseQueryWithForceLogout = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions);
+
+  if (result?.error?.status === 401) {
+    api.dispatch(logOut());
+    await persistor.purge();
+    window.location.href = '/auth/login';
+  }
+  return result;
+};
 
 export const adminCompanyApi = createApi({
   reducerPath: 'adminCompanyApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL,
-    prepareHeaders: (headers, { getState }) => {
-      const state = getState() as RootState;
-      const token = state.user.token;
-      if (token) {
-        headers.set('Authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: baseQueryWithForceLogout,
   tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply'],
   endpoints: builder => {
     return {

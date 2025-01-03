@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import toast from 'react-hot-toast';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chip, TextField } from '@mui/material';
 import Select from 'react-select';
@@ -9,17 +8,16 @@ import { useDispatch } from 'react-redux';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { resetFilters, setKeyword, setPage, setStatus, setUniversityType } from '@/store/slices/filtersSlice';
 import { useAppSelector } from '@/store/hooks';
-import { useBanAndActiveMutation, useGetAllAccountSchoolQuery, useRejectAccountCompanyMutation } from '@/services/adminSystemApi';
+import { useGetAllAccountSchoolQuery } from '@/services/adminSystemApi';
 import { typeAccount, typeUniversity, typeUniversityTitle } from '@/utils/app/const';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button } from '@/components/Common/Button';
 import ButtonUnLock from '@/components/Common/ButtonIcon/ButtonUnLock';
 import ButtonLock from '@/components/Common/ButtonIcon/ButtonLock';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import { useAccountActionsCompanyAdminSystem } from '@/components/Admin/System/SystemCompany/Action';
 
 const AdminSystemSchool = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
@@ -51,55 +49,41 @@ const AdminSystemSchool = () => {
     { page, size, keyword, status, universityType },
     { refetchOnMountOrArgChange: true }
   );
-  const [rejectAccount, { isLoading: isLoadingReject }] = useRejectAccountCompanyMutation();
-  const [banAndActiveAccount] = useBanAndActiveMutation();
-  const handleConfirmAction = async () => {
+
+  const { approveAccount, rejectAccount, lockAccount, unlockAccount } = useAccountActionsCompanyAdminSystem();
+  const handleConfirmAction = () => {
     if (selectedCompanyId !== null && selectedAction) {
-      try {
-        switch (selectedAction) {
-          case BackdropType.ApproveConfirmation || BackdropType.UnlockConfirmation: {
-            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
-            toast.success('Tài khoản đã được duyệt thành công.');
-            break;
-          }
-          case BackdropType.UnlockConfirmation: {
-            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' }).unwrap();
-            toast.success('Tài khoản đã được mở khóa thành công.');
-            break;
-          }
-          case BackdropType.RefuseConfirmation: {
-            await rejectAccount({ id: selectedCompanyId }).unwrap();
-            toast.success('Yêu cầu duyệt tài khoản đã bị từ chối.');
-            break;
-          }
-          case BackdropType.LockConfirmation: {
-            await banAndActiveAccount({ id: selectedCompanyId, statusAccount: 'BAN' }).unwrap();
-            toast.success('Tài khoản đã bị khóa thành công.');
-            break;
-          }
-          default:
-            throw new Error('Invalid action type');
+      switch (selectedAction) {
+        case BackdropType.ApproveConfirmation || BackdropType.UnlockConfirmation: {
+          approveAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' });
+          break;
         }
-      } catch (error) {
-        if (isFetchBaseQueryError(error)) {
-          const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
-          toast.error(errMsg);
-        } else if (isErrorWithMessage(error)) {
-          toast.error(error.message);
+        case BackdropType.UnlockConfirmation: {
+          unlockAccount({ id: selectedCompanyId, statusAccount: 'ACTIVE' });
+          break;
         }
-      } finally {
-        dispatch(setBackdrop(null));
-        setSelectedCompanyId(null);
-        setSelectedAction(null);
+        case BackdropType.RefuseConfirmation: {
+          rejectAccount({ id: selectedCompanyId });
+          break;
+        }
+        case BackdropType.LockConfirmation: {
+          lockAccount({ id: selectedCompanyId, statusAccount: 'BAN' });
+          break;
+        }
+        default:
+          throw new Error('Invalid action type');
       }
+      dispatch(setBackdrop(null));
+      setSelectedCompanyId(null);
+      setSelectedAction(null);
     }
   };
   useEffect(() => {
-    dispatch(setLoading(isLoadingDetAll || isLoadingReject));
+    dispatch(setLoading(isLoadingDetAll));
     return () => {
       dispatch(resetFilters());
     };
-  }, [dispatch, isLoadingDetAll, isLoadingReject]);
+  }, [dispatch, isLoadingDetAll]);
   return (
     <>
       {/* Header */}
@@ -215,21 +199,21 @@ const AdminSystemSchool = () => {
       />
       {/* Backdrops */}
       {showBackdrop && (
-        <BackDrop isCenter>
-          <div className="max-w-[430px] rounded-md p-6">
-            <h3 className="font-bold">
-              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt tài khoản ${name}`}
-              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối tài khoản ${name}`}
-              {selectedAction === BackdropType.LockConfirmation && `Khóa tài khoản ${name}`}
-              {selectedAction === BackdropType.UnlockConfirmation && `Mở khóa tài khoản ${name}`}
-            </h3>
-            <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-            </div>
-          </div>
-        </BackDrop>
+        <PopupConfirmAction
+          text={
+            selectedAction === BackdropType.ApproveConfirmation
+              ? 'Duyệt'
+              : selectedAction === BackdropType.RefuseConfirmation
+              ? 'Từ chối'
+              : selectedAction === BackdropType.LockConfirmation
+              ? 'Khóa'
+              : selectedAction === BackdropType.UnlockConfirmation
+              ? 'Mở khóa'
+              : ''
+          }
+          name={name}
+          onClick={handleConfirmAction}
+        />
       )}
     </>
   );
