@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
@@ -27,14 +27,14 @@ import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 interface FormDataAddStudent {
   studentCode: string;
   fullName: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   email: string;
   gender: string | null;
   phoneNumber: string;
   yearOfEnrollment: number;
   houseNumber: string;
   gpa: number;
-  dateOfBirth: string | null;
+  dateOfBirth: dayjs.Dayjs;
   studentStatus: string;
   majorId: number;
   provinceId: number;
@@ -48,7 +48,7 @@ const UpdateStudent = () => {
   const router = useRouter();
 
   const methods = useForm<FormDataAddStudent>({
-    resolver: yupResolver(validationSchemaAddStudent),
+    resolver: yupResolver(validationSchemaAddStudent) as Resolver<FormDataAddStudent>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -86,7 +86,7 @@ const UpdateStudent = () => {
         wardId: data.wardId,
       },
       gpa: data.gpa,
-      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth.toDate()),
       studentStatus: data.studentStatus,
       phoneNumber: data.phoneNumber,
       majorId: data.majorId,

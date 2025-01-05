@@ -6,7 +6,7 @@ import Link from 'next/link';
 import OtpInput from 'react-otp-input';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/Common/Button';
@@ -38,7 +38,7 @@ const VerifyMyAccount = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataForgot>({
-    resolver: yupResolver(validationSchemaSchool),
+    resolver: yupResolver(validationSchemaSchool) as Resolver<FormDataForgot>,
   });
   const router = useRouter();
   const email = Array.isArray(router.query.email) ? router.query.email[0] : router.query.email || '';

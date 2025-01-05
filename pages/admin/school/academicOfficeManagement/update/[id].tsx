@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
@@ -26,10 +26,10 @@ interface FormDataUpdateAdemic {
   fullName: string;
   employeeCode: string;
   phoneNumber: string;
-  dateOfBirth: string | null;
+  dateOfBirth: dayjs.Dayjs;
   gender: string;
   email: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   wardId: number;
   houseNumber: string;
   provinceId: number;
@@ -41,7 +41,7 @@ const UpdateAdemic = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const methods = useForm<FormDataUpdateAdemic>({
-    resolver: yupResolver(validationSchemaUpdateAdemic),
+    resolver: yupResolver(validationSchemaUpdateAdemic) as Resolver<FormDataUpdateAdemic>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -65,7 +65,7 @@ const UpdateAdemic = () => {
       employeeCode: data.employeeCode,
       fullName: data.fullName,
       gender: data.gender,
-      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth.toDate()),
       phoneNumber: data.phoneNumber,
 
       address: {

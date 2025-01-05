@@ -93,7 +93,7 @@ export const adminSchoolApi = createApi({
         }),
         invalidatesTags: [{ type: 'Department', id: 'list' }],
       }),
-      UpdateDepartment: builder.mutation<any, { formData: FormData; id: number }>({
+      UpdateDepartment: builder.mutation<any, { formData: any; id: number }>({
         query: ({ formData, id }) => ({
           url: `/university/faculties/update/${id}`,
           method: 'PUT',
@@ -151,7 +151,7 @@ export const adminSchoolApi = createApi({
         invalidatesTags: [{ type: 'Business', id: 'listBu' }],
       }),
       UpdateBusiness: builder.mutation({
-        query: (args: { formData: FormData; id: number | null }) => ({
+        query: (args: { formData: any; id: number | null }) => ({
           url: `/university/majors/update/${args.id}`,
           method: 'PUT',
           body: args.formData,

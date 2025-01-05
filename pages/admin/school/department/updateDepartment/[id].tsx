@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
@@ -38,7 +38,7 @@ const UpdateDepartment = () => {
     reset,
     formState: { errors },
   } = useForm<FormDataUpdateDepartment>({
-    resolver: yupResolver(validationSchemaUpdateDepartment),
+    resolver: yupResolver(validationSchemaUpdateDepartment) as Resolver<FormDataUpdateDepartment>,
   });
 
   const onSubmit: SubmitHandler<FormDataUpdateDepartment> = async data => {

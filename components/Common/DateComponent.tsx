@@ -8,7 +8,7 @@ interface DatePickerPropsType {
   placeholder: string;
   name: string;
   control: any;
-  error: string;
+  error: any;
   required?: boolean;
   showTime?: boolean;
 }

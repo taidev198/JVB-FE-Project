@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -32,7 +32,7 @@ const AddBussiness = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataAddBusiness>({
-    resolver: yupResolver(validationSchemaAddBusiness),
+    resolver: yupResolver(validationSchemaAddBusiness) as Resolver<FormDataAddBusiness>,
     defaultValues: {},
   });
   const { data: majores, isLoading: isLoadingMajor } = useGetAllMajorByQuery();

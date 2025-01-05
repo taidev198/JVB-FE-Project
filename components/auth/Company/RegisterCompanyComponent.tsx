@@ -1,11 +1,11 @@
-import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 
 import { useRouter } from 'next/router';
-import registerValidateCompany, { FormDataRegisterSchool } from './validation';
+import registerValidateCompany, { FormDataRegisterCompany } from './validation';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import TextEditor from '@/components/Common/TextEditor';
@@ -20,8 +20,8 @@ const RegisterCompanyComponent = () => {
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const methods = useForm<FormDataRegisterSchool>({
-    resolver: yupResolver(registerValidateCompany),
+  const methods = useForm<FormDataRegisterCompany>({
+    resolver: yupResolver(registerValidateCompany) as Resolver<FormDataRegisterCompany>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -36,7 +36,7 @@ const RegisterCompanyComponent = () => {
   } = methods;
 
   const [registerSchool, { isLoading: isLoadingRegister }] = useRegisterCompanyMutation();
-  const onSubmit: SubmitHandler<FormDataRegisterSchool> = async data => {
+  const onSubmit: SubmitHandler<FormDataRegisterCompany> = async data => {
     const { establishDate, ...payload } = data;
     const formattedDate = formatDateDd_MM_yyyy(establishDate);
     try {

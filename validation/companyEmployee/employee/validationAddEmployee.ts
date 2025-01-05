@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-const validationSchemaAddStudent = Yup.object({
+const validationSchemaAddEmployee = Yup.object({
   fullName: Yup.string().required('Tên nhân viên là bắt buộc').max(100, 'Tên nhân viên không được quá 100 kí tự'),
   employeeCode: Yup.string().required('Mã nhân viên là bắt buộc').max(50, 'Mã sinh viên không được quá 50 kí tự'),
 
@@ -49,9 +49,9 @@ const validationSchemaAddStudent = Yup.object({
     .required('Xác nhận mật khẩu là bắt buộc'),
 
   houseNumber: Yup.string().required('Địa chỉ cụ thể là bắt buộc').max(150, 'Địa chỉ cụ thể không được quá 150 kí tự'),
-  districtId: Yup.string().required('Quận/Huyện là bắt buộc').max(150, 'Quận/Huyện không được quá 150 kí tự'),
-  wardId: Yup.string().required('Xã/Phường là bắt buộc').max(150, 'Xã/Phường không được quá 150 kí tự'),
-  provinceId: Yup.string().required('Tỉnh/Thành phố là bắt buộc').max(150, 'Tỉnh/Thành phố không được quá 150 kí tự'),
+  wardId: Yup.number().required('Xã/Phường là bắt buộc'),
+  districtId: Yup.number().required('Quận/Huyện là bắt buộc'),
+  provinceId: Yup.number().required('Tỉnh/Thành phố là bắt buộc'),
 });
 
-export default validationSchemaAddStudent;
+export default validationSchemaAddEmployee;

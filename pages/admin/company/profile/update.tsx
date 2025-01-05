@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, FormProvider, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Controller, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
@@ -25,23 +25,23 @@ import { useGetAllFieldsQuery } from '@/services/adminSchoolApi';
 import Text from '@/components/Common/Text';
 
 interface FormDataProfile {
-  companyCode: string;
-  companyName: string;
-  logoUrl: string;
+  companyCode?: string;
+  companyName?: string;
+  logoUrl?: string;
   linkWebsite: string;
   phoneNumber: string;
-  establishedDate: string | null;
-  email: string;
+  establishedDate: dayjs.Dayjs;
+  email?: string;
   wardId: number;
   houseNumber: string;
   provinceId: number;
   districtId: number;
-  address: string;
+  address?: string;
   taxCode: number;
   quantityEmployee: number;
   companyDescription: string;
   companyShortDescription: string;
-  fieldIds: number[];
+  fieldIds?: number[];
 }
 
 const UpdateProfileCompany = () => {
@@ -50,7 +50,7 @@ const UpdateProfileCompany = () => {
   const router = useRouter();
 
   const methods = useForm<FormDataProfile>({
-    resolver: yupResolver(validationUpdateCompany),
+    resolver: yupResolver(validationUpdateCompany) as Resolver<FormDataProfile>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -79,7 +79,7 @@ const UpdateProfileCompany = () => {
       companyCode: data.companyCode,
       companyName: data.companyName,
       email: data.email,
-      establishedDate: formatDateDd_MM_yyyy(data.establishedDate),
+      establishedDate: formatDateDd_MM_yyyy(data.establishedDate.toDate()),
       linkWebsite: data.linkWebsite,
       companyDescription: data.companyDescription,
       companyShortDescription: data.companyShortDescription,
@@ -129,7 +129,7 @@ const UpdateProfileCompany = () => {
         provinceId: detailCompany?.data?.address.province.id,
         districtId: detailCompany?.data?.address.district.id,
         wardId: detailCompany?.data?.address.ward.id,
-        taxCode: detailCompany?.data?.taxCode,
+        taxCode: Number(detailCompany?.data?.taxCode),
         fieldIds: detailCompany.data.fields?.map(field => field.id),
       });
     }
