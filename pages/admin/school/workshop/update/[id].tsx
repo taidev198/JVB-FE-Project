@@ -3,9 +3,9 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
@@ -27,8 +27,8 @@ import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 interface FormDataWorkShop {
   workshopTitle: string;
   workshopDescription: string;
-  startTime: Dayjs | string;
-  endTime: Dayjs | string;
+  startTime: any;
+  endTime: any;
   estimateCompanyParticipants: number;
   wardId?: number | null;
   districtId?: number | null;
@@ -45,7 +45,7 @@ const UpdateWorkshop = () => {
   const dispatch = useDispatch();
 
   const methods = useForm<FormDataWorkShop>({
-    resolver: yupResolver(updateWorkshopSchema),
+    resolver: yupResolver(updateWorkshopSchema) as Resolver<FormDataWorkShop>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -93,6 +93,7 @@ const UpdateWorkshop = () => {
     // Chuyển đổi dayjs thành chuỗi trước khi append vào formData
     formData.append('startTime', formatDateWorkshop(data.startTime));
     formData.append('endTime', formatDateWorkshop(data.endTime));
+
     formData.append('estimateCompanyParticipants', String(data.estimateCompanyParticipants));
     formData.append('agenda', data.agenda);
     formData.append('addressDetail', data.houseNumber);

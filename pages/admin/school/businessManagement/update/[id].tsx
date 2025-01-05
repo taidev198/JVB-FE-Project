@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { IconButton } from '@mui/material';
 import toast from 'react-hot-toast';
@@ -23,7 +23,6 @@ interface FormDataUpdateBusiness {
   majorName: string;
   creditRequirement: number;
   majorDescription?: string;
-
   facultyId: number;
   fieldIds: number[];
 }
@@ -37,7 +36,7 @@ const UpdateBusiness = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataUpdateBusiness>({
-    resolver: yupResolver(ValidationSchemaUpdateBusiness),
+    resolver: yupResolver(ValidationSchemaUpdateBusiness) as Resolver<FormDataUpdateBusiness>,
   });
   const { data: majores, isLoading: isLoadingMajor } = useGetAllMajorByQuery();
   const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();

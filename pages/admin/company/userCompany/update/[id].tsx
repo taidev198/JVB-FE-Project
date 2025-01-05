@@ -2,7 +2,7 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Resolver } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import dayjs from 'dayjs';
@@ -21,7 +21,7 @@ import { useGetDetailEmployeeQuery, useUpdateEmployeeMutation } from '@/services
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
-import validationUpdateEmployy from '@/validation/companyEmployee/employee/validationUpdateEmployy';
+import validationUpdateEmploy from '@/validation/companyEmployee/employee/validationUpdateEmployy';
 
 interface FormDataUpdateEmployee {
   employeeCode: string;
@@ -35,10 +35,9 @@ interface FormDataUpdateEmployee {
   districtId: number;
   provinceId: number;
   houseNumber: string;
-  dateOfBirth: Date;
-  password: string;
-  confirmPassword: string;
-  employeeStatus: string;
+  dateOfBirth: dayjs.Dayjs;
+  password?: string;
+  confirmPassword?: string;
 }
 
 const UpdateEmployee = () => {
@@ -46,7 +45,7 @@ const UpdateEmployee = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const methods = useForm<FormDataUpdateEmployee>({
-    resolver: yupResolver(validationUpdateEmployy),
+    resolver: yupResolver(validationUpdateEmploy) as Resolver<FormDataUpdateEmployee>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -76,7 +75,7 @@ const UpdateEmployee = () => {
         wardId: data.wardId,
       },
       employeePosition: data.employeePosition,
-      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth.toDate()),
       gender: data.gender,
       salary: data.salary,
     };

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
-import { useForm, SubmitHandler, FormProvider, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Controller, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
@@ -26,15 +26,15 @@ import TextEditor from '@/components/Common/TextEditor';
 
 interface FormDataAddStudent {
   universityName: string;
-  email: string;
-  logoUrl: string;
+  email?: string;
+  logoUrl?: string;
   universityCode: string;
   linkWebsite: string;
   universityDescription?: string;
   universityShortDescription?: string;
   phoneNumber: string;
-  establishedDate: string | null;
-  universityType: string;
+  establishedDate: dayjs.Dayjs;
+  universityType?: string;
   wardId: number;
   houseNumber: string;
   provinceId: number;
@@ -46,7 +46,7 @@ const UpdateSchoolManagement = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const methods = useForm<FormDataAddStudent>({
-    resolver: yupResolver(validationSchemaUpdateSchool),
+    resolver: yupResolver(validationSchemaUpdateSchool) as Resolver<FormDataAddStudent>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -75,7 +75,7 @@ const UpdateSchoolManagement = () => {
       universityCode: data.universityCode,
       universityName: data.universityName,
       email: data.email,
-      establishedDate: formatDateDd_MM_yyyy(data.establishedDate),
+      establishedDate: formatDateDd_MM_yyyy(data.establishedDate.toDate()),
       linkWebsite: data.linkWebsite,
       universityDescription: data.universityDescription,
       universityShortDescription: data.universityShortDescription,

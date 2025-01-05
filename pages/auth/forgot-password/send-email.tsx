@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import * as Yup from 'yup';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
@@ -32,7 +32,7 @@ const SendEmail = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataForgot>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as Resolver<FormDataForgot>,
   });
   const [getOtp, { isLoading }] = useGetOtpMutation();
 

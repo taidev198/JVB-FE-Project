@@ -1,10 +1,11 @@
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { IconButton } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useRouter } from 'next/router';
+import dayjs from 'dayjs';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import validationSchemaAddAdemic from '../../../../components/Admin/school/Ademic/validationAddAdemic';
@@ -26,11 +27,11 @@ interface FormDataAddAdemic {
   password: string;
   confirm_password: string;
   phoneNumber: string;
-  dateOfBirth: string | null;
+  dateOfBirth: dayjs.Dayjs;
   gender: string;
   email: string;
-  avatarUrl: string;
-  wardId: string;
+  avatarUrl?: string;
+  wardId: number;
   houseNumber: string;
   provinceId: number;
   districtId: number;
@@ -41,7 +42,7 @@ const AddAdemic = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const methods = useForm<FormDataAddAdemic>({
-    resolver: yupResolver(validationSchemaAddAdemic),
+    resolver: yupResolver(validationSchemaAddAdemic) as Resolver<FormDataAddAdemic>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,
@@ -72,7 +73,7 @@ const AddAdemic = () => {
         wardId: data.wardId,
       },
       gender: data.gender,
-      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth.toDate()),
       phoneNumber: data.phoneNumber,
     };
 

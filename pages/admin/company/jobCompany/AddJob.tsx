@@ -4,7 +4,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import toast from 'react-hot-toast';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import validationSchemaAddJob from '@/validation/companyEmployee/job/validationAddJob';
 import TextEditor from '@/components/Common/TextEditor';
 import { Button } from '@/components/Common/Button';
@@ -17,16 +17,16 @@ import SelectMui from '@/components/Common/SelectMui';
 import Input from '@/components/Common/Input';
 import DateComponent from '@/components/Common/DateComponent';
 interface FormDataAddJob {
-  job_title: number;
+  job_title: string;
   job_description: string;
   requirements: string;
   job_type: string;
   work_time: string;
   benifits: string;
-  job_level: number;
+  job_level: string;
   expiration_date: string;
   member_of_candidate: number;
-  salaryType: string;
+  salaryType?: string;
   max_salary: number;
   min_salary: number;
   job_field: number[];
@@ -40,7 +40,7 @@ const AddJob = () => {
     formState: { errors },
     watch,
   } = useForm<FormDataAddJob>({
-    resolver: yupResolver(validationSchemaAddJob),
+    resolver: yupResolver(validationSchemaAddJob) as Resolver<FormDataAddJob>,
   });
 
   const salaryType = watch('salary_type');

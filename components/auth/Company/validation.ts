@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-export interface FormDataRegisterSchool {
+export interface FormDataRegisterCompany {
   companyName: string;
   companyCode: string;
   companyDescription: string;

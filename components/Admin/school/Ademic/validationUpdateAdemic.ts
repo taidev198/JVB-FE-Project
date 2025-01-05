@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import dayjs, { Dayjs } from 'dayjs';
 
 const validationSchemaUpdateAdemic = Yup.object({
   fullName: Yup.string().required('Tên nhân viên là bắt buộc').max(50, 'Tên nhân viên không được quá 50 kí tự'),
@@ -12,7 +13,9 @@ const validationSchemaUpdateAdemic = Yup.object({
   phoneNumber: Yup.string()
     .required('Số điện thoại là bắt buộc')
     .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
-  dateOfBirth: Yup.date().typeError('Ngày sinh không hợp lệ').required('Ngày sinh là bắt buộc').max(new Date(), 'Ngày sinh không được là ngày trong tương lai'),
+  dateOfBirth: Yup.mixed<Dayjs>()
+    .test('is-dayjs', 'Invalid date', value => dayjs.isDayjs(value))
+    .required('Ngày sinh là bắt buộc'),
 
   houseNumber: Yup.string().required('Địa chỉ cụ thể sinh viên là bắt buộc').max(255, 'Địa chỉ cụ thể không được quá 255 kí tự'),
   wardId: Yup.number().required('Xã/Phường là bắt buộc'),

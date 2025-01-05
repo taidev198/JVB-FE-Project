@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import * as Yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Checkbox } from '@mui/material';
@@ -19,11 +19,10 @@ import { setLoading } from '@/store/slices/global';
 import { roles } from '@/utils/app/const';
 
 interface FormDataLogin {
-  email?: string;
-  password?: string;
+  email: string;
+  password: string;
 }
 
-// Đưa validationSchema lên trước
 const validationSchema = Yup.object({
   email: Yup.string()
     .required('Email không được bỏ trống')
@@ -41,7 +40,7 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataLogin>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as Resolver<FormDataLogin>,
   });
   const [login, { isLoading, isSuccess, data, isError }] = useLoginMutation();
 

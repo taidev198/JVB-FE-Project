@@ -9,7 +9,11 @@ const validationSchemaAddJob = Yup.object({
   work_time: Yup.string().nullable().typeError('Giá trị không hợp lệ').required('Thời gian bắt đầu là bắt buộc'),
   job_type: Yup.string().required('Loại công việc là bắt buộc'),
   job_level: Yup.string().required('Cấp bậc công việc là bắt buộc'),
-  member_of_candidate: Yup.string().required('Số lượng là bắt buộc'),
+  member_of_candidate: Yup.number()
+    .nullable()
+    .required('Số lượng là bắt buộc')
+    .positive('Giá trị phải là số dương')
+    .typeError('Số lượng phải là một số hợp lệ'),
   salary_type: Yup.string().required('Lương là bắt buộc'),
   job_field: Yup.array()
     .required('Danh sách lĩnh vực là bắt buộc')

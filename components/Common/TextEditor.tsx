@@ -6,7 +6,7 @@ import 'quill/dist/quill.snow.css'; // Import từ Quill
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 interface QuillEditorProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: () => void;
   onBlur?: () => void;
   label: string;
   error?: string;

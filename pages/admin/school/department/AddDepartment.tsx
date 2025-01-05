@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
@@ -30,7 +30,7 @@ const AddDepartment = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataAddDepartment>({
-    resolver: yupResolver(validationSchemaAddDepartment),
+    resolver: yupResolver(validationSchemaAddDepartment) as Resolver<FormDataAddDepartment>,
   });
   const [addDepartment, { data, isLoading: isLoadingAddDepartment, isSuccess }] = useAddDepartmentMutation();
   const router = useRouter();

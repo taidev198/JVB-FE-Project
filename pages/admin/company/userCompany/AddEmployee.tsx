@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Resolver } from 'react-hook-form';
 import { useRouter } from 'next/router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -11,7 +11,7 @@ import { IconButton } from '@mui/material';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
-import validationSchemaAddStudent from '@/validation/companyEmployee/employee/validationAddEmployee';
+import validationSchemaAddEmployee from '@/validation/companyEmployee/employee/validationAddEmployee';
 import SelectReact from '@/components/Common/SelectMui';
 import { gender } from '@/utils/app/const';
 import Address from '@/components/Common/Address';
@@ -43,7 +43,7 @@ const AddEmployee = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const methods = useForm<FormDataAddEmployee>({
-    resolver: yupResolver(validationSchemaAddStudent),
+    resolver: yupResolver(validationSchemaAddEmployee) as Resolver<FormDataAddEmployee>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,

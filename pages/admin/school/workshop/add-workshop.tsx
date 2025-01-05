@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -59,8 +58,8 @@ const AddWorkshop = () => {
     formState: { errors },
   } = methods;
 
-  const { data: faculties, isLoading: isLoadingFaculies } = useGetAllFieldsQuery();
-  const [addWorkshop, { isLoading: isLoadingAddworksop }] = useAddWorkshopMutation();
+  const { data: faculties, isLoading: isLoadingFaculty } = useGetAllFieldsQuery();
+  const [addWorkshop, { isLoading: isLoadingAddWorkshop }] = useAddWorkshopMutation();
 
   const onSubmit: SubmitHandler<FormDataWorkShop> = async data => {
     const formData = new FormData();
@@ -96,8 +95,8 @@ const AddWorkshop = () => {
     }
   };
   useEffect(() => {
-    dispatch(setLoading(isLoadingFaculies || isLoadingAddworksop));
-  }, [dispatch, isLoadingFaculies, isLoadingAddworksop]);
+    dispatch(setLoading(isLoadingFaculty || isLoadingAddWorkshop));
+  }, [dispatch, isLoadingFaculty, isLoadingAddWorkshop]);
 
   return (
     <div className="">

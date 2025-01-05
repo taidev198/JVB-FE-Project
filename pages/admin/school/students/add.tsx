@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
@@ -25,14 +25,14 @@ import { formatDateDd_MM_yyyy } from '@/utils/app/format';
 interface FormDataAddStudent {
   studentCode: string;
   fullName: string;
-  avatarUrl: string;
+  avatarUrl?: string;
   email: string;
   gender: string;
   phoneNumber: string;
   yearOfEnrollment: number;
   houseNumber: string;
   gpa: number;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   studentStatus: string;
   majorId: number;
   provinceId: number;
@@ -46,7 +46,7 @@ const AddStudent = () => {
   const router = useRouter();
 
   const methods = useForm<FormDataAddStudent>({
-    resolver: yupResolver(validationSchemaAddStudent),
+    resolver: yupResolver(validationSchemaAddStudent) as Resolver<FormDataAddStudent>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,

@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import Link from 'next/link';
 import React, { useEffect } from 'react';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useGetAllFieldsQuery } from '@/services/adminSchoolApi';
 import SelectReact from '@/components/Common/SelectMui';
@@ -20,7 +20,7 @@ import { setLoading } from '@/store/slices/global';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import Input from '@/components/Common/Input';
 import SelectMui from '@/components/Common/SelectMui';
-interface FormUpdateAddJob {
+interface FormUpdateJob {
   job_title: string;
   job_description: string;
   requirements: string;
@@ -28,7 +28,7 @@ interface FormUpdateAddJob {
   work_time: string;
   benifits: string;
   job_level: string;
-  expiration_date: string;
+  expiration_date: dayjs.Dayjs;
   member_of_candidate: number;
   max_salary: number;
   min_salary: number;
@@ -46,8 +46,8 @@ const UpdateJob = () => {
     formState: { errors },
     watch,
     reset,
-  } = useForm<FormUpdateAddJob>({
-    resolver: yupResolver(validationUpdateJob),
+  } = useForm<FormUpdateJob>({
+    resolver: yupResolver(validationUpdateJob) as Resolver<FormUpdateJob>,
     defaultValues: {
       min_salary: 0,
       max_salary: 0,
@@ -83,10 +83,10 @@ const UpdateJob = () => {
 
   const [updateJob] = useUpdateJobMutation();
 
-  const onSubmit: SubmitHandler<FormUpdateAddJob> = async data => {
+  const onSubmit: SubmitHandler<FormUpdateJob> = async data => {
     const newData = {
       ...data,
-      expiration_date: formatDateDd_MM_yyyy(data.expiration_date),
+      expiration_date: formatDateDd_MM_yyyy(data.expiration_date.toDate()),
       status: 'REJECT',
     };
     try {
@@ -132,6 +132,7 @@ const UpdateJob = () => {
             <Controller
               name="job_description"
               control={control}
+              {...register('job_description')}
               defaultValue=""
               render={({ field }) => (
                 <TextEditor
@@ -149,6 +150,7 @@ const UpdateJob = () => {
             <Controller
               name="requirements"
               control={control}
+              {...register('requirements')}
               defaultValue=""
               render={({ field }) => (
                 <TextEditor
@@ -157,7 +159,6 @@ const UpdateJob = () => {
                   onBlur={field.onBlur}
                   label="Yêu cầu"
                   error={errors.requirements?.message}
-                  {...register('requirements', { required: 'Yêu cầu công việc không được để trông' })}
                   required={true}
                 />
               )}
@@ -167,6 +168,7 @@ const UpdateJob = () => {
             <Controller
               name="benifits"
               control={control}
+              {...register('benifits')}
               defaultValue=""
               render={({ field }) => (
                 <TextEditor
