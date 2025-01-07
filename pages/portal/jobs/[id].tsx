@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
+import { statusUniversityApplyJob } from '@/utils/app/const';
 
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
 import HtmlContentRenderer from '@/components/Portal/common/HtmlContentRenderer';
@@ -92,8 +93,9 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
             address={`${jobDetails?.company?.address?.houseNumber},${jobDetails?.company?.address?.ward.wardName}, ${jobDetails?.company?.address?.district.districtName}, ${jobDetails?.company?.address?.province.provinceName}`}
             logo={jobDetails?.company?.logoUrl}
             currentPage="Chi tiết công việc"
-            buttonText="Ứng tuyển ngay"
+            buttonText={`${statusUniversityApplyJob(data.data.statusUnviersityApply)}`}
             onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
+            className={`${data.data.statusUnviersityApply !== null ? 'pointer-events-none cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">

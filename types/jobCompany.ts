@@ -23,6 +23,7 @@ export interface IJobCompany {
   salaryType: string;
   maxSalary: number;
   minSalary: number;
+  statusUnviersityApply: string | null;
 }
 
 export interface IJobCompanyPortal {

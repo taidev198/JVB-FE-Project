@@ -5,6 +5,8 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import React from 'react';
 import toast from 'react-hot-toast';
+import { statusCompanyApplyWorkshop } from '@/utils/app/const';
+
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
 import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
@@ -22,7 +24,7 @@ interface WorkshopDetailsProps {
 const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { data, isLoading, error } = useGetWorkshopDetailsQuery({ id: Number(id) });
+  const { data, isLoading, error } = useGetWorkshopDetailsQuery({ id: Number(id) }, { refetchOnMountOrArgChange: true });
   const [applyWorkshop] = useCompanyApplyWorkshopMutation();
 
   if (isLoading) {
@@ -75,8 +77,9 @@ const WorkshopDetails: React.FC<WorkshopDetailsProps> = () => {
             address={`${workshopDetails?.address?.houseNumber},${workshopDetails?.address?.ward.wardName}, ${workshopDetails?.address?.district.districtName}, ${workshopDetails?.address?.province.provinceName}`}
             logo={workshopDetails?.university?.logoUrl}
             currentPage="Chi tiết workshop'}"
-            buttonText={`${data.data.isApply ? 'Đã tham gia' : 'Tham gia ngay'}`}
+            buttonText={`${statusCompanyApplyWorkshop(data.data.statusCompanyApply)}`}
             onButtonClick={handleApply}
+            className={`${data.data.statusCompanyApply !== null ? 'pointer-events-none cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">

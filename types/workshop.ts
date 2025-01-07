@@ -20,7 +20,7 @@ export interface IWorkshop {
   agenda: string;
   moderationStatus: string;
   imageWorkshops: ImageWorkshops[];
-  isApply: boolean;
+  statusCompanyApply: string | null;
   address: IAddress;
   university: IUniversity;
   fields: IFields[];
