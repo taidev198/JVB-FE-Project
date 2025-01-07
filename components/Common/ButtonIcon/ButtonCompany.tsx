@@ -1,13 +1,13 @@
 import InterpreterModeIcon from '@mui/icons-material/InterpreterMode';
 import { Tooltip } from '@mui/material';
 import Link from 'next/link';
-import { FC } from 'react';
+import React, { FC } from 'react';
 interface ButtonCompanyApplyProps {
   href: string;
   onClick: () => void;
   title: string;
 }
-const ButtonCompanyApply: FC<ButtonCompanyApplyProps> = ({ href, onClick, title }) => {
+const ButtonCompanyApply: FC<ButtonCompanyApplyProps> = React.memo(({ href, onClick, title }) => {
   return (
     <Tooltip title={title}>
       <Link href={href}>
@@ -17,5 +17,5 @@ const ButtonCompanyApply: FC<ButtonCompanyApplyProps> = ({ href, onClick, title 
       </Link>
     </Tooltip>
   );
-};
+});
 export default ButtonCompanyApply;

@@ -9,7 +9,7 @@ import ImageComponent from '../Common/Image';
 
 // import Container from '../Container';
 import Logo from '../Logo';
-import { showSidebar } from '@/store/slices/global';
+import { BackdropType, setBackdrop, showSidebar } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { useLogout } from '@/hooks';
 // const showToast = () => {
@@ -113,6 +113,11 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
                 <Link href={'/'} className="flex gap-5">
                   Ra portal <HomeOutlined />
                 </Link>
+              </MenuItem>
+              <MenuItem onClick={() => dispatch(setBackdrop(BackdropType.ModalChat))}>
+                <p className="flex gap-5">
+                  Trò chuyện <HomeOutlined />
+                </p>
               </MenuItem>
               <MenuItem onClick={() => logOut()} className="flex gap-5">
                 Đăng xuất

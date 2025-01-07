@@ -9,6 +9,7 @@ export enum BackdropType {
   RefuseConfirmation = 'Refuse_CONFIRMATION',
   LockConfirmation = 'Lock_CONFIRMATION',
   UnlockConfirmation = 'Unlock_CONFIRMATION',
+  ModalChat = 'Modal_CHAT',
 }
 
 export interface State {

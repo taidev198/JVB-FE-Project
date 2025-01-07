@@ -43,6 +43,7 @@ module.exports = {
         'why-us-bg': 'url(/images/ww-img__bg.svg)',
         'feedback-bg': 'url(/images/feedback__bg.png)',
         'breakcrumb-bg': 'url(/images/breadcrumb__bg.png)',
+        'chat-item': 'linear-gradient(72.47deg, #246AA3 22.16%, rgba(42, 120, 183, 0.7) 76.47%)',
       },
       fontFamily: {
         logo: ['Azeret Mono', 'sans-serif'],

@@ -1,13 +1,13 @@
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { Tooltip } from '@mui/material';
 import Link from 'next/link';
-import { FC } from 'react';
+import React, { FC } from 'react';
 interface ButtonSeeProps {
   href: string;
   onClick: () => void;
   target?: boolean;
 }
-const ButtonSee: FC<ButtonSeeProps> = ({ href, onClick, target }) => {
+const ButtonSee: FC<ButtonSeeProps> = React.memo(({ href, onClick, target }) => {
   return (
     <Tooltip title="Xem chi tiết">
       <Link href={href} {...(target ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
@@ -17,5 +17,5 @@ const ButtonSee: FC<ButtonSeeProps> = ({ href, onClick, target }) => {
       </Link>
     </Tooltip>
   );
-};
+});
 export default ButtonSee;
