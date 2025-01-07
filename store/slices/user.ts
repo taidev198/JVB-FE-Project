@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { ReactNode } from 'react';
 import { IAddress } from '@/types/addressesTypes';
 // type UserRoles = {
 //   data: {
@@ -19,6 +20,12 @@ export interface UserState {
   address: IAddress | null;
 }
 
+export interface MenuItem {
+  key: string;
+  icon: JSX.Element;
+  label: ReactNode;
+  children?: MenuItem[];
+}
 /**
  * Default state object with initial values.
  */

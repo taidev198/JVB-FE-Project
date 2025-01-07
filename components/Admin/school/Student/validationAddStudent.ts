@@ -14,7 +14,22 @@ const validationSchemaAddStudent = Yup.object({
     .positive('Năm nhập học phải là số nguyên dương')
     .integer('Năm nhập học phải là số nguyên')
     .min(1000, 'Năm nhập học phải có ít nhất 4 chữ số')
-    .max(9999, 'Năm nhập học không được lớn hơn 9999'),
+    .max(9999, 'Năm nhập học không được lớn hơn 9999')
+    .test('is-less-than-established-year', 'Năm nhập học phải sau năm thành lập trường', function (value) {
+      const establishedDate = this.parent.establishedDate;
+      if (value && establishedDate) {
+        const establishedYear = dayjs(establishedDate).year();
+        return value < establishedYear;
+      }
+      return true;
+    })
+    .test('is-not-future-year', 'Năm nhập học không được là năm hiện tại hoặc tương lai', function (value) {
+      const currentYear = dayjs().year();
+      if (value >= currentYear) {
+        return false;
+      }
+      return true;
+    }),
   phoneNumber: Yup.string()
     .required('Số điện thoại là bắt buộc')
     .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
@@ -31,7 +46,14 @@ const validationSchemaAddStudent = Yup.object({
       value => value === undefined || /^[0-9]+(\.[0-9]{1,2})?$/.test(String(value))
     ),
   dateOfBirth: Yup.mixed<Dayjs>()
-    .test('is-dayjs', 'Invalid date', value => dayjs.isDayjs(value))
+    .test('is-dayjs', 'Ngày sinh không hợp lệ', value => dayjs.isDayjs(value))
+    .test('is-valid-date', 'Ngày sinh không được là ngày hiện tại hoặc ngày trong tương lai', value => {
+      if (value) {
+        const currentDate = dayjs();
+        return value.isBefore(currentDate, 'day');
+      }
+      return false;
+    })
     .required('Ngày sinh là bắt buộc'),
   gender: Yup.string().required('Giới tính là bắt buộc'),
   houseNumber: Yup.string().required('Địa chỉ cụ thể sinh viên là bắt buộc').max(255, 'Địa chỉ cụ thể không được quá 255 kí tự'),
