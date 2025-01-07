@@ -1,4 +1,4 @@
-import { useForm, SubmitHandler, Controller, FormProvider } from 'react-hook-form';
+import { useForm, SubmitHandler, Controller, FormProvider, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
@@ -21,7 +21,7 @@ const RegisterCompanyComponent = () => {
   const router = useRouter();
 
   const methods = useForm<FormDataRegisterSchool>({
-    resolver: yupResolver(registerValidateCompany),
+    resolver: yupResolver(registerValidateCompany) as Resolver<FormDataRegisterSchool>,
     mode: 'onChange',
     defaultValues: {
       wardId: null,

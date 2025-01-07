@@ -1,4 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable */
+/* eslint-disable*/
 import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
 import { ConfigProvider, DatePicker, Form, Input, Pagination } from 'antd';
 import Link from 'next/link';
@@ -95,6 +96,8 @@ const WorkshopsList: React.FC = () => {
 
   const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
+
+  console.log('Check detailedView: ', detailedView);
 
   return (
     <ConfigProvider

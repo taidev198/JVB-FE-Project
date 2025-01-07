@@ -52,6 +52,8 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
 
   const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
 
+  const [text, setText] = useState(`Xin chào, tôi là ${nameUser}. Tôi tìm thấy bạn qua website JobLink. Hợp tác với tôi nhé!`);
+
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
     if (pageSize) {
@@ -114,11 +116,13 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
       }
     }
   }; 
-  const [text, setText] = useState(`Xin chào, tôi là ${nameUser}. Tôi tìm thấy bạn qua website JobLink. Hợp tác với tôi nhé!`);
 
   const handleChange = (e) => {
     setText(e.target.value);
   };
+
+  console.log("Check data detail: ", companyDetails);
+  
 
   return (
     <>

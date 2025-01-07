@@ -2,7 +2,7 @@ import * as Yup from 'yup';
 import Link from 'next/link';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconButton } from '@mui/material';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, SubmitHandler, Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
@@ -40,7 +40,7 @@ const ChangePassword = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataChangePassword>({
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(validationSchema) as Resolver<FormDataChangePassword>,
   });
 
   const [changePassword, { isLoading }] = useChangePasswordMutation();
