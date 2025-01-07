@@ -17,6 +17,7 @@ import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import PaginationComponent from '@/components/Common/Pagination';
+import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
 
 const JobCompany = () => {
   const [idJob, setIdJob] = useState<number>();
@@ -151,6 +152,14 @@ const JobCompany = () => {
                   <td className="px-5 py-4">{item.expirationDate}</td>
                   <td className=" py-4">
                     <div className="flex items-center gap-2">
+                      <ButtonCompanyApply
+                        title={'Danh sách trường học'}
+                        href="/admin/company/school-apply-job"
+                        onClick={() => {
+                          dispatch(setId(item.id));
+                        }}
+                      />
+
                       <ButtonSee href={`/admin/company/jobCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
 
                       <ButtonUpdate href={`/admin/company/jobCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />

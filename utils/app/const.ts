@@ -299,3 +299,14 @@ export function countTimeDifference(startDateStr: string, currentDateStr: string
     return `${days} ngày`;
   }
 }
+
+export const statusStudentApplyJob = (status: string): AccountStatus => {
+  switch (status) {
+    case 'ACCEPT':
+      return { title: 'Phù hợp', color: '#359d65', bg: '#ebf9f1' };
+    case 'PENDING':
+      return { title: 'Đang ứng tuyển', color: '#FFA726', bg: '#fffae5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};

@@ -288,8 +288,8 @@ const JobAdminSchool = () => {
 
       {showBackdrop === BackdropType.DeleteConfirmation && (
         <PopupConfirmAction
-          name="ABC"
-          text="Hủy"
+          name={name}
+          text="Hủy hợp tác"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           onClick={async () => {
