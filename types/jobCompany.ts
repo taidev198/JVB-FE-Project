@@ -3,6 +3,7 @@
 import { IMajor } from './majorType';
 import { ICompany } from './companyType';
 import { IUniversity } from './university';
+import { IStudent } from './studentType';
 import { IFields } from '.';
 
 export interface IJobCompany {
@@ -110,6 +111,22 @@ export interface IJobUniversityApply {
       isPartnership: boolean;
       status: string;
       major: IMajor;
+    }[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
+  };
+}
+
+export interface StudentApplyJobResponse {
+  code: number;
+  message: string;
+  data: {
+    content: {
+      id: number;
+      student: IStudent;
+      status: string;
     }[];
     totalPages: number;
     totalElements: number;
