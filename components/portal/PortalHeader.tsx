@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import { Drawer, Dropdown, Menu, Space } from 'antd';
 import Link from 'next/link';
+import ChatIcon from '@mui/icons-material/Chat';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -398,6 +399,9 @@ const PortalHeader: React.FC = () => {
                         </Dropdown>
                       </div>
                     </div>
+                    <Link href={'/portal/chat'}>
+                      <ChatIcon />
+                    </Link>
                     <Notification />
                   </>
                 )}

@@ -1,4 +1,4 @@
-import { ReactNode, MouseEvent } from 'react';
+import React, { ReactNode, MouseEvent } from 'react';
 import { clsx } from 'clsx';
 import { useDispatch } from 'react-redux';
 import { useAppSelector } from '@/store/hooks';
@@ -10,7 +10,7 @@ interface Props {
   isCenter?: boolean;
 }
 
-export const BackDrop = ({ children, isCenter = false, className = '' }: Props): JSX.Element => {
+export const BackDrop = React.memo(function BackDrop({ children, isCenter = false, className = '' }: Props): JSX.Element {
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const dispatch = useDispatch();
 
@@ -34,4 +34,4 @@ export const BackDrop = ({ children, isCenter = false, className = '' }: Props):
       </div>
     </div>
   );
-};
+});

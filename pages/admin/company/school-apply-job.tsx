@@ -22,6 +22,7 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 
 const SchoolApplyJob = () => {
   const dispatch = useDispatch();
@@ -98,17 +99,17 @@ const SchoolApplyJob = () => {
             <button
               onClick={() => {
                 setStatus('ACCEPT');
-                setPage(1);
+                dispatch(setPage(1));
                 dispatch(setKeyword(''));
               }}
               className={`rounded-lg ${status === 'ACCEPT' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
-              Đã tham gia
+              Đã ứng tuyển
             </button>
 
             <button
               onClick={() => {
                 setStatus('PENDING');
-                setPage(1);
+                dispatch(setPage(1));
                 dispatch(setKeyword(''));
               }}
               className={`rounded-lg ${status === 'PENDING' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
@@ -169,6 +170,12 @@ const SchoolApplyJob = () => {
                     </div>
                     {/* Button */}
                     <div className="flex items-center gap-3">
+                      <ButtonSee
+                        onClick={() => {
+                          setJobId(apply?.job.id);
+                        }}
+                        href="#"
+                      />
                       {status === 'PENDING' && (
                         <>
                           <ButtonAccept

@@ -285,10 +285,10 @@ export const adminSystemApi = createApi({
       }),
 
       removePartnerships: builder.mutation({
-        query: ({ accountLoginId, toDoAccountId, doBy }) => ({
+        query: ({ accountLoginId, toDoAccountId, doBy, message }) => ({
           url: `/partnership/removeConnect`,
           method: 'POST',
-          body: { accountLoginId, toDoAccountId, doBy },
+          body: { accountLoginId, toDoAccountId, doBy, message },
         }),
         invalidatesTags: () => [{ type: 'Partnerships' }],
       }),
