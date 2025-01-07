@@ -204,7 +204,7 @@ export const statusTextWorkShopCompany = (status: string): AccountStatus => {
     case 'REJECT':
       return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
     case 'CANCEL':
-      return { title: 'Hủy', color: '#d32f2f', bg: '#FF9999' };
+      return { title: 'Hủy chờ', color: '#d32f2f', bg: '#FF9999' };
     default:
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }

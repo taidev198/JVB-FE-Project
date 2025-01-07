@@ -150,15 +150,17 @@ const SchoolApplyJob = () => {
                       />
                       <div className="ml-0 font-semibold sm:ml-4">
                         <h4 className="mb-[6px] font-semibold">{apply.university.universityName}</h4>
-                        <div className="flex items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
-                          <span>Mã trường học: {apply.university.universityCode}</span>
-                          <span>
+                        <div className="items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px] md:flex">
+                          <p className="ml-[6px] md:ml-0">Mã trường học: {apply.university.universityCode}</p>
+                          <div className="flex">
                             <LocationOnIcon fontSize="small" />
-                            {apply.university?.address?.district.districtName}, {apply.university?.address?.province.provinceName}
-                          </span>
-                          <span>Loại trường: {typeUniversityTitle(apply?.university.universityType).title}</span>
+                            <p className="mt-[1px]">
+                              `{apply.university?.address?.district.districtName}, {apply.university?.address?.province.provinceName}`
+                            </p>
+                          </div>
+                          <p className="ml-[6px] md:ml-0">Loại trường: {typeUniversityTitle(apply?.university.universityType).title}</p>
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] text-[#171717df] sm:gap-3 sm:text-[12px]">
+                        <div className="ml-[6px] flex items-center gap-2 text-[10px] text-[#171717df] sm:gap-3 sm:text-[12px] md:ml-0">
                           <span>Apply: {apply.job.jobTitle}</span>
                         </div>
                       </div>

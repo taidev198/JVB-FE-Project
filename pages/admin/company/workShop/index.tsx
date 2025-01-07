@@ -96,7 +96,7 @@ const WorkShopCompany = () => {
                 { value: '', label: 'Tất cả' },
                 { value: 'PENDING', label: 'Chờ duyệt' },
                 { value: 'ACCEPT', label: 'Đã duyệt' },
-                { value: 'CANCEL', label: 'Hủy' },
+                { value: 'CANCEL', label: 'Hủy chờ' },
                 { value: 'REJECT', label: 'Từ chối' },
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}

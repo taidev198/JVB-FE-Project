@@ -7,11 +7,11 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 
-import BreadCrumbHeaderDetail from '@/components/Portal/common/BreadCrumbHeaderDetail';
-import HtmlContentRenderer from '@/components/Portal/common/HtmlContentRenderer';
-import LinkCard from '@/components/Portal/common/LinkCard';
-import GoogleMap from '@/components/Portal/common/MapCard';
-import PortalLoadingLarge from '@/components/Portal/common/PortalLoadingLarge';
+import BreadCrumbHeaderDetail from '@/components/portal/common/BreadCrumbHeaderDetail';
+import HtmlContentRenderer from '@/components/portal/common/HtmlContentRenderer';
+import LinkCard from '@/components/portal/common/LinkCard';
+import GoogleMap from '@/components/portal/common/MapCard';
+import PortalLoadingLarge from '@/components/portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 import { useCompanyApplyWorkshopMutation, useGetWorkshopDetailsQuery } from '@/services/portalHomeApi';
 import { formatWorkshopStatus } from '@/utils/app/format';

@@ -3,8 +3,8 @@
 import Head from 'next/head';
 import React from 'react';
 
-import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
-import JobsList from '@/components/Portal/JobsList/JobsList';
+import BreadCrumbHeader from '@/components/portal/common/BreadCrumbHeader';
+import JobsList from '@/components/portal/JobsList/JobsList';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface JobListProps {

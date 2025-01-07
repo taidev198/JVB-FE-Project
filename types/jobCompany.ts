@@ -38,6 +38,7 @@ export interface IJobCompanyPortal {
   memberOfCandidate: number;
   company: ICompany;
   fields: IFields[];
+  createAt: string;
   status: string;
   salaryType: string;
   maxSalary: number;

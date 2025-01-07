@@ -167,90 +167,90 @@ const JobAdminSchool = () => {
               {partnerships?.data.content.map(partner => (
                 <div className="rounded-lg border border-solid px-4 py-5" key={partner?.university.id}>
                   <div className="flex w-full flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center justify-between">
+                    <div className="flex w-full items-center lg:w-3/4">
                       <ImageComponent
                         src={partner.university?.logoUrl}
                         alt={partner.university.universityName}
-                        width={80}
-                        height={80}
-                        className="rounded-full border border-solid object-contain"
-                        pro={partner.partnershipStatus === 'ACCEPT' ? true : false}
+                        className="h-10 w-10 rounded-full border border-solid object-contain md:h-20 md:w-20"
+                        pro={partner.partnershipStatus === 'ACCEPT'}
                       />
                       <div className="ml-0 font-semibold sm:ml-4">
                         <h4 className="mb-[6px] font-semibold">{partner.university.universityName}</h4>
-                        <div className="flex items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
-                          <span>Mã trường học: {partner.university.universityCode}</span>
-                          <span>
+                        <div className="items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px] md:flex">
+                          <p className="ml-[6px] md:ml-0">Mã trường học: {partner.university.universityCode}</p>
+                          <div className="flex">
                             <LocationOnIcon fontSize="small" />
-                            {partner.university?.address?.district.districtName}, {partner.university?.address?.province.provinceName}
-                          </span>
-                          <span>Loại trường: {typeUniversityTitle(partner?.university.universityType).title}</span>
+                            <p className="mt-[1px]">
+                              `{partner.university?.address?.district.districtName}, {partner.university?.address?.province.provinceName}`
+                            </p>
+                          </div>
+                          <p className="ml-[6px] md:ml-0">Loại trường: {typeUniversityTitle(partner?.university.universityType).title}</p>
                         </div>
                       </div>
                     </div>
-                    <div>
-                      <Chip
-                        label={StatusPartnership(partner.partnershipStatus)?.title}
-                        sx={{
-                          backgroundColor: StatusPartnership(partner.partnershipStatus)?.bg,
-                          color: StatusPartnership(partner.partnershipStatus)?.color,
-                        }}
-                      />
-                    </div>
-                    {/* Button */}
-                    <div className="flex items-center gap-3">
-                      <ButtonSee
-                        onClick={() => {
-                          setSelectId(partner.university.id);
-                        }}
-                        href={`/portal/schools/${partner.university.id}`}
-                      />
-                      {partner.partnershipStatus === 'CANCEL' ? null : partner.partnershipStatus === 'ACCEPT' ? (
-                        <RemovePerson
+                    <Chip
+                      label={StatusPartnership(partner.partnershipStatus)?.title}
+                      sx={{
+                        backgroundColor: StatusPartnership(partner.partnershipStatus)?.bg,
+                        color: StatusPartnership(partner.partnershipStatus)?.color,
+                      }}
+                    />
+                    <div className="flex gap-3">
+                      {/* Button */}
+                      <div className="flex items-center gap-3">
+                        <ButtonSee
                           onClick={() => {
-                            dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                            dispatch(setName(partner.university.universityName));
                             setSelectId(partner.university.id);
                           }}
+                          href={`/portal/schools/${partner.university.id}`}
                         />
-                      ) : (
-                        <>
-                          {partnershipStatus !== 'request' ? (
-                            <ButtonAddPerson
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.ApproveConfirmation));
-                                dispatch(setName(partner.university.universityName));
-                                setSelectId(partner.university.id);
-                              }}
-                            />
-                          ) : (
-                            ''
-                          )}
-                          {partnershipStatus === 'friend' && (
-                            <RemovePerson
-                              onClick={() => {
-                                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                                dispatch(setName(partner.university.universityName));
-                                setSelectId(partner.university.id);
-                              }}
-                            />
-                          )}
-
-                          {partnershipStatus === 'request' && (
-                            <Tooltip title="Hủy yêu cầu ">
-                              <div
-                                className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
+                        {partner.partnershipStatus === 'CANCEL' ? null : partner.partnershipStatus === 'ACCEPT' ? (
+                          <RemovePerson
+                            onClick={() => {
+                              dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                              dispatch(setName(partner.university.universityName));
+                              setSelectId(partner.university.id);
+                            }}
+                          />
+                        ) : (
+                          <>
+                            {partnershipStatus !== 'request' ? (
+                              <ButtonAddPerson
                                 onClick={() => {
-                                  dispatch(setBackdrop(BackdropType.RefuseConfirmation));
+                                  dispatch(setBackdrop(BackdropType.ApproveConfirmation));
                                   dispatch(setName(partner.university.universityName));
                                   setSelectId(partner.university.id);
-                                }}>
-                                <CancelIcon color="warning" fontSize="small" />
-                              </div>
-                            </Tooltip>
-                          )}
-                        </>
-                      )}
+                                }}
+                              />
+                            ) : (
+                              ''
+                            )}
+                            {partnershipStatus === 'friend' && (
+                              <RemovePerson
+                                onClick={() => {
+                                  dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                                  dispatch(setName(partner.university.universityName));
+                                  setSelectId(partner.university.id);
+                                }}
+                              />
+                            )}
+
+                            {partnershipStatus === 'request' && (
+                              <Tooltip title="Hủy yêu cầu ">
+                                <div
+                                  className="cursor-pointer rounded-lg bg-[#ffa4101a] px-2 py-[6px] transition-all hover:bg-[#ffa31048]"
+                                  onClick={() => {
+                                    dispatch(setBackdrop(BackdropType.RefuseConfirmation));
+                                    dispatch(setName(partner.university.universityName));
+                                    setSelectId(partner.university.id);
+                                  }}>
+                                  <CancelIcon color="warning" fontSize="small" />
+                                </div>
+                              </Tooltip>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
