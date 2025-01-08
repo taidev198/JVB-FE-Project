@@ -102,6 +102,12 @@ export interface IJobByCompany {
   company: ICompany;
 }
 
+export interface IJobsData {
+  data: {
+    content: IJobByCompany[];
+  };
+}
+
 export interface IJobUniversityApply {
   code: number;
   message: string;
