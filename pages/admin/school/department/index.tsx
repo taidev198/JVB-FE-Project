@@ -123,7 +123,7 @@ const Department = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white px-24 text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedDepartment.length > 0 && departments?.data.content.length > 0}
@@ -132,12 +132,14 @@ const Department = () => {
                   size="small"
                 />
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">STT</p>
+
+              <th className="p-3 py-4 text-left sm:px-3">
+                <p className=" min-w-max">STT</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Mã khoa</p>
+                <p className="-w-max">Mã khoa</p>
               </th>
+
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Tên khoa</p>
               </th>
@@ -156,7 +158,7 @@ const Department = () => {
             {departments?.data?.content && departments.data.content.length > 0 ? (
               departments.data.content.map((item, index) => (
                 <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
                     <Checkbox color="primary" checked={selectedDepartment.includes(item.id)} onChange={() => handleSelectDepartment(item.id)} size="small" />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">

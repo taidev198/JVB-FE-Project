@@ -138,7 +138,7 @@ const BusinessManagement = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedBusiness.length > 0 && business?.data.content.length > 0}
@@ -147,7 +147,7 @@ const BusinessManagement = () => {
                   size="small"
                 />
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 py-4 text-left sm:px-3">
                 <p className="min-w-max">STT</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -173,7 +173,7 @@ const BusinessManagement = () => {
             {business?.data?.content && business.data.content.length > 0 ? (
               business.data.content.map((item, index) => (
                 <tr key={item.id} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
                     <Checkbox color="primary" checked={selectedBusiness.includes(item.id)} onChange={() => handleSelectBusiness(item.id)} size="small" />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
