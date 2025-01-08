@@ -168,7 +168,31 @@ const AddWorkshop = () => {
             </div>
           </div>
         </div>
-
+        <div className="mt-4 gap-4 rounded-t-lg bg-primary-white p-5">
+          <p className="mb-1 block text-sm font-semibold text-gray-700">Địa chỉ</p>
+          {/* Chọn tỉnh */}
+          <FormProvider {...methods}>
+            <Address
+              control={methods.control}
+              districtName="districtId"
+              provinceName="provinceId"
+              wardName="wardId"
+              errorDistrict={errors.districtId?.message}
+              errorProvince={errors.provinceId?.message}
+              errorWard={errors.wardId?.message}
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <Input
+                type="text"
+                name="houseNumber"
+                label="Số nhà, đường"
+                placeholder="Nhập số nhà, đường"
+                control={control}
+                error={errors.houseNumber?.message}
+                required={true}
+              />
+            </Address>
+          </FormProvider>
+        </div>
         {/* Block 2 */}
         <div className="mt-4 grid grid-cols-1 gap-4 rounded-lg bg-primary-white p-5 ">
           {/* Image */}
@@ -215,31 +239,7 @@ const AddWorkshop = () => {
         </div>
 
         {/* Block 4 */}
-        <div className="mt-4 gap-4 rounded-t-lg bg-primary-white p-5">
-          <p className="mb-1 block text-sm font-semibold text-gray-700">Địa chỉ</p>
-          {/* Chọn tỉnh */}
-          <FormProvider {...methods}>
-            <Address
-              control={methods.control}
-              districtName="districtId"
-              provinceName="provinceId"
-              wardName="wardId"
-              errorDistrict={errors.districtId?.message}
-              errorProvince={errors.provinceId?.message}
-              errorWard={errors.wardId?.message}
-              className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <Input
-                type="text"
-                name="houseNumber"
-                label="Số nhà, đường"
-                placeholder="Nhập số nhà, đường"
-                control={control}
-                error={errors.houseNumber?.message}
-                required={true}
-              />
-            </Address>
-          </FormProvider>
-        </div>
+
         <div className="flex justify-end bg-primary-white p-5">
           <Button text="Thêm mới" type="submit" />
         </div>

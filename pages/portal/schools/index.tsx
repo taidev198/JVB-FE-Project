@@ -1,8 +1,7 @@
 import Head from 'next/head';
 import React from 'react';
-
-import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
-import SchoolsList from '@/components/Portal/SchoolsList/SchoolsList';
+import BreadCrumbHeader from '@/components/portal/common/BreadCrumbHeader';
+import SchoolsList from '@/components/portal/SchoolsList/SchoolsList';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface SchoolsListProps {

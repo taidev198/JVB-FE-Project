@@ -17,9 +17,13 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import ImageComponent from '../Common/Image';
 import Notification from '../Common/Notification';
-import { getUserState, logOut } from '@/store/slices/user';
+import { getUserState, logOut, MenuItem } from '@/store/slices/user';
 import { useAppSelector } from '@/store/hooks';
 import { formatRoleAccount } from '@/utils/app/format';
+
+type ItemType =
+  | { label: React.ReactNode; key: string } // Mục có label và key
+  | { type: 'divider'; key: string }; // Mục là divider với key
 
 const PortalHeader: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
@@ -48,7 +52,7 @@ const PortalHeader: React.FC = () => {
     router.push('/');
   };
 
-  const items = [
+  const items: ItemType[] = [
     {
       label: (
         <a className="flex items-center justify-between">
@@ -80,6 +84,7 @@ const PortalHeader: React.FC = () => {
     },
     {
       type: 'divider',
+      key: 'divider',
     },
     {
       label: (
@@ -88,6 +93,7 @@ const PortalHeader: React.FC = () => {
           <LogoutOutlined />
         </a>
       ),
+      key: 'logout',
     },
   ];
 
@@ -119,7 +125,7 @@ const PortalHeader: React.FC = () => {
   //       { key: 'register', label: <Link href="/auth/Register">Đăng ký</Link> },
   //     ];
 
-  const getMenuItems = (roleAccount: string, token: boolean, handleLogout: () => void) => {
+  const getMenuItems = (roleAccount: string, token: string, handleLogout: () => void) => {
     const baseItems = [
       {
         key: '1',
@@ -428,7 +434,7 @@ const PortalHeader: React.FC = () => {
                           />
                         </div>
                         <div className="user-info flex flex-col">
-                          <span className="user-name text-primary-black">{user?.universityName || user?.companyName}</span>
+                          <span className="user-name text-primary-black">{user?.name || user?.name}</span>
                           <span className="user-role text-primary-gray">{formatRoleAccount(role)}</span>
                         </div>
                       </div>
@@ -441,7 +447,7 @@ const PortalHeader: React.FC = () => {
                   </Drawer>
 
                   {/* Menu dạng sidebar cho màn hình lớn */}
-                  <div style={{ width: 256, display: 'none', lgDisplay: 'block' }}>
+                  <div style={{ width: 256, display: 'none' }} className="hidden lg:block">
                     <Menu defaultSelectedKeys={['1']} defaultOpenKeys={['sub1']} mode="inline" items={menuItems} />
                   </div>
                 </div>

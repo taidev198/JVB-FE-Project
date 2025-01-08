@@ -90,10 +90,8 @@ const UpdateWorkshop = () => {
 
     formData.append('workshopTitle', data.workshopTitle);
     formData.append('workshopDescription', data.workshopDescription);
-    // Chuyển đổi dayjs thành chuỗi trước khi append vào formData
     formData.append('startTime', formatDateWorkshop(data.startTime));
     formData.append('endTime', formatDateWorkshop(data.endTime));
-
     formData.append('estimateCompanyParticipants', String(data.estimateCompanyParticipants));
     formData.append('agenda', data.agenda);
     formData.append('addressDetail', data.houseNumber);
