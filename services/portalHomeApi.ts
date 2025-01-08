@@ -6,7 +6,7 @@ import { ProvinceResponse } from '@/types/addressesTypes';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
 import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
 import { FieldsResponse } from '@/types/fields';
-import { IJobAllResponsePortal, IJobByCompany, IJobDetailResponse } from '@/types/jobCompany';
+import { IJobAllResponsePortal, IJobDetailResponse, IJobsData } from '@/types/jobCompany';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 
@@ -52,7 +52,7 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch specific jobs company
-    getJobsCompany: builder.query<IJobByCompany, { companyId: number; page: number; size: number }>({
+    getJobsCompany: builder.query<IJobsData, { companyId: number; page: number; size: number }>({
       query: ({ companyId, page, size }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size) });
         return `/portal/jobs/${companyId}?${params.toString()}`;
