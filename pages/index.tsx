@@ -1,16 +1,16 @@
 // pages/index.tsx
 import Head from 'next/head';
 import React from 'react';
-import Banner from '../components/Portal/Banner';
-import OurProcess from '../components/Portal/OurProcess';
+import Banner from '../components/portal/Banner';
+import OurProcess from '../components/portal/OurProcess';
 
-import Brand from '@/components/Portal/Brand';
-import FeedBack from '@/components/Portal/FeedBack';
-import Job from '@/components/Portal/Job';
-import Majors from '@/components/Portal/Majors';
-import Statistic from '@/components/Portal/Statistic';
-import WhyWe from '@/components/Portal/WhyWe';
-import Workshop from '@/components/Portal/Workshop';
+import Brand from '@/components/portal/Brand';
+import FeedBack from '@/components/portal/FeedBack';
+import Job from '@/components/portal/Job';
+import Majors from '@/components/portal/Majors';
+import Statistic from '@/components/portal/Statistic';
+import WhyWe from '@/components/portal/WhyWe';
+import Workshop from '@/components/portal/Workshop';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 import iconLogo from '@/assets/icons/LogoJobLink.svg';
 

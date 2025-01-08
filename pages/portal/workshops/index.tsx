@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import React from 'react';
 
-import BreadCrumbHeader from '@/components/Portal/common/BreadCrumbHeader';
-import WorkshopsList from '@/components/Portal/WorkshopsList/WorkshopsList';
+import BreadCrumbHeader from '@/components/portal/common/BreadCrumbHeader';
+import WorkshopsList from '@/components/portal/WorkshopsList/WorkshopsList';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 
 interface WorkshopsListProp {

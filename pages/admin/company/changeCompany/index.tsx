@@ -74,7 +74,7 @@ const ChangePassword = () => {
         </Link>
         Trở về
       </div>
-      <div className="mx-auto w-[35%] rounded-lg border border-solid border-[#ccc] p-8">
+      <div className="mx-auto  w-[35%] rounded-lg border border-solid border-[#ccc] p-8">
         <h1 className="mb-12 mt-1 text-center text-2xl font-bold">Đổi mật khẩu</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col gap-3">

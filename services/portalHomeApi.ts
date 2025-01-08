@@ -4,9 +4,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ProvinceResponse } from '@/types/addressesTypes';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
-import { FieldsResponsePortal, IFieldsPortal } from '@/types/fieldPortalHomeTypes';
+import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
 import { FieldsResponse } from '@/types/fields';
-import { IJobAllResponsePortal, IJobByCompanyResponse, IJobDetailResponse } from '@/types/jobCompany';
+import { IJobAllResponsePortal, IJobByCompany, IJobDetailResponse } from '@/types/jobCompany';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 
@@ -52,7 +52,7 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch specific jobs company
-    getJobsCompany: builder.query<IJobByCompanyResponse, { companyId: number; page: number; size: number }>({
+    getJobsCompany: builder.query<IJobByCompany, { companyId: number; page: number; size: number }>({
       query: ({ companyId, page, size }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size) });
         return `/portal/jobs/${companyId}?${params.toString()}`;
