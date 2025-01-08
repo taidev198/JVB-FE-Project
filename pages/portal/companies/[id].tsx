@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // pages/portal/companies/[id].tsx
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert, Select } from 'antd';
@@ -7,6 +8,7 @@ import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import React, { useEffect, useState } from 'react';
+
 import ImageComponent from '@/components/Common/Image';
 import BreadCrumbHeaderDetail from '@/components/portal/common/BreadCrumbHeaderDetail';
 import CustomPagination from '@/components/portal/common/CustomPagination';
@@ -64,12 +66,11 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
     if (jobsData?.data.content) {
       const startIndex = (currentPage - 1) * pageSize;
       const endIndex = startIndex + pageSize;
-      setPaginatedJobs(jobsData.data.content.slice(startIndex, endIndex));
+      setPaginatedJobs(jobsData?.data.content.slice(startIndex, endIndex));
     } else {
       setPaginatedJobs([]);
     }
   }, [jobsData, currentPage, pageSize, dispatch, sendRequestsLoading]);
-
   if (isLoading) {
     return (
       <PortalLayout type="company-list">
