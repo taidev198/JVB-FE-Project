@@ -15,6 +15,8 @@ import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 
 const Department = () => {
   const dispatch = useAppDispatch();
@@ -132,12 +134,17 @@ const Department = () => {
                   size="small"
                 />
               </th>
-
-              <th className="p-3 py-4 text-left sm:px-3">
-                <p className=" min-w-max">STT</p>
+              <th
+                className="flex p-3 text-left sm:px-5
+              sm:py-4">
+                <p className="min-w-max py-[6px]">STT</p>
+                <p className="ml-2 flex md:flex-nowrap ">
+                  <ButtonArrow />
+                  <ButtonUp />
+                </p>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="-w-max">Mã khoa</p>
+              <th className=" p-3 text-left sm:px-5 sm:py-4">
+                <p className="min-w-max">Mã khoa</p>
               </th>
 
               <th className="p-3 text-left sm:px-5 sm:py-4">

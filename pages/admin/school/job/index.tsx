@@ -29,7 +29,6 @@ const Partnerships = () => {
   const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const [, setSelectId] = useState<number | null>(null);
-
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {

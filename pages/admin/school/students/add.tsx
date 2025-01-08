@@ -8,6 +8,7 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
+import dayjs from 'dayjs';
 import { Button } from '@/components/Common/Button';
 import Input from '@/components/Common/Input';
 import ImageUploaderOne from '@/components/Common/ImageUploaderOne';
@@ -32,7 +33,7 @@ interface FormDataAddStudent {
   yearOfEnrollment: number;
   houseNumber: string;
   gpa: number;
-  dateOfBirth: Date;
+  dateOfBirth: dayjs.Dayjs;
   studentStatus: string;
   majorId: number;
   provinceId: number;
@@ -78,15 +79,14 @@ const AddStudent = () => {
         wardId: data.wardId,
       },
       gpa: data.gpa,
-      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth),
+      dateOfBirth: formatDateDd_MM_yyyy(data.dateOfBirth.toDate()),
       studentStatus: data.studentStatus,
       phoneNumber: data.phoneNumber,
       majorId: data.majorId,
     };
 
-    // Chuyển đổi đối tượng studentRequest thành chuỗi JSON và append vào FormData
     formData.append('studentRequest', new Blob([JSON.stringify(studentRequest)], { type: 'application/json' }));
-    // Append file vào FormData
+
     formData.append('file', image as File);
     try {
       await addStudent(formData).unwrap();

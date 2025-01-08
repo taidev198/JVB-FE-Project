@@ -80,7 +80,7 @@ const Banner = () => {
                   </div>
                   <button
                     type="submit"
-                    className="mp_transition_4 rts__btn mp_fill_button job__search flex h-[60px] items-center justify-center gap-2 gap-2 rounded-[10px] p-4 text-lg xl:min-w-[180px]"
+                    className="mp_transition_4 rts__btn mp_fill_button job__search flex h-[60px] items-center justify-center gap-2 rounded-[10px] p-4 text-lg xl:min-w-[180px]"
                     aria-label="Search">
                     <i className="fa-solid fa-magnifying-glass" />
                     <span> Tìm việc ngày</span>

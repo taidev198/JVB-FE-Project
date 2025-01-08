@@ -7,6 +7,7 @@ export interface IBusiness {
   majorCode: string;
   creditRequirement: number;
   majorDescription: string;
+  numberOfStudents: number;
   faculty: IFaculty;
   university: University;
   majorFields: IFields[];
@@ -27,8 +28,6 @@ export interface ApiResponseBusiness {
 export interface ApiResponseDetailBusiness {
   code: number;
   message: string;
-  data: {
-    id: number;
-    majorName: string;
-  }[];
+
+  data: IBusiness;
 }

@@ -168,39 +168,38 @@ const JobAdminSchool = () => {
             <div className="flex flex-col flex-wrap justify-start gap-x-3 gap-y-4">
               {partnerships?.data.content.map(partner => (
                 <div className="rounded-lg border border-solid px-4 py-5" key={partner.company.id}>
-                  <div className="flex w-full flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center justify-between">
-                      <ImageComponent
-                        src={partner.company.logoUrl}
-                        alt={partner.company?.companyName}
-                        width={80}
-                        height={80}
-                        className="rounded-full border border-solid object-contain"
-                        pro={partner.partnershipStatus === 'ACCEPT' ? true : false}
-                      />
-                      <div className="ml-0 font-semibold sm:ml-4">
+                  <div className="flex w-full flex-wrap items-center justify-between gap-3 md:flex-nowrap">
+                    <div className="flex w-full  items-center md:w-3/5 ">
+                      <div className="flex h-[60px] w-[60px] flex-shrink-0 md:h-[100px] md:w-[100px]">
+                        <ImageComponent
+                          src={partner.company.logoUrl}
+                          alt={partner.company?.companyName}
+                          className="h-10 w-10 flex-shrink-0 rounded-full border border-solid object-contain md:h-20 md:w-20"
+                          pro={partner.partnershipStatus === 'ACCEPT' ? true : false}
+                        />
+                      </div>
+                      <div className="ml-0 font-semibold sm:ml-4 ">
                         <h4 className="mb-[6px] font-semibold">{partner.company.companyName}</h4>
-                        <div className="flex items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
-                          <span>Mã công ty: {partner.company.companyCode}</span>
-                          <span>
+                        <div className="flex-wrap items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px] md:flex ">
+                          <p className="ml-[6px] whitespace-nowrap md:ml-0">Mã công ty: {partner.company.companyCode}</p>
+                          <p className="whitespace-nowrap">
                             <LocationOnIcon fontSize="small" />
                             {partner.company.address?.district.districtName}, {partner.company.address?.province.provinceName}
-                          </span>
-                          <span>Mã số thuế: {partner.company.taxCode}</span>
+                          </p>
+                          <p className="ml-[6px] whitespace-nowrap">Mã số thuế: {partner.company.taxCode}</p>
                         </div>
                       </div>
                     </div>
-                    <div>
-                      <Chip
-                        label={StatusPartnership(partner.partnershipStatus)?.title}
-                        sx={{
-                          backgroundColor: StatusPartnership(partner.partnershipStatus)?.bg,
-                          color: StatusPartnership(partner.partnershipStatus)?.color,
-                        }}
-                      />
-                    </div>
-                    <div>
-                      <span>Ngày hợp tác:{partner.startDate}</span>
+                    <Chip
+                      label={StatusPartnership(partner.partnershipStatus)?.title}
+                      sx={{
+                        backgroundColor: StatusPartnership(partner.partnershipStatus)?.bg,
+                        color: StatusPartnership(partner.partnershipStatus)?.color,
+                      }}
+                    />
+                    <div className="flex whitespace-nowrap  text-[14px] md:flex-wrap ">
+                      <p>Ngày hợp tác</p>
+                      <p> {partner.startDate}</p>
                     </div>
                     {/* Button */}
                     <div className="flex items-center gap-3">
