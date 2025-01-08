@@ -23,11 +23,13 @@ import { StatusPartnership } from '@/utils/app/const';
 import PaginationComponent from '@/components/Common/Pagination';
 import RemovePerson from '@/components/Common/ButtonIcon/RemovePerson';
 import ButtonAddPerson from '@/components/Common/ButtonIcon/AddPerson';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const JobAdminSchool = () => {
   const dispatch = useDispatch();
   const [partnershipStatus, setPartnershipStatus] = useState<string>('friend');
   const [selectId, setSelectId] = useState<number | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('Rất tiếc tôi nhận thấy chúng ta không hợp nhau.');
   const { page, size, keyword } = useAppSelector(state => state.filter);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
@@ -81,11 +83,11 @@ const JobAdminSchool = () => {
             toast.success(response.message);
             break;
           }
-          case BackdropType.DeleteConfirmation: {
-            const response = await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
-            toast.success(response.message);
-            break;
-          }
+          // case BackdropType.DeleteConfirmation: {
+          //   const response = await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
+          //   toast.success(response.message);
+          //   break;
+          // }
           default:
             throw new Error('Invalid action type');
         }
@@ -269,13 +271,12 @@ const JobAdminSchool = () => {
         size={size}
         totalItem={partnerships?.data.totalElements}
       />
-      {showBackdrop && (
+      {(showBackdrop === BackdropType.ApproveConfirmation || showBackdrop === BackdropType.RefuseConfirmation) && (
         <BackDrop isCenter>
           <div className="max-w-[400px] rounded-md p-6">
             <h3 className="font-bold">
               {showBackdrop === BackdropType.ApproveConfirmation && `Đồng ý hợp tác ${name}`}
               {showBackdrop === BackdropType.RefuseConfirmation && `Từ chối hợp tác ${name}`}
-              {showBackdrop === BackdropType.DeleteConfirmation && `Hủy hợp tác ${name}`}
             </h3>
             <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
             <div className="mt-9 flex items-center gap-5">
@@ -284,6 +285,31 @@ const JobAdminSchool = () => {
             </div>
           </div>
         </BackDrop>
+      )}
+
+      {showBackdrop === BackdropType.DeleteConfirmation && (
+        <PopupConfirmAction
+          name="ABC"
+          text="Hủy"
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          onClick={async () => {
+            try {
+              const response = await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy, message: searchTerm }).unwrap();
+              toast.success(response.message);
+            } catch (error) {
+              if (isFetchBaseQueryError(error)) {
+                const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
+                toast.error(errMsg);
+              } else if (isErrorWithMessage(error)) {
+                toast.error(error.message);
+              }
+            } finally {
+              dispatch(setBackdrop(null));
+            }
+          }}
+          reason={true}
+        />
       )}
     </>
   );

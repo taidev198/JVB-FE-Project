@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { persistor, RootState } from '@/store/store';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IProfileCompanyRespone } from '@/types/profileCompany';
-import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply } from '@/types/jobCompany';
+import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply, StudentApplyJobResponse } from '@/types/jobCompany';
 import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 import { logOut } from '@/store/slices/user';
@@ -33,7 +33,7 @@ const baseQueryWithForceLogout = async (args, api, extraOptions) => {
 export const adminCompanyApi = createApi({
   reducerPath: 'adminCompanyApi',
   baseQuery: baseQueryWithForceLogout,
-  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply'],
+  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply', 'studentsApply'],
   endpoints: builder => {
     return {
       getAllWorShopsUniversity: builder.query<void, void>({
@@ -216,12 +216,14 @@ export const adminCompanyApi = createApi({
           size: number | null;
           keyword: string;
           companyId: number | undefined;
+          jobId: number;
           status: string;
         }
       >({
-        query: ({ page, size, keyword, companyId, status }) => {
+        query: ({ page, size, keyword, companyId, status, jobId }) => {
           let queryParams = new URLSearchParams();
           if (companyId) queryParams.append('companyId', String(companyId));
+          if (jobId) queryParams.append('jobId', String(jobId));
           if (keyword) queryParams.append('keyword', keyword);
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
@@ -229,6 +231,37 @@ export const adminCompanyApi = createApi({
           return `/company/applies?${queryParams.toString()}`;
         },
         providesTags: ['UniversityApply'],
+      }),
+
+      //Get all student apply
+      getAllStudentApplyJob: builder.query<
+        StudentApplyJobResponse,
+        {
+          page: number;
+          size: number;
+          jorId: number;
+          universityId: number;
+        }
+      >({
+        query: ({ page, size, jorId, universityId }) => {
+          let queryParams = new URLSearchParams();
+          if (universityId) queryParams.append('universityId', String(universityId));
+          if (jorId) queryParams.append('jorId', String(jorId));
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          return `/company/get-student-apply?${queryParams.toString()}`;
+        },
+        providesTags: ['studentsApply'],
+      }),
+
+      // Approve Student tJob
+      approveStudentJob: builder.mutation({
+        query: ({ ids }) => ({
+          url: `/company/approve-students-apply`,
+          method: 'PUT',
+          body: { ids },
+        }),
+        invalidatesTags: (result, error, { ids }) => [{ type: 'studentsApply', ids }, { type: 'studentsApply' }],
       }),
 
       acceptJobsForUniversity: builder.mutation({
@@ -283,4 +316,6 @@ export const {
   useAcceptJobsForUniversityMutation,
   useCancelJobsForUniversityMutation,
   useRemoveJobsForUniversityMutation,
+  useGetAllStudentApplyJobQuery,
+  useApproveStudentJobMutation,
 } = adminCompanyApi;

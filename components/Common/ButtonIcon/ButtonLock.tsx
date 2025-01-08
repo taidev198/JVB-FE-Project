@@ -1,7 +1,11 @@
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { Tooltip } from '@mui/material';
-
-const ButtonLock = ({ onClick }) => {
+import React from 'react';
+interface ButtonLockProps {
+  onClick: () => void;
+  className?: string;
+}
+const ButtonLock: React.FC<ButtonLockProps> = React.memo(({ onClick }) => {
   return (
     <Tooltip title="Khóa">
       <div className="cursor-pointer rounded-lg bg-[#a70a291a] px-2 py-[6px] transition-all hover:bg-[#a70a2934]" onClick={onClick}>
@@ -9,5 +13,5 @@ const ButtonLock = ({ onClick }) => {
       </div>
     </Tooltip>
   );
-};
+});
 export default ButtonLock;

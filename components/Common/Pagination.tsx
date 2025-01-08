@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { Pagination } from '@mui/material';
 import { Select } from 'antd';
 import { useDispatch } from 'react-redux';
@@ -12,7 +12,7 @@ interface PaginationComponentProps {
   totalItem: number;
 }
 
-const PaginationComponent: FC<PaginationComponentProps> = ({ count, page, onPageChange, size, totalItem }) => {
+const PaginationComponent: FC<PaginationComponentProps> = React.memo(({ count, page, onPageChange, size, totalItem }) => {
   const dispatch = useDispatch();
   const onSizeChange = value => {
     dispatch(setPageSize(value));
@@ -46,5 +46,5 @@ const PaginationComponent: FC<PaginationComponentProps> = ({ count, page, onPage
       <Pagination count={count === 0 ? 1 : count} page={page} onChange={onPageChange} color="primary" shape="rounded" />
     </div>
   );
-};
+});
 export default PaginationComponent;

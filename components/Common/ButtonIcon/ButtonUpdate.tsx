@@ -1,8 +1,12 @@
 import Link from 'next/link';
 import BrushIcon from '@mui/icons-material/Brush';
 import { Tooltip } from '@mui/material';
-
-const ButtonUpdate = ({ onClick, href }) => {
+import React from 'react';
+interface ButtonUpdateProps {
+  onClick: () => void;
+  href?: string;
+}
+const ButtonUpdate: React.FC<ButtonUpdateProps> = React.memo(({ onClick, href }) => {
   return (
     <Tooltip title="Chỉnh sửa">
       <Link href={href}>
@@ -12,5 +16,5 @@ const ButtonUpdate = ({ onClick, href }) => {
       </Link>
     </Tooltip>
   );
-};
+});
 export default ButtonUpdate;
