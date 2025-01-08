@@ -5,7 +5,7 @@ import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import makeAnimated from 'react-select/animated';
-import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { useCancelJobsMutation, useDeleteJobsMutation, useGetAllJobAppliesUniversityQuery, useGetAllMajorsQuery } from '@/services/adminSchoolApi';
@@ -14,8 +14,7 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
-import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 const animatedComponents = makeAnimated();
 const Partnerships = () => {
@@ -25,7 +24,7 @@ const Partnerships = () => {
   const universityId = useAppSelector(state => state.user?.id);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJobsId, setSelectedJobsId] = useState<number | null>(null);
-  const [selectedMajorId, setSelectedMajorId] = useState<number | null>(null);
+  const [selectedMajorId] = useState<number | null>(null);
   const [major, setMajor] = useState<number | null>(null);
   const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
@@ -50,12 +49,6 @@ const Partnerships = () => {
     { refetchOnMountOrArgChange: true }
   );
 
-  const handleAction = (actionType: BackdropType, JobsId: number, MajorId: number) => {
-    setSelectedJobsId(JobsId);
-    setSelectedMajorId(MajorId);
-    setSelectedAction(actionType);
-    dispatch(setBackdrop(actionType));
-  };
   const [cancelJob, { isLoading: isLoadingCancel }] = useCancelJobsMutation();
   const [deleteJob, { isLoading: isLoadingDelete }] = useDeleteJobsMutation();
   const handleConfirmAction = async () => {
@@ -99,7 +92,7 @@ const Partnerships = () => {
   return (
     <>
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách công việc đã ứng tuyển</h1>
+        <h1 className="mb-5 font-bold">Danh sách công việc đã ứng tuyển</h1>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
             <TextField
@@ -160,7 +153,7 @@ const Partnerships = () => {
             {jobs?.data.content.length !== 0 ? (
               jobs?.data?.content.map((job, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
-                  <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4 text-center"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{job.job.company?.companyName}</td>
                   <td className="px-5 py-4">{job.job.jobTitle}</td>
                   <td className="px-5 py-4">{jobType(job.job.jobType)}</td>
@@ -183,25 +176,6 @@ const Partnerships = () => {
                         }}
                         href={`/portal/jobs/${job.job.id}`}
                       />
-
-                      {job.status === 'PENDING' && (
-                        <>
-                          <ButtonReject
-                            onClick={() => {
-                              handleAction(BackdropType.RefuseConfirmation, job.job.id, job.major.id);
-                              dispatch(setName(job.job.jobTitle));
-                            }}
-                          />
-                        </>
-                      )}
-                      {job.status === 'CANCEL' && (
-                        <ButtonDelete
-                          onClick={() => {
-                            handleAction(BackdropType.DeleteConfirmation, job.job.id, job.major.id);
-                            dispatch(setName(job.job.jobTitle));
-                          }}
-                        />
-                      )}
                     </div>
                   </td>
                 </tr>
