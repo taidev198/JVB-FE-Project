@@ -306,7 +306,7 @@ const PortalHeader: React.FC = () => {
                         <li className="navigation__menu--item relative">
                           <Link
                             href="/portal/about-us"
-                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/companies')}`}>
+                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/about-us')}`}>
                             Về chúng tôi
                           </Link>
                         </li>
@@ -340,7 +340,7 @@ const PortalHeader: React.FC = () => {
                         <li className="navigation__menu--item relative">
                           <Link
                             href="/portal/about-us"
-                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/companies')}`}>
+                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/about-us')}`}>
                             Về chúng tôi
                           </Link>
                         </li>
@@ -416,7 +416,7 @@ const PortalHeader: React.FC = () => {
                     onClose={onClose}
                     open={visible}
                     styles={{ body: { padding: 0 } }}
-                    closeIcon={null} // Hiển thị nút tắt
+                    closeIcon={null}
                     title={
                       <div className="flex items-center gap-4">
                         <div className="user-avatar flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary-light">

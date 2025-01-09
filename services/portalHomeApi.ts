@@ -74,9 +74,15 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch all workshops with pagination
-    getWorkshops: builder.query<WorkshopResponsePortal, { page: number; size: number; keyword?: string }>({
-      query: ({ page, size, keyword = '' }) => {
+    getWorkshops: builder.query<WorkshopResponsePortal, { page: number; size: number; keyword?: string; provinceId?: number; fieldId?: number }>({
+      query: ({ page, size, keyword = '', provinceId, fieldId }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
+        if (provinceId) {
+          params.append('provinceId', String(provinceId));
+        }
+        if (fieldId) {
+          params.append('fieldId', String(fieldId));
+        }
         return `/portal/workshops?${params.toString()}`;
       },
     }),

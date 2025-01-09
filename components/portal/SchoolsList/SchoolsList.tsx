@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Empty, Pagination } from 'antd';
 import Link from 'next/link';
@@ -106,6 +107,8 @@ const SchoolsList: React.FC = () => {
 
   const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
+
+  console.log('Check: currentPage: ', filteredSchools.length);
 
   return (
     <div className="rts__section">

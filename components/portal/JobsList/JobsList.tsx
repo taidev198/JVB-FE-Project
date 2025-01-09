@@ -5,6 +5,7 @@ import Link from 'next/link';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import SelectSearch from '../common/SelectSearch';
+import HtmlContentRenderer from '../common/HtmlContentRenderer';
 import { formatCurrencyVND, formatJobType } from '@/utils/app/format';
 import { IJobCompany } from '@/types/jobCompany';
 import { useGetFieldsQuery, useGetJobsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
@@ -13,6 +14,8 @@ import ImageComponent from '@/components/Common/Image';
 const JobsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedValue, setDebouncedValue] = useState('');
+  const [detailedView, setDetailedView] = useState(false);
+
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedType] = useState<string | null>(null);
@@ -162,13 +165,28 @@ const JobsList: React.FC = () => {
                     : ''}
                 </span>
                 <div className="flex items-center gap-4">
-                  <div className=" flex h-[40px] items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main bg-primary-main px-4 text-primary-white ">
+                  <div
+                    className={
+                      'mp_transition_4 flex h-[40px] cursor-pointer items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main px-4 text-primary-main hover:bg-primary-main hover:text-white ' +
+                      (!detailedView ? 'bg-primary-main text-white' : '')
+                    }
+                    onClick={() => {
+                      setDetailedView(false);
+                    }}>
                     <AppstoreOutlined />
                     <span>Lưới</span>
                   </div>
-                  <div className="flex h-[40px] items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main px-4 text-primary-main">
+
+                  <div
+                    className={
+                      'mp_transition_4 flex h-[40px] cursor-pointer items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main px-4 text-primary-main hover:bg-primary-main hover:text-white ' +
+                      (detailedView ? 'bg-primary-main text-white' : '')
+                    }
+                    onClick={() => {
+                      setDetailedView(true);
+                    }}>
                     <BarsOutlined />
-                    <span>Chi tiết</span>
+                    <span>Danh sách</span>
                   </div>
                 </div>
               </div>
@@ -179,51 +197,111 @@ const JobsList: React.FC = () => {
                     <Spin size="large" />
                   </div>
                 ) : paginatedJobs.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-[30px] lg:grid-cols-2 ">
-                    {paginatedJobs.map(job => (
-                      <Link
-                        href={`/portal/jobs/${job.id}`}
-                        key={job.id}
-                        className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
-                        <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
-                        <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
-                          <ImageComponent
-                            src={job.company.logoUrl || '/images/user-default.png'}
-                            alt={job.company.companyName}
-                            className="aspect-square h-10 w-10 object-contain"
-                            width={50}
-                            height={50}
-                          />
-                        </div>
-                        <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">
-                          <div className="flex items-center gap-2">
-                            <i className="fa-solid fa-location-dot" /> {job.company.address.province.provinceName}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <i className="fa-solid fa-briefcase" />
-                            <span className="">{formatJobType(job.jobType)}</span>
-                          </div>
-                        </div>
-                        <div className="my-4 line-clamp-2 text-2xl font-bold text-primary-black">
-                          <Link href={`/portal/jobs/${job.id}`} aria-label="job" className="line-clamp-2">
-                            {job.jobTitle}
+                  detailedView ? (
+                    <div className="grid grid-cols-1 gap-[30px] ">
+                      {paginatedJobs.map(job => (
+                        <div
+                          key={job.id}
+                          className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-row  gap-[20px] overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
+                          <div className="mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient-1 group-hover:opacity-100"></div>
+                          <Link
+                            href={`/portal/workshops/${job.id}`}
+                            className="blog__img flex-shrink-0 rounded-[10px] bg-primary-light group-hover:bg-primary-white">
+                            <ImageComponent
+                              src={job.company.logoUrl}
+                              alt={job.jobTitle}
+                              className="aspect-square max-h-[240px] w-full overflow-hidden rounded-[10px] object-contain px-4"
+                            />
                           </Link>
+                          <div className="flex w-full flex-col">
+                            <Link href={`/portal/jobs/${job.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black ">
+                              {job.jobTitle}
+                            </Link>
+                            <div className="blog__meta w-full pt-[16px] ">
+                              <div className="blog__meta__info mb-[16px] flex w-full items-center gap-4 text-primary-gray">
+                                <span className="flex items-center gap-1 truncate">
+                                  <i className="fa-solid fa-user"></i>
+                                  <span className=" truncate whitespace-nowrap">{job.company.companyName}</span>
+                                </span>
+                              </div>
+                              <div className="readmore__btn flex items-center gap-1 truncate text-primary-gray">
+                                <i className="fa-solid fa-location-dot mp_transition_4" />
+                                <span className="mp_transition_4 truncate whitespace-nowrap font-medium">
+                                  {job.company.address.province.provinceName}, {job.company.address.district.districtName}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="mt-[16px] line-clamp-2 text-lg text-primary-gray">
+                              <HtmlContentRenderer htmlContent={job?.jobDescription || ''} />
+                            </div>
+                            <div className="mt-6 flex items-center justify-between">
+                              <div className="jobs__tags flex items-center gap-4 ">
+                                <span className="job__tag rounded-md bg-primary-light px-[12px] py-[8px] font-medium capitalize text-primary-gray">
+                                  {job.minSalary && job.maxSalary
+                                    ? `${formatCurrencyVND(job.minSalary)} - ${formatCurrencyVND(job.maxSalary)}`
+                                    : job.minSalary
+                                    ? formatCurrencyVND(job.minSalary)
+                                    : job.maxSalary
+                                    ? formatCurrencyVND(job.maxSalary)
+                                    : 'Thỏa thuận'}
+                                </span>
+                              </div>
+                              <Link href={`/portal/jobs/${job.id}`} className="readmore__btn mf-2 mr-2 flex items-center gap-2 text-lg">
+                                <span className="mp_transition_4 font-medium hover:text-primary-main">Chi tiết</span>
+                                <i className="fa-solid fa-arrow-right mp_transition_4 rotate-[-40deg] group-hover:rotate-0 group-hover:text-primary-main" />
+                              </Link>
+                            </div>
+                          </div>
                         </div>
-                        <p className="mp_p line-clamp-2">{job.jobDescription}</p>
-                        <div className="jobs__tags mt-6 flex items-center gap-4 ">
-                          <span className="job__tag rounded-md bg-primary-light px-[12px] py-[8px] font-medium capitalize text-primary-gray">
-                            {job.minSalary && job.maxSalary
-                              ? `${formatCurrencyVND(job.minSalary)} - ${formatCurrencyVND(job.maxSalary)}`
-                              : job.minSalary
-                              ? formatCurrencyVND(job.minSalary)
-                              : job.maxSalary
-                              ? formatCurrencyVND(job.maxSalary)
-                              : 'Thỏa thuận'}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-[30px] lg:grid-cols-2 ">
+                      {paginatedJobs.map(job => (
+                        <Link
+                          href={`/portal/jobs/${job.id}`}
+                          key={job.id}
+                          className="rts__job__card mp_transition_4 group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-solid border-primary-border p-[30px] hover:border-transparent 2xl:p-[40px]">
+                          <div className="background mp_transition_4 absolute inset-0 z-[-1] bg-transparent opacity-0 group-hover:bg-custom-gradient group-hover:opacity-100"></div>
+                          <div className="company__icon mp_transition_4 flex h-[70px] w-[70px] items-center justify-center rounded-md bg-primary-light group-hover:bg-primary-white">
+                            <ImageComponent
+                              src={job.company.logoUrl || '/images/user-default.png'}
+                              alt={job.company.companyName}
+                              className="aspect-square h-10 w-10 object-contain"
+                              width={50}
+                              height={50}
+                            />
+                          </div>
+                          <div className="mt-6 flex items-center gap-4 text-lg text-primary-gray">
+                            <div className="flex items-center gap-2">
+                              <i className="fa-solid fa-location-dot" /> {job.company.address.province.provinceName}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <i className="fa-solid fa-briefcase" />
+                              <span className="">{formatJobType(job.jobType)}</span>
+                            </div>
+                          </div>
+                          <div className="my-4 line-clamp-2 text-2xl font-bold text-primary-black">
+                            <div aria-label="job" className="line-clamp-2">
+                              {job.jobTitle}
+                            </div>
+                          </div>
+                          <p className="mp_p line-clamp-2">{job.jobDescription}</p>
+                          <div className="jobs__tags mt-6 flex items-center gap-4 ">
+                            <span className="job__tag rounded-md bg-primary-light px-[12px] py-[8px] font-medium capitalize text-primary-gray">
+                              {job.minSalary && job.maxSalary
+                                ? `${formatCurrencyVND(job.minSalary)} - ${formatCurrencyVND(job.maxSalary)}`
+                                : job.minSalary
+                                ? formatCurrencyVND(job.minSalary)
+                                : job.maxSalary
+                                ? formatCurrencyVND(job.maxSalary)
+                                : 'Thỏa thuận'}
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )
                 ) : (
                   <div className="flex w-full items-center justify-center">
                     <Empty description="Không có dữ liệu" />
