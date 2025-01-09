@@ -99,25 +99,6 @@ const PortalHeader: React.FC = () => {
   const onClose = () => {
     setVisible(false);
   };
-  // const menuItems = token
-  //   ? roleAccount === 'UNIVERSITY'
-  //     ? [
-  //         { key: 'home', label: <Link href="/">Trang chủ</Link> },
-  //         { key: 'jobs', label: <Link href="/portal/jobs">Việc Làm</Link> },
-  //         { key: 'companies', label: <Link href="/portal/companies">Công Ty</Link> },
-  //       ]
-  //     : roleAccount === 'COMPANY'
-  //     ? [
-  //         { key: 'home', label: <Link href="/">Trang chủ</Link> },
-  //         { key: 'workshops', label: <Link href="/portal/workshops">Workshop</Link> },
-  //         { key: 'schools', label: <Link href="/portal/schools">Trường học</Link> },
-  //       ]
-  //     : [] // Default hoặc role không xác định
-  //   : [
-  //       // Khi chưa đăng nhập
-  //       { key: 'login', label: <Link href="/auth/login">Đăng nhập</Link> },
-  //       { key: 'register', label: <Link href="/auth/Register">Đăng ký</Link> },
-  //     ];
 
   const getMenuItems = (roleAccount: string, token: boolean, handleLogout: () => void) => {
     const baseItems = [
@@ -316,6 +297,13 @@ const PortalHeader: React.FC = () => {
                             Công ty
                           </Link>
                         </li>
+                        <li className="navigation__menu--item relative">
+                          <Link
+                            href="/portal/about-us"
+                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/companies')}`}>
+                            Về chúng tôi
+                          </Link>
+                        </li>
                       </ul>
                     </nav>
                   </div>
@@ -341,6 +329,13 @@ const PortalHeader: React.FC = () => {
                             href="/portal/schools"
                             className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/schools')}`}>
                             Trường học
+                          </Link>
+                        </li>
+                        <li className="navigation__menu--item relative">
+                          <Link
+                            href="/portal/about-us"
+                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/companies')}`}>
+                            Về chúng tôi
                           </Link>
                         </li>
                       </ul>

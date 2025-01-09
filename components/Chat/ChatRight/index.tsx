@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from 'antd';
 import { useDispatch } from 'react-redux';
 import { useMediaQuery, useTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
+import UploadFile from '../UploadFile';
 import ImageComponent from '@/components/Common/Image';
 import { showSidebar } from '@/store/slices/global';
 const { TextArea } = Input;
 
 const ChatRight = () => {
+  const [image, setImage] = useState<File | string>();
+
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('sm'));
@@ -37,6 +40,7 @@ const ChatRight = () => {
         <div className="absolute bottom-5 left-1/2 flex w-[96%] -translate-x-1/2 transform items-center rounded-lg bg-primary-white shadow-md">
           {/* <input type="text" placeholder="Type your message here…" className="w-full border-none" /> */}
           <TextArea rows={1} placeholder="Nhập tin nhắn..." className="no-focus border-none focus:border-none" />
+          <UploadFile image={image} setImage={setImage} />
           <IconButton className="!p-2">
             <SendIcon className="text-primary-main" fontSize="medium" />
           </IconButton>

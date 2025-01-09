@@ -38,10 +38,10 @@ const registerValidateCompany = Yup.object({
   phoneNumber: Yup.string()
     .required('Số điện thoại là bắt buộc')
     .matches(/^0\d{9}$/, 'Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số'),
-  provinceId: Yup.number().typeError('Tỉnh must be a number').required('Tỉnh là bắt buộc'),
-  districtId: Yup.number().typeError('Huyện must be a number').required('Huyện là bắt buộc'),
-  wardId: Yup.number().typeError('Xã must be a number').required('Xã là bắt buộc'),
-  houseNumber: Yup.string().required('Chi tiết địa chỉ là bắt buộc'),
+  provinceId: Yup.number().typeError('Tỉnh/Thành phố must be a number').required('Tỉnh là bắt buộc'),
+  districtId: Yup.number().typeError('Quận/Huyện must be a number').required('Huyện là bắt buộc'),
+  wardId: Yup.number().typeError('Xã/Phường must be a number').required('Xã là bắt buộc'),
+  houseNumber: Yup.string().required('Địa chỉ chi tiết là bắt buộc'),
   taxCode: Yup.string().required('Mã số thuế là bắt buộc').max(30, 'Mã số thuế không được quá 30 kí tự'),
 });
 
