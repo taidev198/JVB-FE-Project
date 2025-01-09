@@ -4,11 +4,11 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ProvinceResponse } from '@/types/addressesTypes';
 import { IAccountCompanyAllResponse, IAccountCompanyDetailResponse } from '@/types/companyType';
-import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
 import { FieldsResponse } from '@/types/fields';
 import { IJobAllResponsePortal, IJobDetailResponse, IJobsData } from '@/types/jobCompany';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
+import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
