@@ -310,3 +310,10 @@ export const statusStudentApplyJob = (status: string): AccountStatus => {
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }
 };
+
+export function truncateText(text, maxLength) {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + '...';
+  }
+  return text;
+}

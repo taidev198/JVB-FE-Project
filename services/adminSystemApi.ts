@@ -190,7 +190,7 @@ export const adminSystemApi = createApi({
 
       getDetailAccountCompany: builder.query<IAccountCompanyDetailResponse, { id: number | null }>({
         query: ({ id }) => ({
-          url: `/portal/company/${id}`,
+          url: `/admin/company/${id}`,
         }),
         providesTags: result => (result ? [{ type: 'Company', id: result.data.account.id }] : [{ type: 'Company' }]),
       }),
@@ -236,7 +236,7 @@ export const adminSystemApi = createApi({
 
       getDetailAccountSchool: builder.query<UniversityDetailResponse, { id: number | null }>({
         query: ({ id }) => ({
-          url: `/portal/university/${id}`,
+          url: `/admin/university/${id}`,
         }),
         providesTags: result => (result ? [{ type: 'School', id: result.data.id }] : [{ type: 'School' }]),
       }),
