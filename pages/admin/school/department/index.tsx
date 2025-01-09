@@ -146,7 +146,6 @@ const Department = () => {
               <th className=" p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Mã khoa</p>
               </th>
-
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <p className="min-w-max">Tên khoa</p>
               </th>

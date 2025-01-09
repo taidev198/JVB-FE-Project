@@ -30,7 +30,7 @@ const SocketProvider = ({ children }) => {
       let ws: WebSocket;
       let reconnectTimeout: NodeJS.Timeout;
       let heartbeatInterval: NodeJS.Timeout;
-      console.log('Kết nối socket thành công');
+      // console.log('Kết nối socket thành công');
       const connectWebSocket = () => {
         ws = new WebSocket(wsUrl);
         ws.onopen = () => {
