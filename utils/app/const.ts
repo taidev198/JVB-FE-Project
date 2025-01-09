@@ -200,7 +200,7 @@ export const statusTextWorkShopCompany = (status: string): AccountStatus => {
     case 'ACCEPT':
       return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };
     case 'PENDING':
-      return { title: 'Đang chờ', color: '#FFA726', bg: '#fffae5' };
+      return { title: 'Chờ duyệt', color: '#FFA726', bg: '#fffae5' };
     case 'REJECT':
       return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
     case 'CANCEL':

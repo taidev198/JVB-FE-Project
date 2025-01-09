@@ -183,7 +183,7 @@ const JobAdminSchool = () => {
                           <div className="flex">
                             <LocationOnIcon fontSize="small" />
                             <p className="mt-[1px]">
-                              `{partner.university?.address?.district.districtName}, {partner.university?.address?.province.provinceName}`
+                              {partner.university?.address?.district.districtName}, {partner.university?.address?.province.provinceName}
                             </p>
                           </div>
                           <p className="ml-[6px] md:ml-0">Loại trường: {typeUniversityTitle(partner?.university.universityType).title}</p>

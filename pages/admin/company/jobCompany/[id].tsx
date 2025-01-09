@@ -12,7 +12,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import CategoryIcon from '@mui/icons-material/Category';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import MoneyIcon from '@mui/icons-material/Money';
+import PaymentsIcon from '@mui/icons-material/Payments';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { setLoading } from '@/store/slices/global';
@@ -83,7 +83,7 @@ const DetailJobCompany = () => {
             </div>
           </li>
           <li className="mt-5 flex items-center  gap-3 ">
-            <MoneyIcon sx={{ color: '#757575' }} />
+            <PaymentsIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Lương:</span>
               {jobCompany?.data.salaryType === 'NEGOTIABLE' || !jobCompany?.data.minSalary || !jobCompany?.data.maxSalary
@@ -107,12 +107,14 @@ const DetailJobCompany = () => {
               <span className="mr-2 font-semibold">Yêu cầu:</span> <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.requirements ?? '' }}></p>
             </div>
           </li>
-          <li className="mt-5">
-            <div className="mb-auto flex items-center gap-3">
+          <li className="mt-5 flex items-center gap-3">
+            <div className="mb-auto">
               <DescriptionIcon sx={{ color: '#757575' }} />
-              <span className="mr-2 min-w-fit font-semibold">Mô tả:</span>
             </div>
-            <p dangerouslySetInnerHTML={{ __html: jobCompany?.data.jobDescription ?? '' }} className="mt-3"></p>
+            <div>
+              <span className="mr-2 font-semibold">Mô tả:</span>
+              <span dangerouslySetInnerHTML={{ __html: jobCompany?.data.jobDescription ?? '' }} className="mt-3"></span>
+            </div>
           </li>
 
           <li className="mt-5 flex items-center  gap-3 ">
