@@ -1,7 +1,6 @@
-/* eslint-disable no-console */
 // pages/portal/companies/[id].tsx
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
-import { Alert, Select } from 'antd';
+import { Alert, Input, Select } from 'antd';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -23,7 +22,9 @@ import { IJobByCompany } from '@/types/jobCompany';
 import { formatJobType } from '@/utils/app/format';
 import { useAppSelector } from '@/store/hooks';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
+import { BackDrop } from '@/components/Common/BackDrop';
+import { Button } from '@/components/Common/Button';
 
 interface CompanyDetailsPageProps {
   serverSideApiKeyIsSet: boolean;
@@ -34,6 +35,10 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   const idLogin = useAppSelector(state => state.user.id);
   const dispatch = useDispatch();
   const { id } = router.query;
+  const nameUser = useAppSelector(state => state.user.name);
+
+  const showBackdrop = useAppSelector(state => state.global.backdropType);
+
   const { data, isLoading, error } = useGetCompanyDetailsQuery({ id: Number(id) });
   const { data: jobsData, isLoading: isLoadingJobs } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 1000 });
   const [sendRequests, { isLoading: sendRequestsLoading }] = useSendConnectMutation();
@@ -44,6 +49,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   const { Option } = Select;
 
   const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
+  const [reason, setReason] = useState(`Xin chào, tôi là ${nameUser}. Tôi tìm thấy bạn qua website JobLink. Hợp tác với tôi nhé!`);
 
   const handlePageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -93,10 +99,15 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
   const address = `${companyDetails?.address?.houseNumber}, ${companyDetails?.address?.ward.wardName}, ${companyDetails?.address?.district.districtName}, ${companyDetails?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
 
+  const handleChange = e => {
+    setReason(e.target.value);
+  };
+
   const handleSendRequests = async () => {
     try {
-      await sendRequests({ accountLoginId: idLogin, toDoAccountId: data.data.id, doBy: 0 }).unwrap();
+      await sendRequests({ accountLoginId: idLogin, toDoAccountId: data.data.id, doBy: 0, message: reason }).unwrap();
       toast.success('Đã Gửi yêu cầu hợp tác thành công');
+      dispatch(setBackdrop(null));
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
         const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';
@@ -124,8 +135,8 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
             schoolType={companyDetails?.companyShortDescription || 'Company details page'}
             address={`${companyDetails?.address?.houseNumber},${companyDetails?.address?.ward.wardName}, ${companyDetails?.address?.district.districtName}, ${companyDetails?.address?.province.provinceName}`}
             logo={companyDetails?.logoUrl}
-            buttonText="Liên kết ngay"
-            onButtonClick={handleSendRequests}
+            buttonText={`${data.data.isPartnership ? 'Đã liên kết' : 'Liên kết ngay'}`}
+            onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
             currentPage="Trường học"
           />
           <div className="mp_section_padding">
@@ -277,6 +288,26 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
               </div>
             </div>
           </div>
+          {showBackdrop === BackdropType.AddModal && (
+            <BackDrop isCenter>
+              <div className="max-w-[480px] rounded-md p-6">
+                <h3 className="font-bold">{showBackdrop === BackdropType.AddModal && `Thư hợp tác đến ${companyDetails.companyName}`}</h3>
+                <p className="mb-3 mt-1">Bạn có chắc muốn thực hiện hành động này</p>
+                <div className="flex items-center justify-center">
+                  <div className="grid w-full grid-cols-1 gap-4 rounded-lg bg-primary-white pt-4">
+                    <div className="relative w-full">
+                      <Input.TextArea value={reason} onChange={handleChange} maxLength={150} rows={5} style={{ resize: 'none' }} />
+                      <span className="absolute bottom-2 right-3 text-gray-500">{reason.length}/150 ký tự</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-9 flex items-center gap-5">
+                  <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+                  <Button text="Xác nhận" full={true} onClick={handleSendRequests} />
+                </div>
+              </div>
+            </BackDrop>
+          )}
         </main>
       </PortalLayout>
     </>

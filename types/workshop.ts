@@ -21,6 +21,7 @@ export interface IWorkshop {
   moderationStatus: string;
   imageWorkshops: ImageWorkshops[];
   isApply: boolean;
+  statusCompanyApply: string | null;
   address: IAddress;
   university: IUniversity;
   fields: IFields[];

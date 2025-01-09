@@ -13,6 +13,7 @@ export interface IJobCompany {
   requirements: string;
   jobType: string;
   workTime: string;
+  statusUnviersityApply?: string | null;
   benifits: string;
   jobLevel: string;
   expirationDate: string;

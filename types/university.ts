@@ -20,6 +20,7 @@ export interface IUniversity {
   fields: IFields[];
   numberOfStudents: number;
   numberOfGraduates: number;
+  isPartnership: boolean | null;
 }
 
 export interface UniversityResponse {

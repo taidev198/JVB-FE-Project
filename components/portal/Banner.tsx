@@ -92,9 +92,10 @@ const Banner = () => {
               <Image
                 src="/images/image_2x.webp"
                 alt="banner"
-                layout="fill"
-                objectFit="contain"
-                style={{ filter: 'drop-shadow(10px 7px 4px #bfbfbf)', zIndex: 2 }}
+                fill
+                priority // Thêm thuộc tính priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: 'contain', filter: 'drop-shadow(10px 7px 4px #bfbfbf)', zIndex: 2 }}
               />
 
               <div className="absolute h-full w-full">

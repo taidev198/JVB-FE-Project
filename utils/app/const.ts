@@ -311,6 +311,36 @@ export const statusStudentApplyJob = (status: string): AccountStatus => {
   }
 };
 
+export const statusCompanyApplyWorkshop = (status: string | null): string => {
+  switch (status) {
+    case 'PENDING':
+      return 'Chờ duyệt';
+    case 'ACCEPT':
+      return 'Đã tham gia';
+    case 'REJECT':
+      return 'Bị từ chối';
+    case 'CANCEL':
+      return 'Hủy tham gia';
+    default:
+      return 'Tham gia ngay';
+  }
+};
+
+export const statusUniversityApplyJob = (status: string | null): string => {
+  switch (status) {
+    case 'PENDING':
+      return 'Chờ duyệt';
+    case 'ACCEPT':
+      return 'Đã tham gia';
+    case 'REJECT':
+      return 'Bị từ chối';
+    case 'CANCEL':
+      return 'Hủy ứng tuyển';
+    default:
+      return 'Ứng tuyển ngay';
+  }
+};
+
 export function truncateText(text, maxLength) {
   if (text.length > maxLength) {
     return text.slice(0, maxLength) + '...';

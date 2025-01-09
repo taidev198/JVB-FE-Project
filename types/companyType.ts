@@ -23,6 +23,7 @@ export interface ICompany {
   email: string;
   districtId: number;
   provinceId: number;
+  isPartnership: boolean | null;
 }
 
 export interface ICompanyEmploy {

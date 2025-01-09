@@ -23,7 +23,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail'],
+  tagTypes: ['WorkshopDetail', 'CompanyDetail'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
     getJobs: builder.query<IJobAllResponsePortal, { page: number; size: number; keyword?: string }>({
@@ -49,6 +49,7 @@ export const portalHomeApi = createApi({
     // Fetch specific companies details
     getCompanyDetails: builder.query<IAccountCompanyDetailResponse, { id: number }>({
       query: ({ id }) => `/portal/company/${id}`,
+      providesTags: (result, error, { id }) => [{ type: 'CompanyDetail', id }],
     }),
 
     // Fetch specific jobs company
@@ -111,11 +112,12 @@ export const portalHomeApi = createApi({
 
     // Send connect
     sendConnect: builder.mutation({
-      query: ({ accountLoginId, toDoAccountId, doBy }) => ({
+      query: ({ accountLoginId, toDoAccountId, doBy, message }) => ({
         url: '/partnership/sendConnect',
         method: 'POST',
-        body: { accountLoginId, toDoAccountId, doBy },
+        body: { accountLoginId, toDoAccountId, doBy, message },
       }),
+      invalidatesTags: (result, error, { toDoAccountId }) => [{ type: 'CompanyDetail', id: toDoAccountId }],
     }),
 
     // Apply job
