@@ -1,4 +1,3 @@
-/* eslint-disable*/
 // pages/portal/companies/[id].tsx
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert, Input, Select } from 'antd';

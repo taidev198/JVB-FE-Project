@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React, { createContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useAppSelector } from '@/store/hooks';

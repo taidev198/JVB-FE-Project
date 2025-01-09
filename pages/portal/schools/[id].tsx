@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // pages/portal/companies/[id].tsx
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert, Input, Select } from 'antd';
@@ -118,8 +117,6 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
       }
     }
   };
-
-  console.log('Check data: ', data);
 
   return (
     <>

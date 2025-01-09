@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // pages/portal/companies/[id].tsx
 import { CalendarOutlined, ClockCircleOutlined, DollarOutlined, LaptopOutlined, SolutionOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert, Select } from 'antd';
@@ -75,8 +74,6 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
   const jobDetails = data?.data;
   const address = `${jobDetails?.company?.address?.houseNumber}, ${jobDetails?.company?.address?.ward.wardName}, ${jobDetails?.company?.address?.district.districtName}, ${jobDetails?.company?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
-
-  console.log('Check data: ', data);
 
   return (
     <>
