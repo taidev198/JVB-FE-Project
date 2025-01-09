@@ -1,10 +1,10 @@
 // layouts/Portal/PortalLayout.tsx
 import { FC } from 'react';
 import React from 'react';
-import PortalHeader from '@/components/Portal/PortalHeader';
-import PortalFooter from '@/components/Portal/PortalFooter';
 import { ConfigProvider } from 'antd';
 import viVN from 'antd/lib/locale/vi_VN';
+import PortalHeader from '@/components/portal/PortalHeader';
+import PortalFooter from '@/components/portal/PortalFooter';
 interface ProtolLayoutProps {
   children: React.ReactNode;
   type: string;

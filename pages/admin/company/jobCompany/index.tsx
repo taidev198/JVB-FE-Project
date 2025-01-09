@@ -91,7 +91,7 @@ const JobCompany = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách công việc</h1>
+        <h1 className="mb-5 font-bold">Danh sách công việc</h1>
         <div className="flex items-center justify-between gap-3 ">
           <TextField
             id="filled-search"
@@ -122,7 +122,7 @@ const JobCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedJob.length > 0 && jobCompany?.data.content.length > 0}
@@ -130,7 +130,7 @@ const JobCompany = () => {
                   onChange={handleSelectAll}
                 />
               </th>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="p-3 py-4 text-left sm:px-3">STT</th>
               <th className="px-5 py-4 text-left">Tên công việc</th>
               <th className="px-5 py-4 text-left">Mức lương</th>
               <th className="px-5 py-4 text-left">Thời hạn</th>
@@ -141,13 +141,13 @@ const JobCompany = () => {
             {jobCompany?.data.content && jobCompany.data.content.length > 0 ? (
               jobCompany?.data.content.map((item, index) => (
                 <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
                     <Checkbox color="primary" checked={selectedJob.includes(item.id)} onChange={() => handleSelectJob(item.id)} />
                   </td>
                   <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{item.jobTitle}</td>
                   <td className="px-5 py-4">
-                    {item.salaryType === 'FIXED' ? formatCurrencyVND(item.maxSalary) + ' - ' + formatCurrencyVND(item.minSalary) : 'Thỏa thuận'}
+                    {item.salaryType === 'FIXED' ? formatCurrencyVND(item.minSalary) + ' - ' + formatCurrencyVND(item.maxSalary) : 'Thỏa thuận'}
                   </td>
                   <td className="px-5 py-4">{item.expirationDate}</td>
                   <td className=" py-4">

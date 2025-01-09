@@ -27,6 +27,7 @@ const WorkShopCompany = () => {
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [startDate] = useState<Date | null>(null);
   const [endDate] = useState<Date | null>(null);
+  const name = useAppSelector(state => state.global.name);
 
   const handleAction = (actionType: BackdropType, JobsId: number) => {
     setSelectId(JobsId);
@@ -111,24 +112,24 @@ const WorkShopCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="p-3 sm:px-3 sm:py-4">STT</th>
               <th className="px-5 py-4 text-left">Tiêu đề</th>
               <th className="px-5 py-4 text-left">Trường học</th>
-              <th className="px-5 py-4 text-left">Thời gian bắt đầu</th>
-              <th className="px-5 py-4 text-left">Thời gian kết thúc</th>
-              <th className="px-5 py-4 text-left">Trạng thái</th>
-              <th className="px-5 py-4 text-left">Hành động</th>
+              <th className="p-3 sm:px-3 sm:py-4">Thời gian bắt đầu</th>
+              <th className="p-3 sm:px-3 sm:py-4">Thời gian kết thúc</th>
+              <th className="p-3 sm:px-3 sm:py-4">Trạng thái</th>
+              <th className="p-3 sm:px-3 sm:py-4">Hành động</th>
             </tr>
           </thead>
           <tbody>
             {companyWorkShop?.data.content.map((item, index) => (
               <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td>
+                <td className="p-3 text-center sm:px-3 sm:py-4">{index + 1 + (page - 1) * size}</td>
                 <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
                 <td className="px-5 py-4">{item.workshop.university.universityName}</td>
-                <td className="px-5 py-4 text-center">{item.workshop.startTime.split(' ')[0]}</td>
-                <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
-                <td className="px-5 py-4">
+                <td className="p-3 text-center sm:px-3 sm:py-4">{item.workshop.startTime.split(' ')[0]}</td>
+                <td className="p-3 text-center sm:px-3 sm:py-4">{item.workshop.endTime.split(' ')[0]}</td>
+                <td className="p-3 text-center sm:px-3 sm:py-4">
                   <Chip
                     label={statusTextWorkShopCompany(item.status).title}
                     style={{
@@ -138,7 +139,7 @@ const WorkShopCompany = () => {
                   />
                 </td>
 
-                <td className="py-4">
+                <td className="p-3 text-center sm:px-3 sm:py-4">
                   <div className="flex items-center justify-center gap-3">
                     <ButtonSee
                       onClick={() => {
@@ -174,8 +175,8 @@ const WorkShopCompany = () => {
       {backdropType === BackdropType.DeleteConfirmation && (
         <BackDrop isCenter={true}>
           <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Hủy tham gia hội thảo</h3>
-            <p className="mt-1">Bạn có chắc chắn muốn hủy tham gia hội thảo này không?.</p>
+            <h3 className="font-bold">Hủy tham {name}</h3>
+            <p className="mt-1">Bạn có chắc chắn muốn hủy tham gia hội thảo này không?</p>
             <div className="mt-9 flex items-center gap-5">
               <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
               <Button text="Xác nhận" className="bg-green-600" onClick={handleDelete} full={true} />

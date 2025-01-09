@@ -25,7 +25,7 @@ export const litsNavbarAdminSchoolRouter = [
     id: 3,
     icon: <IconWorkshop />,
     url: '/admin/company/workShop',
-    label: 'Yêu cầu tham gia workShop',
+    label: 'Yêu cầu tham gia workshop',
   },
   {
     id: 4,
@@ -38,7 +38,7 @@ export const litsNavbarAdminSchoolRouter = [
     id: 5,
     icon: <IconJob />,
     url: '/admin/company/jobCompany',
-    label: 'Quản lý job',
+    label: 'Quản lý công việc',
   },
   {
     id: 6,
@@ -58,4 +58,10 @@ export const litsNavbarAdminSchoolRouter = [
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',
   },
+  // {
+  //   id: 9,
+  //   icon: <IconChangePassword />,
+  //   url: '/admin/company/changeCompany',
+  //   label: 'Ví điện tử',
+  // },
 ];

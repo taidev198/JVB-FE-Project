@@ -84,7 +84,7 @@ const SchoolApplyJob = () => {
                           <div className="flex">
                             <LocationOnIcon fontSize="small" />
                             <p className="mt-[1px]">
-                              `{apply.university?.address?.district.districtName}, {apply.university?.address?.province.provinceName}`
+                              {apply.university?.address?.district.districtName}, {apply.university?.address?.province.provinceName}
                             </p>
                           </div>
                           <p className="ml-[6px] md:ml-0">Loại trường: {typeUniversityTitle(apply?.university.universityType).title}</p>

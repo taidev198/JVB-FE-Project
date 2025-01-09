@@ -97,7 +97,7 @@ const UserCompany = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách tài khoản nhân viên</h1>
+        <h1 className="mb-5 font-bold">Danh sách tài khoản nhân viên</h1>
         <div className="flex items-center justify-between gap-3 ">
           <div className="w-[220px]">
             <TextField
@@ -130,7 +130,7 @@ const UserCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedEmployee.length > 0 && employee?.data.content.length > 0}
@@ -138,7 +138,7 @@ const UserCompany = () => {
                   onChange={handleSelectAll}
                 />
               </th>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="p-3 py-4 text-left sm:px-3">STT</th>
               <th className="px-5 py-4 text-left">Mã nhân viên</th>
               <th className="px-5 py-4 text-left">Tên nhân viên</th>
               <th className="px-5 py-4 text-left">Email</th>
@@ -149,41 +149,49 @@ const UserCompany = () => {
             </tr>
           </thead>
           <tbody>
-            {employee?.data.content.map((item, index) => (
-              <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <Checkbox color="primary" checked={selectedEmployee.includes(item.id)} onChange={() => handleSelectEmployee(item.id)} />
-                </td>
-                <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td> {/* STT */}
-                <td className="px-5 py-4">{item.employeeCode}</td>
-                <td className="px-5 py-4">{item.fullName}</td>
-                <td className="px-5 py-4">{item.account.email}</td>
-                <td className="px-5 py-4">{item.employeePosition}</td>
-                <td className="px-5 py-4">{item.phoneNumber}</td>
-                <td className="px-5 py-4">
-                  <Chip
-                    label={statusEmployee(item.employeeStatus).title}
-                    sx={{
-                      backgroundColor: statusEmployee(item.employeeStatus).bg,
-                      color: statusEmployee(item.employeeStatus).color,
-                    }}
-                  />
-                </td>
-                <td className=" py-4">
-                  <div className="flex items-center gap-2">
-                    <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
-                    <ButtonUpdate href={`/admin/company/userCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
-                    <ButtonDelete
-                      onClick={() => {
-                        dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                        setIdEmployee(item.id);
-                        dispatch(setName(item.fullName));
+            {employee?.data?.content && employee.data.content.length > 0 ? (
+              employee?.data.content.map((item, index) => (
+                <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
+                    <Checkbox color="primary" checked={selectedEmployee.includes(item.id)} onChange={() => handleSelectEmployee(item.id)} />
+                  </td>
+                  <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4">{item.employeeCode}</td>
+                  <td className="px-5 py-4">{item.fullName}</td>
+                  <td className="px-5 py-4">{item.account.email}</td>
+                  <td className="px-5 py-4">{item.employeePosition}</td>
+                  <td className="px-5 py-4">{item.phoneNumber}</td>
+                  <td className="px-5 py-4">
+                    <Chip
+                      label={statusEmployee(item.employeeStatus).title}
+                      sx={{
+                        backgroundColor: statusEmployee(item.employeeStatus).bg,
+                        color: statusEmployee(item.employeeStatus).color,
                       }}
                     />
-                  </div>
+                  </td>
+                  <td className="py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonUpdate href={`/admin/company/userCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonDelete
+                        onClick={() => {
+                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                          setIdEmployee(item.id);
+                          dispatch(setName(item.fullName));
+                        }}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base text-black">
+                  <p>Không có dữ liệu nào</p>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
