@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Chip, Stack, Tooltip } from '@mui/material';
+import { Tooltip } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 
-const UploadFile = ({ image, setImage }) => {
+const UploadFile = ({ setImage }) => {
   const onDrop = useCallback(
     acceptedFiles => {
       // Do something with the files
