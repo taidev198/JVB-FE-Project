@@ -138,7 +138,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
             schoolType={universityDetails?.universityShortDescription || 'Chi tiết trường học'}
             address={`${universityDetails?.address?.houseNumber},${universityDetails?.address?.ward.wardName}, ${universityDetails?.address?.district.districtName}, ${universityDetails?.address?.province.provinceName}`}
             logo={universityDetails?.logoUrl}
-            buttonText={`${data.data.isPartnership ? 'Đã liên kết' : 'Chưa liên kết'}`}
+            buttonText={`${data.data.isPartnership ? 'Đã liên kết' : 'Đã liên kết'}`}
             onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
             currentPage="Trường học"
           />
