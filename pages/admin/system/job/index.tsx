@@ -18,7 +18,7 @@ import PaginationComponent from '@/components/Common/Pagination';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { statusLabelJob } from '@/utils/app/const';
+import { statusLabelJob, truncateText } from '@/utils/app/const';
 
 const AdminSystemJob = () => {
   const dispatch = useDispatch();
@@ -154,8 +154,8 @@ const AdminSystemJob = () => {
                           className="h-20 rounded-full border border-solid object-contain"
                         />
                       </Link>
-                      <div className="ml-0 font-semibold sm:ml-4">
-                        <h4 className="mb-[6px] font-semibold">{job.jobTitle}</h4>
+                      <div className="ml-0 w-[250px] font-semibold sm:ml-4">
+                        <h4 className="mb-[6px] font-semibold">{truncateText(job.jobTitle, 30)}</h4>
                         <div className="flex items-center gap-2 text-[10px] text-[#002c3fb3] sm:gap-3 sm:text-[12px]">
                           <div className="flex items-center gap-1">
                             <WorkIcon sx={{ fontSize: '15px' }} />
@@ -189,7 +189,7 @@ const AdminSystemJob = () => {
                       />
                     </div>
                     {/* Button */}
-                    <div className="flex items-center gap-2">
+                    <div className="grid grid-cols-3 items-center gap-2">
                       {job.status === 'PENDING' && (
                         <>
                           <ButtonAccept

@@ -58,7 +58,7 @@ const AdminSystemDetailCompany = () => {
     }
   };
   return (
-    <div className="h-screen rounded-2xl bg-white  p-3 sm:p-0">
+    <div className="rounded-2xl bg-white p-3 !pb-20 sm:p-0">
       {/* Icon */}
       <div className="p-5">
         <Link href={'/admin/system/company'}>

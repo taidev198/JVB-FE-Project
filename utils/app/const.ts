@@ -340,3 +340,10 @@ export const statusUniversityApplyJob = (status: string | null): string => {
       return 'Ứng tuyển ngay';
   }
 };
+
+export function truncateText(text, maxLength) {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + '...';
+  }
+  return text;
+}
