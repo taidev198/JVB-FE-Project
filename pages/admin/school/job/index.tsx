@@ -16,6 +16,8 @@ import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
 
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 const animatedComponents = makeAnimated();
 const Partnerships = () => {
   const dispatch = useDispatch();
@@ -140,8 +142,24 @@ const Partnerships = () => {
           <thead className="bg-white">
             <tr>
               <th className="px-5 py-4 text-left">STT</th>
-              <th className="px-5 py-4 text-left">Tên công ty</th>
-              <th className="px-5 py-4 text-left">Tên công việc</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên công ty</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
+              </th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên công việc</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
+              </th>
               <th className="px-5 py-4 text-left">Loại hình</th>
               <th className="px-5 py-4 text-left">Yêu cầu trình độ</th>
               <th className="px-5 py-4 text-left">Ngày ứng tuyển</th>
