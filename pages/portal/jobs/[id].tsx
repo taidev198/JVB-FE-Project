@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // pages/portal/companies/[id].tsx
 import { CalendarOutlined, ClockCircleOutlined, DollarOutlined, LaptopOutlined, SolutionOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert, Select } from 'antd';
@@ -21,6 +22,7 @@ import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import { useGetAllMajorsQuery } from '@/services/adminSchoolApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { statusUniversityApplyJob } from '@/utils/app/const';
 
 interface JobDetailsProps {
   serverSideApiKeyIsSet: boolean;
@@ -32,7 +34,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
   const [majorId, setMajorId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const { id } = router.query;
-  const { data, isLoading, error } = useGetJobDetailsQuery({ id: Number(id) });
+  const { data, isLoading, error } = useGetJobDetailsQuery({ id: Number(id) }, { refetchOnMountOrArgChange: true });
   const { data: majors } = useGetAllMajorsQuery();
   const [apply, { isLoading: applyLoading }] = useSendApplyJobMutation();
   const handleConfirmAction = async () => {
@@ -74,6 +76,8 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
   const address = `${jobDetails?.company?.address?.houseNumber}, ${jobDetails?.company?.address?.ward.wardName}, ${jobDetails?.company?.address?.district.districtName}, ${jobDetails?.company?.address?.province.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
 
+  console.log('Check data: ', data);
+
   return (
     <>
       <Head>
@@ -92,8 +96,9 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
             address={`${jobDetails?.company?.address?.houseNumber},${jobDetails?.company?.address?.ward.wardName}, ${jobDetails?.company?.address?.district.districtName}, ${jobDetails?.company?.address?.province.provinceName}`}
             logo={jobDetails?.company?.logoUrl}
             currentPage="Chi tiết công việc"
-            buttonText="Ứng tuyển ngay"
+            buttonText={`${statusUniversityApplyJob(data.data.statusUnviersityApply)}`}
             onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
+            className={`${data.data.statusUnviersityApply !== null ? 'pointer-events-none cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">

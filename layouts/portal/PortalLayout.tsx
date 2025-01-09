@@ -48,9 +48,7 @@ const PortalLayout: FC<ProtolLayoutProps> = ({ children }) => (
           },
         },
       }}>
-      <PortalHeader
-      //  type={type}
-      />
+      <PortalHeader />
       {children}
       <PortalFooter />
     </ConfigProvider>

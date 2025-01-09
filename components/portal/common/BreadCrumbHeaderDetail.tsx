@@ -10,6 +10,7 @@ interface BreadCrumbHeaderDetailProps {
   logo: string;
   buttonText?: string; // Optional prop for button text
   onButtonClick?: () => void; // Optional prop for button logic
+  className?: string;
 }
 
 const BreadCrumbHeaderDetail: React.FC<BreadCrumbHeaderDetailProps> = ({
@@ -19,6 +20,7 @@ const BreadCrumbHeaderDetail: React.FC<BreadCrumbHeaderDetailProps> = ({
   logo,
   buttonText = 'Liên kết ngay', // Default button text
   onButtonClick, // Button click logic
+  className,
 }) => {
   return (
     <div className="rts__section relative min-h-[450px] bg-breakcrumb-bg bg-cover bg-no-repeat">
@@ -41,7 +43,7 @@ const BreadCrumbHeaderDetail: React.FC<BreadCrumbHeaderDetailProps> = ({
               </div>
             </div>
             <button
-              className="mp_transition_4 z-[2] min-w-[200px] rounded-md bg-primary-main px-[30px] py-[20px] text-lg font-medium tracking-wide text-white hover:bg-primary-black"
+              className={`mp_transition_4 z-[2] min-w-[200px] rounded-md bg-primary-main px-[30px] py-[20px] text-lg font-medium tracking-wide text-white hover:bg-primary-black ${className}`}
               onClick={onButtonClick}>
               {buttonText}
             </button>

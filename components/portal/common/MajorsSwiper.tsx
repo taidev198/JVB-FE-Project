@@ -76,9 +76,9 @@ const MajorsSwiper: React.FC<MajorsSwiperProps> = ({ swiperRef }) => {
                 <img src={fieldImages[field.fieldName] || '/images/default-icon.png'} alt={field.fieldName} className="object-cover" />
               </div>
               <div className="single__cat__link flex flex-col truncate">
-                <a href="#" aria-label={field.fieldName} className="truncate text-[18px] text-primary-black">
+                <span aria-label={field.fieldName} className="truncate text-[18px] text-primary-black">
                   {field.fieldName}
-                </a>
+                </span>
                 <span className="text-[18px] text-primary-gray">{field.countJob}+ Công việc</span>
               </div>
             </Link>

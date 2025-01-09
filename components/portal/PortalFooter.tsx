@@ -9,9 +9,9 @@ const PortalFooter = () => {
       <div className="container mx-auto">
         <div className="footer__wrapper grid grid-cols-1 gap-6 py-[60px] sm:grid-cols-2  lg:gap-8 xl:grid-cols-4 ">
           <div className="rts__footer__widget max-320">
-            <Link href="/" className="footer__logo flex items-end " aria-label="logo">
+            <div className="footer__logo flex items-end " aria-label="logo">
               <Logo />
-            </Link>
+            </div>
             <p className="mt-[1.5rem] text-lg text-primary-gray">
               Cho dù bạn là một doanh nghiệp tìm kiếm nhân tài hay một trường học mong muốn mở rộng kết nối, JobLink luôn có giải pháp phù hợp cho mọi nhu cầu.
             </p>

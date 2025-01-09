@@ -68,10 +68,10 @@ const Workshop = () => {
                   <Link href={`/portal/workshops/${workshop.id}`} className="block truncate whitespace-nowrap text-[24px] font-semibold text-primary-black">
                     {workshop.workshopTitle}
                   </Link>
-                  <p className="mt-[16px] line-clamp-2 text-lg text-primary-gray">
+                  <div className="mt-[16px] line-clamp-2 text-lg text-primary-gray">
                     <HtmlContentRenderer htmlContent={workshop?.workshopDescription || ''} />
-                  </p>
-                  <div className="mt-[20px] flex flex-row items-center justify-between">
+                  </div>
+                  <div className="mt-[20px] flex flex-row items-center justify-between gap-2">
                     <Link href={`/workshops/${workshop.id}`} className="readmore__btn flex basis-1/2 items-center gap-2 text-lg">
                       <span className="mp_transition_4 font-medium hover:text-primary-main">Chi tiết</span>
                       <i className="fa-solid fa-arrow-right mp_transition_4 rotate-[-40deg] group-hover:rotate-0 group-hover:text-primary-main" />

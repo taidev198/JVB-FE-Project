@@ -1,7 +1,7 @@
+/* eslint-disable no-console */
 // pages/portal/companies/[id].tsx
-
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
-import { Alert, Select } from 'antd';
+import { Alert, Input, Select } from 'antd';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -20,9 +20,10 @@ import { IWorkshopPortal } from '@/types/workshop';
 import PortalLoadingLarge from '@/components/portal/common/PortalLoadingLarge';
 import PortalLayout from '@/layouts/portal/PortalLayout';
 import { useAppSelector } from '@/store/hooks';
-import { setLoading } from '@/store/slices/global';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-
+import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
+import { BackDrop } from '@/components/Common/BackDrop';
+import { Button } from '@/components/Common/Button';
 interface SchoolDetailsPageProps {
   serverSideApiKeyIsSet: boolean;
 }
@@ -33,9 +34,16 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const dispatch = useDispatch();
   const idLogin = useAppSelector(state => state.user.id);
 
+  const nameUser = useAppSelector(state => state.user.name);
+
+  const showBackdrop = useAppSelector(state => state.global.backdropType);
+
   const { Option } = Select;
 
   const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
+
+  const [reason, setReason] = useState(`Xin chào, tôi là ${nameUser}. Tôi tìm thấy bạn qua website JobLink. Hợp tác với tôi nhé!`);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedWorkshops, setPaginatedWorkshops] = useState<IWorkshopPortal[]>([]);
   const [pageSize, setPageSize] = useState(4);
@@ -87,6 +95,10 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
     );
   }
 
+  const handleChange = e => {
+    setReason(e.target.value);
+  };
+
   const universityDetails = data?.data;
   const workshops: IWorkshopPortal[] = isLoadingWorkshops ? [] : workshopsData?.data.content || [];
 
@@ -95,7 +107,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=${zoomLevel}&output=embed`;
   const handleSendRequests = async () => {
     try {
-      await sendRequests({ accountLoginId: idLogin, toDoAccountId: data.data.id, doBy: 1 }).unwrap();
+      await sendRequests({ accountLoginId: idLogin, toDoAccountId: data.data.id, doBy: 1, message: reason }).unwrap();
       toast.success('Đã Gửi yêu cầu hợp tác thành công');
     } catch (error) {
       if (isFetchBaseQueryError(error)) {
@@ -106,6 +118,9 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
       }
     }
   };
+
+  console.log('Check data: ', data);
+
   return (
     <>
       <Head>
@@ -123,9 +138,9 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
             schoolType={universityDetails?.universityShortDescription || 'Chi tiết trường học'}
             address={`${universityDetails?.address?.houseNumber},${universityDetails?.address?.ward.wardName}, ${universityDetails?.address?.district.districtName}, ${universityDetails?.address?.province.provinceName}`}
             logo={universityDetails?.logoUrl}
+            buttonText={`${data.data.isPartnership ? 'Đã liên kết' : 'Chưa liên kết'}`}
+            onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
             currentPage="Trường học"
-            onButtonClick={handleSendRequests}
-            buttonText="Liên kết ngay"
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">
@@ -281,6 +296,26 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
               </div>
             </div>
           </div>
+          {showBackdrop === BackdropType.AddModal && (
+            <BackDrop isCenter>
+              <div className="max-w-[480px] rounded-md p-6">
+                <h3 className="font-bold">{showBackdrop === BackdropType.AddModal && `Thư hợp tác đến ${universityDetails.universityName}`}</h3>
+                <p className="mb-3 mt-1">Bạn có chắc muốn thực hiện hành động này</p>
+                <div className="flex items-center justify-center">
+                  <div className="grid w-full grid-cols-1 gap-4 rounded-lg bg-primary-white pt-4">
+                    <div className="relative w-full">
+                      <Input.TextArea value={reason} onChange={handleChange} maxLength={150} rows={5} style={{ resize: 'none' }} />
+                      <span className="absolute bottom-2 right-3 text-gray-500">{reason.length}/150 ký tự</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-9 flex items-center gap-5">
+                  <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
+                  <Button text="Xác nhận" full={true} onClick={handleSendRequests} />
+                </div>
+              </div>
+            </BackDrop>
+          )}
         </main>
       </PortalLayout>
     </>

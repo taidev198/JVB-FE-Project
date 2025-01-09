@@ -310,3 +310,33 @@ export const statusStudentApplyJob = (status: string): AccountStatus => {
       return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
   }
 };
+
+export const statusCompanyApplyWorkshop = (status: string | null): string => {
+  switch (status) {
+    case 'PENDING':
+      return 'Chờ duyệt';
+    case 'ACCEPT':
+      return 'Đã tham gia';
+    case 'REJECT':
+      return 'Bị từ chối';
+    case 'CANCEL':
+      return 'Hủy tham gia';
+    default:
+      return 'Tham gia ngay';
+  }
+};
+
+export const statusUniversityApplyJob = (status: string | null): string => {
+  switch (status) {
+    case 'PENDING':
+      return 'Chờ duyệt';
+    case 'ACCEPT':
+      return 'Đã tham gia';
+    case 'REJECT':
+      return 'Bị từ chối';
+    case 'CANCEL':
+      return 'Hủy ứng tuyển';
+    default:
+      return 'Ứng tuyển ngay';
+  }
+};

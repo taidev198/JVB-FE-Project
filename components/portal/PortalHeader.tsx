@@ -419,8 +419,8 @@ const PortalHeader: React.FC = () => {
                   <Drawer
                     placement="right"
                     onClose={onClose}
-                    visible={visible}
-                    bodyStyle={{ padding: 0 }}
+                    open={visible}
+                    styles={{ body: { padding: 0 } }}
                     closeIcon={null} // Hiển thị nút tắt
                     title={
                       <div className="flex items-center gap-4">
