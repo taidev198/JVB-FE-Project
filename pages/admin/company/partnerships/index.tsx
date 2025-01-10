@@ -83,11 +83,6 @@ const JobAdminSchool = () => {
             toast.success(response.message);
             break;
           }
-          // case BackdropType.DeleteConfirmation: {
-          //   const response = await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
-          //   toast.success(response.message);
-          //   break;
-          // }
           default:
             throw new Error('Invalid action type');
         }
@@ -168,7 +163,7 @@ const JobAdminSchool = () => {
             <div className="flex flex-col flex-wrap justify-start gap-x-3 gap-y-4">
               {partnerships?.data.content.map(partner => (
                 <div className="rounded-lg border border-solid px-4 py-5" key={partner?.university.id}>
-                  <div className="flex w-full flex-wrap items-center justify-between gap-3">
+                  <div className="flex w-full flex-wrap items-center justify-between gap-3 md:flex-nowrap">
                     <div className="flex w-full items-center lg:w-3/4">
                       <ImageComponent
                         src={partner.university?.logoUrl}

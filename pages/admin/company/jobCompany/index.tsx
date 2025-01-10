@@ -103,8 +103,12 @@ const JobCompany = () => {
             className="w-[250px]"
           />
           <div className="flex items-center gap-5">
-            <Link href={'/admin/company/jobCompany/AddJob'}>
-              <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
+            <Link
+              href={'/admin/company/jobCompany/AddJob'}
+              className="flex items-center justify-center rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2
+               text-white transition duration-300 ease-in-out hover:bg-[#2e7b42]">
+              <AddIcon />
+              Thêm mới
             </Link>
             <MyButton
               type="submit"
