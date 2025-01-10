@@ -1,4 +1,4 @@
-import { Jost } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import '@/styles/globals.css';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
@@ -17,7 +17,7 @@ import AdminCompanyLayout from '@/layouts/Admin/AdminCompanyLayout';
 import ToastNotification from '@/components/Common/ToastNotification';
 import SocketProvider from '@/context/SoketProvider';
 
-const plusJakartaSans = Jost({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
 });

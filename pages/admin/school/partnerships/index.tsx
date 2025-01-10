@@ -1,15 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Chip, TextField, Tooltip } from '@mui/material';
 import toast from 'react-hot-toast';
-import { debounce } from 'lodash';
-import CancelIcon from '@mui/icons-material/Cancel';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
 import { useDispatch } from 'react-redux';
+import { debounce } from 'lodash';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { Chip, TextField, Tooltip } from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button } from '@/components/Common/Button';
+import { resetFilters } from '@/store/slices/filtersSlice';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import {
   useAcceptPartnershipsMutation,
@@ -17,20 +15,22 @@ import {
   useGetAllPartnershipsUniversityQuery,
   useRemovePartnershipsMutation,
 } from '@/services/adminSystemApi';
+import { StatusPartnership } from '@/utils/app/const';
 import ImageComponent from '@/components/Common/Image';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { StatusPartnership } from '@/utils/app/const';
 import PaginationComponent from '@/components/Common/Pagination';
 import RemovePerson from '@/components/Common/ButtonIcon/RemovePerson';
 import ButtonAddPerson from '@/components/Common/ButtonIcon/AddPerson';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const JobAdminSchool = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string>(null);
   const dispatch = useDispatch();
   const [partnershipStatus, setPartnershipStatus] = useState<string>('friend');
   const [selectId, setSelectId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('Rất tiếc tôi nhận thấy chúng ta không hợp nhau.');
-  const { page, size, keyword } = useAppSelector(state => state.filter);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
   const universityId = useAppSelector(state => state.user?.id);
@@ -39,10 +39,10 @@ const JobAdminSchool = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const getUrl = () => {
@@ -74,13 +74,13 @@ const JobAdminSchool = () => {
       try {
         switch (showBackdrop) {
           case BackdropType.ApproveConfirmation: {
-            const response = await accept({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
-            toast.success(response.message);
+            await accept({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
+            toast.success('Hợp tác thành công');
             break;
           }
           case BackdropType.RefuseConfirmation: {
-            const response = await cancel({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
-            toast.success(response.message);
+            await cancel({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
+            toast.success('Từ chối hợp tác');
             break;
           }
           // case BackdropType.DeleteConfirmation: {
@@ -120,8 +120,8 @@ const JobAdminSchool = () => {
             <button
               onClick={() => {
                 setPartnershipStatus('friend');
-                dispatch(setPage(1));
-                dispatch(setKeyword(''));
+                setPage(1);
+                setKeyword('');
               }}
               className={`rounded-lg ${partnershipStatus === 'friend' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
               Đối tác
@@ -129,8 +129,8 @@ const JobAdminSchool = () => {
             <button
               onClick={() => {
                 setPartnershipStatus('invitation');
-                dispatch(setPage(1));
-                dispatch(setKeyword(''));
+                setPage(1);
+                setKeyword('');
               }}
               className={`rounded-lg ${partnershipStatus === 'invitation' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
               Lời mời
@@ -138,8 +138,8 @@ const JobAdminSchool = () => {
             <button
               onClick={() => {
                 setPartnershipStatus('request');
-                dispatch(setPage(1));
-                dispatch(setKeyword(''));
+                setPage(1);
+                setKeyword('');
               }}
               className={`rounded-lg ${partnershipStatus === 'request' ? 'bg-primary-main' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
               Yêu cầu
@@ -266,36 +266,29 @@ const JobAdminSchool = () => {
       <PaginationComponent
         count={partnerships?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={partnerships?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
       {(showBackdrop === BackdropType.ApproveConfirmation || showBackdrop === BackdropType.RefuseConfirmation) && (
-        <BackDrop isCenter>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">
-              {showBackdrop === BackdropType.ApproveConfirmation && `Đồng ý hợp tác ${name}`}
-              {showBackdrop === BackdropType.RefuseConfirmation && `Từ chối hợp tác ${name}`}
-            </h3>
-            <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-            </div>
-          </div>
-        </BackDrop>
+        <PopupConfirmAction
+          text={`${showBackdrop === BackdropType.ApproveConfirmation ? 'Đồng ý' : showBackdrop === BackdropType.RefuseConfirmation ? 'Từ chối ' : ''} hợp tác`}
+          name={name}
+          onClick={handleConfirmAction}
+        />
       )}
 
       {showBackdrop === BackdropType.DeleteConfirmation && (
         <PopupConfirmAction
-          name="ABC"
-          text="Hủy"
+          name={name}
+          text="Hủy hợp tác với"
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           onClick={async () => {
             try {
-              const response = await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy, message: searchTerm }).unwrap();
-              toast.success(response.message);
+              await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy, message: searchTerm }).unwrap();
+              toast.success('Hủy hợp tác thành công');
             } catch (error) {
               if (isFetchBaseQueryError(error)) {
                 const errMsg = (error.data as { message?: string })?.message || 'Đã xảy ra lỗi';

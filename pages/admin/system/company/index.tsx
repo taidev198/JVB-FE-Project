@@ -7,7 +7,6 @@ import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/s
 import { useAppSelector } from '@/store/hooks';
 import { useGetAllAccountCompanyQuery } from '@/services/adminSystemApi';
 import { typeAccount } from '@/utils/app/const';
-import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonLock from '@/components/Common/ButtonIcon/ButtonLock';
 import ButtonUnLock from '@/components/Common/ButtonIcon/ButtonUnLock';
@@ -18,12 +17,15 @@ import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { useAccountActionsCompanyAdminSystem } from '@/components/Admin/System/SystemCompany/Action';
 
 const AdminSystemCompany = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const dispatch = useDispatch();
   const name = useAppSelector(state => state.global.name);
-  const { page, size, status, keyword } = useAppSelector(state => state.filter);
 
   const handleAction = (actionType: BackdropType, companyId: number, companyName: string) => {
     setSelectedCompanyId(companyId);
@@ -35,10 +37,10 @@ const AdminSystemCompany = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const { data: companies, isLoading: isLoadingDetAll } = useGetAllAccountCompanyQuery({ page, size, keyword, status }, { refetchOnMountOrArgChange: true });
@@ -72,9 +74,6 @@ const AdminSystemCompany = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoadingDetAll));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [dispatch, isLoadingDetAll]);
   return (
     <>
@@ -92,7 +91,7 @@ const AdminSystemCompany = () => {
                 { value: 'ACTIVE', label: 'Hoạt động' },
                 { value: 'BAN', label: 'Đã khóa' },
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
             <TextField
@@ -177,7 +176,8 @@ const AdminSystemCompany = () => {
         size={size}
         page={page}
         count={companies?.data.totalPages}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
+        onSizeChange={value => setSize(value)}
         totalItem={companies?.data.totalElements}
       />
       {/* Backdrops */}

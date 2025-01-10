@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Chip, TextField } from '@mui/material';
 import Select from 'react-select';
@@ -6,7 +5,6 @@ import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
 
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import { resetFilters, setKeyword, setPage, setStatus, setUniversityType } from '@/store/slices/filtersSlice';
 import { useAppSelector } from '@/store/hooks';
 import { useGetAllAccountSchoolQuery } from '@/services/adminSystemApi';
 import { typeAccount, typeUniversity, typeUniversityTitle } from '@/utils/app/const';
@@ -20,14 +18,18 @@ import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { useAccountActionsCompanyAdminSystem } from '@/components/Admin/System/SystemCompany/Action';
 
 const AdminSystemSchool = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [universityType, setUniversityType] = useState<string | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size, status, universityType } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();
   const handleAction = useCallback(
-    (actionType: any, companyId: number, universityName: string) => {
+    (actionType: BackdropType, companyId: number, universityName: string) => {
       setSelectedCompanyId(companyId);
       setSelectedAction(actionType);
       dispatch(setBackdrop(actionType));
@@ -39,10 +41,10 @@ const AdminSystemSchool = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const { data: universities, isLoading: isLoadingDetAll } = useGetAllAccountSchoolQuery(
@@ -80,9 +82,6 @@ const AdminSystemSchool = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoadingDetAll));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [dispatch, isLoadingDetAll]);
   return (
     <>
@@ -108,7 +107,7 @@ const AdminSystemSchool = () => {
                 { value: 'ACTIVE', label: 'Hoạt động' },
                 { value: 'BAN', label: 'Đã khóa' },
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
             <Select
@@ -118,7 +117,7 @@ const AdminSystemSchool = () => {
                 value: type.value,
                 label: type.label,
               }))}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setUniversityType(selectedOption.value))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setUniversityType(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
           </div>
@@ -194,8 +193,9 @@ const AdminSystemSchool = () => {
         size={size}
         page={page}
         count={universities?.data.totalPages}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         totalItem={universities?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
       {/* Backdrops */}
       {showBackdrop && (

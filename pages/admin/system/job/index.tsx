@@ -8,50 +8,49 @@ import { useDispatch } from 'react-redux';
 import WorkIcon from '@mui/icons-material/Work';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
-import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { useApproveJobsMutation, useGetAllJobsAdminSystemQuery, useRejectJobsMutation } from '@/services/adminSystemApi';
+import { useGetAllJobsAdminSystemQuery } from '@/services/adminSystemApi';
 import ImageComponent from '@/components/Common/Image';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import { statusLabelJob, truncateText } from '@/utils/app/const';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import { ActionJobAdminSystem } from '@/components/Admin/System/SystemJob/action';
 
 const AdminSystemJob = () => {
+  const [page, setPage] = useState<number | null>(1);
+  const [size, setSize] = useState<number | null>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const dispatch = useDispatch();
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
   const [active, setActive] = useState('ALL');
-  const { page, size, keyword, status } = useAppSelector(state => state.filter);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
 
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const { data: jobs, isLoading: isLoadingGetAll } = useGetAllJobsAdminSystemQuery({ page, size, keyword, status }, { refetchOnMountOrArgChange: true });
-  const [approveJob, { isLoading: isLoadingApprove }] = useApproveJobsMutation();
-  const [rejectJob, { isLoading: isLoadingReject }] = useRejectJobsMutation();
+  const { approveJob, rejectJob } = ActionJobAdminSystem();
   const handleConfirmAction = async () => {
     if (showBackdrop) {
       try {
         switch (showBackdrop) {
           case BackdropType.ApproveConfirmation: {
-            await approveJob({ id: selectedJobId }).unwrap();
-            toast.success('Job đã được duyệt thành công!');
+            await approveJob({ id: selectedJobId });
             break;
           }
           case BackdropType.RefuseConfirmation: {
-            await rejectJob({ id: selectedJobId }).unwrap();
-            toast.success('Đã từ chối job thành công!');
+            await rejectJob({ id: selectedJobId });
             break;
           }
           default:
@@ -70,11 +69,8 @@ const AdminSystemJob = () => {
     }
   };
   useEffect(() => {
-    dispatch(setLoading(isLoadingApprove || isLoadingReject || isLoadingGetAll));
-    return () => {
-      dispatch(resetFilters());
-    };
-  }, [dispatch, isLoadingApprove, isLoadingReject, isLoadingGetAll]);
+    dispatch(setLoading(isLoadingGetAll));
+  }, [dispatch, isLoadingGetAll]);
 
   return (
     <>
@@ -107,7 +103,7 @@ const AdminSystemJob = () => {
               <div className="mx-auto flex items-center gap-2  sm:ml-auto sm:mr-0">
                 <button
                   onClick={() => {
-                    dispatch(setStatus(''));
+                    setStatus('');
                     setActive('ALL');
                   }}
                   className={`rounded-lg ${active === 'ALL' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
@@ -115,7 +111,7 @@ const AdminSystemJob = () => {
                 </button>
                 <button
                   onClick={() => {
-                    dispatch(setStatus('PENDING'));
+                    setStatus('PENDING');
                     setActive('PENDING');
                   }}
                   className={`rounded-lg ${active === 'PENDING' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
@@ -123,7 +119,7 @@ const AdminSystemJob = () => {
                 </button>
                 <button
                   onClick={() => {
-                    dispatch(setStatus('APPROVED'));
+                    setStatus('APPROVED');
                     setActive('APPROVED');
                   }}
                   className={`rounded-lg ${active === 'APPROVED' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
@@ -131,7 +127,7 @@ const AdminSystemJob = () => {
                 </button>
                 <button
                   onClick={() => {
-                    dispatch(setStatus('REJECT'));
+                    setStatus('REJECT');
                     setActive('REJECT');
                   }}
                   className={`rounded-lg ${active === 'REJECT' ? 'bg-primary-main transition-all' : ''} bg-black px-4 py-[7px] text-xs text-white`}>
@@ -231,22 +227,17 @@ const AdminSystemJob = () => {
         page={page}
         size={size}
         totalItem={jobs?.data.totalElements}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
+        onSizeChange={value => {
+          setSize(value);
+        }}
       />
       {showBackdrop && (
-        <BackDrop isCenter>
-          <div className="max-w-[430px] rounded-md p-6">
-            <h3 className="font-bold">
-              {showBackdrop === BackdropType.ApproveConfirmation && `Duyệt job ${name}`}
-              {showBackdrop === BackdropType.RefuseConfirmation && `Từ chối job ${name}`}
-            </h3>
-            <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-            </div>
-          </div>
-        </BackDrop>
+        <PopupConfirmAction
+          name={name}
+          text={showBackdrop === BackdropType.ApproveConfirmation ? 'Duyệt' : showBackdrop === BackdropType.RefuseConfirmation ? 'Từ chối' : ''}
+          onClick={() => handleConfirmAction()}
+        />
       )}
     </>
   );
