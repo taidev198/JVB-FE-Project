@@ -18,6 +18,8 @@ import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 
 const JobCompany = () => {
   const [idJob, setIdJob] = useState<number>();
@@ -44,6 +46,18 @@ const JobCompany = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+
+  const [sortState, setSortState] = useState<{
+    currentColumn: string | null;
+    sortDirection: 'asc' | 'desc' | null;
+  }>({
+    currentColumn: null, // Không sắp xếp cột nào lúc đầu
+    sortDirection: null, // Không có hướng sắp xếp
+  });
+
+  const handleSort = (column: string, direction: 'asc' | 'desc') => {
+    setSortState({ currentColumn: column, sortDirection: direction });
+  };
 
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteJobCompanyMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
@@ -134,11 +148,44 @@ const JobCompany = () => {
                   onChange={handleSelectAll}
                 />
               </th>
-              <th className="p-3 py-4 text-left sm:px-3">STT</th>
-              <th className="px-5 py-4 text-left">Tên công việc</th>
-              <th className="px-5 py-4 text-left">Mức lương</th>
-              <th className="px-5 py-4 text-left">Thời hạn</th>
-              <th className="px-5 py-4 text-left">Hành động</th>
+              <th className="p-3 py-4 text-left sm:px-3">
+                <span className="min-w-max">STT</span>
+              </th>
+              <th className="p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên công việc</span>
+                  <span className="">
+                    <ButtonUp isSort={sortState.currentColumn === 'name' && sortState.sortDirection === 'asc'} onClick={() => handleSort('name', 'asc')} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'name' && sortState.sortDirection === 'desc'} onClick={() => handleSort('name', 'desc')} />
+                  </span>
+                </div>
+              </th>
+              <th className="p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Mức lương</span>
+                  <span className="">
+                    <ButtonUp isSort={sortState.currentColumn === 'luong' && sortState.sortDirection === 'asc'} onClick={() => handleSort('luong', 'asc')} />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'luong' && sortState.sortDirection === 'desc'}
+                      onClick={() => handleSort('luong', 'desc')}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Thời hạn</span>
+                  <span className="">
+                    <ButtonUp isSort={sortState.currentColumn === 'time' && sortState.sortDirection === 'asc'} onClick={() => handleSort('time', 'asc')} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'time' && sortState.sortDirection === 'desc'} onClick={() => handleSort('time', 'desc')} />
+                  </span>
+                </div>
+              </th>
+              <th className="p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Hành động</span>
+                </div>
+              </th>
             </tr>
           </thead>
           <tbody>

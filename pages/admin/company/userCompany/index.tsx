@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 import { useDispatch } from 'react-redux';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
-import { Checkbox, Chip, TextField } from '@mui/material';
+import { Checkbox, TextField } from '@mui/material';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -17,7 +18,8 @@ import { useAppSelector } from '@/store/hooks';
 import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import PaginationComponent from '@/components/Common/Pagination';
-import { statusEmployee } from '@/utils/app/const';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 
 const UserCompany = () => {
   const [idEmployee, setIdEmployee] = useState<number>();
@@ -28,6 +30,7 @@ const UserCompany = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
   const [startDate] = useState<Date | null>(null);
   const [endDate] = useState<Date | null>(null);
+
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -48,6 +51,18 @@ const UserCompany = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+
+  const [isSortAsc, setIsSortAsc] = useState<{ [key: string]: boolean | null }>({
+    maNV: null,
+    tenNV: null,
+    email: null,
+  });
+  const handleSort = (column: string, isAsc: boolean) => {
+    setIsSortAsc(prevState => ({
+      ...prevState,
+      [column]: isAsc, // Chỉ cập nhật trạng thái của cột được click
+    }));
+  };
 
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteEmployeeCompanyMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllEmployeeCompanyMutation();
@@ -143,13 +158,44 @@ const UserCompany = () => {
                 />
               </th>
               <th className="p-3 py-4 text-left sm:px-3">STT</th>
-              <th className="px-5 py-4 text-left">Mã nhân viên</th>
-              <th className="px-5 py-4 text-left">Tên nhân viên</th>
-              <th className="px-5 py-4 text-left">Email</th>
-              <th className="px-5 py-4 text-left">Chức vụ</th>
-              <th className="px-5 py-4 text-left">Số điện thoại</th>
-              <th className="px-5 py-4 text-left">Trạng thái</th>
-              <th className="px-5 py-4 text-left">Hành động</th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Mã nhân viên</span>
+                  <span className="">
+                    <ButtonUp isSort={isSortAsc.maNV === true} onClick={() => handleSort('maNV', true)} />
+                    <ButtonArrow isSort={isSortAsc.maNV === false} onClick={() => handleSort('maNV', false)} />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên nhân viên</span>
+                  <span className="">
+                    <ButtonUp isSort={isSortAsc.tenNV === true} onClick={() => handleSort('tenNV', true)} />
+                    <ButtonArrow isSort={isSortAsc.tenNV === false} onClick={() => handleSort('tenNV', false)} />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Email</span>
+                  <span className="">
+                    <ButtonUp isSort={isSortAsc.email === true} onClick={() => handleSort('email', true)} />
+                    <ButtonArrow isSort={isSortAsc.email === false} onClick={() => handleSort('email', false)} />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Chức vụ</span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Số điện thoại</span>
+                </div>
+              </th>
+              <th className="cursor-pointer px-5 py-4 text-left">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -165,15 +211,6 @@ const UserCompany = () => {
                   <td className="px-5 py-4">{item.account.email}</td>
                   <td className="px-5 py-4">{item.employeePosition}</td>
                   <td className="px-5 py-4">{item.phoneNumber}</td>
-                  <td className="px-5 py-4">
-                    <Chip
-                      label={statusEmployee(item.employeeStatus).title}
-                      sx={{
-                        backgroundColor: statusEmployee(item.employeeStatus).bg,
-                        color: statusEmployee(item.employeeStatus).color,
-                      }}
-                    />
-                  </td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">
                       <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
