@@ -22,7 +22,7 @@ const Department = () => {
   const dispatch = useAppDispatch();
   const { page, keyword, size } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
-  const [, setSelectId] = useState<number | null>(null);
+  const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
   const { data: departments, isLoading } = useGetAllDepartmentsQuery(
@@ -33,7 +33,16 @@ const Department = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+  const [isSortAsc, setIsSortAsc] = useState(false);
+  const handleSortDown = () => {
+    setIsSortAsc(false);
+    // Logic sắp xếp giảm dần
+  };
 
+  const handleSortUp = () => {
+    setIsSortAsc(true);
+    // Logic sắp xếp tăng dần
+  };
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -47,7 +56,6 @@ const Department = () => {
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
 
-  const idDepartment = useAppSelector(state => state.global.id);
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteDepartmentOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteDepartmentMultipleMutation();
   const handleConfirmAction = async () => {
@@ -56,7 +64,7 @@ const Department = () => {
         await deleteMultiple({ ids: selectedDepartment }).unwrap();
         toast.success('Các khoa đã được xóa thành công.');
       } else {
-        await deleteOne({ id: idDepartment }).unwrap();
+        await deleteOne({ id: selectId }).unwrap();
         toast.success('Khoa đã được xóa thành công.');
       }
     } catch (error) {
@@ -146,8 +154,8 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Mã khoa</span>
                   <span className="">
-                    <ButtonUp />
-                    <ButtonArrow />
+                    <ButtonUp isSort={isSortAsc} onClick={handleSortDown} />
+                    <ButtonArrow isSort={!isSortAsc} onClick={handleSortUp} />
                   </span>
                 </div>
               </th>
@@ -155,8 +163,8 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên khoa</span>
                   <span className="">
-                    <ButtonUp />
-                    <ButtonArrow />
+                    <ButtonUp isSort={isSortAsc} onClick={handleSortDown} />
+                    <ButtonArrow isSort={!isSortAsc} onClick={handleSortUp} />
                   </span>
                 </div>
               </th>
@@ -164,8 +172,8 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Trưởng khoa</span>
                   <span className="">
-                    <ButtonUp />
-                    <ButtonArrow isSort />
+                    <ButtonUp isSort={isSortAsc} onClick={handleSortDown} />
+                    <ButtonArrow isSort={!isSortAsc} onClick={handleSortUp} />
                   </span>
                 </div>
               </th>
