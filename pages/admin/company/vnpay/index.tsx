@@ -7,7 +7,7 @@ const index = () => {
         <div></div>
       </div>
     </>
-  )
+  );
 };
 
 export default index;
