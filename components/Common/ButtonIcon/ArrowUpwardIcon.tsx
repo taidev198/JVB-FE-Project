@@ -1,10 +1,16 @@
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import { Tooltip } from '@mui/material';
-const ButtonUp = () => {
+import { FC } from 'react';
+
+export interface ButtonUpProps {
+  isSort?: boolean;
+}
+
+const ButtonUp: FC<ButtonUpProps> = ({ isSort }) => {
   return (
     <Tooltip title="Lên">
-      <div className="cursor-pointer rounded-lg py-[6px] transition-all hover:bg-[#80807f1a]">
-        <ArrowDropUpIcon style={{ fontSize: 12 }} color="inherit" />
+      <div className={`rounded-lg opacity-30 ${isSort ? '' : 'opacity-30'} transition-all hover:bg-[#80807f1a]`}>
+        <ArrowDropUpIcon color="inherit" viewBox="0 -8 24 24" />
       </div>
     </Tooltip>
   );

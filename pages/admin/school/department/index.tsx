@@ -142,37 +142,37 @@ const Department = () => {
               sm:px-5 sm:py-4">
                 <span className="min-w-max py-[6px]">STT</span>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Mã khoa</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
+                  <span className="">
                     <ButtonUp />
+                    <ButtonArrow />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Tên khoa</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
+                  <span className="">
                     <ButtonUp />
+                    <ButtonArrow />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Trưởng khoa</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
+                  <span className="">
                     <ButtonUp />
+                    <ButtonArrow isSort />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 text-left sm:px-5">
                 <span className="min-w-max">Năm thành lập</span>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 text-left sm:px-5">
                 <span className="min-w-max">Thao tác</span>
               </th>
             </tr>
