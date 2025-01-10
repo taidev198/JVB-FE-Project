@@ -89,12 +89,12 @@ const UserCompany = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách tài khoản nhân viên</h1>
+        <h1 className="mb-5 font-bold">Danh sách tài khoản nhân viên</h1>
         <div className="flex items-center justify-between gap-3 ">
           <div className="w-[220px]">
             <TextField
               id="filled-search"
-              label="Tìm kiếm tên nhân viên,..."
+              label="Tìm kiếm tên nhân viên"
               type="search"
               variant="outlined"
               size="small"
@@ -103,8 +103,12 @@ const UserCompany = () => {
           </div>
 
           <div className="flex items-center gap-5">
-            <Link href={'/admin/company/userCompany/AddEmployee'}>
-              <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
+            <Link
+              href={'/admin/company/userCompany/AddEmployee'}
+              className="flex items-center justify-center rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2
+               text-white transition duration-300 ease-in-out hover:bg-[#2e7b42] ">
+              <AddIcon />
+              Thêm mới
             </Link>
             <MyButton
               type="submit"
@@ -125,7 +129,7 @@ const UserCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedEmployee.length > 0 && employee?.data.content.length > 0}
@@ -133,7 +137,7 @@ const UserCompany = () => {
                   onChange={handleSelectAll}
                 />
               </th>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="p-3 py-4 text-left sm:px-3">STT</th>
               <th className="px-5 py-4 text-left">Mã nhân viên</th>
               <th className="px-5 py-4 text-left">Tên nhân viên</th>
               <th className="px-5 py-4 text-left">Email</th>

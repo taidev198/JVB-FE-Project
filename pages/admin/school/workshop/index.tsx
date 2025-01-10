@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 import AddIcon from '@mui/icons-material/Add';
 import { Checkbox, Chip, TextField } from '@mui/material';
-
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
@@ -18,6 +17,8 @@ import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 
 const AdminSchoolWorkshop = () => {
   const [page, setPage] = useState<number>(1);
@@ -139,9 +140,23 @@ const AdminSchoolWorkshop = () => {
                 <th className="px-5 py-4 text-left">
                   <p className="min-w-max">STT</p>
                 </th>
-                <th className="px-2 py-4 text-left">Tiêu đề</th>
-                <th className="px-2 py-4 text-left">
-                  <p className="min-w-max">Trường học</p>
+                <th className="p-3 text-left sm:px-5 sm:py-4">
+                  <div className="flex items-center">
+                    <span className="min-w-max">Tiêu đề</span>
+                    <span className="ml-2 flex md:flex-nowrap ">
+                      <ButtonArrow />
+                      <ButtonUp />
+                    </span>
+                  </div>
+                </th>
+                <th className="p-3 text-left sm:px-5 sm:py-4">
+                  <div className="flex items-center">
+                    <span className="min-w-max">Trường học</span>
+                    <span className="ml-2 flex md:flex-nowrap ">
+                      <ButtonArrow />
+                      <ButtonUp />
+                    </span>
+                  </div>
                 </th>
                 <th className="px-2 py-4 text-left">
                   <p className="min-w-max">Địa chỉ</p>

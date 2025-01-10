@@ -15,6 +15,8 @@ import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import { Button as MyButton } from '@/components/Common/Button';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 
 const BusinessManagement = () => {
   const [page, setPage] = useState<number>(1);
@@ -117,8 +119,11 @@ const BusinessManagement = () => {
             />
           </div>
           <div className="ml-auto flex justify-items-center gap-5">
-            <Link href={'/admin/school/businessManagement/AddBusiness'}>
-              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            <Link
+              href={'/admin/school/businessManagement/AddBusiness'}
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
+              Thêm mới
             </Link>
             <MyButton
               type="submit"
@@ -151,17 +156,41 @@ const BusinessManagement = () => {
                 <p className="min-w-max">STT</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Mã ngành</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Mã ngành</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Tên ngành</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên ngành</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Số tín chỉ</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Số tín chỉ</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
 
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Khoa</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Khoa</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
 
               <th className="p-3 text-left sm:px-5 sm:py-4">

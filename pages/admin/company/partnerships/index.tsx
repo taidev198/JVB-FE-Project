@@ -82,11 +82,6 @@ const JobAdminSchool = () => {
             toast.success(response.message);
             break;
           }
-          // case BackdropType.DeleteConfirmation: {
-          //   const response = await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
-          //   toast.success(response.message);
-          //   break;
-          // }
           default:
             throw new Error('Invalid action type');
         }

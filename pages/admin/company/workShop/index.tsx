@@ -113,13 +113,13 @@ const WorkShopCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="p-3 sm:px-3 sm:py-4">STT</th>
               <th className="px-5 py-4 text-left">Tiêu đề</th>
               <th className="px-5 py-4 text-left">Trường học</th>
-              <th className="px-5 py-4 text-left">Thời gian bắt đầu</th>
-              <th className="px-5 py-4 text-left">Thời gian kết thúc</th>
-              <th className="px-5 py-4 text-left">Trạng thái</th>
-              <th className="px-5 py-4 text-left">Hành động</th>
+              <th className="p-3 sm:px-3 sm:py-4">Thời gian bắt đầu</th>
+              <th className="p-3 sm:px-3 sm:py-4">Thời gian kết thúc</th>
+              <th className="p-3 sm:px-3 sm:py-4">Trạng thái</th>
+              <th className="p-3 sm:px-3 sm:py-4">Hành động</th>
             </tr>
           </thead>
           <tbody>

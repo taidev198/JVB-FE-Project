@@ -102,8 +102,11 @@ const Department = () => {
             />
           </div>
           <div className="ml-auto flex justify-items-center gap-5">
-            <Link href={'/admin/school/department/AddDepartment'}>
-              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            <Link
+              href={'/admin/school/department/AddDepartment'}
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
+              Thêm mới
             </Link>
             <MyButton
               type="submit"
@@ -133,28 +136,42 @@ const Department = () => {
                 />
               </th>
               <th
-                className="flex p-3 text-left sm:px-5
-              sm:py-4">
-                <p className="min-w-max py-[6px]">STT</p>
-                <p className="ml-2 flex md:flex-nowrap ">
-                  <ButtonArrow />
-                  <ButtonUp />
-                </p>
+                className="p-3 text-left
+              sm:px-5 sm:py-4">
+                <span className="min-w-max py-[6px]">STT</span>
               </th>
-              <th className=" p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Mã khoa</p>
+              <th className="cursor-pointer px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Mã khoa</span>
+                  <span className="">
+                    <ButtonUp />
+                    <ButtonArrow />
+                  </span>
+                </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Tên khoa</p>
+              <th className="cursor-pointer px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên khoa</span>
+                  <span className="">
+                    <ButtonUp />
+                    <ButtonArrow />
+                  </span>
+                </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Trưởng khoa</p>
+              <th className="cursor-pointer px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Trưởng khoa</span>
+                  <span className="">
+                    <ButtonUp />
+                    <ButtonArrow isSort />
+                  </span>
+                </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Năm thành lập</p>
+              <th className="p-3 text-left sm:px-5">
+                <span className="min-w-max">Năm thành lập</span>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Thao tác</p>
+              <th className="p-3 text-left sm:px-5">
+                <span className="min-w-max">Thao tác</span>
               </th>
             </tr>
           </thead>
@@ -166,19 +183,19 @@ const Department = () => {
                     <Checkbox color="primary" checked={selectedDepartment.includes(item.id)} onChange={() => handleSelectDepartment(item.id)} size="small" />
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
+                    <span className="min-w-max">{index + 1 + (page - 1) * size}</span>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.facultyCode}</p>
+                    <span className="min-w-max">{item.facultyCode}</span>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.facultyName}</p>
+                    <span className="min-w-max">{item.facultyName}</span>
+                  </td>
+                  <td className="p-3 sm:px-5 sm:py-4 ">
+                    <span className="min-w-max">{item.nameDean}</span>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.nameDean}</p>
-                  </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max ">{item.establishYear}</p>
+                    <span className="min-w-max ">{item.establishYear}</span>
                   </td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">
@@ -197,7 +214,7 @@ const Department = () => {
             ) : (
               <tr>
                 <td colSpan={7} className="py-4 text-center text-base text-black">
-                  <p>Không có dữ liệu nào</p>
+                  <span>Không có dữ liệu nào</span>
                 </td>
               </tr>
             )}
