@@ -33,16 +33,19 @@ const Department = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
-  const [isSortAsc, setIsSortAsc] = useState(false);
-  const handleSortDown = () => {
-    setIsSortAsc(false);
-    // Logic sắp xếp giảm dần
+  const [sortState, setSortState] = useState<{ [key: string]: boolean | null }>({
+    maKhoa: null,
+    tenKhoa: null,
+    truongKhoa: null,
+  });
+
+  const handleSort = (column: string, isAsc: boolean) => {
+    setSortState(prevState => ({
+      ...prevState,
+      [column]: isAsc,
+    }));
   };
 
-  const handleSortUp = () => {
-    setIsSortAsc(true);
-    // Logic sắp xếp tăng dần
-  };
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -154,8 +157,8 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Mã khoa</span>
                   <span className="">
-                    <ButtonUp isSort={isSortAsc} onClick={handleSortDown} />
-                    <ButtonArrow isSort={!isSortAsc} onClick={handleSortUp} />
+                    <ButtonUp isSort={sortState.maKhoa === true} onClick={() => handleSort('maKhoa', true)} />
+                    <ButtonArrow isSort={sortState.maKhoa === false} onClick={() => handleSort('maKhoa', false)} />
                   </span>
                 </div>
               </th>
@@ -163,8 +166,8 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên khoa</span>
                   <span className="">
-                    <ButtonUp isSort={isSortAsc} onClick={handleSortDown} />
-                    <ButtonArrow isSort={!isSortAsc} onClick={handleSortUp} />
+                    <ButtonUp isSort={sortState.tenKhoa === true} onClick={() => handleSort('tenKhoa', true)} />
+                    <ButtonArrow isSort={sortState.tenKhoa === false} onClick={() => handleSort('tenKhoa', false)} />
                   </span>
                 </div>
               </th>
@@ -172,8 +175,8 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Trưởng khoa</span>
                   <span className="">
-                    <ButtonUp isSort={isSortAsc} onClick={handleSortDown} />
-                    <ButtonArrow isSort={!isSortAsc} onClick={handleSortUp} />
+                    <ButtonUp isSort={sortState.truongKhoa === true} onClick={() => handleSort('truongKhoa', true)} />
+                    <ButtonArrow isSort={sortState.truongKhoa === false} onClick={() => handleSort('truongKhoa', false)} />
                   </span>
                 </div>
               </th>

@@ -2,7 +2,7 @@ import DoneAllIcon from '@mui/icons-material/DoneAll';
 import { Tooltip } from '@mui/material';
 import React from 'react';
 interface ButtonAcceptProps {
-  onClick?: () => void;
+  onClick: () => void;
   className?: string;
 }
 const ButtonAccept: React.FC<ButtonAcceptProps> = React.memo(({ onClick }) => {
