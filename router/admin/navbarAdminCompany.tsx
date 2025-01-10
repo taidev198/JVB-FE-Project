@@ -1,3 +1,4 @@
+import UploadIcon from '@mui/icons-material/Upload';
 import IconSchool from '@/assets/icons/iconNavbarAdminSchool/icon-school.svg';
 import IconHand from '@/assets/icons/iconNavbarAdminSchool/icon-hand.svg';
 import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
@@ -58,10 +59,10 @@ export const litsNavbarAdminSchoolRouter = [
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',
   },
-  // {
-  //   id: 9,
-  //   icon: <IconChangePassword />,
-  //   url: '/admin/company/changeCompany',
-  //   label: 'Ví điện tử',
-  // },
+  {
+    id: 9,
+    icon: <UploadIcon />,
+    url: '/admin/company/vnpay',
+    label: 'Nâng cấp tài khoản',
+  },
 ];

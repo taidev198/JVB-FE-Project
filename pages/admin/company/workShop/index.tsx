@@ -122,52 +122,60 @@ const WorkShopCompany = () => {
             </tr>
           </thead>
           <tbody>
-            {companyWorkShop?.data.content.map((item, index) => (
-              <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                <td className="p-3 text-center sm:px-3 sm:py-4">{index + 1 + (page - 1) * size}</td>
-                <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
-                <td className="px-5 py-4">{item.workshop.university.universityName}</td>
-                <td className="p-3 text-center sm:px-3 sm:py-4">{item.workshop.startTime.split(' ')[0]}</td>
-                <td className="p-3 text-center sm:px-3 sm:py-4">{item.workshop.endTime.split(' ')[0]}</td>
-                <td className="p-3 text-center sm:px-3 sm:py-4">
-                  <Chip
-                    label={statusTextWorkShopCompany(item.status).title}
-                    style={{
-                      color: `${statusTextWorkShopCompany(item.status).color}`,
-                      background: `${statusTextWorkShopCompany(item.status).bg}`,
-                    }}
-                  />
-                </td>
-
-                <td className="p-3 text-center sm:px-3 sm:py-4">
-                  <div className="flex items-center justify-center gap-3">
-                    <ButtonSee
-                      onClick={() => {
-                        setSelectId(item.workshop.id);
+            {companyWorkShop?.data?.content.length > 0 ? (
+              companyWorkShop?.data.content.map((item, index) => (
+                <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
+                  <td className="p-3 text-center sm:px-3 sm:py-4">{index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
+                  <td className="px-5 py-4">{item.workshop.university.universityName}</td>
+                  <td className="p-3 text-center sm:px-3 sm:py-4">{item.workshop.startTime.split(' ')[0]}</td>
+                  <td className="p-3 text-center sm:px-3 sm:py-4">{item.workshop.endTime.split(' ')[0]}</td>
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
+                    <Chip
+                      label={statusTextWorkShopCompany(item.status).title}
+                      style={{
+                        color: `${statusTextWorkShopCompany(item.status).color}`,
+                        background: `${statusTextWorkShopCompany(item.status).bg}`,
                       }}
-                      href={`/portal/workshops/${item.workshop.id}`}
                     />
+                  </td>
 
-                    {item.status === 'PENDING' && (
-                      <ButtonReject
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
+                    <div className="flex items-center justify-center gap-3">
+                      <ButtonSee
                         onClick={() => {
-                          handleAction(BackdropType.DeleteConfirmation, item.id);
-                          dispatch(setName(item.workshop.workshopTitle));
+                          setSelectId(item.workshop.id);
                         }}
+                        href={`/portal/workshops/${item.workshop.id}`}
                       />
-                    )}
-                    {item.status === 'ACCEPT' && (
-                      <ButtonDelete
-                        onClick={() => {
-                          handleAction(BackdropType.DeleteConfirmation, item.id);
-                          dispatch(setName(item.workshop.workshopTitle));
-                        }}
-                      />
-                    )}
-                  </div>
+
+                      {item.status === 'PENDING' && (
+                        <ButtonReject
+                          onClick={() => {
+                            handleAction(BackdropType.DeleteConfirmation, item.id);
+                            dispatch(setName(item.workshop.workshopTitle));
+                          }}
+                        />
+                      )}
+                      {item.status === 'ACCEPT' && (
+                        <ButtonDelete
+                          onClick={() => {
+                            handleAction(BackdropType.DeleteConfirmation, item.id);
+                            dispatch(setName(item.workshop.workshopTitle));
+                          }}
+                        />
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base">
+                  <p>Không có dữ liệu workshop nào</p>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
