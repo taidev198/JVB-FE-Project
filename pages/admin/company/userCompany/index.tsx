@@ -1,50 +1,45 @@
+import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
 import { Checkbox, Chip, TextField } from '@mui/material';
-import toast from 'react-hot-toast';
-import Link from 'next/link';
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Button as MyButton } from '@/components/Common/Button';
-
-import { BackDrop } from '@/components/Common/BackDrop';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import { useDeleteAllEmployeeCompanyMutation, useDeleteEmployeeCompanyMutation, useGetAllCompanyEmployeQuery } from '@/services/adminCompanyApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useAppSelector } from '@/store/hooks';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import PaginationComponent from '@/components/Common/Pagination';
 import { statusEmployee } from '@/utils/app/const';
+import { Button as MyButton } from '@/components/Common/Button';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import PaginationComponent from '@/components/Common/Pagination';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const UserCompany = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
   const [idEmployee, setIdEmployee] = useState<number>();
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
-  const [startDate] = useState<Date | null>(null);
-  const [endDate] = useState<Date | null>(null);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const { data: employee, isLoading } = useGetAllCompanyEmployeQuery(
     {
-      status: status,
       page: page,
       size: size,
       keyword,
-      startDate: startDate,
-      endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -88,9 +83,6 @@ const UserCompany = () => {
 
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingOne || isLoadingMultiple));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingOne]);
 
   return (
@@ -117,7 +109,10 @@ const UserCompany = () => {
             <MyButton
               type="submit"
               text="Xóa nhân viên "
-              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              onClick={() => {
+                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                dispatch(setName(''));
+              }}
               className="bg-red-custom"
               disabled={!selectedEmployee.length}
             />
@@ -149,66 +144,64 @@ const UserCompany = () => {
             </tr>
           </thead>
           <tbody>
-            {employee?.data.content.map((item, index) => (
-              <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                <td className="p-3 sm:px-5 sm:py-4">
-                  <Checkbox color="primary" checked={selectedEmployee.includes(item.id)} onChange={() => handleSelectEmployee(item.id)} />
-                </td>
-                <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td> {/* STT */}
-                <td className="px-5 py-4">{item.employeeCode}</td>
-                <td className="px-5 py-4">{item.fullName}</td>
-                <td className="px-5 py-4">{item.account.email}</td>
-                <td className="px-5 py-4">{item.employeePosition}</td>
-                <td className="px-5 py-4">{item.phoneNumber}</td>
-                <td className="px-5 py-4">
-                  <Chip
-                    label={statusEmployee(item.employeeStatus).title}
-                    sx={{
-                      backgroundColor: statusEmployee(item.employeeStatus).bg,
-                      color: statusEmployee(item.employeeStatus).color,
-                    }}
-                  />
-                </td>
-                <td className=" py-4">
-                  <div className="flex items-center gap-2">
-                    <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
-                    <ButtonUpdate href={`/admin/company/userCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
-                    <ButtonDelete
-                      onClick={() => {
-                        dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-                        setIdEmployee(item.id);
-                        dispatch(setName(item.fullName));
+            {employee?.data.content.length > 0 ? (
+              employee?.data.content.map((item, index) => (
+                <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
+                  <td className="p-3 sm:px-5 sm:py-4">
+                    <Checkbox color="primary" checked={selectedEmployee.includes(item.id)} onChange={() => handleSelectEmployee(item.id)} />
+                  </td>
+                  <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td> {/* STT */}
+                  <td className="px-5 py-4">{item.employeeCode}</td>
+                  <td className="px-5 py-4">{item.fullName}</td>
+                  <td className="px-5 py-4">{item.account.email}</td>
+                  <td className="px-5 py-4">{item.employeePosition}</td>
+                  <td className="px-5 py-4">{item.phoneNumber}</td>
+                  <td className="px-5 py-4">
+                    <Chip
+                      label={statusEmployee(item.employeeStatus).title}
+                      sx={{
+                        backgroundColor: statusEmployee(item.employeeStatus).bg,
+                        color: statusEmployee(item.employeeStatus).color,
                       }}
                     />
-                  </div>
+                  </td>
+                  <td className=" py-4">
+                    <div className="flex items-center gap-2">
+                      <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonUpdate href={`/admin/company/userCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
+                      <ButtonDelete
+                        onClick={() => {
+                          dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                          setIdEmployee(item.id);
+                          dispatch(setName(item.fullName));
+                        }}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base">
+                  <p>Không có dữ liệu nào</p>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Delete Confirmation */}
-      {backdropType === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter={true}>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa {name}?</h3>
-            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-600" onClick={handleDelete} full={true} />
-            </div>
-          </div>
-        </BackDrop>
-      )}
+      {backdropType === BackdropType.DeleteConfirmation && <PopupConfirmAction text="Bạn có chắc chắn muốn xóa" name={name} onClick={handleDelete} />}
 
       {/* Pagination */}
       <PaginationComponent
         count={employee?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={employee?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );

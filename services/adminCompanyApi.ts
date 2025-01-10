@@ -43,18 +43,12 @@ export const adminCompanyApi = createApi({
       }),
 
       //employe
-      getAllCompanyEmploye: builder.query<
-        ICompanyAllResponse,
-        { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null }
-      >({
-        query: ({ page, size, keyword, status, startDate, endDate }) => {
+      getAllCompanyEmploye: builder.query<ICompanyAllResponse, { page: number; size: number; keyword: string }>({
+        query: ({ page, size, keyword }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
-          if (status) queryParams.append('status', status);
-          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
-          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
 
           return `/company/company-employees?${queryParams.toString()}`;
         },
@@ -121,13 +115,12 @@ export const adminCompanyApi = createApi({
       }),
 
       //JOBCOMPANY
-      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string; status: string }>({
-        query: ({ page, size, keyword, status }) => {
+      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string }>({
+        query: ({ page, size, keyword }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
-          if (status) queryParams.append('status', status);
 
           return `/company/get_all_jobs?${queryParams.toString()}`;
         },

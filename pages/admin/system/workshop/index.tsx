@@ -16,7 +16,6 @@ import {
   useRejectWorkshopMutation,
 } from '@/services/adminSystemApi';
 import { statusTextWorkshop } from '@/utils/app/const';
-import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
@@ -26,21 +25,24 @@ import PaginationComponent from '@/components/Common/Pagination';
 const animatedComponents = makeAnimated();
 
 const AdminSystemWorkshop = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const [selectedWorkshop, setSelectedWorkshop] = useState<number[]>([]);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size, status } = useAppSelector(state => state.filter);
 
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setPage(1);
+        setKeyword(value);
       }, 500),
-    [dispatch]
+    []
   );
 
   const { data: workshops, isLoading } = useGetAllWorkShopsAdminSystemQuery(
@@ -115,9 +117,6 @@ const AdminSystemWorkshop = () => {
 
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingApprove || isLoadingReject));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [dispatch, isLoading, isLoadingApprove, isLoadingReject]);
 
   return (
@@ -137,7 +136,7 @@ const AdminSystemWorkshop = () => {
                 { value: 'PENDING', label: 'Chờ duyệt' },
                 { value: 'REJECTED', label: 'Từ chối' },
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
             <TextField
@@ -266,8 +265,9 @@ const AdminSystemWorkshop = () => {
         size={size}
         page={page}
         count={workshops?.data.totalPages}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         totalItem={workshops?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
       {/* Backdrops */}
       {(backdropType === BackdropType.ApproveConfirmation ||

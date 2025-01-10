@@ -1,37 +1,38 @@
-import Link from 'next/link';
-import { Checkbox, Chip, TextField } from '@mui/material';
 import { useEffect, useMemo, useState } from 'react';
-import AddIcon from '@mui/icons-material/Add';
+import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
+import AddIcon from '@mui/icons-material/Add';
+import { Checkbox, Chip, TextField } from '@mui/material';
 
-import DatePickerComponent from '@/components/Common/DatePicker';
-import { Button } from '@/components/Common/Button';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
-import { BackDrop } from '@/components/Common/BackDrop';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useDeleteWorkshopMutation, useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
 import { statusTextWorkshop } from '@/utils/app/const';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
+import DatePickerComponent from '@/components/Common/DatePicker';
+import { Button } from '@/components/Common/Button';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const AdminSchoolWorkshop = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string>(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedWorkshops, setSelectedWorkshops] = useState<number[]>([]);
-  const { page, keyword, size } = useAppSelector(state => state.filter);
   const dispatch = useDispatch();
 
   const { data: workshops, isLoading } = useGetAllWorShopsUniversityQuery(
     {
-      page: page,
-      size: size,
+      page,
+      size,
       keyword,
       startDate: startDate,
       endDate: endDate,
@@ -42,10 +43,10 @@ const AdminSchoolWorkshop = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,9 +84,6 @@ const AdminSchoolWorkshop = () => {
 
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingDelete));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [isLoading, dispatch, isLoadingDelete]);
   return (
     <div>
@@ -186,7 +184,7 @@ const AdminSchoolWorkshop = () => {
                         {workshop.address?.province.provinceName}
                       </p>
                     </td>
-                    <td className="px-2 py-4">{workshop.startTime}</td>
+                    <td className="px-2 py-4">{workshop.startTime.split(' ')[0]}</td>
                     <td className="px-3 py-4">
                       <Chip
                         label={statusTextWorkshop(workshop.moderationStatus).title}
@@ -227,23 +225,13 @@ const AdminSchoolWorkshop = () => {
         <PaginationComponent
           count={workshops?.data.totalPages}
           page={page}
-          onPageChange={(event, value) => dispatch(setPage(value))}
+          onPageChange={(event, value) => setPage(value)}
           size={size}
           totalItem={workshops?.data.totalElements}
+          onSizeChange={value => setSize(value)}
         />
 
-        {showBackdrop === BackdropType.DeleteConfirmation && (
-          <BackDrop isCenter>
-            <div className="max-w-[400px] rounded-md p-6">
-              <h3 className="font-bold">Xóa workshop đã chọn</h3>
-              <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
-              <div className="mt-9 flex items-center gap-5">
-                <Button text="Hủy" className="bg-red-700" full={true} onClick={() => dispatch(setBackdrop(null))} />
-                <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-              </div>
-            </div>
-          </BackDrop>
-        )}
+        {showBackdrop === BackdropType.DeleteConfirmation && <PopupConfirmAction text="Xóa workshop đã chọn" name="" onClick={handleConfirmAction} />}
       </>
     </div>
   );

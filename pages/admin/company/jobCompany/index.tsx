@@ -1,43 +1,43 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
-import { debounce } from 'lodash';
-import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { debounce } from 'lodash';
+import { TextField, Checkbox } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
 import { formatCurrencyVND } from '@/utils/app/format';
+import { Button as MyButton } from '@/components/Common/Button';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const JobCompany = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
   const [idJob, setIdJob] = useState<number>();
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
 
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
   const { data: jobCompany, isLoading } = useGetAllCompanyJobQuery(
     {
-      status: status,
       page: page,
       size: size,
       keyword,
@@ -82,9 +82,6 @@ const JobCompany = () => {
 
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingOne || isLoadingMultiple));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingOne]);
 
   return (
@@ -110,7 +107,10 @@ const JobCompany = () => {
               type="submit"
               text="Xóa công việc "
               className="bg-red-custom"
-              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              onClick={() => {
+                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                dispatch(setName(''));
+              }}
               disabled={!selectedJob.length}
             />
           </div>
@@ -187,26 +187,16 @@ const JobCompany = () => {
       </div>
 
       {/* Xóa Nhân Viên */}
-      {backdropType === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter={true}>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa {name}?</h3>
-            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-green-600" onClick={handleDelete} full={true} />
-            </div>
-          </div>
-        </BackDrop>
-      )}
+      {backdropType === BackdropType.DeleteConfirmation && <PopupConfirmAction text="Bạn có chắc chắn muốn xóa" name={name} onClick={handleDelete} />}
 
       {/* Pagination */}
       <PaginationComponent
         count={jobCompany?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={jobCompany?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );
