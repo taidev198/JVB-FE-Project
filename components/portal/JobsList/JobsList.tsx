@@ -136,7 +136,7 @@ const JobsList: React.FC = () => {
       theme={{
         components: {
           Select: {
-            colorBgContainer: '#FFFFFF', // Override the background color
+            colorBgContainer: '#FFFFFF',
           },
         },
       }}>
