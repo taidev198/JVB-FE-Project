@@ -61,7 +61,17 @@ const AcademicOfficeManagement = () => {
       dispatch(setBackdrop(null));
     }
   };
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const { data: academicOfficeManagement, isLoading } = useGetAllAcademicOfficeManagementQuery(
     {
       page: page,
@@ -106,7 +116,7 @@ const AcademicOfficeManagement = () => {
           <div className="ml-auto flex justify-items-center gap-5">
             <Link
               href={'/admin/school/academicOfficeManagement/addAdemic'}
-              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
               <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
               Thêm mới
             </Link>
@@ -132,26 +142,38 @@ const AcademicOfficeManagement = () => {
                 <p className="min-w-max">STT</p>
               </th>
 
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="px-3 text-left sm:px-5 ">
                 <div className="flex items-center">
                   <span className="min-w-max">Mã nhân viên</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'employeeCode' && sortState.isAsc === true} onClick={() => handleSort('employeeCode', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'employeeCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('employeeCode', false)}
+                    />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Họ và tên</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'fullName' && sortState.isAsc === true} onClick={() => handleSort('fullName', true)} />
+                    <ButtonArrow isSort={sortState.activeColumn === 'fullName' && sortState.isAsc === false} onClick={() => handleSort('fullName', false)} />
                   </span>
                 </div>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Số điện thoại</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Giới tính</th>
+              <th className="px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Giới tính</span>
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'gender' && sortState.isAsc === true} onClick={() => handleSort('gender', true)} />
+                    <ButtonArrow isSort={sortState.activeColumn === 'gender' && sortState.isAsc === false} onClick={() => handleSort('gender', false)} />
+                  </span>
+                </div>
+              </th>
+
               <th className="p-3 text-left sm:px-5 sm:py-4">Ngày sinh</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Hành động</th>
             </tr>

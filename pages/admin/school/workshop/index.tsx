@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { Checkbox, Chip, TextField } from '@mui/material';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
-
+import Select from 'react-select';
 import DatePickerComponent from '@/components/Common/DatePicker';
 import { Button } from '@/components/Common/Button';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
@@ -13,7 +13,7 @@ import { useAppSelector } from '@/store/hooks';
 import { BackDrop } from '@/components/Common/BackDrop';
 import { useDeleteWorkshopMutation, useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
 import { statusTextWorkshop } from '@/utils/app/const';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
+import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
@@ -40,7 +40,17 @@ const AdminSchoolWorkshop = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -106,12 +116,26 @@ const AdminSchoolWorkshop = () => {
                 onChange={e => debouncedSearch(e.target.value)}
                 className="w-full sm:w-auto"
               />
-
+              <Select
+                placeholder="Trạng thái"
+                closeMenuOnSelect={true}
+                options={[
+                  { value: '', label: 'Trạng thái' },
+                  { value: 'PENDING', label: 'Đang chờ' },
+                  { value: 'APPROVED', label: 'Đã duyệt' },
+                  { value: 'REJECTED', label: 'Thôi học' },
+                ]}
+                onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+                className="w-[200-px] cursor-pointer"
+              />
               <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
             </div>
             <div className="mt-3 flex w-full gap-3 lg:mt-0 lg:w-auto">
-              <Link href={'/admin/school/workshop/add-workshop'}>
-                <Button text="Thêm mới" icon={<AddIcon />} full={true} />
+              <Link
+                href={'/admin/school/academicOfficeManagement/addAdemic'}
+                className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+                <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
+                Thêm mới
               </Link>
               <Button
                 type="submit"
@@ -143,21 +167,33 @@ const AdminSchoolWorkshop = () => {
                 <th className="px-5 py-4 text-left">
                   <p className="min-w-max">STT</p>
                 </th>
-                <th className="p-3 text-left sm:px-5 sm:py-4">
+                <th className="px-3 text-left sm:px-5">
                   <div className="flex items-center">
                     <span className="min-w-max">Tiêu đề</span>
-                    <span className="ml-2 flex md:flex-nowrap ">
-                      <ButtonArrow />
-                      <ButtonUp />
+                    <span>
+                      <ButtonUp
+                        isSort={sortState.activeColumn === 'workshopTitle' && sortState.isAsc === true}
+                        onClick={() => handleSort('workshopTitle', true)}
+                      />
+                      <ButtonArrow
+                        isSort={sortState.activeColumn === 'workshopTitle' && sortState.isAsc === false}
+                        onClick={() => handleSort('workshopTitle', false)}
+                      />
                     </span>
                   </div>
                 </th>
-                <th className="p-3 text-left sm:px-5 sm:py-4">
+                <th className="px-3 text-left sm:px-5">
                   <div className="flex items-center">
                     <span className="min-w-max">Trường học</span>
-                    <span className="ml-2 flex md:flex-nowrap ">
-                      <ButtonArrow />
-                      <ButtonUp />
+                    <span>
+                      <ButtonUp
+                        isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === true}
+                        onClick={() => handleSort('universityName', true)}
+                      />
+                      <ButtonArrow
+                        isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === false}
+                        onClick={() => handleSort('universityName', false)}
+                      />
                     </span>
                   </div>
                 </th>

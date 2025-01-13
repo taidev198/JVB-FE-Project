@@ -50,7 +50,17 @@ const Partnerships = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const [cancelJob, { isLoading: isLoadingCancel }] = useCancelJobsMutation();
   const [deleteJob, { isLoading: isLoadingDelete }] = useDeleteJobsMutation();
   const handleConfirmAction = async () => {
@@ -142,21 +152,24 @@ const Partnerships = () => {
           <thead className="bg-white">
             <tr>
               <th className="px-5 py-4 text-left">STT</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Tên công ty</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'companyName' && sortState.isAsc === true} onClick={() => handleSort('companyName', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'companyName' && sortState.isAsc === false}
+                      onClick={() => handleSort('companyName', false)}
+                    />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Tên công việc</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === true} onClick={() => handleSort('jobTitle', true)} />
+                    <ButtonArrow isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === false} onClick={() => handleSort('jobTitle', false)} />
                   </span>
                 </div>
               </th>

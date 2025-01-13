@@ -1,7 +1,7 @@
 import { Checkbox, TextField } from '@mui/material';
 import { debounce } from 'lodash';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import AddIcon from '@mui/icons-material/Add';
 import { BackDrop } from '@/components/Common/BackDrop';
@@ -33,19 +33,17 @@ const Department = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
-  const [sortState, setSortState] = useState<{ [key: string]: boolean | null }>({
-    maKhoa: null,
-    tenKhoa: null,
-    truongKhoa: null,
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
   });
 
-  const handleSort = (column: string, isAsc: boolean) => {
-    setSortState(prevState => ({
-      ...prevState,
-      [column]: isAsc,
-    }));
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
   };
-
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -117,7 +115,7 @@ const Department = () => {
           <div className="ml-auto flex justify-items-center gap-5">
             <Link
               href={'/admin/school/department/AddDepartment'}
-              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
               <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
               Thêm mới
             </Link>
@@ -157,8 +155,11 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Mã khoa</span>
                   <span className="">
-                    <ButtonUp isSort={sortState.maKhoa === true} onClick={() => handleSort('maKhoa', true)} />
-                    <ButtonArrow isSort={sortState.maKhoa === false} onClick={() => handleSort('maKhoa', false)} />
+                    <ButtonUp isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === true} onClick={() => handleSort('facultyCode', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('facultyCode', false)}
+                    />
                   </span>
                 </div>
               </th>
@@ -166,18 +167,17 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên khoa</span>
                   <span className="">
-                    <ButtonUp isSort={sortState.tenKhoa === true} onClick={() => handleSort('tenKhoa', true)} />
-                    <ButtonArrow isSort={sortState.tenKhoa === false} onClick={() => handleSort('tenKhoa', false)} />
+                    <ButtonUp isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true} onClick={() => handleSort('facultyName', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === false}
+                      onClick={() => handleSort('facultyName', false)}
+                    />
                   </span>
                 </div>
               </th>
               <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Trưởng khoa</span>
-                  <span className="">
-                    <ButtonUp isSort={sortState.truongKhoa === true} onClick={() => handleSort('truongKhoa', true)} />
-                    <ButtonArrow isSort={sortState.truongKhoa === false} onClick={() => handleSort('truongKhoa', false)} />
-                  </span>
                 </div>
               </th>
               <th className="p-3 text-left sm:px-5">
