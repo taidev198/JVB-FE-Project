@@ -13,24 +13,15 @@ import { useGetFieldsQuery, useGetJobsQuery, useGetProvincesQuery } from '@/serv
 import ImageComponent from '@/components/Common/Image';
 import { useAppSelector } from '@/store/hooks';
 
-const jobTypeMap = [
-  {
-    label: 'Toàn thời gian',
-    value: 'FULL_TIME',
-  },
-  {
-    label: 'Bán thời gian',
-    value: 'PART_TIME',
-  },
-  {
-    label: 'Tự do',
-    value: 'FREELANCER',
-  },
-];
+const jobTypeMap = {
+  FULL_TIME: 'FULL_TIME',
+  PART_TIME: 'PART_TIME',
+  FREELANCER: 'FREELANCER',
+};
 
 const salaryTypeMap = [
   {
-    label: 'Thương lượng',
+    label: 'Thỏa thuận',
     value: 'NEGOTIABLE',
   },
   {
@@ -40,11 +31,11 @@ const salaryTypeMap = [
 ];
 
 const jobLevelMap = {
-  INTERN: 'Thực tập',
-  FRESHER: 'Mới ra trường',
-  JUNIOR: 'Nhân viên',
-  MIDDLE: 'Trung cấp',
-  SENIOR: 'Cao cấp',
+  INTERN: 'INTERN',
+  FRESHER: 'FRESHER',
+  JUNIOR: 'JUNIOR',
+  MIDDLE: 'MIDDLE',
+  SENIOR: 'SENIOR',
 };
 
 const JobsList: React.FC = () => {
@@ -195,11 +186,11 @@ const JobsList: React.FC = () => {
                 </Form.Item>
 
                 <Form.Item name="jobType" label="Hình thức làm việc">
-                  <SelectTypeSearch
+                  <SelectSearch
                     icon={<TagOutlined className="mr-[4px]" />}
                     label="Chọn hình thức làm việc"
                     value={jobType}
-                    items={jobTypeMap}
+                    items={Object.keys(jobTypeMap)}
                     onChange={setJobType}
                   />
                 </Form.Item>
@@ -218,19 +209,33 @@ const JobsList: React.FC = () => {
                   <>
                     <div className="flex justify-center gap-4">
                       <Form.Item className="w-[50%]" name="minSalary">
-                        <InputNumber size="large" className="w-full" placeholder="Từ" value={minSalary} onChange={value => setMinSalary(value)} />
+                        <InputNumber
+                          size="large"
+                          className={`w-full ${minSalary >= maxSalary ? 'border-red-400 hover:border-red-400' : ''}`}
+                          placeholder="Từ"
+                          value={minSalary}
+                          onChange={value => setMinSalary(value)}
+                        />
                       </Form.Item>
                       <Form.Item>
                         <span>-</span>
                       </Form.Item>
                       <Form.Item className="w-[50%]" name="maxSalary">
-                        <InputNumber size="large" className="w-full" placeholder="Đến" value={maxSalary} onChange={value => setMaxSalary(value)} />
+                        <InputNumber
+                          size="large"
+                          className={`w-full ${minSalary >= maxSalary ? 'border-red-400 hover:border-red-400' : ''}`}
+                          placeholder="Đến"
+                          value={maxSalary}
+                          onChange={value => setMaxSalary(value)}
+                        />
                       </Form.Item>
                     </div>
                     <button
                       className={
-                        'mp_transition_4 flex h-[40px] items-center justify-center gap-2 rounded-[6px] border-[1px] border-solid px-4 text-primary-main ' +
-                        (isSalaryValid ? 'border-primary-main bg-primary-main text-white' : 'pointer-events-none cursor-not-allowed bg-primary-light')
+                        'mp_transition_4 flex h-[40px] items-center justify-center gap-2 rounded-[6px] border-[1px] border-solid px-4 ' +
+                        (isSalaryValid
+                          ? 'border-primary-main bg-primary-main text-white'
+                          : 'pointer-events-none cursor-not-allowed bg-primary-light text-primary-gray')
                       }
                       onClick={isSalaryValid ? handleSalarySubmit : undefined}
                       disabled={!isSalaryValid}>
