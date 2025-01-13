@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Checkbox, Chip, TextField } from '@mui/material';
 import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
 import Select from 'react-select';
+import { Checkbox, Chip, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
-import { useDispatch } from 'react-redux';
-import toast from 'react-hot-toast';
 import { useAppSelector } from '@/store/hooks';
+import { Button as MyButton } from '@/components/Common/Button';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import {
   useDeleteStudentMultipleMutation,
@@ -15,19 +16,21 @@ import {
   useGetAllMajorByIdFacultyQuery,
   useGetAllStudentsQuery,
 } from '@/services/adminSchoolApi';
-import { StatusStudentTitle } from '@/utils/app/const';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button, Button as MyButton } from '@/components/Common/Button';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
+import { setStatus } from '@/store/slices/filtersSlice';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import { StatusStudentTitle } from '@/utils/app/const';
 
 const StudentsManagement = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
   const dispatch = useDispatch();
   const [department, setDepartment] = useState<number | null>(null);
   const [major, setMajor] = useState<number | null>(null);
@@ -35,14 +38,13 @@ const StudentsManagement = () => {
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const idStudent = useAppSelector(state => state.global.id);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size } = useAppSelector(state => state.filter);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   // Call api
@@ -107,9 +109,6 @@ const StudentsManagement = () => {
 
   useEffect(() => {
     dispatch(setLoading(isLoadingDeleteOne || isLoadingGetAllDepartment || isLoadingGetAllSt || isLoadingMultiple));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [dispatch, isLoadingDeleteOne, isLoadingGetAllDepartment, isLoadingGetAllSt, isLoadingMultiple]);
   return (
     <>
@@ -329,24 +328,16 @@ const StudentsManagement = () => {
       </div>
       {/* Xóa Sinh viên */}
       {backdropType === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter={true}>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa sinh viên {name}? </h3>
-            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-red-800" full={true} onClick={handleDelete} />
-            </div>
-          </div>
-        </BackDrop>
+        <PopupConfirmAction text={'Bạn có chắc chắn muốn xóa sinh viên'} name={`${name}`} onClick={handleDelete} />
       )}
       {/* Pagination */}
       <PaginationComponent
         size={size}
         page={page}
         count={students?.data.totalPages}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         totalItem={students?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );

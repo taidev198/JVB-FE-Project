@@ -1,32 +1,34 @@
-import { Chip, TextField } from '@mui/material';
-import { debounce } from 'lodash';
-import Select from 'react-select';
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import makeAnimated from 'react-select/animated';
+import Select from 'react-select';
 import toast from 'react-hot-toast';
-import { Button } from '@/components/Common/Button';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-import PaginationComponent from '@/components/Common/Pagination';
-import { BackDrop } from '@/components/Common/BackDrop';
+import makeAnimated from 'react-select/animated';
+import { debounce } from 'lodash';
+import { Chip, TextField } from '@mui/material';
 import { useDeleteWorkShopMutation, useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
-import { setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { statusTextWorkShopCompany } from '@/utils/app/const';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import PaginationComponent from '@/components/Common/Pagination';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const animatedComponents = makeAnimated();
 
 const WorkShopCompany = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const dispatch = useDispatch();
   const [selectId, setSelectId] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
-  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [startDate] = useState<Date | null>(null);
   const [endDate] = useState<Date | null>(null);
+  const name = useAppSelector(state => state.global.name);
 
   const handleAction = (actionType: BackdropType, JobsId: number) => {
     setSelectId(JobsId);
@@ -36,10 +38,10 @@ const WorkShopCompany = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
   const { data: companyWorkShop, isLoading } = useGetAllWorkShopCompanyQuery(
     { page, keyword, size, status, startDate: startDate, endDate: endDate },
@@ -52,7 +54,7 @@ const WorkShopCompany = () => {
       if (selectId) {
         // Điều kiện kiểm tra chỉ liên quan đến `deleteOne`
         await deleteOne({ id: selectId }).unwrap();
-        toast.success('WorkShop đã được xóa thành công');
+        toast.success('Hủy tham gia workshop thành công');
       } else {
         toast.error('Không có workShop nào được chọn để xóa');
       }
@@ -99,7 +101,7 @@ const WorkShopCompany = () => {
                 { value: 'CANCEL', label: 'Hủy chờ' },
                 { value: 'REJECT', label: 'Từ chối' },
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
           </div>
@@ -111,86 +113,84 @@ const WorkShopCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="p-3 sm:px-3 sm:py-4">STT</th>
               <th className="px-5 py-4 text-left">Tiêu đề</th>
               <th className="px-5 py-4 text-left">Trường học</th>
-              <th className="px-5 py-4 text-left">Thời gian bắt đầu</th>
-              <th className="px-5 py-4 text-left">Thời gian kết thúc</th>
-              <th className="px-5 py-4 text-left">Trạng thái</th>
-              <th className="px-5 py-4 text-left">Hành động</th>
+              <th className="p-3 sm:px-3 sm:py-4">Thời gian bắt đầu</th>
+              <th className="p-3 sm:px-3 sm:py-4">Thời gian kết thúc</th>
+              <th className="p-3 sm:px-3 sm:py-4">Trạng thái</th>
+              <th className="p-3 sm:px-3 sm:py-4">Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {companyWorkShop?.data.content.map((item, index) => (
-              <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td>
-                <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
-                <td className="px-5 py-4">{item.workshop.university.universityName}</td>
-                <td className="px-5 py-4 text-center">{item.workshop.startTime.split(' ')[0]}</td>
-                <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
-                <td className="px-5 py-4">
-                  <Chip
-                    label={statusTextWorkShopCompany(item.status).title}
-                    style={{
-                      color: `${statusTextWorkShopCompany(item.status).color}`,
-                      background: `${statusTextWorkShopCompany(item.status).bg}`,
-                    }}
-                  />
-                </td>
-
-                <td className="py-4">
-                  <div className="flex items-center justify-center gap-3">
-                    <ButtonSee
-                      onClick={() => {
-                        setSelectId(item.workshop.id);
+            {companyWorkShop?.data.content.length > 0 ? (
+              companyWorkShop?.data.content.map((item, index) => (
+                <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
+                  <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td>
+                  <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
+                  <td className="px-5 py-4">{item.workshop.university.universityName}</td>
+                  <td className="px-5 py-4 text-center">{item.workshop.startTime.split(' ')[0]}</td>
+                  <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
+                  <td className="px-5 py-4">
+                    <Chip
+                      label={statusTextWorkShopCompany(item.status).title}
+                      style={{
+                        color: `${statusTextWorkShopCompany(item.status).color}`,
+                        background: `${statusTextWorkShopCompany(item.status).bg}`,
                       }}
-                      href={`/portal/workshops/${item.workshop.id}`}
                     />
+                  </td>
 
-                    {item.status === 'PENDING' && (
-                      <ButtonReject
+                  <td className="py-4">
+                    <div className="flex items-center justify-center gap-3">
+                      <ButtonSee
                         onClick={() => {
-                          handleAction(BackdropType.DeleteConfirmation, item.id);
-                          dispatch(setName(item.workshop.workshopTitle));
+                          setSelectId(item.workshop.id);
                         }}
+                        href={`/portal/workshops/${item.workshop.id}`}
                       />
-                    )}
-                    {item.status === 'ACCEPT' && (
-                      <ButtonDelete
-                        onClick={() => {
-                          handleAction(BackdropType.DeleteConfirmation, item.id);
-                          dispatch(setName(item.workshop.workshopTitle));
-                        }}
-                      />
-                    )}
-                  </div>
+
+                      {item.status === 'PENDING' && (
+                        <ButtonReject
+                          onClick={() => {
+                            handleAction(BackdropType.DeleteConfirmation, item.id);
+                            dispatch(setName(item.workshop.workshopTitle));
+                          }}
+                        />
+                      )}
+                      {item.status === 'ACCEPT' && (
+                        <ButtonDelete
+                          onClick={() => {
+                            handleAction(BackdropType.DeleteConfirmation, item.id);
+                            dispatch(setName(item.workshop.workshopTitle));
+                          }}
+                        />
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-4 text-center text-base">
+                  <p>Không có dữ liệu nào</p>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
       {/* Xóa Khoa */}
-      {backdropType === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter={true}>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Hủy tham gia hội thảo</h3>
-            <p className="mt-1">Bạn có chắc chắn muốn hủy tham gia hội thảo này không?.</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-green-600" onClick={handleDelete} full={true} />
-            </div>
-          </div>
-        </BackDrop>
-      )}
+      {backdropType === BackdropType.DeleteConfirmation && <PopupConfirmAction text="Hủy tham gia hội thảo" name={name} onClick={handleDelete} />}
 
       {/* Pagination */}
       <PaginationComponent
         count={companyWorkShop?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={companyWorkShop?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );

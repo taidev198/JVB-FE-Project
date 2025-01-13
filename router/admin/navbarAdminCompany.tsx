@@ -1,3 +1,4 @@
+import UploadIcon from '@mui/icons-material/Upload';
 import IconSchool from '@/assets/icons/iconNavbarAdminSchool/icon-school.svg';
 import IconHand from '@/assets/icons/iconNavbarAdminSchool/icon-hand.svg';
 import IconEmployee from '@/assets/icons/iconNavbarAdminCompany/icon-userCompany.svg';
@@ -25,7 +26,7 @@ export const litsNavbarAdminSchoolRouter = [
     id: 3,
     icon: <IconWorkshop />,
     url: '/admin/company/workShop',
-    label: 'Yêu cầu tham gia workShop',
+    label: 'Yêu cầu tham gia workshop',
   },
   {
     id: 4,
@@ -38,7 +39,7 @@ export const litsNavbarAdminSchoolRouter = [
     id: 5,
     icon: <IconJob />,
     url: '/admin/company/jobCompany',
-    label: 'Quản lý job',
+    label: 'Quản lý công việc',
   },
   {
     id: 6,
@@ -57,5 +58,11 @@ export const litsNavbarAdminSchoolRouter = [
     icon: <IconChangePassword />,
     url: '/admin/company/changeCompany',
     label: 'Thay đổi mật khẩu',
+  },
+  {
+    id: 9,
+    icon: <UploadIcon />,
+    url: '/admin/company/vnpay',
+    label: 'Nâng cấp tài khoản',
   },
 ];

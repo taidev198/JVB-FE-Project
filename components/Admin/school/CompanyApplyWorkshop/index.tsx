@@ -8,7 +8,6 @@ import PaginationComponent from '@/components/Common/Pagination';
 import ImageComponent from '@/components/Common/Image';
 import { setKeyword } from '@/store/slices/filtersSlice';
 import { useGetAllCompanyApplyWorkshopsQuery } from '@/services/adminSchoolApi';
-import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import { StatusJobCompanyApply } from '@/utils/app/const';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
@@ -16,10 +15,10 @@ import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 
 const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: number; workshopTitle: string }) => {
   const dispatch = useDispatch();
+  const [size, setSize] = useState<number>(10);
   const [status, setStatus] = useState<string>('PENDING');
   const [page, setPage] = useState<number>(1);
   const [keyword, setKeyWord] = useState<string | null>(null);
-  const { size } = useAppSelector(state => state.filter);
 
   const debouncedSearch = useMemo(
     () =>
@@ -194,6 +193,7 @@ const CompanyApplyWorkshop = ({ idWorkshop, workshopTitle }: { idWorkshop: numbe
         onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={companyApply?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
 
       {/* {showBackdrop === BackdropType.LockConfirmation ||

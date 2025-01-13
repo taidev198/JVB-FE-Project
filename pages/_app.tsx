@@ -1,5 +1,6 @@
-import { Jost } from 'next/font/google';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import '@/styles/globals.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { Toaster } from 'react-hot-toast';
@@ -17,7 +18,7 @@ import AdminCompanyLayout from '@/layouts/Admin/AdminCompanyLayout';
 import ToastNotification from '@/components/Common/ToastNotification';
 import SocketProvider from '@/context/SoketProvider';
 
-const plusJakartaSans = Jost({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
 });
@@ -39,7 +40,7 @@ const getLayout = (pathname: string) => {
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const Layout = getLayout(router.pathname); // Select the layout based on the pathname
+  const Layout = getLayout(router.pathname);
 
   return (
     <>

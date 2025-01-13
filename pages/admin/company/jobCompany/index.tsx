@@ -1,43 +1,43 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
-import { debounce } from 'lodash';
-import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { debounce } from 'lodash';
+import { TextField, Checkbox } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { useDeleteAllJobCompanyMutation, useDeleteJobCompanyMutation, useGetAllCompanyJobQuery } from '@/services/adminCompanyApi';
 import { formatCurrencyVND } from '@/utils/app/format';
+import { Button as MyButton } from '@/components/Common/Button';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const JobCompany = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
   const [idJob, setIdJob] = useState<number>();
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
 
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
   const { data: jobCompany, isLoading } = useGetAllCompanyJobQuery(
     {
-      status: status,
       page: page,
       size: size,
       keyword,
@@ -82,16 +82,13 @@ const JobCompany = () => {
 
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingOne || isLoadingMultiple));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingOne]);
 
   return (
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Doanh sách công việc</h1>
+        <h1 className="mb-5 font-bold">Danh sách công việc</h1>
         <div className="flex items-center justify-between gap-3 ">
           <TextField
             id="filled-search"
@@ -103,14 +100,21 @@ const JobCompany = () => {
             className="w-[250px]"
           />
           <div className="flex items-center gap-5">
-            <Link href={'/admin/company/jobCompany/AddJob'}>
-              <MyButton type="submit" icon={<AddIcon />} text="Thêm mới" />
+            <Link
+              href={'/admin/company/jobCompany/AddJob'}
+              className="flex items-center justify-center rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2
+               text-white transition duration-300 ease-in-out hover:bg-[#2e7b42]">
+              <AddIcon />
+              Thêm mới
             </Link>
             <MyButton
               type="submit"
               text="Xóa công việc "
               className="bg-red-custom"
-              onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))}
+              onClick={() => {
+                dispatch(setBackdrop(BackdropType.DeleteConfirmation));
+                dispatch(setName(''));
+              }}
               disabled={!selectedJob.length}
             />
           </div>
@@ -122,7 +126,7 @@ const JobCompany = () => {
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 sm:px-3 sm:py-4">
                 <Checkbox
                   color="primary"
                   checked={selectedJob.length > 0 && jobCompany?.data.content.length > 0}
@@ -130,7 +134,7 @@ const JobCompany = () => {
                   onChange={handleSelectAll}
                 />
               </th>
-              <th className="px-5 py-4 text-left">STT</th>
+              <th className="p-3 py-4 text-left sm:px-3">STT</th>
               <th className="px-5 py-4 text-left">Tên công việc</th>
               <th className="px-5 py-4 text-left">Mức lương</th>
               <th className="px-5 py-4 text-left">Thời hạn</th>
@@ -141,13 +145,13 @@ const JobCompany = () => {
             {jobCompany?.data.content && jobCompany.data.content.length > 0 ? (
               jobCompany?.data.content.map((item, index) => (
                 <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
                     <Checkbox color="primary" checked={selectedJob.includes(item.id)} onChange={() => handleSelectJob(item.id)} />
                   </td>
                   <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
                   <td className="px-5 py-4">{item.jobTitle}</td>
                   <td className="px-5 py-4">
-                    {item.salaryType === 'FIXED' ? formatCurrencyVND(item.maxSalary) + ' - ' + formatCurrencyVND(item.minSalary) : 'Thỏa thuận'}
+                    {item.salaryType === 'FIXED' ? formatCurrencyVND(item.minSalary) + ' - ' + formatCurrencyVND(item.maxSalary) : 'Thỏa thuận'}
                   </td>
                   <td className="px-5 py-4">{item.expirationDate}</td>
                   <td className=" py-4">
@@ -187,26 +191,16 @@ const JobCompany = () => {
       </div>
 
       {/* Xóa Nhân Viên */}
-      {backdropType === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter={true}>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa {name}?</h3>
-            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn sinh viên khỏi hệ thống.</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" className="bg-green-600" onClick={handleDelete} full={true} />
-            </div>
-          </div>
-        </BackDrop>
-      )}
+      {backdropType === BackdropType.DeleteConfirmation && <PopupConfirmAction text="Bạn có chắc chắn muốn xóa" name={name} onClick={handleDelete} />}
 
       {/* Pagination */}
       <PaginationComponent
         count={jobCompany?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={jobCompany?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );

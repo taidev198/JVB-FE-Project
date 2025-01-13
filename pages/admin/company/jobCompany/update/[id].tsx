@@ -128,6 +128,83 @@ const UpdateJob = () => {
             required={true}
           />
           {/* mô tả */}
+          <div className="mt-8 grid grid-cols-1 gap-4 rounded-b-lg sm:grid-cols-2">
+            {/* Trạng thái */}
+            <SelectMui
+              name="job_type"
+              label="Loại công việc"
+              placeholder="Nhập loại công việc"
+              control={control}
+              options={[
+                { value: 'FULL_TIME', label: 'FULL_TIME' },
+                { value: 'PART_TIME', label: 'PART_TIME' },
+                { value: 'FREELANCE', label: 'FREELANCE' },
+              ]}
+              error={errors.job_type?.message}
+            />
+
+            {/* time làm vc */}
+            <Input
+              name="work_time"
+              control={control}
+              error={errors.work_time?.message}
+              placeholder="Thời gian làm việc"
+              label="Thời gian làm việc"
+              required={true}
+            />
+
+            <SelectReact
+              name="job_field"
+              label="Lĩnh vực"
+              placeholder="Chọn lĩnh vực"
+              options={(faculties?.data || []).map(faculty => ({
+                value: faculty.id,
+                label: faculty.fieldName,
+              }))}
+              control={control}
+              isMultiple={true}
+              error={errors.job_field?.message}
+              required={true}
+            />
+            {/* Trình độ */}
+            <SelectMui
+              name="job_level"
+              label="Trình độ"
+              placeholder="Nhập trình độ"
+              control={control}
+              options={[
+                { value: 'INTERN', label: 'Intern' },
+                { value: 'JUNIOR', label: 'Junior' },
+                { value: 'SENIOR', label: 'Senior' },
+                { value: 'FRESHER', label: 'Fresher' },
+                { value: 'MIDDLE', label: 'Middle' },
+              ]}
+              error={errors.job_level?.message}
+              required={true}
+            />
+
+            {/*Ngày hết hạn */}
+            <DateComponent
+              name="expiration_date"
+              control={control}
+              error={errors.expiration_date?.message}
+              placeholder="Ngày hết hạn"
+              label="Ngày hết hạn"
+              required={true}
+            />
+
+            {/* số lượng */}
+            <Input
+              name="member_of_candidate"
+              control={control}
+              error={errors.member_of_candidate?.message}
+              placeholder="Số lượng tuyển"
+              label="Số lượng tuyển"
+              required={true}
+            />
+
+            {/* Lương: cao */}
+          </div>{' '}
           <div className="mt-5 grid grid-cols-1 gap-4">
             <Controller
               name="job_description"
@@ -182,82 +259,6 @@ const UpdateJob = () => {
               )}
             />
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-4 rounded-b-lg sm:grid-cols-2">
-            {/* Trạng thái */}
-            <SelectMui
-              name="job_type"
-              label="Loại công việc"
-              placeholder="Nhập loại công việc"
-              control={control}
-              options={[
-                { value: 'FULL_TIME', label: 'FULL_TIME' },
-                { value: 'PART_TIME', label: 'PART_TIME' },
-                { value: 'FREELANCE', label: 'FREELANCE' },
-              ]}
-              error={errors.job_type?.message}
-            />
-
-            {/* time làm vc */}
-            <Input
-              name="work_time"
-              control={control}
-              error={errors.work_time?.message}
-              placeholder="Thời gian làm việc"
-              label="Thời gian làm việc"
-              required={true}
-            />
-
-            <SelectReact
-              name="job_field"
-              label="Lĩnh vực"
-              placeholder="Chọn lĩnh vực"
-              options={(faculties?.data || []).map(faculty => ({
-                value: faculty.id,
-                label: faculty.fieldName,
-              }))}
-              control={control}
-              isMultiple={true}
-              error={errors.job_field?.message}
-              required={true}
-            />
-            {/* Trình độ */}
-            <SelectMui
-              name="job_level"
-              label="Trình độ"
-              placeholder="Nhập trình độ"
-              control={control}
-              options={[
-                { value: 'INTERN', label: 'Intern' },
-                { value: 'JUNIOR', label: 'Junior' },
-                { value: 'SENIOR', label: 'Senior' },
-                { value: 'FRESHER', label: 'Fresher' },
-              ]}
-              error={errors.job_level?.message}
-              required={true}
-            />
-
-            {/*Ngày hết hạn */}
-            <DateComponent
-              name="expiration_date"
-              control={control}
-              error={errors.expiration_date?.message}
-              placeholder="Ngày hết hạn"
-              label="Ngày hết hạn"
-              required={true}
-            />
-
-            {/* số lượng */}
-            <Input
-              name="member_of_candidate"
-              control={control}
-              error={errors.member_of_candidate?.message}
-              placeholder="Số lượng tuyển"
-              label="Số lượng tuyển"
-              required={true}
-            />
-
-            {/* Lương: cao */}
-          </div>{' '}
           <div className="grid grid-cols-3 items-center gap-5">
             <SelectMui
               name="salary_type"

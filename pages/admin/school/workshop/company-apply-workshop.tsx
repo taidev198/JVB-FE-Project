@@ -1,21 +1,20 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import LocationOnIcon from '@mui/icons-material/LocationOn';
-import { Chip, TextField } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { Chip, TextField } from '@mui/material';
 import { debounce } from 'lodash';
-import PaginationComponent from '@/components/Common/Pagination';
-import ImageComponent from '@/components/Common/Image';
 import { resetFilters, setKeyword } from '@/store/slices/filtersSlice';
-import { useApproveCompanyApplyWorkshopMutation, useGetAllCompanyApplyWorkshopsQuery, useRejectCompanyApplyWorkshopMutation } from '@/services/adminSchoolApi';
 import { useAppSelector } from '@/store/hooks';
+import { useApproveCompanyApplyWorkshopMutation, useGetAllCompanyApplyWorkshopsQuery, useRejectCompanyApplyWorkshopMutation } from '@/services/adminSchoolApi';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import { StatusJobCompanyApply } from '@/utils/app/const';
+import PaginationComponent from '@/components/Common/Pagination';
+import ImageComponent from '@/components/Common/Image';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
 import { BackDrop } from '@/components/Common/BackDrop';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { Button } from '@/components/Common/Button';
 
 const CompanyApplyWorkshop = () => {
@@ -24,7 +23,7 @@ const CompanyApplyWorkshop = () => {
   const [status, setStatus] = useState<string>('ACCEPT');
   const [page, setPage] = useState<number>(1);
   const [keyword, setKeyWord] = useState<string | null>(null);
-  const { size } = useAppSelector(state => state.filter);
+  const [size, setSize] = useState<number | null>(null);
   const idWorkshop = useAppSelector(state => state.global.id);
   const workshopTitle = useAppSelector(state => state.global.name);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
@@ -35,7 +34,7 @@ const CompanyApplyWorkshop = () => {
         setKeyWord(value);
         setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const { data: companyApply, isLoading } = useGetAllCompanyApplyWorkshopsQuery(
@@ -208,6 +207,7 @@ const CompanyApplyWorkshop = () => {
         onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={companyApply?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
 
       {showBackdrop && (
