@@ -1,37 +1,42 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { TextField, Checkbox } from '@mui/material';
 import Link from 'next/link';
-import toast from 'react-hot-toast';
+import React, { useEffect, useMemo, useState } from 'react';
 import Select from 'react-select';
+import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
+import { TextField, Checkbox } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import PaginationComponent from '@/components/Common/Pagination';
-import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button, Button as MyButton } from '@/components/Common/Button';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useDeleteBusinessMultipleMutation, useDeleteBusinessOneMutation, useGetAllBusinessQuery, useGetAllFaculityQuery } from '@/services/adminSchoolApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { setKeyword, setPage, setIdFaculty, resetFilters } from '@/store/slices/filtersSlice';
+import PaginationComponent from '@/components/Common/Pagination';
+import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
+import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
+import { Button as MyButton } from '@/components/Common/Button';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 
 const BusinessManagement = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [idFaculty, setIdFaculty] = useState<number | null>(null);
   const dispatch = useAppDispatch();
-  const { page, keyword, size, idFaculty } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedBusiness, setSelectedBusiness] = useState<number[]>([]);
   const { data: dataDepartments, isLoading: isLoadingGetAllDepartment } = useGetAllFaculityQuery(undefined, { refetchOnMountOrArgChange: true });
+
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
@@ -82,9 +87,6 @@ const BusinessManagement = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple || isLoadingGetAllDepartment));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne, isLoadingGetAllDepartment]);
   return (
     <>
@@ -111,14 +113,17 @@ const BusinessManagement = () => {
                 })),
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string | null> }) => {
-                dispatch(setIdFaculty(selectedOption.value ? Number(selectedOption.value) : null));
+                setIdFaculty(selectedOption.value ? Number(selectedOption.value) : null);
               }}
               className="w-full cursor-pointer "
             />
           </div>
           <div className="ml-auto flex justify-items-center gap-5">
-            <Link href={'/admin/school/businessManagement/AddBusiness'}>
-              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            <Link
+              href={'/admin/school/businessManagement/AddBusiness'}
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
+              Thêm mới
             </Link>
             <MyButton
               type="submit"
@@ -151,17 +156,41 @@ const BusinessManagement = () => {
                 <p className="min-w-max">STT</p>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Mã ngành</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Mã ngành</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Tên ngành</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên ngành</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Số tín chỉ</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Số tín chỉ</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
 
               <th className="p-3 text-left sm:px-5 sm:py-4">
-                <p className="min-w-max">Khoa</p>
+                <div className="flex items-center">
+                  <span className="min-w-max">Khoa</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
               </th>
 
               <th className="p-3 text-left sm:px-5 sm:py-4">
@@ -219,24 +248,16 @@ const BusinessManagement = () => {
       </div>
 
       {showBackdrop === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter={true}>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa ngành học {name} này không?</h3>
-            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn ngành học khỏi hệ thống.</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-            </div>
-          </div>
-        </BackDrop>
+        <PopupConfirmAction text="Bạn có chắc chắn muốn xóa ngành học" name={`${name} này không?`} onClick={handleConfirmAction} />
       )}
 
       <PaginationComponent
         count={business?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={business?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );

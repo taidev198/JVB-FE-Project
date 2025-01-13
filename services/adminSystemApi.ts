@@ -312,6 +312,7 @@ export const adminSystemApi = createApi({
           url: `/admin/job/approve/${id}`,
           method: 'PUT',
         }),
+        invalidatesTags: () => ['Job'],
       }),
 
       rejectJobs: builder.mutation({
@@ -319,6 +320,7 @@ export const adminSystemApi = createApi({
           url: `/admin/job/reject/${id}`,
           method: 'PUT',
         }),
+        invalidatesTags: () => ['Job'],
       }),
 
       getNotifications: builder.query({

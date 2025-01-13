@@ -1,21 +1,22 @@
-import { Checkbox, Chip } from '@mui/material';
 import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
+import { Checkbox, Chip } from '@mui/material';
 import { useApproveStudentJobMutation, useGetAllStudentApplyJobQuery } from '@/services/adminCompanyApi';
-import { useAppSelector } from '@/store/hooks';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
-import { resetFilters, setPage } from '@/store/slices/filtersSlice';
+import { resetFilters } from '@/store/slices/filtersSlice';
+import { useAppSelector } from '@/store/hooks';
 import { statusStudentApplyJob } from '@/utils/app/const';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonAccept from '@/components/Common/ButtonIcon/ButtonAccept';
 import PaginationComponent from '@/components/Common/Pagination';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { Button } from '@/components/Common/Button';
 
 const StudentApplyJob = () => {
-  const { page, size } = useAppSelector(state => state.filter);
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
   const { id, uId, name, backdropType } = useAppSelector(state => state.global);
   const [idApprove, setIdApprove] = useState<number[] | null>([]);
   const [nameStudent, setNameStudent] = useState<string | null>(null);
@@ -175,9 +176,10 @@ const StudentApplyJob = () => {
       <PaginationComponent
         count={students?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={students?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
 
       {backdropType === BackdropType.ApproveConfirmation && (

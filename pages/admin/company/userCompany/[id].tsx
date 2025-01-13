@@ -3,14 +3,14 @@ import { IconButton } from '@mui/material';
 import Link from 'next/link';
 import CameraOutdoorIcon from '@mui/icons-material/CameraOutdoor';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import PhoneIcon from '@mui/icons-material/Phone';
+import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import PaymentsIcon from '@mui/icons-material/Payments';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import DateRangeIcon from '@mui/icons-material/DateRange';
+import TransgenderIcon from '@mui/icons-material/Transgender';
+import CakeIcon from '@mui/icons-material/Cake';
 import { useEffect } from 'react';
-import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
 
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import MailIcon from '@mui/icons-material/Mail';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { useGetDetailEmployeeQuery } from '@/services/adminCompanyApi';
 import { setLoading } from '@/store/slices/global';
@@ -61,7 +61,7 @@ const DetailUserCompany = () => {
             </div>
           </li>
           <li className="mt-5 flex items-center gap-3">
-            <CreditScoreIcon sx={{ color: '#757575' }} />
+            <MailIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Email :</span> {employee?.data.account.email}
             </div>
@@ -73,19 +73,19 @@ const DetailUserCompany = () => {
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
-            <PhoneIcon sx={{ color: '#757575' }} />
+            <LocalPhoneIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Số điện thoại:</span> {employee?.data.phoneNumber}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
-            <PersonOutlineIcon sx={{ color: '#757575' }} />
+            <TransgenderIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Giới tính:</span> {genderTitle(employee?.data.gender)}
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
-            <DateRangeIcon sx={{ color: '#757575' }} />
+            <CakeIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Ngày sinh:</span> {employee?.data.dateOfBirth}
             </div>
@@ -97,7 +97,7 @@ const DetailUserCompany = () => {
             </div>
           </li>
           <li className="mt-4 flex items-center  gap-3 ">
-            <AddLocationAltIcon sx={{ color: '#757575' }} />
+            <ContactMailIcon sx={{ color: '#757575' }} />
             <div>
               <span className="mr-2 font-semibold">Địa chỉ:</span> {employee?.data.address.houseNumber},{employee?.data.address.ward.wardName},
               {employee?.data.address.district.districtName},{employee?.data.address.province.provinceName}

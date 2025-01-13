@@ -143,6 +143,7 @@ const AddJob = () => {
                 { value: 'JUNIOR', label: 'Junior' },
                 { value: 'SENIOR', label: 'Senior' },
                 { value: 'FRESHER', label: 'Fresher' },
+                { value: 'MIDDLE', label: 'Middle' },
               ]}
               error={errors.job_level?.message}
             />

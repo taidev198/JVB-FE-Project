@@ -1,37 +1,40 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Checkbox, TextField } from '@mui/material';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import AddIcon from '@mui/icons-material/Add';
 import { useDispatch } from 'react-redux';
+import { Checkbox, TextField } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
+import { useAppSelector } from '@/store/hooks';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
+import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { genderTitle } from '@/utils/app/const';
+import { BackDrop } from '@/components/Common/BackDrop';
+import { Button, Button as MyButton } from '@/components/Common/Button';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
-import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button, Button as MyButton } from '@/components/Common/Button';
-import { useDeleteAdemicMultipleMutation, useDeleteAdemicOneMutation, useGetAllAcademicOfficeManagementQuery } from '@/services/adminSchoolApi';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
-import { genderTitle } from '@/utils/app/const';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 
 const AcademicOfficeManagement = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
   const name = useAppSelector(state => state.global.name);
-  const { page, keyword, size } = useAppSelector(state => state.filter);
   const [selectId, setSelectId] = useState<number | null>(null);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
@@ -81,9 +84,6 @@ const AcademicOfficeManagement = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
@@ -102,8 +102,11 @@ const AcademicOfficeManagement = () => {
             />
           </div>
           <div className="ml-auto flex justify-items-center gap-5">
-            <Link href={'/admin/school/academicOfficeManagement/addAdemic'}>
-              <MyButton type="submit" text="Thêm mới" icon={<AddIcon />} />
+            <Link
+              href={'/admin/school/academicOfficeManagement/addAdemic'}
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
+              Thêm mới
             </Link>
             <MyButton type="submit" text="Xóa giáo vụ" onClick={() => dispatch(setBackdrop(BackdropType.DeleteConfirmation))} className="bg-red-custom" />
           </div>
@@ -127,8 +130,24 @@ const AcademicOfficeManagement = () => {
                 <p className="min-w-max">STT</p>
               </th>
 
-              <th className="p-3 text-left sm:px-5 sm:py-4">Mã nhân viên</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">Họ và tên</th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <div className="flex items-center">
+                  <span className="min-w-max">Mã nhân viên</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
+              </th>
+              <th className="p-3 text-left sm:px-5 sm:py-4">
+                <div className="flex items-center">
+                  <span className="min-w-max">Họ và tên</span>
+                  <span className="ml-2 flex md:flex-nowrap ">
+                    <ButtonArrow />
+                    <ButtonUp />
+                  </span>
+                </div>
+              </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Số điện thoại</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Giới tính</th>
               <th className="p-3 text-left sm:px-5 sm:py-4">Ngày sinh</th>
@@ -193,9 +212,10 @@ const AcademicOfficeManagement = () => {
       <PaginationComponent
         count={academicOfficeManagement?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={academicOfficeManagement?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );
