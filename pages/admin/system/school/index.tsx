@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Chip, TextField } from '@mui/material';
+import { Chip } from '@mui/material';
 import Select from 'react-select';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -16,11 +16,13 @@ import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { useAccountActionsCompanyAdminSystem } from '@/components/Admin/System/SystemCompany/Action';
+import Search from '@/components/Common/Search';
 
 const AdminSystemSchool = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
+  const [inputValue, setInputValue] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [universityType, setUniversityType] = useState<string | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
@@ -89,14 +91,19 @@ const AdminSystemSchool = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách tài khoản trường học</h1>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3">
-            <TextField
-              id="filled-search"
-              label="Tìm kiếm tên, mã trường"
-              type="search"
-              variant="outlined"
-              size="small"
-              onChange={e => debouncedSearch(e.target.value)}
+          <div className="flex flex-wrap items-center gap-3">
+            <Search
+              onChange={e => {
+                setInputValue(e.target.value);
+                debouncedSearch(e.target.value);
+              }}
+              value={inputValue}
+              onClear={() => {
+                setInputValue('');
+                setKeyword('');
+                debouncedSearch('');
+              }}
+              placeholder="Tìm kiếm tên, mã trường học"
             />
             <Select
               placeholder="Trạng thái"

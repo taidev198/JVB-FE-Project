@@ -1,4 +1,5 @@
 import { IFaculty } from './facultyType';
+import { IFields } from './fields';
 
 export interface IMajor {
   id: number;
@@ -7,6 +8,7 @@ export interface IMajor {
   creditRequirement: number;
   majorDescription: string;
   numberOfStudents: number;
+  majorFields: IFields[];
   faculty: IFaculty;
 }
 

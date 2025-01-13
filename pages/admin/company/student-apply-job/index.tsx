@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { Checkbox, Chip } from '@mui/material';
 import { useApproveStudentJobMutation, useGetAllStudentApplyJobQuery } from '@/services/adminCompanyApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
+import { BackdropType, setBackdrop, setId, setLoading } from '@/store/slices/global';
 import { resetFilters } from '@/store/slices/filtersSlice';
 import { useAppSelector } from '@/store/hooks';
 import { statusStudentApplyJob } from '@/utils/app/const';
@@ -17,12 +17,12 @@ import { Button } from '@/components/Common/Button';
 const StudentApplyJob = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
-  const { id, uId, name, backdropType } = useAppSelector(state => state.global);
+  const { idJob, uId, name, backdropType } = useAppSelector(state => state.global);
   const [idApprove, setIdApprove] = useState<number[] | null>([]);
   const [nameStudent, setNameStudent] = useState<string | null>(null);
   const dispatch = useDispatch();
   const { data: students, isLoading: loadingGetAll } = useGetAllStudentApplyJobQuery(
-    { page, size, jorId: id, universityId: uId },
+    { page, size, jorId: idJob, universityId: uId },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -150,7 +150,12 @@ const StudentApplyJob = () => {
                   </td>
                   <td className=" py-4">
                     <div className="flex items-center gap-2">
-                      <ButtonSee href="#" onClick={() => {}} />
+                      <ButtonSee
+                        href={`/admin/company/student-apply-job/${student?.id}`}
+                        onClick={() => {
+                          dispatch(setId(student?.id));
+                        }}
+                      />
                       <ButtonAccept
                         onClick={() => {
                           dispatch(setBackdrop(BackdropType.ApproveConfirmation));
