@@ -34,7 +34,7 @@ const CompanyApplyWorkshop = () => {
         setKeyWord(value);
         setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
 
   const { data: companyApply, isLoading } = useGetAllCompanyApplyWorkshopsQuery(

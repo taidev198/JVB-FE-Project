@@ -8,7 +8,7 @@ import { useGetAllJobAppliesCompanyQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
 import { typeUniversityTitle } from '@/utils/app/const';
 import PaginationComponent from '@/components/Common/Pagination';
-import { setId, setLoading, setName, setUId } from '@/store/slices/global';
+import { setIdJob, setLoading, setName, setUId } from '@/store/slices/global';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 
 const SchoolApplyJob = () => {
@@ -83,7 +83,7 @@ const SchoolApplyJob = () => {
                             <div className="flex">
                               <LocationOnIcon fontSize="small" />
                               <p className="mt-[1px]">
-                                `{apply.university?.address?.district.districtName}, {apply.university?.address?.province.provinceName}`
+                                {apply.university?.address?.district.districtName}, {apply.university?.address?.province.provinceName}
                               </p>
                             </div>
                             <p className="ml-[6px] md:ml-0">Loại trường: {typeUniversityTitle(apply?.university.universityType).title}</p>
@@ -102,7 +102,7 @@ const SchoolApplyJob = () => {
                       <div className="flex items-center gap-3">
                         <ButtonSee
                           onClick={() => {
-                            dispatch(setId(apply?.job.id));
+                            dispatch(setIdJob(apply?.job.id));
                             dispatch(setUId(apply.university.id));
                             dispatch(setName(apply?.job.jobTitle));
                           }}

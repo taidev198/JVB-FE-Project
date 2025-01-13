@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Chip, TextField } from '@mui/material';
+import { Chip } from '@mui/material';
 import Select from 'react-select';
-import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
+import { debounce } from 'lodash';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { useGetAllAccountCompanyQuery } from '@/services/adminSystemApi';
@@ -15,33 +15,33 @@ import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { useAccountActionsCompanyAdminSystem } from '@/components/Admin/System/SystemCompany/Action';
+import Search from '@/components/Common/Search';
 
 const AdminSystemCompany = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
+  const [inputValue, setInputValue] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const dispatch = useDispatch();
   const name = useAppSelector(state => state.global.name);
-
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        setPage(1);
+        setKeyword(value);
+      }, 500),
+    []
+  );
   const handleAction = (actionType: BackdropType, companyId: number, companyName: string) => {
     setSelectedCompanyId(companyId);
     setSelectedAction(actionType);
     dispatch(setBackdrop(actionType));
     dispatch(setName(companyName));
   };
-
-  const debouncedSearch = useMemo(
-    () =>
-      debounce(value => {
-        setKeyword(value);
-        setPage(1);
-      }, 500),
-    []
-  );
 
   const { data: companies, isLoading: isLoadingDetAll } = useGetAllAccountCompanyQuery({ page, size, keyword, status }, { refetchOnMountOrArgChange: true });
   const { approveAccount, rejectAccount, lockAccount, unlockAccount } = useAccountActionsCompanyAdminSystem();
@@ -81,7 +81,20 @@ const AdminSystemCompany = () => {
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Doanh sách tài khoản doanh nghiệp</h1>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <Search
+              onChange={e => {
+                setInputValue(e.target.value);
+                debouncedSearch(e.target.value);
+              }}
+              value={inputValue}
+              onClear={() => {
+                setInputValue('');
+                setKeyword('');
+                debouncedSearch('');
+              }}
+              placeholder="Tìm kiếm tên, mã doanh nghiệp"
+            />
             <Select
               placeholder="Trạng thái"
               closeMenuOnSelect={true}
@@ -93,15 +106,6 @@ const AdminSystemCompany = () => {
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
-            />
-            <TextField
-              id="filled-search"
-              label="Tìm kiếm tên, mã doanh nghiệp"
-              type="search"
-              variant="outlined"
-              size="small"
-              onChange={e => debouncedSearch(e.target.value)}
-              className="w-fit sm:w-[280px]"
             />
           </div>
         </div>
