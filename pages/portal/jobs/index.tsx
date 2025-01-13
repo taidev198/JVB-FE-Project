@@ -15,7 +15,7 @@ const JobListPage: React.FC<JobListProps> = () => {
   return (
     <>
       <Head>
-        <title>Job Link - Dánh sách công việc test conflict lần 2</title>
+        <title>Job Link - Dánh sách công việc test conflict lần 3</title>
         <meta name="description" content="Danh sách công việc" />
         <meta name="viewport" content="height=device-height ,width=device-width, initial-scale=1, user-scalable=no" />
         <link rel="icon" href="/favicon.ico" />
