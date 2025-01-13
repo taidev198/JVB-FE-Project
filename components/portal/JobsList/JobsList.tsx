@@ -112,7 +112,7 @@ const JobsList: React.FC = () => {
           <div className="mt-[20px] flex items-start gap-[30px]">
             <div className="mb-[40px] min-w-[375px] max-w-[390px] rounded-[10px] bg-custom-gradient p-[30px]">
               <Form form={form} layout="vertical" onFinish={handleSearch} style={{ maxWidth: '600px', margin: '0 auto' }}>
-                <h2 className="mb-[16px] text-xl font-semibold">Tìm kiếm công việc </h2>
+                <h2 className="mb-[16px] text-xl font-semibold">Tìm kiếm công việc test conflict</h2>
                 <Form.Item name="jobName">
                   <Input
                     prefix={<SearchOutlined className="mr-[4px]" />}
