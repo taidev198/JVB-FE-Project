@@ -39,7 +39,6 @@
     "formidable": "^2.1.1",
     "formik": "^2.2.9",
     "framer-motion": "^11.14.4",
-    "i18next": "^24.2.1",
     "less": "^4.2.1",
     "less-loader": "^12.2.0",
     "lodash": "^4.17.21",
