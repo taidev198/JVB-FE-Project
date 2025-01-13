@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 import { Checkbox, TextField } from '@mui/material';
@@ -23,7 +23,7 @@ const Department = () => {
   const [keyword, setKeyword] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const name = useAppSelector(state => state.global.name);
-  const [, setSelectId] = useState<number | null>(null);
+  const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
   const { data: departments, isLoading } = useGetAllDepartmentsQuery(
@@ -34,7 +34,17 @@ const Department = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
@@ -48,7 +58,6 @@ const Department = () => {
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
 
-  const idDepartment = useAppSelector(state => state.global.id);
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteDepartmentOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteDepartmentMultipleMutation();
   const handleConfirmAction = async () => {
@@ -57,7 +66,7 @@ const Department = () => {
         await deleteMultiple({ ids: selectedDepartment }).unwrap();
         toast.success('Các khoa đã được xóa thành công.');
       } else {
-        await deleteOne({ id: idDepartment }).unwrap();
+        await deleteOne({ id: selectId }).unwrap();
         toast.success('Khoa đã được xóa thành công.');
       }
     } catch (error) {
@@ -104,7 +113,7 @@ const Department = () => {
           <div className="ml-auto flex justify-items-center gap-5">
             <Link
               href={'/admin/school/department/AddDepartment'}
-              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
               <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
               Thêm mới
             </Link>
@@ -144,8 +153,11 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Mã khoa</span>
                   <span className="">
-                    <ButtonUp />
-                    <ButtonArrow />
+                    <ButtonUp isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === true} onClick={() => handleSort('facultyCode', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('facultyCode', false)}
+                    />
                   </span>
                 </div>
               </th>
@@ -153,18 +165,17 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên khoa</span>
                   <span className="">
-                    <ButtonUp />
-                    <ButtonArrow />
+                    <ButtonUp isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true} onClick={() => handleSort('facultyName', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === false}
+                      onClick={() => handleSort('facultyName', false)}
+                    />
                   </span>
                 </div>
               </th>
               <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Trưởng khoa</span>
-                  <span className="">
-                    <ButtonUp />
-                    <ButtonArrow isSort />
-                  </span>
                 </div>
               </th>
               <th className="p-3 text-left sm:px-5">
