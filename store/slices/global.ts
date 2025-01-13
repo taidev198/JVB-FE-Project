@@ -20,6 +20,7 @@ export interface State {
   name: string | null;
   image: string | null;
   uId: number;
+  idJob: number;
 }
 
 const initialState: State = {
@@ -30,6 +31,7 @@ const initialState: State = {
   name: null,
   image: null,
   uId: null,
+  idJob: null,
 };
 
 export const globalSlice = createSlice({
@@ -51,6 +53,9 @@ export const globalSlice = createSlice({
     setUId: (state, action: PayloadAction<number | null>) => {
       state.uId = action.payload;
     },
+    setIdJob: (state, action: PayloadAction<number | null>) => {
+      state.idJob = action.payload;
+    },
     setName: (state, action: PayloadAction<string | null>) => {
       state.name = action.payload;
     },
@@ -60,6 +65,6 @@ export const globalSlice = createSlice({
   },
 });
 
-export const { showSidebar, setBackdrop, setLoading, setId, setUId, setName, setImage } = globalSlice.actions;
+export const { showSidebar, setBackdrop, setLoading, setId, setUId, setIdJob, setName, setImage } = globalSlice.actions;
 
 export default globalSlice.reducer;

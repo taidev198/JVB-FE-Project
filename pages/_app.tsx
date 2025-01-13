@@ -1,5 +1,6 @@
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import '@/styles/globals.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { appWithTranslation } from 'next-i18next';
 import type { AppProps } from 'next/app';
 import { Toaster } from 'react-hot-toast';
@@ -39,7 +40,7 @@ const getLayout = (pathname: string) => {
 
 function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
-  const Layout = getLayout(router.pathname); // Select the layout based on the pathname
+  const Layout = getLayout(router.pathname);
 
   return (
     <>
