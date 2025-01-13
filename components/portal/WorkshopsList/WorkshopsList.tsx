@@ -1,31 +1,27 @@
-/* eslint-disable no-console */
-/* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
 import { debounce } from 'lodash';
-import { ConfigProvider, DatePicker, Form, Input, Pagination } from 'antd';
+import { ConfigProvider, Form, Input, Pagination } from 'antd';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useCallback, useMemo, useState } from 'react';
 import HtmlContentRenderer from '../common/HtmlContentRenderer';
 import PortalEmpty from '../common/PortalEmpty';
 import PortalLoading from '../common/PortalLoading';
 import SelectSearch from '../common/SelectSearch';
 import { useGetFieldsQuery, useGetProvincesQuery, useGetWorkshopsQuery } from '@/services/portalHomeApi';
-import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
 import ImageComponent from '@/components/Common/Image';
+import { useAppSelector } from '@/store/hooks';
 
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedValue, setDebouncedValue] = useState('');
   const [detailedView, setDetailedView] = useState(false);
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(8); // Initial page size
   const [form] = Form.useForm();
+
+  const idUser = useAppSelector(state => state.user.id);
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
@@ -36,24 +32,10 @@ const WorkshopsList: React.FC = () => {
       keyword: searchTerm,
       provinceId: selectedLocation ? provincesData?.data.find(province => province.provinceName === selectedLocation)?.id : undefined,
       fieldId: selectedField ? fieldsData?.data.find(field => field.fieldName === selectedField)?.id : undefined,
+      companyId: idUser,
     },
     { refetchOnMountOrArgChange: true }
   );
-
-  //const debouncedSearch = useMemo(
-  //  () =>
-  //    debounce(value => {
-  //      dispatch(setSearchTerm(value));
-  //      dispatch(setPage(1));
-  //    }, 500),
-  //  [dispatch]
-  //);
-
-  //useEffect(() => {
-  //  const start = (currentPage - 1) * pageSize;
-  //  const end = start + pageSize;
-  //  setPaginatedWorkshops(filteredWorkshops.slice(start, end));
-  //}, [filteredWorkshops, currentPage, pageSize]);
 
   const handlePageChange = (page: number, size?: number) => {
     setCurrentPage(page);
@@ -66,31 +48,17 @@ const WorkshopsList: React.FC = () => {
     setCurrentPage(1);
   }, []);
 
-  //useEffect(() => {
-  //  dispatch(setLoading(isWorkshopsLoading));
-  //  return () => {
-  //    dispatch(resetFilters());
-  //  };
-  //}, [isWorkshopsLoading, dispatch]);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(searchTerm);
-    }, 600);
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    if (debouncedValue) {
-      handleSearch();
-    }
-  }, [debouncedValue]);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        setSearchTerm(value);
+        setCurrentPage(1);
+      }, 500),
+    [searchTerm]
+  );
 
   const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
-
-  console.log('Check workshopsData: ', workshopsData);
-  console.log('Check size in workshopsData?.data.totalPages: ', workshopsData?.data.totalPages);
 
   return (
     <ConfigProvider
@@ -114,7 +82,7 @@ const WorkshopsList: React.FC = () => {
                     className="w-full"
                     placeholder="Nhập tên workshop"
                     value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
+                    onChange={e => debouncedSearch(e.target.value)}
                   />
                 </Form.Item>
                 <Form.Item name="location" label="Địa điểm">
@@ -137,7 +105,7 @@ const WorkshopsList: React.FC = () => {
                   />
                 </Form.Item>
 
-                <Form.Item name="time" label="Thời gian">
+                {/*<Form.Item name="time" label="Thời gian">
                   <DatePicker
                     prefix={<HistoryOutlined className="mr-[4px]" />}
                     format="DD/MM/YYYY"
@@ -146,7 +114,7 @@ const WorkshopsList: React.FC = () => {
                     size="large"
                     onChange={date => setSelectedDate(date?.toDate() || null)}
                   />
-                </Form.Item>
+                </Form.Item>*/}
               </Form>
             </div>
             <div className="md:basis-2/3">
@@ -190,7 +158,7 @@ const WorkshopsList: React.FC = () => {
                   <PortalLoading />
                 ) : workshopsData.data.content.length > 0 ? (
                   detailedView ? (
-                    <div className="grid grid-cols-1 gap-[30px] ">
+                    <div className="grid grid-cols-1 gap-[30px]">
                       {workshopsData.data.content.map(workshop => (
                         <div
                           key={workshop.id}
@@ -241,7 +209,7 @@ const WorkshopsList: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 gap-[30px] md:grid-cols-1 xl:grid-cols-2 ">
+                    <div className="grid grid-cols-1 gap-[30px] md:grid-cols-1 xl:grid-cols-2">
                       {workshopsData.data.content.map(workshop => (
                         <div
                           key={workshop.id}
@@ -304,6 +272,7 @@ const WorkshopsList: React.FC = () => {
                 pageSize={pageSize}
                 showSizeChanger
                 align="center"
+                pageSizeOptions={['8', '10', '20', '50', '100']}
                 onChange={handlePageChange}
                 onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
               />

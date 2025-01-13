@@ -25,7 +25,7 @@ const SchoolsList: React.FC = () => {
   const { data: schoolsData, isLoading: isSchoolsLoading } = useGetSchoolsQuery(
     {
       page: 1,
-      size: 1000,
+      size: 10,
       keyword: searchTerm,
     },
     { refetchOnMountOrArgChange: true }

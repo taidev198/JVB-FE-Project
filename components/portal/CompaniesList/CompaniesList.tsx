@@ -1,82 +1,70 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Empty, Pagination } from 'antd';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { debounce } from 'lodash';
 import PortalLoading from '../common/PortalLoading';
 import SelectSearch from './SelectSearch';
 import ImageComponent from '@/components/Common/Image';
 import { useGetCompaniesQuery, useGetFieldsQuery, useGetProvincesQuery } from '@/services/portalHomeApi';
-import { ICompany } from '@/types/companyType';
 
 const CompaniesList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedValue, setDebouncedValue] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedScale, setSelectedScale] = useState<string | null>(null);
-  const [filteredCompanies, setFilteredCompanies] = useState<ICompany[]>([]);
+  const [minQuantityEmployee, setMinQuantityEmployee] = useState<number | null>(null);
+  const [maxQuantityEmployee, setMaxQuantityEmployee] = useState<number | null>(null);
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedCompanies, setPaginatedCompanies] = useState<ICompany[]>([]);
   const [pageSize, setPageSize] = useState(9); // Initial page size
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
   const { data: companiesData, isLoading: isCompaniesLoading } = useGetCompaniesQuery({
-    page: 1,
-    size: 1000,
+    page: currentPage,
+    size: pageSize,
     keyword: searchTerm,
+    provinceIdSearch: selectedLocation ? provincesData?.data.find(province => province.provinceName === selectedLocation)?.id : undefined,
+    fieldId: selectedField ? fieldsData?.data.find(field => field.fieldName === selectedField)?.id : undefined,
+    minQuantityEmployee,
+    maxQuantityEmployee,
   });
 
   const scaleItems = ['Dưới 10 nhân viên', '10 - 50', '51 - 200', '200 - 500', 'Trên 500'];
 
-  useEffect(() => {
-    if (companiesData?.data.content) {
-      let filtered = companiesData.data.content;
-
-      if (selectedLocation) {
-        filtered = filtered.filter(company => company.address.province.provinceName === selectedLocation);
-      }
-
-      if (selectedField) {
-        filtered = filtered.filter(
-          company => company.fields && Array.isArray(company.fields) && company.fields.some(field => field.fieldName === selectedField)
-        );
-      }
-
-      if (selectedScale) {
-        filtered = filtered.filter(company => {
-          const quantity = company.quantityEmployee;
-          switch (selectedScale) {
-            case 'Dưới 10 nhân viên':
-              return quantity < 10;
-            case '10 - 50':
-              return quantity >= 10 && quantity <= 50;
-            case '51 - 200':
-              return quantity >= 51 && quantity <= 200;
-            case '200 - 500':
-              return quantity >= 201 && quantity <= 500;
-            case 'Trên 500':
-              return quantity > 500;
-            default:
-              return true;
-          }
-        });
-      }
-
-      if (searchTerm) {
-        filtered = filtered.filter(company => company.companyName.toLowerCase().includes(searchTerm.toLowerCase()));
-      }
-
-      setFilteredCompanies(filtered);
-      setCurrentPage(1);
+  const updateEmployeeQuantities = (scale: string | null) => {
+    switch (scale) {
+      case 'Dưới 10 nhân viên':
+        setMinQuantityEmployee(1);
+        setMaxQuantityEmployee(10);
+        break;
+      case '10 - 50':
+        setMinQuantityEmployee(10);
+        setMaxQuantityEmployee(50);
+        break;
+      case '51 - 200':
+        setMinQuantityEmployee(51);
+        setMaxQuantityEmployee(200);
+        break;
+      case '200 - 500':
+        setMinQuantityEmployee(200);
+        setMaxQuantityEmployee(500);
+        break;
+      case 'Trên 500':
+        setMinQuantityEmployee(501);
+        setMaxQuantityEmployee(null);
+        break;
+      default:
+        setMinQuantityEmployee(null);
+        setMaxQuantityEmployee(null);
+        break;
     }
-  }, [companiesData, selectedLocation, selectedField, selectedScale, searchTerm]);
+  };
 
   useEffect(() => {
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    setPaginatedCompanies(filteredCompanies.slice(start, end));
-  }, [filteredCompanies, currentPage, pageSize]);
+    updateEmployeeQuantities(selectedScale);
+  }, [selectedScale]);
 
   const handlePageChange = (page: number, size?: number) => {
     setCurrentPage(page);
@@ -89,18 +77,14 @@ const CompaniesList: React.FC = () => {
     setCurrentPage(1);
   }, []);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(searchTerm);
-    }, 600);
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    if (debouncedValue) {
-      handleSearch();
-    }
-  }, [debouncedValue]);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        setSearchTerm(value);
+        setCurrentPage(1);
+      }, 500),
+    [searchTerm]
+  );
 
   const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
@@ -116,7 +100,7 @@ const CompaniesList: React.FC = () => {
               placeholder="Nhập tên công ty..."
               className="w-full border-none bg-transparent p-0 outline-none"
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => debouncedSearch(e.target.value)}
             />
           </div>
           <button
@@ -128,8 +112,10 @@ const CompaniesList: React.FC = () => {
         </form>
         <div className="mt-[70px] flex items-center justify-between">
           <span className="hidden font-medium text-primary-black md:block">
-            {paginatedCompanies.length
-              ? `${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, filteredCompanies.length)} trong ${filteredCompanies.length} kết quả`
+            {companiesData?.data.content.length
+              ? `${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, companiesData?.data.content.length)} trong ${
+                  companiesData?.data.totalElements
+                } kết quả`
               : ''}
           </span>
           <div className="flex items-center gap-4">
@@ -144,9 +130,9 @@ const CompaniesList: React.FC = () => {
             <div className=" my-[60px] flex w-full items-center justify-center">
               <PortalLoading />
             </div>
-          ) : paginatedCompanies.length > 0 ? (
+          ) : companiesData?.data?.content.length > 0 ? (
             <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3">
-              {paginatedCompanies.map(company => (
+              {companiesData?.data?.content.map(company => (
                 <div
                   key={company.id}
                   className="item group flex flex-col items-center justify-start rounded-[10px] border-[1px] border-solid border-primary-border bg-primary-white p-[30px] text-center">
@@ -189,10 +175,11 @@ const CompaniesList: React.FC = () => {
         <div className="mt-[80px] w-full">
           <Pagination
             current={currentPage}
-            total={filteredCompanies.length}
+            total={companiesData?.data.totalElements}
             pageSize={pageSize}
             showSizeChanger
             align="center"
+            pageSizeOptions={['9', '10', '20', '50', '100']}
             onChange={handlePageChange}
             onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
           />
