@@ -21,11 +21,11 @@ const jobTypeMap = {
 
 const salaryTypeMap = [
   {
-    label: 'Thỏa thuận',
+    label: 'Thỏa Thuận',
     value: 'NEGOTIABLE',
   },
   {
-    label: 'Cố định',
+    label: 'Cố Định',
     value: 'FIXED',
   },
 ];
