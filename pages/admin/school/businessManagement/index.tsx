@@ -42,7 +42,17 @@ const BusinessManagement = () => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const { data: business, isLoading } = useGetAllBusinessQuery(
     {
       page: page,
@@ -121,7 +131,7 @@ const BusinessManagement = () => {
           <div className="ml-auto flex justify-items-center gap-5">
             <Link
               href={'/admin/school/businessManagement/AddBusiness'}
-              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
               <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
               Thêm mới
             </Link>
@@ -155,30 +165,36 @@ const BusinessManagement = () => {
               <th className="p-3 py-4 text-left sm:px-3">
                 <p className="min-w-max">STT</p>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Mã ngành</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'majorCode' && sortState.isAsc === true} onClick={() => handleSort('majorCode', true)} />
+                    <ButtonArrow isSort={sortState.activeColumn === 'majorCode' && sortState.isAsc === false} onClick={() => handleSort('majorCode', false)} />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Tên ngành</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === true} onClick={() => handleSort('majorName', true)} />
+                    <ButtonArrow isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === false} onClick={() => handleSort('majorName', false)} />
                   </span>
                 </div>
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <div className="flex items-center">
                   <span className="min-w-max">Số tín chỉ</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span>
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'creditRequirement' && sortState.isAsc === true}
+                      onClick={() => handleSort('creditRequirement', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'creditRequirement' && sortState.isAsc === false}
+                      onClick={() => handleSort('creditRequirement', false)}
+                    />
                   </span>
                 </div>
               </th>
@@ -186,9 +202,12 @@ const BusinessManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <div className="flex items-center">
                   <span className="min-w-max">Khoa</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true} onClick={() => handleSort('facultyName', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === false}
+                      onClick={() => handleSort('facultyName', false)}
+                    />
                   </span>
                 </div>
               </th>
