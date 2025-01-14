@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
 import { ConfigProvider, Empty, Form, Input, InputNumber, Pagination, Spin } from 'antd';
@@ -211,7 +212,7 @@ const JobsList: React.FC = () => {
                       <Form.Item className="w-[50%]" name="minSalary">
                         <InputNumber
                           size="large"
-                          className={`w-full ${minSalary >= maxSalary ? 'border-red-400 hover:border-red-400' : ''}`}
+                          className={`w-full ${minSalary && maxSalary && minSalary >= maxSalary ? 'border-red-400 hover:border-red-400' : ''}`}
                           placeholder="Từ"
                           value={minSalary}
                           onChange={value => setMinSalary(value)}
@@ -223,7 +224,7 @@ const JobsList: React.FC = () => {
                       <Form.Item className="w-[50%]" name="maxSalary">
                         <InputNumber
                           size="large"
-                          className={`w-full ${minSalary >= maxSalary ? 'border-red-400 hover:border-red-400' : ''}`}
+                          className={`w-full ${minSalary && maxSalary && minSalary >= maxSalary ? 'border-red-400 hover:border-red-400' : ''}`}
                           placeholder="Đến"
                           value={maxSalary}
                           onChange={value => setMaxSalary(value)}

@@ -22,7 +22,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail', 'CompanyDetail'],
+  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
     // Fetch all jobs with pagination and additional filters
@@ -64,6 +64,7 @@ export const portalHomeApi = createApi({
     // Fetch specific job details
     getJobDetails: builder.query<IJobDetailResponse, { id: number }>({
       query: ({ id }) => `/portal/jobs/detail/${id}`,
+      providesTags: (result, error, { id }) => [{ type: 'JobDetail', id }],
     }),
 
     // Fetch all companies with pagination
@@ -104,16 +105,19 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch all schools with pagination
-    getSchools: builder.query<UniversityResponse, { page: number; size: number; keyword?: string }>({
-      query: ({ page, size, keyword = '' }) => {
+    getSchools: builder.query<UniversityResponse, { page: number; size: number; keyword?: string; province?: number; field?: number }>({
+      query: ({ page, size, keyword = '', province, field }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
-        return `/portal/get_all_unis?${params.toString()}`;
+        if (province) params.append('province', String(province));
+        if (field) params.append('fieldId', String(field));
+        return `/portal/get_all_university?${params.toString()}`;
       },
     }),
 
     // Fetch specific school details
     getSchoolDetails: builder.query<UniversityDetailResponse, { id: number }>({
       query: ({ id }) => `/portal/university/${id}`,
+      providesTags: (result, error, { id }) => [{ type: 'SchoolDetail', id }],
     }),
 
     // Fetch all workshops with pagination
@@ -172,7 +176,10 @@ export const portalHomeApi = createApi({
         method: 'POST',
         body: { accountLoginId, toDoAccountId, doBy, message },
       }),
-      invalidatesTags: (result, error, { toDoAccountId }) => [{ type: 'CompanyDetail', id: toDoAccountId }],
+      invalidatesTags: (result, error, { toDoAccountId }) => [
+        { type: 'CompanyDetail', id: toDoAccountId },
+        { type: 'SchoolDetail', id: toDoAccountId },
+      ],
     }),
 
     // Apply job
@@ -182,6 +189,7 @@ export const portalHomeApi = createApi({
         method: 'POST',
         body: { major, job },
       }),
+      invalidatesTags: (result, error, { job }) => [{ type: 'JobDetail', id: job }],
     }),
 
     // Apply workshop

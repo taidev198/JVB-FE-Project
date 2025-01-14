@@ -188,6 +188,18 @@ const PortalHeader: React.FC = () => {
       },
     ];
 
+    const adminItems = [
+      {
+        key: '9',
+        icon: <AppstoreOutlined />,
+        label: (
+          <Link href={url(role)} className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Vào trang quản trị</span>
+          </Link>
+        ),
+      },
+    ];
+
     const guestItems = [
       {
         key: '1',
@@ -214,11 +226,11 @@ const PortalHeader: React.FC = () => {
     }
 
     if (roleAccount === 'UNIVERSITY') {
-      return [...baseItems, ...universityItems, ...sharedItems];
+      return [...baseItems, ...universityItems, ...adminItems, ...sharedItems];
     }
 
     if (roleAccount === 'COMPANY') {
-      return [...baseItems, ...companyItems, ...sharedItems];
+      return [...baseItems, ...companyItems, ...adminItems, ...sharedItems];
     }
 
     return [];
