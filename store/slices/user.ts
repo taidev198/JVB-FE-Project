@@ -1,14 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { ReactNode } from 'react';
 import { IAddress } from '@/types/addressesTypes';
-// type UserRoles = {
-//   data: {
-//     token: string;
-//     name: string;
-//     idAccount: number;
-//     roleAccount: string;
-//   };
-// };
 
 export interface UserState {
   token: string | null;

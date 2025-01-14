@@ -9,6 +9,7 @@ import { IJobAllResponsePortal, IJobDetailResponse, IJobsData } from '@/types/jo
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
+import { ChatResponse, chatRoomResponse } from '@/types/chatType';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -137,6 +138,25 @@ export const portalHomeApi = createApi({
       }),
       invalidatesTags: (result, error, idWorkshop) => [{ type: 'WorkshopDetail', id: idWorkshop }],
     }),
+
+    // Chat
+    getAllChatRooms: builder.query<chatRoomResponse, { userId: number }>({
+      query: ({ userId }) => {
+        return {
+          url: `/chat/chatroom`,
+          method: 'GET',
+          params: { userId },
+        };
+      },
+    }),
+
+    getAllMessages: builder.query<ChatResponse, { roomId: number; page: number; size: number }>({
+      query: ({ roomId, page, size }) => ({
+        url: `/chat/chatroom/${roomId}/messages`,
+        method: 'GET',
+        params: { page, size },
+      }),
+    }),
   }),
 });
 
@@ -157,4 +177,6 @@ export const {
   useSendConnectMutation,
   useSendApplyJobMutation,
   useCompanyApplyWorkshopMutation,
+  useGetAllChatRoomsQuery,
+  useGetAllMessagesQuery,
 } = portalHomeApi;
