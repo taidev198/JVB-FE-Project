@@ -234,6 +234,19 @@ export const statusTextWorkshopJob = (status: string): AccountStatus => {
   }
 };
 
+export const statusTextJobCompany = (status: string): AccountStatus => {
+  switch (status) {
+    case 'APPROVED':
+      return { title: 'Đã duyệt', color: '#359d65', bg: '#ebf9f1' };
+    case 'PENDING':
+      return { title: 'Đang chờ', color: '#FFA726', bg: '#fffae5' };
+    case 'REJECT':
+      return { title: 'Từ chối', color: '#d32f2f', bg: '#FFE5E5' };
+    default:
+      return { title: 'Chưa xác định', color: '#fff', bg: '#FFF4E5' };
+  }
+};
+
 export const jobType = (status: string | undefined): string => {
   switch (status) {
     case 'FULL_TIME':

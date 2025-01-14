@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TextField, Checkbox } from '@mui/material';
+import { TextField, Checkbox, Chip } from '@mui/material';
 import Link from 'next/link';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -20,6 +20,8 @@ import PaginationComponent from '@/components/Common/Pagination';
 import ButtonCompanyApply from '@/components/Common/ButtonIcon/ButtonCompany';
 import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import { statusTextJobCompany } from '@/utils/app/const';
+import DatePickerComponent from '@/components/Common/DatePicker';
 
 const JobCompany = () => {
   const [idJob, setIdJob] = useState<number>();
@@ -28,11 +30,15 @@ const JobCompany = () => {
   const name = useAppSelector(state => state.global.name);
   const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJob, setselectedJob] = useState<number[]>([]);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
 
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
         dispatch(setKeyword(value));
+        setSortBy(value);
         dispatch(setPage(1));
       }, 500),
     [dispatch]
@@ -42,25 +48,25 @@ const JobCompany = () => {
       status: status,
       page: page,
       size: size,
+      sortBy: sortBy || 'jobTitle:asc',
       keyword,
     },
     { refetchOnMountOrArgChange: true }
   );
 
-  const [sortState, setSortState] = useState<{
-    currentColumn: string | null;
-    sortDirection: 'asc' | 'desc' | null;
-  }>({
-    currentColumn: null, // Không sắp xếp cột nào lúc đầu
-    sortDirection: null, // Không có hướng sắp xếp
+  const [sortState, setSortState] = React.useState({
+    currentColumn: null,
+    isAsc: null,
   });
-
-  const handleSort = (column: string, direction: 'asc' | 'desc') => {
-    setSortState({ currentColumn: column, sortDirection: direction });
+  const handleSort = (column: string, isAsc: boolean) => {
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
+    setSortState({ currentColumn: column, isAsc: isAsc });
   };
 
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteJobCompanyMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllJobCompanyMutation();
+
   const handleDelete = async () => {
     try {
       if (selectedJob.length > 0) {
@@ -90,6 +96,7 @@ const JobCompany = () => {
       setselectedJob([]);
     }
   };
+
   const handleSelectJob = (id: number) => {
     setselectedJob(prev => (prev.includes(id) ? prev.filter(jobId => jobId !== id) : [...prev, id]));
   };
@@ -106,17 +113,20 @@ const JobCompany = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách công việc</h1>
-        <div className="flex items-center justify-between gap-3 ">
-          <TextField
-            id="filled-search"
-            label="Tìm kiếm tên công việc"
-            type="search"
-            variant="outlined"
-            size="small"
-            onChange={e => debouncedSearch(e.target.value)}
-            className="w-[250px]"
-          />
-          <div className="flex items-center gap-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 md:mt-0">
+          <div className="flex flex-wrap items-center gap-3">
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm tên công việc"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
+              className="w-full sm:w-auto"
+            />
+            <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
+          </div>
+          <div className="mt-3 flex w-full gap-3 lg:mt-0 lg:w-auto">
             <Link
               href={'/admin/company/jobCompany/AddJob'}
               className="flex items-center justify-center rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2
@@ -151,36 +161,48 @@ const JobCompany = () => {
               <th className="p-3 py-4 text-left sm:px-3">
                 <span className="min-w-max">STT</span>
               </th>
-              <th className="p-3 text-left sm:px-5">
+              <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Tên công việc</span>
-                  <span className="">
-                    <ButtonUp isSort={sortState.currentColumn === 'name' && sortState.sortDirection === 'asc'} onClick={() => handleSort('name', 'asc')} />
-                    <ButtonArrow isSort={sortState.currentColumn === 'name' && sortState.sortDirection === 'desc'} onClick={() => handleSort('name', 'desc')} />
+                  <span>
+                    <ButtonUp isSort={sortState.currentColumn === 'jobTitle' && sortState.isAsc === true} onClick={() => handleSort('jobTitle', true)} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'jobTitle' && sortState.isAsc === false} onClick={() => handleSort('jobTitle', false)} />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5">
+              <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Mức lương</span>
-                  <span className="">
-                    <ButtonUp isSort={sortState.currentColumn === 'luong' && sortState.sortDirection === 'asc'} onClick={() => handleSort('luong', 'asc')} />
+                  <span>
+                    <ButtonUp isSort={sortState.currentColumn === 'salaryType' && sortState.isAsc === true} onClick={() => handleSort('salaryType', true)} />
                     <ButtonArrow
-                      isSort={sortState.currentColumn === 'luong' && sortState.sortDirection === 'desc'}
-                      onClick={() => handleSort('luong', 'desc')}
+                      isSort={sortState.currentColumn === 'salaryType' && sortState.isAsc === false}
+                      onClick={() => handleSort('salaryType', false)}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Thời hạn</span>
+                  <span>
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'expirationDate' && sortState.isAsc === true}
+                      onClick={() => handleSort('expirationDate', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'expirationDate' && sortState.isAsc === false}
+                      onClick={() => handleSort('expirationDate', false)}
                     />
                   </span>
                 </div>
               </th>
               <th className="p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Thời hạn</span>
-                  <span className="">
-                    <ButtonUp isSort={sortState.currentColumn === 'time' && sortState.sortDirection === 'asc'} onClick={() => handleSort('time', 'asc')} />
-                    <ButtonArrow isSort={sortState.currentColumn === 'time' && sortState.sortDirection === 'desc'} onClick={() => handleSort('time', 'desc')} />
-                  </span>
+                  <span className="min-w-max">Trạng thái</span>
                 </div>
               </th>
+
               <th className="p-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Hành động</span>
@@ -201,6 +223,15 @@ const JobCompany = () => {
                     {item.salaryType === 'FIXED' ? formatCurrencyVND(item.minSalary) + ' - ' + formatCurrencyVND(item.maxSalary) : 'Thỏa thuận'}
                   </td>
                   <td className="px-5 py-4">{item.expirationDate}</td>
+                  <td className="px-5 py-4">
+                    <Chip
+                      label={statusTextJobCompany(item.status).title}
+                      style={{
+                        color: `${statusTextJobCompany(item.status).color}`,
+                        background: `${statusTextJobCompany(item.status).bg}`,
+                      }}
+                    />
+                  </td>
                   <td className=" py-4">
                     <div className="flex items-center gap-2">
                       <ButtonCompanyApply

@@ -30,11 +30,13 @@ const UserCompany = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
   const [startDate] = useState<Date | null>(null);
   const [endDate] = useState<Date | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
 
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
         dispatch(setKeyword(value));
+        setSortBy(value);
         dispatch(setPage(1));
       }, 500),
     [dispatch]
@@ -46,22 +48,21 @@ const UserCompany = () => {
       page: page,
       size: size,
       keyword,
+      sortBy: sortBy || 'employeeCode:asc',
       startDate: startDate,
       endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
 
-  const [isSortAsc, setIsSortAsc] = useState<{ [key: string]: boolean | null }>({
-    maNV: null,
-    tenNV: null,
-    email: null,
+  const [sortState, setSortState] = React.useState({
+    currentColumn: null,
+    isAsc: null,
   });
   const handleSort = (column: string, isAsc: boolean) => {
-    setIsSortAsc(prevState => ({
-      ...prevState,
-      [column]: isAsc, // Chỉ cập nhật trạng thái của cột được click
-    }));
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
+    setSortState({ currentColumn: column, isAsc: isAsc });
   };
 
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteEmployeeCompanyMutation();
@@ -113,8 +114,8 @@ const UserCompany = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách tài khoản nhân viên</h1>
-        <div className="flex items-center justify-between gap-3 ">
-          <div className="w-[220px]">
+        <div className="flex flex-wrap items-center justify-between gap-3 md:mt-0">
+          <div className="flex flex-wrap items-center gap-3">
             <TextField
               id="filled-search"
               label="Tìm kiếm tên nhân viên"
@@ -122,10 +123,11 @@ const UserCompany = () => {
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
+              className="w-full sm:w-auto"
             />
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="ml-auto flex items-center gap-5">
             <Link
               href={'/admin/company/userCompany/AddEmployee'}
               className="flex items-center justify-center rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2
@@ -162,8 +164,14 @@ const UserCompany = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Mã nhân viên</span>
                   <span className="">
-                    <ButtonUp isSort={isSortAsc.maNV === true} onClick={() => handleSort('maNV', true)} />
-                    <ButtonArrow isSort={isSortAsc.maNV === false} onClick={() => handleSort('maNV', false)} />
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'employeeCode' && sortState.isAsc === true}
+                      onClick={() => handleSort('employeeCode', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'employeeCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('employeeCode', false)}
+                    />
                   </span>
                 </div>
               </th>
@@ -171,8 +179,8 @@ const UserCompany = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên nhân viên</span>
                   <span className="">
-                    <ButtonUp isSort={isSortAsc.tenNV === true} onClick={() => handleSort('tenNV', true)} />
-                    <ButtonArrow isSort={isSortAsc.tenNV === false} onClick={() => handleSort('tenNV', false)} />
+                    <ButtonUp isSort={sortState.currentColumn === 'fullName' && sortState.isAsc === true} onClick={() => handleSort('fullName', true)} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'fullName' && sortState.isAsc === false} onClick={() => handleSort('fullName', false)} />
                   </span>
                 </div>
               </th>
@@ -180,8 +188,8 @@ const UserCompany = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Email</span>
                   <span className="">
-                    <ButtonUp isSort={isSortAsc.email === true} onClick={() => handleSort('email', true)} />
-                    <ButtonArrow isSort={isSortAsc.email === false} onClick={() => handleSort('email', false)} />
+                    <ButtonUp isSort={sortState.currentColumn === 'email' && sortState.isAsc === true} onClick={() => handleSort('account.email', true)} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'email' && sortState.isAsc === false} onClick={() => handleSort('account.email', false)} />
                   </span>
                 </div>
               </th>
