@@ -31,19 +31,6 @@ interface IMember {
   statusAccount: string;
 }
 
-export interface chatRoomResponse {
-  code: number;
-  message: string;
-  data: {
-    id: number;
-    isDeleted: boolean;
-    owner: IOwner;
-    ownerName: string;
-    member: IMember;
-    memberName: string;
-  }[];
-}
-
 interface IUserChat {
   createBy: number;
   updateBy: number;
@@ -60,23 +47,45 @@ interface IUserChat {
   statusAccount: string;
 }
 
-export interface ChatResponse {
+interface ChatItem {
+  id: number;
+  sender: IUserChat;
+  receiver: IUserChat;
+  chatRoomId: number;
+  content: string;
+  type: string;
+  referChat: any;
+  isDeleted: boolean;
+  isRead: boolean;
+  createAt: string;
+  updateAt: string;
+}
+
+export interface chatRoomResponse {
   code: number;
   message: string;
   data: {
     content: {
       id: number;
-      sender: IUserChat;
-      receiver: IUserChat;
-      chatRoomId: number;
-      content: string;
-      type: string;
-      referChat: any;
       isDeleted: boolean;
-      isRead: boolean;
-      createAt: string;
-      updateAt: string;
+      owner: IOwner;
+      ownerName: string;
+      member: IMember;
+      memberName: string;
+      lastMessage: ChatItem;
     }[];
+  };
+  totalPages: number;
+  totalElements: number;
+  pageSize: number;
+  currentPage: number;
+}
+
+export interface ChatResponse {
+  code: number;
+  message: string;
+  data: {
+    content: ChatItem[];
   };
   totalPages: number;
   totalElements: number;
