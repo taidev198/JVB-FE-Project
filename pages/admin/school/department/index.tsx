@@ -1,5 +1,7 @@
+/* eslint-disable no-console */
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
 import { Checkbox, TextField } from '@mui/material';
@@ -16,14 +18,18 @@ import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import YearPickerComponent from '@/components/Common/YearPicker';
 
 const Department = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const dispatch = useAppDispatch();
   const name = useAppSelector(state => state.global.name);
   const [selectId, setSelectId] = useState<number | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
   const { data: departments, isLoading } = useGetAllDepartmentsQuery(
@@ -31,15 +37,21 @@ const Department = () => {
       page: page,
       size: size,
       keyword,
+      startDate: startDate,
+      endDate: endDate,
+      sortBy: sortBy || 'facultyCode:asc',
     },
     { refetchOnMountOrArgChange: true }
   );
+
   const [sortState, setSortState] = React.useState({
     activeColumn: null,
     isAsc: null,
   });
 
   const handleSort = (column: String, isAsc: boolean) => {
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
     setSortState({
       activeColumn: column,
       isAsc: isAsc,
@@ -49,6 +61,7 @@ const Department = () => {
     () =>
       debounce(value => {
         setKeyword(value);
+        setSortBy(value);
         setPage(1);
       }, 500),
     []
@@ -57,6 +70,9 @@ const Department = () => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
+
+  console.log('Check startDate: ', dayjs(startDate).format('YYYY'));
+  console.log('Check endDate: ', dayjs(endDate).format('YYYY'));
 
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteDepartmentOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteDepartmentMultipleMutation();
@@ -99,8 +115,9 @@ const Department = () => {
     <>
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách quản lý khoa</h1>
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex flex-wrap justify-between">
+          {/* Ô tìm kiếm */}
+          <div className="ml-5 flex gap-8 ">
             <TextField
               id="filled-search"
               label="Tìm kiếm tên, mã khoa"
@@ -108,13 +125,19 @@ const Department = () => {
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
+              className="w-full md:w-auto"
             />
+            {/* Bộ chọn năm */}
+            <div className="flex gap-4">
+              <YearPickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
+            </div>
           </div>
-          <div className="ml-auto flex justify-items-center gap-5">
+
+          <div className="flex items-center justify-end gap-5 sm:mt-5 " style={{ marginTop: '10px' }}>
             <Link
               href={'/admin/school/department/AddDepartment'}
-              className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
-              <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
+              className="flex h-[42px] items-center rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              <AddIcon className="mr-1 h-6 w-6 text-white" />
               Thêm mới
             </Link>
             <MyButton
@@ -151,7 +174,9 @@ const Department = () => {
               </th>
               <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Mã khoa</span>
+                  <span className="min-w-max" onClick={() => handleSort('facultyCode', !(sortState.activeColumn === 'facultyCode' && sortState.isAsc))}>
+                    Mã khoa
+                  </span>
                   <span className="">
                     <ButtonUp isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === true} onClick={() => handleSort('facultyCode', true)} />
                     <ButtonArrow
@@ -163,7 +188,9 @@ const Department = () => {
               </th>
               <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Tên khoa</span>
+                  <span className="min-w-max" onClick={() => handleSort('facultyName', !(sortState.activeColumn === 'facultyName' && sortState.isAsc))}>
+                    Tên khoa
+                  </span>
                   <span className="">
                     <ButtonUp isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true} onClick={() => handleSort('facultyName', true)} />
                     <ButtonArrow

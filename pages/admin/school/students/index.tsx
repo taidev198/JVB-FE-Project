@@ -17,7 +17,6 @@ import {
   useGetAllStudentsQuery,
 } from '@/services/adminSchoolApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { setStatus } from '@/store/slices/filtersSlice';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
@@ -30,6 +29,7 @@ import { StatusStudentTitle } from '@/utils/app/const';
 const StudentsManagement = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const [keyword, setKeyword] = useState<string | null>(null);
   const dispatch = useDispatch();
   const [department, setDepartment] = useState<number | null>(null);
@@ -38,11 +38,13 @@ const StudentsManagement = () => {
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const idStudent = useAppSelector(state => state.global.id);
   const name = useAppSelector(state => state.global.name);
+  const [status, setStatus] = useState<string | null>(null);
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
         setKeyword(value);
         setPage(1);
+        setSortBy(value);
       }, 500),
     []
   );
@@ -57,6 +59,8 @@ const StudentsManagement = () => {
       keyword: keyword,
       majorId: major,
       facultyId: department,
+      status,
+      sortBy: sortBy || 'studentCode:asc',
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -66,10 +70,12 @@ const StudentsManagement = () => {
   });
 
   const handleSort = (column: String, isAsc: boolean) => {
-    setSortState({
-      activeColumn: column,
-      isAsc: isAsc,
-    });
+    const sortBy = `${column} :${isAsc ? 'asc' : 'desc'} `;
+    setSortBy(sortBy),
+      setSortState({
+        activeColumn: column,
+        isAsc: isAsc,
+      });
   };
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -153,8 +159,8 @@ const StudentsManagement = () => {
                 { value: 'GRADUATED', label: 'Đã tốt nghiệp' },
                 { value: 'DROPPED_OUT', label: 'Thôi học' },
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
-              className="w-full cursor-pointer"
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
+              className="w-[160px] cursor-pointer"
             />
             <Select
               placeholder="Chọn ngành"
@@ -220,19 +226,23 @@ const StudentsManagement = () => {
               </th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Mã sinh viên</span>
+                  <span className="min-w-max" onClick={() => handleSort('studentCode', !(sortState.activeColumn === 'studentCode' && sortState.isAsc))}>
+                    Mã sinh viên
+                  </span>
                   <span>
-                    <ButtonUp isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === true} onClick={() => handleSort('facultyCode', true)} />
+                    <ButtonUp isSort={sortState.activeColumn === 'studentCode' && sortState.isAsc === true} onClick={() => handleSort('studentCode', true)} />
                     <ButtonArrow
-                      isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === false}
-                      onClick={() => handleSort('facultyCode', false)}
+                      isSort={sortState.activeColumn === 'studentCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('studentCode', false)}
                     />
                   </span>
                 </div>
               </th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Họ và tên</span>
+                  <span className="min-w-max" onClick={() => handleSort('fullName', !(sortState.activeColumn === 'fullName' && sortState.isAsc))}>
+                    Họ và tên
+                  </span>
                   <span>
                     <ButtonUp isSort={sortState.activeColumn === 'fullName' && sortState.isAsc === true} onClick={() => handleSort('fullName', true)} />
                     <ButtonArrow isSort={sortState.activeColumn === 'fullName' && sortState.isAsc === false} onClick={() => handleSort('fullName', false)} />
@@ -241,21 +251,33 @@ const StudentsManagement = () => {
               </th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Ngành</span>
+                  <span className="min-w-max" onClick={() => handleSort('major.majorName', !(sortState.activeColumn === 'major.majorName' && sortState.isAsc))}>
+                    Ngành
+                  </span>
                   <span>
-                    <ButtonUp isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === true} onClick={() => handleSort('majorName', true)} />
-                    <ButtonArrow isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === false} onClick={() => handleSort('majorName', false)} />
+                    <ButtonUp isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === true} onClick={() => handleSort('major.majorName', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === false}
+                      onClick={() => handleSort('major.majorName', false)}
+                    />
                   </span>
                 </div>
               </th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Khoa</span>
+                  <span
+                    className="min-w-max"
+                    onClick={() => handleSort('major.faculty.facultyName', !(sortState.activeColumn === 'major.faculty.facultyName' && sortState.isAsc))}>
+                    Khoa
+                  </span>
                   <span>
-                    <ButtonUp isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true} onClick={() => handleSort('facultyName', true)} />
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true}
+                      onClick={() => handleSort('major.faculty.facultyName', true)}
+                    />
                     <ButtonArrow
                       isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === false}
-                      onClick={() => handleSort('facultyName', false)}
+                      onClick={() => handleSort('major.faculty.facultyName', false)}
                     />
                   </span>
                 </div>
@@ -279,7 +301,7 @@ const StudentsManagement = () => {
                     <p className="w-fit">{index + 1 + (page - 1) * size}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{student.major.faculty.facultyCode}</p>
+                    <p className="min-w-max">{student.studentCode}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p> {student.fullName}</p>

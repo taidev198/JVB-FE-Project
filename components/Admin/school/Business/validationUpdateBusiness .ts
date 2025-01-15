@@ -9,7 +9,8 @@ const ValidationSchemaUpdateBusiness = Yup.object({
     })
     .required('Số tín chỉ là bắt buộc')
     .positive('Số tín chỉ phải là số dương')
-    .integer('Số tín chỉ phải là số nguyên'),
+    .integer('Số tín chỉ phải là số nguyên')
+    .max(70, 'Số tín chỉ lớn nhất là 70'),
 
   facultyId: Yup.number().required('Danh sách ngành là bắt buộc'),
   fieldIds: Yup.array().of(Yup.number().required('Mỗi phần tử trong lĩnh vực phải là số')).required('Danh sách lĩnh vực là bắt buộc'),

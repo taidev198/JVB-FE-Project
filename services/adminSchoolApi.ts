@@ -43,12 +43,18 @@ export const adminSchoolApi = createApi({
   tagTypes: ['Workshop', 'Department', 'Student', 'Business', 'AcademicOfficeManagement', 'School', 'CurrentSchool', 'Jobs', 'WorkshopApply'],
   endpoints: builder => {
     return {
-      getAllDepartments: builder.query<ApiResponse, { page: number | null; size: number | null; keyword: string }>({
-        query: ({ page, size, keyword }) => {
+      getAllDepartments: builder.query<
+        ApiResponse,
+        { page: number | null; size: number | null; keyword: string; startDate: Date | null; endDate: Date | null; sortBy: string | null }
+      >({
+        query: ({ page, size, keyword, startDate, endDate, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
+          if (sortBy) queryParams.append('sortBy', sortBy);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/university/faculties?${queryParams.toString()}`;
         },
         providesTags: result => (result ? [{ type: 'Department', id: 'list' }] : []),
@@ -119,13 +125,27 @@ export const adminSchoolApi = createApi({
       }),
 
       //business
-      getAllBusiness: builder.query<ApiResponseBusiness, { page: number | null; size: number | null; keyword: string; idFaculty: number }>({
-        query: ({ page, size, keyword, idFaculty }) => {
+      getAllBusiness: builder.query<
+        ApiResponseBusiness,
+        {
+          page: number | null;
+          size: number | null;
+          keyword: string;
+          idFaculty: number;
+          creditRequirementMin: number | null;
+          creditRequirementMax: number | null;
+          sortBy: string | null;
+        }
+      >({
+        query: ({ page, size, keyword, idFaculty, creditRequirementMin, creditRequirementMax, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
+          if (sortBy) queryParams.append('sortBy', sortBy);
           if (idFaculty) queryParams.append('idFaculty', String(idFaculty));
+          if (creditRequirementMin) queryParams.append('creditRequirementMin', String(creditRequirementMin));
+          if (creditRequirementMax) queryParams.append('creditRequirementMax', String(creditRequirementMax));
           return `/university/majors?${queryParams.toString()}`;
         },
         providesTags: [{ type: 'Business', id: 'listBu' }],
@@ -183,11 +203,15 @@ export const adminSchoolApi = createApi({
       }),
 
       //academicOfficeManagement
-      getAllAcademicOfficeManagement: builder.query<ApiResponseAcademicOfficeManagement, { page: number | null; size: number | null; keyword: string }>({
-        query: ({ page, size, keyword }) => {
+      getAllAcademicOfficeManagement: builder.query<
+        ApiResponseAcademicOfficeManagement,
+        { page: number | null; size: number | null; keyword: string; sortBy: string | null }
+      >({
+        query: ({ page, size, keyword, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
+          if (sortBy) queryParams.append('sortBy', sortBy);
           if (keyword) queryParams.append('keyword', keyword);
           return `/university/university-employees?${queryParams.toString()}`;
         },
@@ -273,12 +297,14 @@ export const adminSchoolApi = createApi({
       // Workshop
       getAllWorShopsUniversity: builder.query<
         WorkshopResponse,
-        { page: number | null; size: number | null; keyword: string; startDate: Date | null; endDate: Date | null }
+        { page: number | null; size: number | null; keyword: string; startDate: Date | null; endDate: Date | null; status: string; sortBy: string | null }
       >({
-        query: ({ page, size, keyword, startDate, endDate }) => {
+        query: ({ page, size, keyword, startDate, endDate, status, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
+          if (status) queryParams.append('status', status);
           if (size) queryParams.append('size', String(size));
+          if (sortBy) queryParams.append('sortBy', sortBy);
           if (keyword) queryParams.append('keyword', keyword);
           if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
           if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
@@ -366,16 +392,19 @@ export const adminSchoolApi = createApi({
           keyword: string | null;
           majorId: number | null;
           facultyId: number | null;
+          status: string;
+          sortBy: string | null;
         }
       >({
-        query: ({ page, size, keyword, majorId, facultyId }) => {
+        query: ({ page, size, keyword, majorId, facultyId, status, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
+          if (sortBy) queryParams.append('sortBy', sortBy);
           if (keyword) queryParams.append('keyword', keyword);
           if (majorId) queryParams.append('majorId', String(majorId));
           if (facultyId) queryParams.append('facultyId', String(facultyId));
-
+          if (status) queryParams.append('status', status);
           return `/university/students?${queryParams.toString()}`;
         },
         providesTags: ['Student'],
@@ -434,16 +463,22 @@ export const adminSchoolApi = createApi({
           majorId: number | null;
           universityId: number | undefined;
           status: string;
+          startDate: Date | null;
+          endDate: Date | null;
+          sortBy: string | null;
         }
       >({
-        query: ({ page, size, keyword, universityId, majorId, status }) => {
+        query: ({ page, size, keyword, universityId, majorId, status, startDate, endDate, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (universityId) queryParams.append('universityId', String(universityId));
           if (keyword) queryParams.append('keyword', keyword);
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
+          if (sortBy) queryParams.append('sortBy', sortBy);
           if (majorId) queryParams.append('majorId', String(majorId));
           if (status) queryParams.append('status', status);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
           return `/university/applies?${queryParams.toString()}`;
         },
         providesTags: ['Jobs'],

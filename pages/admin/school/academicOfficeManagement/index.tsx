@@ -23,6 +23,7 @@ const AcademicOfficeManagement = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [selectedAdemic, setSelectedAdemic] = useState<number[]>([]);
@@ -33,6 +34,7 @@ const AcademicOfficeManagement = () => {
       debounce(value => {
         setKeyword(value);
         setPage(1);
+        setSortBy(value);
       }, 500),
     []
   );
@@ -68,16 +70,19 @@ const AcademicOfficeManagement = () => {
   });
 
   const handleSort = (column: String, isAsc: boolean) => {
-    setSortState({
-      activeColumn: column,
-      isAsc: isAsc,
-    });
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy),
+      setSortState({
+        activeColumn: column,
+        isAsc: isAsc,
+      });
   };
   const { data: academicOfficeManagement, isLoading } = useGetAllAcademicOfficeManagementQuery(
     {
       page: page,
       size: size,
       keyword,
+      sortBy: sortBy || 'employeeCode:asc',
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -142,7 +147,9 @@ const AcademicOfficeManagement = () => {
 
               <th className="px-3 text-left sm:px-5 ">
                 <div className="flex items-center">
-                  <span className="min-w-max">Mã nhân viên</span>
+                  <span className="min-w-max" onClick={() => handleSort('employeeCode', !(sortState.activeColumn === 'employeeCode' && sortState.isAsc))}>
+                    Mã nhân viên
+                  </span>
                   <span className="">
                     <ButtonUp isSort={sortState.activeColumn === 'employeeCode' && sortState.isAsc === true} onClick={() => handleSort('employeeCode', true)} />
                     <ButtonArrow
@@ -154,7 +161,9 @@ const AcademicOfficeManagement = () => {
               </th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Họ và tên</span>
+                  <span className="min-w-max" onClick={() => handleSort('fullName', !(sortState.activeColumn === 'fullName' && sortState.isAsc))}>
+                    Họ và tên
+                  </span>
                   <span className="">
                     <ButtonUp isSort={sortState.activeColumn === 'fullName' && sortState.isAsc === true} onClick={() => handleSort('fullName', true)} />
                     <ButtonArrow isSort={sortState.activeColumn === 'fullName' && sortState.isAsc === false} onClick={() => handleSort('fullName', false)} />
@@ -164,7 +173,9 @@ const AcademicOfficeManagement = () => {
               <th className="p-3 text-left sm:px-5 sm:py-4">Số điện thoại</th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Giới tính</span>
+                  <span className="min-w-max" onClick={() => handleSort('gender', !(sortState.activeColumn === 'gender' && sortState.isAsc))}>
+                    Giới tính
+                  </span>
                   <span className="">
                     <ButtonUp isSort={sortState.activeColumn === 'gender' && sortState.isAsc === true} onClick={() => handleSort('gender', true)} />
                     <ButtonArrow isSort={sortState.activeColumn === 'gender' && sortState.isAsc === false} onClick={() => handleSort('gender', false)} />

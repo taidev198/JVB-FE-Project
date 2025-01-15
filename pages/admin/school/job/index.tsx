@@ -15,6 +15,7 @@ import PaginationComponent from '@/components/Common/Pagination';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import DatePickerComponent from '@/components/Common/DatePicker';
 const animatedComponents = makeAnimated();
 
 const Partnerships = () => {
@@ -22,6 +23,7 @@ const Partnerships = () => {
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
@@ -29,6 +31,8 @@ const Partnerships = () => {
   const [selectedJobsId, setSelectedJobsId] = useState<number | null>(null);
   const [selectedMajorId] = useState<number | null>(null);
   const [major, setMajor] = useState<number | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
 
@@ -37,6 +41,7 @@ const Partnerships = () => {
       debounce(value => {
         setKeyword(value);
         setPage(1);
+        setSortBy(value);
       }, 500),
     []
   );
@@ -49,6 +54,9 @@ const Partnerships = () => {
       majorId: major,
       status,
       universityId: universityId,
+      startDate,
+      endDate,
+      sortBy: sortBy || 'job.company.companyName:asc',
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -58,6 +66,8 @@ const Partnerships = () => {
   });
 
   const handleSort = (column: String, isAsc: boolean) => {
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
     setSortState({
       activeColumn: column,
       isAsc: isAsc,
@@ -142,6 +152,7 @@ const Partnerships = () => {
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
+            <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
           </div>
         </div>
       </div>
@@ -155,10 +166,13 @@ const Partnerships = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên công ty</span>
                   <span className="">
-                    <ButtonUp isSort={sortState.activeColumn === 'companyName' && sortState.isAsc === true} onClick={() => handleSort('companyName', true)} />
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'companyName' && sortState.isAsc === true}
+                      onClick={() => handleSort('job.company.companyName', true)}
+                    />
                     <ButtonArrow
                       isSort={sortState.activeColumn === 'companyName' && sortState.isAsc === false}
-                      onClick={() => handleSort('companyName', false)}
+                      onClick={() => handleSort('job.company.companyName', false)}
                     />
                   </span>
                 </div>
@@ -167,8 +181,11 @@ const Partnerships = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên công việc</span>
                   <span className="">
-                    <ButtonUp isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === true} onClick={() => handleSort('jobTitle', true)} />
-                    <ButtonArrow isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === false} onClick={() => handleSort('jobTitle', false)} />
+                    <ButtonUp isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === true} onClick={() => handleSort('job.jobTitle', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === false}
+                      onClick={() => handleSort('job.jobTitle', false)}
+                    />
                   </span>
                 </div>
               </th>

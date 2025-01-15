@@ -9,7 +9,8 @@ const validationSchemaAddBusiness = Yup.object({
     })
     .required('Số tín chỉ là bắt buộc')
     .positive('Số tín chỉ phải là số dương')
-    .integer('Số tín chỉ phải là số nguyên'),
+    .integer('Số tín chỉ phải là số nguyên')
+    .max(70, 'Số tín chỉ lớn nhất là 70'),
 
   majorDescription: Yup.string().max(500, 'Mô tả ngành học không được quá 500 kí tự'),
   facultyId: Yup.number().required('Khoa là bắt buộc'),

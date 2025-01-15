@@ -13,7 +13,6 @@ import { useAppSelector } from '@/store/hooks';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { useDeleteWorkshopMutation, useGetAllWorShopsUniversityQuery } from '@/services/adminSchoolApi';
 import { statusTextWorkshop } from '@/utils/app/const';
-import { setStatus } from '@/store/slices/filtersSlice';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
@@ -28,6 +27,8 @@ const AdminSchoolWorkshop = () => {
   const [keyword, setKeyword] = useState<string>(null);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedWorkshops, setSelectedWorkshops] = useState<number[]>([]);
   const dispatch = useDispatch();
@@ -39,6 +40,8 @@ const AdminSchoolWorkshop = () => {
       keyword,
       startDate: startDate,
       endDate: endDate,
+      status,
+      sortBy: sortBy || 'workshopTitle:asc',
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -48,10 +51,12 @@ const AdminSchoolWorkshop = () => {
   });
 
   const handleSort = (column: String, isAsc: boolean) => {
-    setSortState({
-      activeColumn: column,
-      isAsc: isAsc,
-    });
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy),
+      setSortState({
+        activeColumn: column,
+        isAsc: isAsc,
+      });
   };
   const debouncedSearch = useMemo(
     () =>
@@ -124,12 +129,12 @@ const AdminSchoolWorkshop = () => {
                   { value: 'APPROVED', label: 'Đã duyệt' },
                   { value: 'REJECTED', label: 'Thôi học' },
                 ]}
-                onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
-                className="w-[200-px] cursor-pointer"
+                onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
+                className="w-[160px] cursor-pointer"
               />
               <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
             </div>
-            <div className="mt-3 flex w-full gap-3 lg:mt-0 lg:w-auto">
+            <div className="flex w-full gap-3 md:mt-10 lg:mt-0 lg:w-auto" style={{ marginTop: '10px' }}>
               <Link
                 href={'/admin/school/workshop/add-workshop'}
                 className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
@@ -187,11 +192,11 @@ const AdminSchoolWorkshop = () => {
                     <span>
                       <ButtonUp
                         isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === true}
-                        onClick={() => handleSort('universityName', true)}
+                        onClick={() => handleSort('university.universityName', true)}
                       />
                       <ButtonArrow
                         isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === false}
-                        onClick={() => handleSort('universityName', false)}
+                        onClick={() => handleSort('university.universityName', false)}
                       />
                     </span>
                   </div>
