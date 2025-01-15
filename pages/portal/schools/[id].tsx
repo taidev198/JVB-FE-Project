@@ -47,9 +47,9 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
   const [paginatedWorkshops, setPaginatedWorkshops] = useState<IWorkshopPortal[]>([]);
   const [pageSize, setPageSize] = useState(4);
 
-  const { data, isLoading, error } = useGetSchoolDetailsQuery({ id: Number(id) });
+  const { data, isLoading, error } = useGetSchoolDetailsQuery({ id: Number(id) }, { refetchOnMountOrArgChange: true });
   const { data: workshopsData, isLoading: isLoadingWorkshops } = useGetWorkshopsUniversityQuery(
-    { universityId: Number(id), page: 1, size: 1000 },
+    { universityId: Number(id), page: currentPage, size: pageSize },
     { refetchOnMountOrArgChange: true }
   );
   const [sendRequests, { isLoading: sendRequestsLoading }] = useSendConnectMutation();
@@ -135,9 +135,10 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
             schoolType={universityDetails?.universityShortDescription || 'Chi tiết trường học'}
             address={`${universityDetails?.address?.houseNumber},${universityDetails?.address?.ward.wardName}, ${universityDetails?.address?.district.districtName}, ${universityDetails?.address?.province.provinceName}`}
             logo={universityDetails?.logoUrl}
-            buttonText={`${data.data.isPartnership ? 'Đã liên kết' : 'Đã liên kết'}`}
+            buttonText={`${data.data.isPartnership ? 'Đã liên kết' : 'Liên kết ngay'}`}
             onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
             currentPage="Trường học"
+            className={`${data.data.isPartnership !== null ? 'pointer-events-none cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">

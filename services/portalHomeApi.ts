@@ -1,5 +1,4 @@
 // services/portalHomeApi.ts
-
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '@/store/store';
 import { ProvinceResponse } from '@/types/addressesTypes';
@@ -24,12 +23,41 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail', 'CompanyDetail'],
+  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
-    getJobs: builder.query<IJobAllResponsePortal, { page: number; size: number; keyword?: string }>({
-      query: ({ page, size, keyword = '' }) => {
-        const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
+    // Fetch all jobs with pagination and additional filters
+    getJobs: builder.query<
+      IJobAllResponsePortal,
+      {
+        page: number;
+        size: number;
+        keyword?: string;
+        provinceId?: number;
+        fieldId?: number;
+        jobType?: string;
+        salaryType?: string;
+        jobLevel?: string;
+        maxSalary?: number;
+        minSalary?: number;
+        universityId?: number;
+      }
+    >({
+      query: ({ page, size, keyword = '', provinceId, fieldId, jobType, salaryType, jobLevel, maxSalary, minSalary, universityId }) => {
+        const params = new URLSearchParams({
+          page: String(page),
+          size: String(size),
+          keyword,
+        });
+        if (provinceId) params.append('provinceId', String(provinceId));
+        if (fieldId) params.append('fieldId', String(fieldId));
+        if (jobType) params.append('jobType', jobType);
+        if (salaryType) params.append('salaryType', salaryType);
+        if (jobLevel) params.append('jobLevel', jobLevel);
+        if (maxSalary) params.append('maxSalary', String(maxSalary));
+        if (minSalary) params.append('minSalary', String(minSalary));
+        if (universityId) params.append('universityId', String(universityId));
+
         return `/portal/jobs?${params.toString()}`;
       },
     }),
@@ -37,12 +65,28 @@ export const portalHomeApi = createApi({
     // Fetch specific job details
     getJobDetails: builder.query<IJobDetailResponse, { id: number }>({
       query: ({ id }) => `/portal/jobs/detail/${id}`,
+      providesTags: (result, error, { id }) => [{ type: 'JobDetail', id }],
     }),
 
     // Fetch all companies with pagination
-    getCompanies: builder.query<IAccountCompanyAllResponse, { page: number; size: number; keyword?: string }>({
-      query: ({ page, size, keyword = '' }) => {
+    getCompanies: builder.query<
+      IAccountCompanyAllResponse,
+      {
+        page: number;
+        size: number;
+        keyword?: string;
+        provinceIdSearch?: number;
+        fieldId?: number;
+        minQuantityEmployee?: number;
+        maxQuantityEmployee?: number;
+      }
+    >({
+      query: ({ page, size, keyword = '', provinceIdSearch, fieldId, minQuantityEmployee, maxQuantityEmployee }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
+        if (provinceIdSearch) params.append('provinceIdSearch', String(provinceIdSearch));
+        if (fieldId) params.append('fieldId', String(fieldId));
+        if (minQuantityEmployee) params.append('minQuantityEmployee', String(minQuantityEmployee));
+        if (maxQuantityEmployee) params.append('maxQuantityEmployee', String(maxQuantityEmployee));
         return `/portal/company/get-all?${params.toString()}`;
       },
     }),
@@ -62,22 +106,37 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch all schools with pagination
-    getSchools: builder.query<UniversityResponse, { page: number; size: number; keyword?: string }>({
-      query: ({ page, size, keyword = '' }) => {
+    getSchools: builder.query<UniversityResponse, { page: number; size: number; keyword?: string; province?: number; field?: number }>({
+      query: ({ page, size, keyword = '', province, field }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
-        return `/portal/get_all_unis?${params.toString()}`;
+        if (province) params.append('province', String(province));
+        if (field) params.append('fieldId', String(field));
+        return `/portal/get_all_university?${params.toString()}`;
       },
     }),
 
     // Fetch specific school details
     getSchoolDetails: builder.query<UniversityDetailResponse, { id: number }>({
       query: ({ id }) => `/portal/university/${id}`,
+      providesTags: (result, error, { id }) => [{ type: 'SchoolDetail', id }],
     }),
 
     // Fetch all workshops with pagination
-    getWorkshops: builder.query<WorkshopResponsePortal, { page: number; size: number; keyword?: string }>({
-      query: ({ page, size, keyword = '' }) => {
+    getWorkshops: builder.query<
+      WorkshopResponsePortal,
+      { page: number; size: number; keyword?: string; provinceId?: number; fieldId?: number; companyId?: number }
+    >({
+      query: ({ page, size, keyword = '', provinceId, fieldId, companyId }) => {
         const params = new URLSearchParams({ page: String(page), size: String(size), keyword });
+        if (provinceId) {
+          params.append('provinceId', String(provinceId));
+        }
+        if (fieldId) {
+          params.append('fieldId', String(fieldId));
+        }
+        if (companyId) {
+          params.append('companyId', String(companyId));
+        }
         return `/portal/workshops?${params.toString()}`;
       },
     }),
@@ -118,7 +177,10 @@ export const portalHomeApi = createApi({
         method: 'POST',
         body: { accountLoginId, toDoAccountId, doBy, message },
       }),
-      invalidatesTags: (result, error, { toDoAccountId }) => [{ type: 'CompanyDetail', id: toDoAccountId }],
+      invalidatesTags: (result, error, { toDoAccountId }) => [
+        { type: 'CompanyDetail', id: toDoAccountId },
+        { type: 'SchoolDetail', id: toDoAccountId },
+      ],
     }),
 
     // Apply job
@@ -128,6 +190,7 @@ export const portalHomeApi = createApi({
         method: 'POST',
         body: { major, job },
       }),
+      invalidatesTags: (result, error, { job }) => [{ type: 'JobDetail', id: job }],
     }),
 
     // Apply workshop

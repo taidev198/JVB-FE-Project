@@ -1,73 +1,41 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, HistoryOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
-import { ConfigProvider, DatePicker, Form, Input, Pagination } from 'antd';
+import { AppstoreOutlined, BarsOutlined, EnvironmentOutlined, SearchOutlined, TagOutlined } from '@ant-design/icons';
+import { debounce } from 'lodash';
+import { ConfigProvider, Form, Input, Pagination } from 'antd';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import HtmlContentRenderer from '../common/HtmlContentRenderer';
 import PortalEmpty from '../common/PortalEmpty';
 import PortalLoading from '../common/PortalLoading';
 import SelectSearch from '../common/SelectSearch';
 import { useGetFieldsQuery, useGetProvincesQuery, useGetWorkshopsQuery } from '@/services/portalHomeApi';
-import { IWorkshopPortal } from '@/types/workshop';
-import { formatDateDD_thang_MM_yyyy } from '@/utils/app/format';
 import ImageComponent from '@/components/Common/Image';
+import { useAppSelector } from '@/store/hooks';
 
 const WorkshopsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedValue, setDebouncedValue] = useState('');
   const [detailedView, setDetailedView] = useState(false);
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [filteredWorkshops, setFilteredWorkshops] = useState<IWorkshopPortal[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedWorkshops, setPaginatedWorkshops] = useState<IWorkshopPortal[]>([]);
   const [pageSize, setPageSize] = useState(8); // Initial page size
   const [form] = Form.useForm();
+
+  const idUser = useAppSelector(state => state.user.id);
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
   const { data: workshopsData, isLoading: isWorkshopsLoading } = useGetWorkshopsQuery(
     {
-      page: 1,
-      size: 1000,
+      page: currentPage,
+      size: pageSize,
       keyword: searchTerm,
+      provinceId: selectedLocation ? provincesData?.data.find(province => province.provinceName === selectedLocation)?.id : undefined,
+      fieldId: selectedField ? fieldsData?.data.find(field => field.fieldName === selectedField)?.id : undefined,
+      companyId: idUser,
     },
     { refetchOnMountOrArgChange: true }
   );
-
-  useEffect(() => {
-    if (workshopsData?.data.content) {
-      let filtered = workshopsData.data.content;
-
-      if (selectedLocation) {
-        filtered = filtered.filter(workshop => workshop.address.province.provinceName === selectedLocation);
-      }
-
-      if (selectedField) {
-        filtered = filtered.filter(
-          workshop => workshop.fields && Array.isArray(workshop.fields) && workshop.fields.some(field => field.fieldName === selectedField)
-        );
-      }
-
-      if (selectedDate) {
-        filtered = filtered.filter(workshop => new Date(workshop.startTime) > selectedDate);
-      }
-
-      if (searchTerm) {
-        filtered = filtered.filter(workshop => workshop.workshopTitle.toLowerCase().includes(searchTerm.toLowerCase()));
-      }
-
-      setFilteredWorkshops(filtered);
-      setCurrentPage(1);
-    }
-  }, [workshopsData, selectedField, selectedLocation, selectedDate, searchTerm]);
-
-  useEffect(() => {
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    setPaginatedWorkshops(filteredWorkshops.slice(start, end));
-  }, [filteredWorkshops, currentPage, pageSize]);
 
   const handlePageChange = (page: number, size?: number) => {
     setCurrentPage(page);
@@ -80,18 +48,14 @@ const WorkshopsList: React.FC = () => {
     setCurrentPage(1);
   }, []);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(searchTerm);
-    }, 600);
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    if (debouncedValue) {
-      handleSearch();
-    }
-  }, [debouncedValue]);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        setSearchTerm(value);
+        setCurrentPage(1);
+      }, 500),
+    [searchTerm]
+  );
 
   const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
@@ -107,7 +71,7 @@ const WorkshopsList: React.FC = () => {
       }}>
       <div className="rts__section">
         <div className="mp_section_padding container relative mx-auto">
-          <div className="mt-[20px] flex items-start justify-center gap-[30px]">
+          <div className="mt-[20px] block items-start justify-center gap-[30px] lg:flex">
             <div className="mb-[40px] hidden min-w-[375px]  max-w-[390px] rounded-[10px] bg-custom-gradient p-[30px] md:block">
               <Form form={form} layout="vertical" onFinish={handleSearch} style={{ maxWidth: '600px', margin: '0 auto' }}>
                 <h2 className="mb-[16px] text-xl font-semibold">Tìm kiếm workshop</h2>
@@ -118,7 +82,7 @@ const WorkshopsList: React.FC = () => {
                     className="w-full"
                     placeholder="Nhập tên workshop"
                     value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
+                    onChange={e => debouncedSearch(e.target.value)}
                   />
                 </Form.Item>
                 <Form.Item name="location" label="Địa điểm">
@@ -141,7 +105,7 @@ const WorkshopsList: React.FC = () => {
                   />
                 </Form.Item>
 
-                <Form.Item name="time" label="Thời gian">
+                {/*<Form.Item name="time" label="Thời gian">
                   <DatePicker
                     prefix={<HistoryOutlined className="mr-[4px]" />}
                     format="DD/MM/YYYY"
@@ -150,15 +114,15 @@ const WorkshopsList: React.FC = () => {
                     size="large"
                     onChange={date => setSelectedDate(date?.toDate() || null)}
                   />
-                </Form.Item>
+                </Form.Item>*/}
               </Form>
             </div>
             <div className="md:basis-2/3">
               <div className=" flex items-center justify-between">
                 <span className="hidden font-medium text-primary-black md:block">
-                  {paginatedWorkshops.length
-                    ? `${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, filteredWorkshops.length)} trong ${
-                        filteredWorkshops.length
+                  {workshopsData?.data?.content?.length
+                    ? `${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, workshopsData?.data.totalElements)} trong ${
+                        workshopsData?.data.totalElements
                       } kết quả`
                     : ''}
                 </span>
@@ -184,7 +148,7 @@ const WorkshopsList: React.FC = () => {
                       setDetailedView(true);
                     }}>
                     <BarsOutlined />
-                    <span>Chi tiết</span>
+                    <span>Danh sách</span>
                   </div>
                 </div>
               </div>
@@ -192,10 +156,10 @@ const WorkshopsList: React.FC = () => {
               <div className="mt-[40px]">
                 {isWorkshopsLoading ? (
                   <PortalLoading />
-                ) : paginatedWorkshops.length > 0 ? (
+                ) : workshopsData.data.content.length > 0 ? (
                   detailedView ? (
-                    <div className="grid grid-cols-1 gap-[30px] ">
-                      {paginatedWorkshops.map(workshop => (
+                    <div className="grid grid-cols-1 gap-[30px]">
+                      {workshopsData.data.content.map(workshop => (
                         <div
                           key={workshop.id}
                           className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-row  gap-[20px] overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
@@ -217,7 +181,7 @@ const WorkshopsList: React.FC = () => {
                               <div className="blog__meta__info mb-[16px] flex w-full items-center gap-4 text-primary-gray">
                                 <span className="flex items-center gap-1 ">
                                   <i className="fa-solid fa-calendar"></i>
-                                  <span className="truncate whitespace-nowrap">{formatDateDD_thang_MM_yyyy(workshop.startTime)}</span>
+                                  <span className="truncate whitespace-nowrap">{workshop.startTime}</span>
                                 </span>
                                 <span className="flex items-center gap-1 truncate">
                                   <i className="fa-solid fa-user"></i>
@@ -245,8 +209,8 @@ const WorkshopsList: React.FC = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 gap-[30px] md:grid-cols-1 xl:grid-cols-2 ">
-                      {paginatedWorkshops.map(workshop => (
+                    <div className="grid grid-cols-1 gap-[30px] md:grid-cols-1 xl:grid-cols-2">
+                      {workshopsData.data.content.map(workshop => (
                         <div
                           key={workshop.id}
                           className="rts__single__blog mp_transition_4 group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[10px] border-[1px] border-primary-border bg-primary-white px-[24px] py-[30px] pt-[24px] hover:border-transparent hover:bg-transparent">
@@ -300,14 +264,15 @@ const WorkshopsList: React.FC = () => {
               </div>
             </div>
           </div>
-          {filteredWorkshops.length > pageSize && (
+          {workshopsData && (
             <div className="mt-[80px] w-full">
               <Pagination
                 current={currentPage}
-                total={filteredWorkshops.length}
+                total={workshopsData?.data.totalElements}
                 pageSize={pageSize}
                 showSizeChanger
                 align="center"
+                pageSizeOptions={['8', '10', '20', '50', '100']}
                 onChange={handlePageChange}
                 onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
               />

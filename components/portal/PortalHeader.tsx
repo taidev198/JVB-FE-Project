@@ -188,6 +188,18 @@ const PortalHeader: React.FC = () => {
       },
     ];
 
+    const adminItems = [
+      {
+        key: '9',
+        icon: <AppstoreOutlined />,
+        label: (
+          <Link href={url(role)} className="py-[10px] text-lg text-primary-black hover:text-primary-main">
+            <span>Vào trang quản trị</span>
+          </Link>
+        ),
+      },
+    ];
+
     const guestItems = [
       {
         key: '1',
@@ -214,11 +226,11 @@ const PortalHeader: React.FC = () => {
     }
 
     if (roleAccount === 'UNIVERSITY') {
-      return [...baseItems, ...universityItems, ...sharedItems];
+      return [...baseItems, ...universityItems, ...adminItems, ...sharedItems];
     }
 
     if (roleAccount === 'COMPANY') {
-      return [...baseItems, ...companyItems, ...sharedItems];
+      return [...baseItems, ...companyItems, ...adminItems, ...sharedItems];
     }
 
     return [];
@@ -306,7 +318,7 @@ const PortalHeader: React.FC = () => {
                         <li className="navigation__menu--item relative">
                           <Link
                             href="/portal/about-us"
-                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/companies')}`}>
+                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/about-us')}`}>
                             Về chúng tôi
                           </Link>
                         </li>
@@ -340,7 +352,7 @@ const PortalHeader: React.FC = () => {
                         <li className="navigation__menu--item relative">
                           <Link
                             href="/portal/about-us"
-                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/companies')}`}>
+                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/about-us')}`}>
                             Về chúng tôi
                           </Link>
                         </li>
@@ -416,7 +428,7 @@ const PortalHeader: React.FC = () => {
                     onClose={onClose}
                     open={visible}
                     styles={{ body: { padding: 0 } }}
-                    closeIcon={null} // Hiển thị nút tắt
+                    closeIcon={null}
                     title={
                       <div className="flex items-center gap-4">
                         <div className="user-avatar flex h-[55px] w-[55px] items-center justify-center rounded-full bg-primary-light">
