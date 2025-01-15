@@ -43,12 +43,19 @@ export const adminCompanyApi = createApi({
       }),
 
       //employe
-      getAllCompanyEmploye: builder.query<ICompanyAllResponse, { page: number; size: number; keyword: string }>({
-        query: ({ page, size, keyword }) => {
+      getAllCompanyEmploye: builder.query<
+        ICompanyAllResponse,
+        { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null; sortBy: string | null }
+      >({
+        query: ({ page, size, keyword, status, startDate, endDate, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
+          if (sortBy) queryParams.append('sortBy', sortBy);
 
           return `/company/company-employees?${queryParams.toString()}`;
         },
@@ -115,12 +122,14 @@ export const adminCompanyApi = createApi({
       }),
 
       //JOBCOMPANY
-      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string }>({
-        query: ({ page, size, keyword }) => {
+      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string; status: string; sortBy: string | null }>({
+        query: ({ page, size, keyword, status, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
+          if (status) queryParams.append('status', status);
+          if (sortBy) queryParams.append('sortBy', sortBy);
 
           return `/company/get_all_jobs?${queryParams.toString()}`;
         },
@@ -179,9 +188,10 @@ export const adminCompanyApi = createApi({
           status: string;
           startDate: Date | null;
           endDate: Date | null;
+          sortBy: string | null;
         }
       >({
-        query: ({ page, size, keyword, status, startDate, endDate }) => {
+        query: ({ page, size, keyword, status, startDate, endDate, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
@@ -189,6 +199,7 @@ export const adminCompanyApi = createApi({
           if (status) queryParams.append('status', status);
           if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
           if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
+          if (sortBy) queryParams.append('sortBy', sortBy);
           return `/company/workshop/apply/get_all?${queryParams.toString()}`;
         },
         providesTags: ['Workshop'],

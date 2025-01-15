@@ -1,20 +1,22 @@
-import Link from 'next/link';
-import React, { useEffect, useMemo, useState } from 'react';
+/* eslint-disable no-console */
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
-import { Checkbox, Chip, TextField } from '@mui/material';
-import { useDeleteAllEmployeeCompanyMutation, useDeleteEmployeeCompanyMutation, useGetAllCompanyEmployeQuery } from '@/services/adminCompanyApi';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-import { statusEmployee } from '@/utils/app/const';
+import { Checkbox, TextField } from '@mui/material';
+import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button as MyButton } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
+import { useDeleteAllEmployeeCompanyMutation, useDeleteEmployeeCompanyMutation, useGetAllCompanyEmployeQuery } from '@/services/adminCompanyApi';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { useAppSelector } from '@/store/hooks';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import PaginationComponent from '@/components/Common/Pagination';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const UserCompany = () => {
@@ -26,10 +28,15 @@ const UserCompany = () => {
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
   const [selectedEmployee, setSelectedEmployee] = useState<number[]>([]);
+  const [startDate] = useState<Date | null>(null);
+  const [endDate] = useState<Date | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
+
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
         setKeyword(value);
+        setSortBy(value);
         setPage(1);
       }, 500),
     []
@@ -40,9 +47,23 @@ const UserCompany = () => {
       page: page,
       size: size,
       keyword,
+      status: null,
+      sortBy: sortBy || 'employeeCode:asc',
+      startDate: startDate,
+      endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
+
+  const [sortState, setSortState] = React.useState({
+    currentColumn: null,
+    isAsc: null,
+  });
+  const handleSort = (column: string, isAsc: boolean) => {
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
+    setSortState({ currentColumn: column, isAsc: isAsc });
+  };
 
   const [deleteOne, { isLoading: isLoadingOne }] = useDeleteEmployeeCompanyMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteAllEmployeeCompanyMutation();
@@ -90,8 +111,8 @@ const UserCompany = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <h1 className="mb-5 font-bold">Danh sách tài khoản nhân viên</h1>
-        <div className="flex items-center justify-between gap-3 ">
-          <div className="w-[220px]">
+        <div className="flex flex-wrap items-center justify-between gap-3 md:mt-0">
+          <div className="flex flex-wrap items-center gap-3">
             <TextField
               id="filled-search"
               label="Tìm kiếm tên nhân viên"
@@ -99,10 +120,11 @@ const UserCompany = () => {
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
+              className="w-full sm:w-auto"
             />
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="ml-auto flex items-center gap-5">
             <Link
               href={'/admin/company/userCompany/AddEmployee'}
               className="flex items-center justify-center rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2
@@ -138,13 +160,50 @@ const UserCompany = () => {
                 />
               </th>
               <th className="p-3 py-4 text-left sm:px-3">STT</th>
-              <th className="px-5 py-4 text-left">Mã nhân viên</th>
-              <th className="px-5 py-4 text-left">Tên nhân viên</th>
-              <th className="px-5 py-4 text-left">Email</th>
-              <th className="px-5 py-4 text-left">Chức vụ</th>
-              <th className="px-5 py-4 text-left">Số điện thoại</th>
-              <th className="px-5 py-4 text-left">Trạng thái</th>
-              <th className="px-5 py-4 text-left">Hành động</th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Mã nhân viên</span>
+                  <span className="">
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'employeeCode' && sortState.isAsc === true}
+                      onClick={() => handleSort('employeeCode', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'employeeCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('employeeCode', false)}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Tên nhân viên</span>
+                  <span className="">
+                    <ButtonUp isSort={sortState.currentColumn === 'fullName' && sortState.isAsc === true} onClick={() => handleSort('fullName', true)} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'fullName' && sortState.isAsc === false} onClick={() => handleSort('fullName', false)} />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Email</span>
+                  <span className="">
+                    <ButtonUp isSort={sortState.currentColumn === 'email' && sortState.isAsc === true} onClick={() => handleSort('account.email', true)} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'email' && sortState.isAsc === false} onClick={() => handleSort('account.email', false)} />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Chức vụ</span>
+                </div>
+              </th>
+              <th className="cursor-pointer p-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Số điện thoại</span>
+                </div>
+              </th>
+              <th className="cursor-pointer px-5 py-4 text-left">Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -160,16 +219,7 @@ const UserCompany = () => {
                   <td className="px-5 py-4">{item.account.email}</td>
                   <td className="px-5 py-4">{item.employeePosition}</td>
                   <td className="px-5 py-4">{item.phoneNumber}</td>
-                  <td className="px-5 py-4">
-                    <Chip
-                      label={statusEmployee(item.employeeStatus).title}
-                      sx={{
-                        backgroundColor: statusEmployee(item.employeeStatus).bg,
-                        color: statusEmployee(item.employeeStatus).color,
-                      }}
-                    />
-                  </td>
-                  <td className=" py-4">
+                  <td className="py-4">
                     <div className="flex items-center gap-2">
                       <ButtonSee href={`/admin/company/userCompany/${item.id}`} onClick={() => dispatch(setId(item.id))} />
                       <ButtonUpdate href={`/admin/company/userCompany/update/${item.id}`} onClick={() => dispatch(setId(item.id))} />
