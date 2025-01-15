@@ -38,9 +38,9 @@ const JobCompany = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
+        setKeyword(value);
         setSortBy(value);
-        dispatch(setPage(1));
+        setPage(1);
       }, 500),
     []
   );
@@ -48,6 +48,7 @@ const JobCompany = () => {
     {
       page: page,
       size: size,
+      status: null,
       sortBy: sortBy || 'jobTitle:asc',
       keyword,
     },

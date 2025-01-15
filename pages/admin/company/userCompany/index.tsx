@@ -6,8 +6,7 @@ import { debounce } from 'lodash';
 import { Checkbox, TextField } from '@mui/material';
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Button as MyButton } from '@/components/Common/Button';
-import { BackDrop } from '@/components/Common/BackDrop';
+import { Button as MyButton } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
@@ -36,9 +35,9 @@ const UserCompany = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
+        setKeyword(value);
         setSortBy(value);
-        dispatch(setPage(1));
+        setPage(1);
       }, 500),
     []
   );
@@ -48,6 +47,7 @@ const UserCompany = () => {
       page: page,
       size: size,
       keyword,
+      status: null,
       sortBy: sortBy || 'employeeCode:asc',
       startDate: startDate,
       endDate: endDate,

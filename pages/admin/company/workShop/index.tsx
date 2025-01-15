@@ -5,9 +5,7 @@ import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 import toast from 'react-hot-toast';
-import { Button } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
-import { BackDrop } from '@/components/Common/BackDrop';
 import { useDeleteWorkShopMutation, useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
@@ -31,7 +29,6 @@ const WorkShopCompany = () => {
   const dispatch = useDispatch();
   const [selectId, setSelectId] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
-  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
@@ -56,14 +53,14 @@ const WorkShopCompany = () => {
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
+        setKeyword(value);
         setSortBy(value);
-        dispatch(setPage(1));
+        setPage(1);
       }, 500),
     []
   );
   const { data: companyWorkShop, isLoading } = useGetAllWorkShopCompanyQuery(
-    { page, keyword, size, status, startDate: startDate, endDate: endDate, sortBy: sortBy || 'workshopTitle:asc' },
+    { page, keyword, size, status, startDate: startDate, endDate: endDate, sortBy: sortBy || 'workshop.workshopTitle:asc' },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -121,7 +118,7 @@ const WorkShopCompany = () => {
                 { value: 'CANCEL', label: 'Hủy chờ' },
                 { value: 'REJECT', label: 'Từ chối' },
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-full cursor-pointer sm:w-[160px]"
             />
 
@@ -142,11 +139,11 @@ const WorkShopCompany = () => {
                   <span>
                     <ButtonUp
                       isSort={sortState.currentColumn === 'workshopTitle' && sortState.isAsc === true}
-                      onClick={() => handleSort('workshopTitle', true)}
+                      onClick={() => handleSort('workshop.workshopTitle', true)}
                     />
                     <ButtonArrow
                       isSort={sortState.currentColumn === 'workshopTitle' && sortState.isAsc === false}
-                      onClick={() => handleSort('workshopTitle', false)}
+                      onClick={() => handleSort('workshop.workshopTitle', false)}
                     />
                   </span>
                 </div>
@@ -157,11 +154,11 @@ const WorkShopCompany = () => {
                   <span>
                     <ButtonUp
                       isSort={sortState.currentColumn === 'universityName' && sortState.isAsc === true}
-                      onClick={() => handleSort('universityName', true)}
+                      onClick={() => handleSort('workshop.university.universityName', true)}
                     />
                     <ButtonArrow
                       isSort={sortState.currentColumn === 'universityName' && sortState.isAsc === false}
-                      onClick={() => handleSort('universityName', false)}
+                      onClick={() => handleSort('workshop.university.universityName', false)}
                     />
                   </span>
                 </div>
