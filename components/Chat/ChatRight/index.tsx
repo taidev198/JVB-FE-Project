@@ -12,7 +12,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
 import { showSidebar } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
-import { useGetAllMessagesQuery } from '@/services/portalHomeApi';
+import { useGetAllMessagesQuery, useReadAllMessagesOnAChatRoomMutation } from '@/services/portalHomeApi';
 import { ChatResponse } from '@/types/chatType';
 
 const { TextArea } = Input;
@@ -32,6 +32,8 @@ const ChatRight = () => {
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('sm'));
   const scrollContainerRef = useRef(null);
   const previousDataRef = useRef<ChatResponse | undefined>(undefined);
+
+  const [result] = useReadAllMessagesOnAChatRoomMutation({ chatRoomId: idRoom });
 
   const { data, isSuccess, refetch } = useGetAllMessagesQuery(
     { roomId: idRoom, page, size },
@@ -56,8 +58,10 @@ const ChatRight = () => {
     setHasMore(true);
     previousDataRef.current = undefined;
   };
+
   useEffect(() => {
     refetchMessage();
+    result({ chatRoomId: idRoom });
   }, [idRoom]);
 
   useEffect(() => {
@@ -79,9 +83,9 @@ const ChatRight = () => {
       const scrollContainer = scrollContainerRef.current;
       const scrollTop = scrollContainer.scrollTop;
 
-      if (scrollTop <= 100) {
-        setPage(prevPage => prevPage + 1);
-      }
+      // if (scrollTop <= 100) {
+      //   setPage(prevPage => prevPage + 1);
+      // }
     }, 500),
     [hasMore]
   );
@@ -100,7 +104,7 @@ const ChatRight = () => {
   useEffect(() => {
     const connectToWebSocket = () => {
       const client = new Client({
-        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws'),
+        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
         onConnect: () => {
           setStompClient(client);
           client.subscribe(`/topic/chatroom/${idRoom}`, () => {

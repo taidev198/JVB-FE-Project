@@ -8,13 +8,15 @@ import { showSidebar } from '@/store/slices/global';
 import { useGetAllChatRoomsQuery } from '@/services/portalHomeApi';
 import { useAppSelector } from '@/store/hooks';
 import { setIdRoom, setNamePartnerChat, setReceiverId } from '@/store/slices/chatSlice';
+import { useState } from 'react';
 
 const SidebarChat = () => {
   const userId = useAppSelector(state => state.user.idAccount);
+  const [keyword, setKeyword] = useState('');
   const dispatch = useDispatch();
 
   const { data } = useGetAllChatRoomsQuery(
-    { userId },
+    { userId, keyword },
     {
       refetchOnMountOrArgChange: true,
     }
@@ -26,7 +28,13 @@ const SidebarChat = () => {
       <div className=" border-b border-solid bg-white px-0 py-4 sm:px-5">
         <div className="flex items-center rounded-[20px] border border-[#DBDADE] px-[14px]">
           <SearchIcon className="text-[#4B465C]" />
-          <input type="text" className="w-[90%] border-none placeholder:text-[15px] placeholder:text-[#4B465C]" placeholder="Tìm kiếm đoạn chat..." />
+          <input
+            type="text"
+            value={keyword}
+            onChange={e => setKeyword(e.target.value)}
+            className="w-[90%] border-none placeholder:text-[15px] placeholder:text-[#4B465C]"
+            placeholder="Tìm kiếm đoạn chat..."
+          />
         </div>
       </div>
       <div className="max-h-screen overflow-y-auto px-0 sm:px-3">
@@ -42,8 +50,9 @@ const SidebarChat = () => {
                 dispatch(setNamePartnerChat(user?.member.id !== userId ? user?.memberName : user?.ownerName));
                 dispatch(setReceiverId(user?.member.id !== userId ? user?.member.id : user?.owner.id));
               }}
-              lastMessage={user?.lastMessage.content}
+              lastMessage={user?.member.id !== userId ? 'Sent: ' + user?.lastMessage.content : user?.lastMessage.content}
               time={dayjs(user?.lastMessage.createAt).format('HH:mm')}
+              isRead={user?.lastMessage.isRead}
             />
           ))}
         </ul>
