@@ -13,4 +13,5 @@ const ButtonUp: FC<ButtonUpProps> = ({ isSort, onClick }) => {
     </div>
   );
 };
+
 export default ButtonUp;

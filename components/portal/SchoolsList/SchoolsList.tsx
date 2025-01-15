@@ -1,84 +1,34 @@
+/* eslint-disable no-console */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Empty, Pagination } from 'antd';
 import Link from 'next/link';
-import React, { useCallback, useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import React, { useCallback, useMemo, useState } from 'react';
 import SelectSearch from '../common/SelectSearch';
 import PortalLoading from '../common/PortalLoading';
 
 import ImageComponent from '@/components/Common/Image';
 import { useGetFieldsQuery, useGetProvincesQuery, useGetSchoolsQuery } from '@/services/portalHomeApi';
-import { IUniversity } from '@/types/university';
+
 const SchoolsList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedValue, setDebouncedValue] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [filteredSchools, setFilteredSchools] = useState<IUniversity[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [paginatedSchools, setPaginatedSchools] = useState<IUniversity[]>([]);
   const [pageSize, setPageSize] = useState(9); // Initial page size
 
   const { data: provincesData, isLoading: isProvincesLoading } = useGetProvincesQuery();
   const { data: fieldsData, isLoading: isFieldsLoading } = useGetFieldsQuery();
   const { data: schoolsData, isLoading: isSchoolsLoading } = useGetSchoolsQuery(
     {
-      page: 1,
-      size: 1000,
+      page: currentPage,
+      size: pageSize,
       keyword: searchTerm,
+      province: selectedLocation ? provincesData?.data.find(province => province.provinceName === selectedLocation)?.id : undefined,
+      field: selectedField ? fieldsData?.data.find(field => field.fieldName === selectedField)?.id : undefined,
     },
     { refetchOnMountOrArgChange: true }
   );
-
-  const typesItems = ['Học viện', 'Cao đẳng', 'Đại học', 'Khác'];
-  // const typesItem = ['ACADEMY', 'COLLEGE', 'OTHER', 'UNIVERSITY'];
-
-  useEffect(() => {
-    if (schoolsData?.data.content) {
-      let filtered = schoolsData.data.content;
-
-      if (selectedLocation) {
-        filtered = filtered.filter(university => university.address.province.provinceName === selectedLocation);
-      }
-
-      if (selectedField) {
-        filtered = filtered.filter(
-          university => university.fields && Array.isArray(university.fields) && university.fields.some(field => field.fieldName === selectedField)
-        );
-      }
-
-      if (selectedType) {
-        filtered = filtered.filter(university => {
-          const type = university.universityType;
-          switch (selectedType) {
-            case 'Học viện':
-              return type === 'ACADEMY';
-            case 'Cao đẳng':
-              return type === 'COLLEGE';
-            case 'Đại học':
-              return type === 'UNIVERSITY';
-            case 'Khác':
-              return type === 'OTHER';
-            default:
-              return true;
-          }
-        });
-      }
-
-      if (searchTerm) {
-        filtered = filtered.filter(university => university.universityName.toLowerCase().includes(searchTerm.toLowerCase()));
-      }
-
-      setFilteredSchools(filtered);
-      setCurrentPage(1);
-    }
-  }, [schoolsData, selectedLocation, selectedField, selectedType, searchTerm]);
-
-  useEffect(() => {
-    const start = (currentPage - 1) * pageSize;
-    const end = start + pageSize;
-    setPaginatedSchools(filteredSchools.slice(start, end));
-  }, [filteredSchools, currentPage, pageSize]);
 
   const handlePageChange = (page: number, size?: number) => {
     setCurrentPage(page);
@@ -91,18 +41,14 @@ const SchoolsList: React.FC = () => {
     setCurrentPage(1);
   }, []);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(searchTerm);
-    }, 600);
-    return () => clearTimeout(handler);
-  }, [searchTerm]);
-
-  useEffect(() => {
-    if (debouncedValue) {
-      handleSearch();
-    }
-  }, [debouncedValue]);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce(value => {
+        setSearchTerm(value);
+        setCurrentPage(1);
+      }, 500),
+    [searchTerm]
+  );
 
   const locationItems = isProvincesLoading ? [] : provincesData?.data.map(province => province.provinceName) || [];
   const fieldItems = isFieldsLoading ? [] : fieldsData?.data.map(field => field.fieldName) || [];
@@ -118,7 +64,7 @@ const SchoolsList: React.FC = () => {
               placeholder="Nhập tên trường học..."
               className="w-full border-none bg-transparent p-0 outline-none"
               value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
+              onChange={e => debouncedSearch(e.target.value)}
             />
           </div>
           <button
@@ -130,14 +76,16 @@ const SchoolsList: React.FC = () => {
         </form>
         <div className="mt-[70px] flex items-center justify-between">
           <span className="hidden font-medium text-primary-black md:block">
-            {paginatedSchools.length
-              ? `${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, filteredSchools.length)} trong ${filteredSchools.length} kết quả`
+            {schoolsData?.data.content.length
+              ? `${(currentPage - 1) * pageSize + 1} - ${Math.min(currentPage * pageSize, schoolsData?.data.content.length)} trong ${
+                  schoolsData?.data.totalElements
+                } kết quả`
               : ''}
           </span>
           <div className="flex items-center gap-4">
             <SelectSearch label="Địa điểm" value={selectedLocation} items={locationItems} onChange={setSelectedLocation} width={150} />
             <SelectSearch label="Lĩnh vực" value={selectedField} items={fieldItems} onChange={setSelectedField} width={150} />
-            <SelectSearch label="Loại trường" value={selectedType} items={typesItems} onChange={setSelectedType} width={180} />
+            {/*<SelectSearch label="Loại trường" value={selectedType} items={typesItems} onChange={setSelectedType} width={180} />*/}
           </div>
         </div>
 
@@ -146,9 +94,9 @@ const SchoolsList: React.FC = () => {
             <div className="my-[60px] flex w-full items-center justify-center">
               <PortalLoading />
             </div>
-          ) : paginatedSchools.length > 0 ? (
+          ) : schoolsData?.data?.content.length > 0 ? (
             <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3">
-              {paginatedSchools.map(university => (
+              {schoolsData?.data?.content.map(university => (
                 <div
                   key={university.id}
                   className="item group flex flex-col items-center justify-start rounded-[10px] border-[1px] border-solid border-primary-border bg-primary-white p-[30px]">
@@ -188,14 +136,15 @@ const SchoolsList: React.FC = () => {
           )}
         </div>
 
-        {filteredSchools.length > pageSize && (
+        {schoolsData && (
           <div className="mt-[80px] w-full">
             <Pagination
               current={currentPage}
-              total={filteredSchools.length}
+              total={schoolsData?.data.totalElements}
               pageSize={pageSize}
               showSizeChanger
               align="center"
+              pageSizeOptions={['9', '10', '20', '50', '100']}
               onChange={handlePageChange}
               onShowSizeChange={(_, size) => handlePageChange(1, size)} // Reset to first page on size change
             />

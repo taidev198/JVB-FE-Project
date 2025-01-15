@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { persistor, RootState } from '@/store/store';
 import { ICompanyAllResponse, ICompanyDetailResponse } from '@/types/companyType';
 import { IProfileCompanyRespone } from '@/types/profileCompany';
-import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply, StudentApplyJobResponse } from '@/types/jobCompany';
+import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply, IStudentApplyJobResponse, StudentApplyJobResponse } from '@/types/jobCompany';
 import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 import { logOut } from '@/store/slices/user';
@@ -294,6 +294,12 @@ export const adminCompanyApi = createApi({
         }),
         invalidatesTags: (result, error, { acceptToAccountId }) => [{ type: 'UniversityApply', acceptToAccountId }, { type: 'UniversityApply' }],
       }),
+
+      // Get detail student apply job
+      getDetailStudentApplyJob: builder.query<IStudentApplyJobResponse, { id: number }>({
+        query: ({ id }) => `/company/student-apply-job-detail?studentId=${id}`,
+        providesTags: (result, error, { id }) => [{ type: 'studentsApply', id: id }],
+      }),
     };
   },
 });
@@ -322,4 +328,5 @@ export const {
   useRemoveJobsForUniversityMutation,
   useGetAllStudentApplyJobQuery,
   useApproveStudentJobMutation,
+  useGetDetailStudentApplyJobQuery,
 } = adminCompanyApi;

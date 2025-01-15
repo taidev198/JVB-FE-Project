@@ -344,7 +344,7 @@ export const statusUniversityApplyJob = (status: string | null): string => {
     case 'PENDING':
       return 'Chờ duyệt';
     case 'ACCEPT':
-      return 'Đã tham gia';
+      return 'Đã ứng tuyển';
     case 'REJECT':
       return 'Bị từ chối';
     case 'CANCEL':

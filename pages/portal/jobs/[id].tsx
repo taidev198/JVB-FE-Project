@@ -101,7 +101,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">
               <div className="flex flex-col gap-[30px] lg:basis-7/12 xl:basis-8/12">
                 <div className="overview rounded-[10px] bg-custom-gradient-1 p-[30px]">
-                  <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Tổng quan về công ty</h3>
+                  <h3 className="mb-[20px] text-[24px] font-semibold text-primary-black">Tổng quan về công việc</h3>
                   <div className="grid grid-cols-1 gap-[30px] md:grid-cols-2 xl:grid-cols-3">
                     <div className="flex items-start gap-[15px]">
                       <div className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-primary-white">

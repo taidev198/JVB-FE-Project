@@ -1,28 +1,29 @@
-import { Checkbox, TextField } from '@mui/material';
-import { debounce } from 'lodash';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
+import { debounce } from 'lodash';
+import { Checkbox, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button, Button as MyButton } from '@/components/Common/Button';
+import { useDeleteDepartmentMultipleMutation, useDeleteDepartmentOneMutation, useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
+import { Button as MyButton } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonUpdate from '@/components/Common/ButtonIcon/ButtonUpdate';
 import PaginationComponent from '@/components/Common/Pagination';
-import { useDeleteDepartmentMultipleMutation, useDeleteDepartmentOneMutation, useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { resetFilters, setKeyword, setPage } from '@/store/slices/filtersSlice';
-import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
 import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const Department = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
   const dispatch = useAppDispatch();
-  const { page, keyword, size } = useAppSelector(state => state.filter);
   const name = useAppSelector(state => state.global.name);
-  const [, setSelectId] = useState<number | null>(null);
+  const [selectId, setSelectId] = useState<number | null>(null);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedDepartment, setSelectedDepartment] = useState<number[]>([]);
   const { data: departments, isLoading } = useGetAllDepartmentsQuery(
@@ -33,21 +34,30 @@ const Department = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
   const handleOpenConfirm = (id: number) => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
 
-  const idDepartment = useAppSelector(state => state.global.id);
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteDepartmentOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteDepartmentMultipleMutation();
   const handleConfirmAction = async () => {
@@ -56,7 +66,7 @@ const Department = () => {
         await deleteMultiple({ ids: selectedDepartment }).unwrap();
         toast.success('Các khoa đã được xóa thành công.');
       } else {
-        await deleteOne({ id: idDepartment }).unwrap();
+        await deleteOne({ id: selectId }).unwrap();
         toast.success('Khoa đã được xóa thành công.');
       }
     } catch (error) {
@@ -84,9 +94,6 @@ const Department = () => {
   };
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingDeleteOne || isLoadingMultiple));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingDeleteOne]);
   return (
     <>
@@ -106,7 +113,7 @@ const Department = () => {
           <div className="ml-auto flex justify-items-center gap-5">
             <Link
               href={'/admin/school/department/AddDepartment'}
-              className="rounded-[8px] border-[1px] bg-[#34a853] px-6 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
+              className="rounded-[8px] border-[1px] bg-[#34a853] px-5 py-2 text-white transition duration-300 hover:bg-[#2e7b42]">
               <AddIcon className="mr-1 h-6 w-6 items-center text-white" />
               Thêm mới
             </Link>
@@ -146,8 +153,11 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Mã khoa</span>
                   <span className="">
-                    <ButtonUp />
-                    <ButtonArrow />
+                    <ButtonUp isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === true} onClick={() => handleSort('facultyCode', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'facultyCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('facultyCode', false)}
+                    />
                   </span>
                 </div>
               </th>
@@ -155,18 +165,17 @@ const Department = () => {
                 <div className="flex items-center">
                   <span className="min-w-max">Tên khoa</span>
                   <span className="">
-                    <ButtonUp />
-                    <ButtonArrow />
+                    <ButtonUp isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true} onClick={() => handleSort('facultyName', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === false}
+                      onClick={() => handleSort('facultyName', false)}
+                    />
                   </span>
                 </div>
               </th>
               <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Trưởng khoa</span>
-                  <span className="">
-                    <ButtonUp />
-                    <ButtonArrow isSort />
-                  </span>
                 </div>
               </th>
               <th className="p-3 text-left sm:px-5">
@@ -225,24 +234,16 @@ const Department = () => {
       </div>
 
       {showBackdrop === BackdropType.DeleteConfirmation && (
-        <BackDrop isCenter={true}>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">Bạn có chắc chắn muốn xóa khoa {name} này không?</h3>
-            <p className="mt-1">Hành động này không thể hoàn tác. Điều này sẽ xóa vĩnh viễn khoa khỏi hệ thống.</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-            </div>
-          </div>
-        </BackDrop>
+        <PopupConfirmAction text="Bạn có chắc chắn muốn xóa" name={`${name} này không?`} onClick={handleConfirmAction} />
       )}
 
       <PaginationComponent
         count={departments?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={departments?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
     </>
   );

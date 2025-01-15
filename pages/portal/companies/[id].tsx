@@ -39,12 +39,12 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
 
   const showBackdrop = useAppSelector(state => state.global.backdropType);
 
-  const { data, isLoading, error } = useGetCompanyDetailsQuery({ id: Number(id) });
-  const { data: jobsData, isLoading: isLoadingJobs } = useGetJobsCompanyQuery({ companyId: Number(id), page: 1, size: 1000 });
-  const [sendRequests, { isLoading: sendRequestsLoading }] = useSendConnectMutation();
   const [currentPage, setCurrentPage] = useState(1);
   const [paginatedJobs, setPaginatedJobs] = useState<IJobByCompany[]>([]);
   const [pageSize, setPageSize] = useState(4);
+  const { data, isLoading, error } = useGetCompanyDetailsQuery({ id: Number(id) }, { refetchOnMountOrArgChange: true });
+  const { data: jobsData, isLoading: isLoadingJobs } = useGetJobsCompanyQuery({ companyId: Number(id), page: currentPage, size: pageSize });
+  const [sendRequests, { isLoading: sendRequestsLoading }] = useSendConnectMutation();
 
   const { Option } = Select;
 
@@ -138,6 +138,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
             buttonText={`${data.data.isPartnership ? 'Đã liên kết' : 'Liên kết ngay'}`}
             onButtonClick={() => dispatch(setBackdrop(BackdropType.AddModal))}
             currentPage="Trường học"
+            className={`${data.data.isPartnership !== null ? 'pointer-events-none cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
           />
           <div className="mp_section_padding">
             <div className="container mx-auto flex flex-col items-start gap-[30px] lg:flex-row">

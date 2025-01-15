@@ -1,28 +1,22 @@
 import React, { FC } from 'react';
 import { Pagination } from '@mui/material';
 import { Select } from 'antd';
-import { useDispatch } from 'react-redux';
-import { setPageSize, setPage } from '@/store/slices/filtersSlice';
 
 interface PaginationComponentProps {
   count: number;
   page: number;
   onPageChange: (event: React.ChangeEvent<unknown>, page: number) => void;
   size: number;
+  onSizeChange: (size: number) => void;
   totalItem: number;
 }
 
-const PaginationComponent: FC<PaginationComponentProps> = React.memo(({ count, page, onPageChange, size, totalItem }) => {
-  const dispatch = useDispatch();
-  const onSizeChange = value => {
-    dispatch(setPageSize(value));
-    dispatch(setPage(1));
-  };
+const PaginationComponent: FC<PaginationComponentProps> = React.memo(({ count, page, onPageChange, size, onSizeChange, totalItem }) => {
   return (
-    <div className="flex items-center  justify-between rounded-b-lg border border-t border-solid bg-white p-5">
+    <div className="flex items-center justify-between rounded-b-lg border border-t border-solid bg-white p-5">
       <div className="flex items-center gap-2">
         <p className="text-[12px] text-[#3e3e3e] sm:text-sm">Trên mỗi trang</p>
-        <Select onChange={onSizeChange} defaultValue={`${size}`} style={{ fontWeight: 600 }}>
+        <Select onChange={value => onSizeChange(Number(value))} defaultValue={`${size}`} style={{ fontWeight: 600 }}>
           <Select.Option value={5} style={{ fontWeight: 500 }}>
             5
           </Select.Option>
@@ -47,4 +41,5 @@ const PaginationComponent: FC<PaginationComponentProps> = React.memo(({ count, p
     </div>
   );
 });
+
 export default PaginationComponent;

@@ -10,4 +10,5 @@ const ButtonArrow = ({ isSort, onClick }: ButtonArrowProp) => {
     </div>
   );
 };
+
 export default ButtonArrow;

@@ -142,3 +142,9 @@ export interface StudentApplyJobResponse {
     currentPage: number;
   };
 }
+
+export interface IStudentApplyJobResponse {
+  code: number;
+  message: string;
+  data: IStudent;
+}

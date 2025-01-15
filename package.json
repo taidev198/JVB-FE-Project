@@ -17,6 +17,7 @@
     "@dqbd/tiktoken": "^1.0.2",
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.1",
     "@fortawesome/free-regular-svg-icons": "^6.7.1",
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
@@ -25,6 +26,7 @@
     "@mui/icons-material": "^6.1.8",
     "@mui/material": "^6.1.8",
     "@reduxjs/toolkit": "^1.9.5",
+    "@stomp/stompjs": "^7.0.0",
     "@tabler/icons-react": "^2.9.0",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@types/quill": "^1.3.10",
@@ -82,6 +84,7 @@
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
     "socket.io-client": "^4.8.1",
+    "sockjs-client": "^1.6.1",
     "swiper": "^11.1.15",
     "uuid": "^9.0.0",
     "yup": "^1.4.0"

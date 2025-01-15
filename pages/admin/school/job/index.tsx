@@ -1,44 +1,46 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Chip, TextField } from '@mui/material';
-import Select from 'react-select';
-import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
+import Select from 'react-select';
 import toast from 'react-hot-toast';
 import makeAnimated from 'react-select/animated';
+import { Chip, TextField } from '@mui/material';
+import { debounce } from 'lodash';
 import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
-import { resetFilters, setKeyword, setPage, setStatus } from '@/store/slices/filtersSlice';
 import { useCancelJobsMutation, useDeleteJobsMutation, useGetAllJobAppliesUniversityQuery, useGetAllMajorsQuery } from '@/services/adminSchoolApi';
+import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
 import { jobType, statusTextJob } from '@/utils/app/const';
-import { BackDrop } from '@/components/Common/BackDrop';
-import { Button } from '@/components/Common/Button';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
-
-import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
 const animatedComponents = makeAnimated();
+
 const Partnerships = () => {
+  const [page, setPage] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
+  const [keyword, setKeyword] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const dispatch = useDispatch();
   const backdropType = useAppSelector(state => state.global.backdropType);
   const name = useAppSelector(state => state.global.name);
   const universityId = useAppSelector(state => state.user?.id);
-  const { page, keyword, size, status } = useAppSelector(state => state.filter);
   const [selectedJobsId, setSelectedJobsId] = useState<number | null>(null);
   const [selectedMajorId] = useState<number | null>(null);
   const [major, setMajor] = useState<number | null>(null);
   const { data: dataMajor } = useGetAllMajorsQuery(undefined, { refetchOnMountOrArgChange: true });
   const [selectedAction, setSelectedAction] = useState<BackdropType | null>(null);
-  const [, setSelectId] = useState<number | null>(null);
+
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
-        dispatch(setKeyword(value));
-        dispatch(setPage(1));
+        setKeyword(value);
+        setPage(1);
       }, 500),
-    [dispatch]
+    []
   );
+
   const { data: jobs, isLoading: isLoadingGetAll } = useGetAllJobAppliesUniversityQuery(
     {
       page: page,
@@ -50,7 +52,17 @@ const Partnerships = () => {
     },
     { refetchOnMountOrArgChange: true }
   );
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const [cancelJob, { isLoading: isLoadingCancel }] = useCancelJobsMutation();
   const [deleteJob, { isLoading: isLoadingDelete }] = useDeleteJobsMutation();
   const handleConfirmAction = async () => {
@@ -87,9 +99,6 @@ const Partnerships = () => {
 
   useEffect(() => {
     dispatch(setLoading(isLoadingGetAll || isLoadingCancel || isLoadingDelete));
-    return () => {
-      dispatch(resetFilters());
-    };
   }, [dispatch, isLoadingGetAll, isLoadingCancel, isLoadingDelete]);
   return (
     <>
@@ -130,7 +139,7 @@ const Partnerships = () => {
                 { value: 'ACCEPT', label: 'Đã duyệt' },
                 { value: 'CANCEL', label: 'Từ chối' },
               ]}
-              onChange={(selectedOption: { value: React.SetStateAction<string> }) => dispatch(setStatus(selectedOption.value))}
+              onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-[160px] cursor-pointer"
             />
           </div>
@@ -142,21 +151,24 @@ const Partnerships = () => {
           <thead className="bg-white">
             <tr>
               <th className="px-5 py-4 text-left">STT</th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Tên công ty</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'companyName' && sortState.isAsc === true} onClick={() => handleSort('companyName', true)} />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'companyName' && sortState.isAsc === false}
+                      onClick={() => handleSort('companyName', false)}
+                    />
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="cursor-pointer px-3 text-left sm:px-5">
                 <div className="flex items-center">
                   <span className="min-w-max">Tên công việc</span>
-                  <span className="ml-2 flex md:flex-nowrap ">
-                    <ButtonArrow />
-                    <ButtonUp />
+                  <span className="">
+                    <ButtonUp isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === true} onClick={() => handleSort('jobTitle', true)} />
+                    <ButtonArrow isSort={sortState.activeColumn === 'jobTitle' && sortState.isAsc === false} onClick={() => handleSort('jobTitle', false)} />
                   </span>
                 </div>
               </th>
@@ -188,12 +200,7 @@ const Partnerships = () => {
                   </td>
                   <td className="py-4">
                     <div className="flex items-center justify-center gap-3">
-                      <ButtonSee
-                        onClick={() => {
-                          setSelectId(job.job.id);
-                        }}
-                        href={`/portal/jobs/${job.job.id}`}
-                      />
+                      <ButtonSee onClick={() => {}} href={`/portal/jobs/${job.job.id}`} />
                     </div>
                   </td>
                 </tr>
@@ -213,28 +220,28 @@ const Partnerships = () => {
       <PaginationComponent
         count={jobs?.data.totalPages}
         page={page}
-        onPageChange={(event, value) => dispatch(setPage(value))}
+        onPageChange={(event, value) => setPage(value)}
         size={size}
         totalItem={jobs?.data.totalElements}
+        onSizeChange={value => setSize(value)}
       />
       {/* Backdrops */}
       {(backdropType === BackdropType.ApproveConfirmation ||
         backdropType === BackdropType.RefuseConfirmation ||
         backdropType === BackdropType.DeleteConfirmation) && (
-        <BackDrop isCenter>
-          <div className="max-w-[400px] rounded-md p-6">
-            <h3 className="font-bold">
-              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt job ${name}`}
-              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối job ${name}`}
-              {selectedAction === BackdropType.DeleteConfirmation && `Xóa job ${name}`}
-            </h3>
-            <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-            </div>
-          </div>
-        </BackDrop>
+        <PopupConfirmAction
+          text={`${
+            selectedAction === BackdropType.ApproveConfirmation
+              ? 'Duyệt'
+              : selectedAction === BackdropType.RefuseConfirmation
+              ? 'Từ chối'
+              : selectedAction === BackdropType.DeleteConfirmation
+              ? 'Xóa'
+              : ''
+          }job`}
+          name={name}
+          onClick={handleConfirmAction}
+        />
       )}
     </>
   );
