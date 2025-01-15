@@ -7,6 +7,7 @@ import globalReducer from './slices/global';
 import toastReducer from './slices/toastSlice';
 import userReducer from './slices/user';
 import filterReducer from './slices/filtersSlice';
+import chatReducer from './slices/chatSlice';
 import { logOutMiddleware } from './middlewares';
 import { portalHomeApi } from '@/services/portalHomeApi';
 import { adminSystemApi } from '@/services/adminSystemApi';
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
   global: globalReducer,
   toast: toastReducer,
   filter: filterReducer,
+  chat: chatReducer,
   [adminSystemApi.reducerPath]: adminSystemApi.reducer,
   [adminSchoolApi.reducerPath]: adminSchoolApi.reducer,
   [adminCompanyApi.reducerPath]: adminCompanyApi.reducer,
