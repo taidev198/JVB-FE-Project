@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import Select from 'react-select';
@@ -22,6 +23,7 @@ const BusinessManagement = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const [idFaculty, setIdFaculty] = useState<number | null>(null);
   const dispatch = useAppDispatch();
   const name = useAppSelector(state => state.global.name);
@@ -29,12 +31,28 @@ const BusinessManagement = () => {
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [selectedBusiness, setSelectedBusiness] = useState<number[]>([]);
   const { data: dataDepartments, isLoading: isLoadingGetAllDepartment } = useGetAllFaculityQuery(undefined, { refetchOnMountOrArgChange: true });
+  const [creditRequirementMin, setCreditRequirementMin] = useState<number>(0);
+  const [creditRequirementMax, setCreditRequirementMax] = useState<number>(70);
+  const applyCreditFilter = (min: number, max: number) => {
+    console.log('Applying filter with min:', min, 'and max:', max);
+  };
+  const handleMinChange = (value: string) => {
+    const min = Number(value);
+    setCreditRequirementMin(min);
+    applyCreditFilter(min, creditRequirementMax);
+  };
 
+  const handleMaxChange = (value: string) => {
+    const max = Number(value);
+    setCreditRequirementMax(max);
+    applyCreditFilter(creditRequirementMin, max);
+  };
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
         setKeyword(value);
         setPage(1);
+        setSortBy(value);
       }, 500),
     []
   );
@@ -48,6 +66,8 @@ const BusinessManagement = () => {
   });
 
   const handleSort = (column: String, isAsc: boolean) => {
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
     setSortState({
       activeColumn: column,
       isAsc: isAsc,
@@ -59,6 +79,9 @@ const BusinessManagement = () => {
       size: size,
       keyword,
       idFaculty: idFaculty,
+      creditRequirementMin,
+      creditRequirementMax,
+      sortBy: sortBy || 'majorCode:asc',
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -127,7 +150,31 @@ const BusinessManagement = () => {
               }}
               className="w-full cursor-pointer "
             />
+            {/* Lọc số tín chỉ */}
+            <div className="flex items-center gap-4">
+              <TextField
+                id="credit-min"
+                label="Số tín chỉ tối thiểu"
+                type="number"
+                variant="outlined"
+                size="small"
+                value={creditRequirementMin}
+                onChange={e => handleMinChange(e.target.value)}
+                className="w-full"
+              />
+              <TextField
+                id="credit-max"
+                label="Số tín chỉ tối đa"
+                type="number"
+                variant="outlined"
+                size="small"
+                value={creditRequirementMax}
+                onChange={e => handleMaxChange(e.target.value)}
+                className="w-full"
+              />
+            </div>
           </div>
+
           <div className="ml-auto flex justify-items-center gap-5">
             <Link
               href={'/admin/school/businessManagement/AddBusiness'}
@@ -167,7 +214,9 @@ const BusinessManagement = () => {
               </th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Mã ngành</span>
+                  <span className="min-w-max" onClick={() => handleSort('majorCode', !(sortState.activeColumn === 'majorCode' && sortState.isAsc))}>
+                    Mã ngành
+                  </span>
                   <span className="">
                     <ButtonUp isSort={sortState.activeColumn === 'majorCode' && sortState.isAsc === true} onClick={() => handleSort('majorCode', true)} />
                     <ButtonArrow isSort={sortState.activeColumn === 'majorCode' && sortState.isAsc === false} onClick={() => handleSort('majorCode', false)} />
@@ -176,7 +225,9 @@ const BusinessManagement = () => {
               </th>
               <th className="px-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Tên ngành</span>
+                  <span className="min-w-max" onClick={() => handleSort('majorName', !(sortState.activeColumn === 'majorName' && sortState.isAsc))}>
+                    Tên ngành
+                  </span>
                   <span className="">
                     <ButtonUp isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === true} onClick={() => handleSort('majorName', true)} />
                     <ButtonArrow isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === false} onClick={() => handleSort('majorName', false)} />
@@ -185,7 +236,11 @@ const BusinessManagement = () => {
               </th>
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <div className="flex items-center">
-                  <span className="min-w-max">Số tín chỉ</span>
+                  <span
+                    className="min-w-max"
+                    onClick={() => handleSort('creditRequirement', !(sortState.activeColumn === 'creditRequirement' && sortState.isAsc))}>
+                    Số tín chỉ
+                  </span>
                   <span>
                     <ButtonUp
                       isSort={sortState.activeColumn === 'creditRequirement' && sortState.isAsc === true}
@@ -201,12 +256,19 @@ const BusinessManagement = () => {
 
               <th className="p-3 text-left sm:px-5 sm:py-4">
                 <div className="flex items-center">
-                  <span className="min-w-max">Khoa</span>
+                  <span
+                    className="min-w-max"
+                    onClick={() => handleSort('faculty.facultyName', !(sortState.activeColumn === 'faculty.facultyName' && sortState.isAsc))}>
+                    Khoa
+                  </span>
                   <span className="">
-                    <ButtonUp isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true} onClick={() => handleSort('facultyName', true)} />
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true}
+                      onClick={() => handleSort('faculty.facultyName', true)}
+                    />
                     <ButtonArrow
                       isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === false}
-                      onClick={() => handleSort('facultyName', false)}
+                      onClick={() => handleSort('faculty.facultyName', false)}
                     />
                   </span>
                 </div>
