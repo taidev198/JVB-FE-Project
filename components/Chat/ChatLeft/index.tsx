@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Drawer, useMediaQuery, useTheme } from '@mui/material';
+import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from '@mui/icons-material/Search';
 import UserChatItem from './UserChatItem';
@@ -9,7 +10,7 @@ import { useAppSelector } from '@/store/hooks';
 import { setIdRoom, setNamePartnerChat, setReceiverId } from '@/store/slices/chatSlice';
 
 const SidebarChat = () => {
-  const userId = useAppSelector(state => state.user.id);
+  const userId = useAppSelector(state => state.user.idAccount);
   const dispatch = useDispatch();
 
   const { data } = useGetAllChatRoomsQuery(
@@ -31,16 +32,18 @@ const SidebarChat = () => {
       <div className="max-h-screen overflow-y-auto px-0 sm:px-3">
         <p className="px-1 py-[10px] text-lg font-medium text-[#246AA3] sm:px-4">Trò chuyện</p>
         <ul className="flex flex-col gap-1">
-          {data?.data.map(user => (
+          {data?.data?.content.map(user => (
             <UserChatItem
-              fullName={user?.memberName}
+              fullName={user?.member.id !== userId ? user?.memberName : user?.ownerName}
               id={user?.id}
               key={user?.id}
               onClick={() => {
                 dispatch(setIdRoom(user.id));
-                dispatch(setNamePartnerChat(user.memberName));
-                dispatch(setReceiverId(user.member.id));
+                dispatch(setNamePartnerChat(user?.member.id !== userId ? user?.memberName : user?.ownerName));
+                dispatch(setReceiverId(user?.member.id !== userId ? user?.member.id : user?.owner.id));
               }}
+              lastMessage={user?.lastMessage.content}
+              time={dayjs(user?.lastMessage.createAt).format('HH:mm')}
             />
           ))}
         </ul>
