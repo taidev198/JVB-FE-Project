@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
@@ -10,6 +10,7 @@ import dayjs from 'dayjs';
 import MenuIcon from '@mui/icons-material/Menu';
 import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { showSidebar } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { useGetAllMessagesQuery } from '@/services/portalHomeApi';
@@ -26,7 +27,7 @@ const ChatRight = () => {
   const [stompClient, setStompClient] = useState(null);
   const { idRoom, namePartnerChat, receiverId } = useAppSelector(state => state.chat);
   const { idAccount } = useAppSelector(state => state.user);
-
+  const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
   const dispatch = useDispatch();
   const theme = useTheme();
   const isMobileAndTablet = useMediaQuery(theme.breakpoints.down('sm'));
@@ -42,7 +43,6 @@ const ChatRight = () => {
 
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
-      console.log(3333333333);
       scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
   };
@@ -73,7 +73,6 @@ const ChatRight = () => {
 
   const handleScroll = useCallback(
     throttle(() => {
-      console.log(1111111111111);
       if (!hasMore) return;
 
       const scrollContainer = scrollContainerRef.current;
@@ -100,7 +99,7 @@ const ChatRight = () => {
   useEffect(() => {
     const connectToWebSocket = () => {
       const client = new Client({
-        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws'),
+        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
         onConnect: () => {
           setStompClient(client);
           client.subscribe(`/topic/chatroom/${idRoom}`, () => {
@@ -111,9 +110,6 @@ const ChatRight = () => {
         onStompError: frame => {
           console.error('STOMP Error:', frame.headers['message']);
           console.error('Details:', frame.body);
-        },
-        onWebSocketClose: event => {
-          console.log('WebSocket closed:', event);
         },
       });
 
@@ -162,24 +158,36 @@ const ChatRight = () => {
       </div>
 
       <div className="relative h-full overflow-y-auto bg-gray-50">
-        <div ref={scrollContainerRef} className="h-[90%] space-y-2 overflow-y-auto px-12 py-8">
+        <div ref={scrollContainerRef} className="h-[90%] space-y-2 overflow-y-auto p-8">
           {chats.length > 0 ? (
             chats
               .slice() // Tạo bản sao
               .reverse()
               .map(message => (
-                <div key={message.id} className={`flex ${message.sender.id === idAccount ? ' justify-end ' : ''}`}>
-                  <div className="my-1 flex flex-col">
-                    <div
-                      className={`flex rounded-bl-lg rounded-br-lg px-4 py-2 shadow-lg ${
-                        message.sender.id === idAccount ? ' justify-end  rounded-tl-lg bg-[#246AA3] text-white' : 'rounded-tr-lg bg-white'
-                      }`}>
-                      <p>{message.content}</p>
+                <div key={message.id} className={`flex w-full ${message.sender.id === idAccount ? 'justify-end' : ''}`}>
+                  <div
+                    className={`flex max-w-[60%] ${message.sender.id === idAccount ? 'justify-end ' : ''}`}
+                    onMouseEnter={() => setHoveredMessage(message.id)}
+                    onMouseLeave={() => setHoveredMessage(null)}>
+                    <div className="my-1 flex flex-col">
+                      <div
+                        className={`flex rounded-bl-lg rounded-br-lg px-4 py-2 shadow-lg ${
+                          message.sender.id === idAccount ? ' justify-end rounded-tl-lg bg-[#246AA3] text-white' : 'rounded-tr-lg bg-white'
+                        }`}>
+                        <p>{message.content}</p>
+                      </div>
+                      <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>
+                        {dayjs(message.createAt).format('HH:mm')}
+                      </p>
                     </div>
-                    <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>
-                      {dayjs(message.createAt).format('HH:mm')}
-                    </p>
                   </div>
+                  {hoveredMessage === message.id && (
+                    <div className={`${message.sender.id === idAccount ? 'justify-start' : ''}`}>
+                      <IconButton className="!p-2">
+                        <MoreVertIcon className="text-primary-main" fontSize="medium" />{' '}
+                      </IconButton>
+                    </div>
+                  )}
                 </div>
               ))
           ) : (

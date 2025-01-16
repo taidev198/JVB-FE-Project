@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable prettier/prettier */
 // pages/portal/companies/[id].tsx
 import { BookOutlined, CalendarOutlined, EnvironmentOutlined, MailOutlined, PhoneOutlined, TeamOutlined } from '@ant-design/icons';
 import { Alert, Input, Select } from 'antd';
@@ -116,7 +118,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
         toast.error(error.message);
       }
     }
-  };
+  };  
 
   return (
     <>
@@ -285,6 +287,7 @@ const CompanyDetailsPage: React.FC<CompanyDetailsPageProps> = () => {
                   name={companyDetails.companyName}
                   shortDes={companyDetails.companyShortDescription}
                   websiteUrl={companyDetails.linkWebsite}
+                  receiverId={companyDetails.account.id}
                 />
               </div>
             </div>

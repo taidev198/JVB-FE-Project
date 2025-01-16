@@ -92,3 +92,16 @@ export interface ChatResponse {
   pageSize: number;
   currentPage: number;
 }
+
+export interface CheckChatResponse {
+  code: number;
+  message: string;
+  data: {
+    id: number;
+    isDeleted: boolean;
+    owner: IOwner;
+    ownerName: string;
+    member: IMember;
+    memberName: string;
+  };
+}

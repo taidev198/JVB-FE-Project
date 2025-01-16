@@ -8,7 +8,7 @@ import { IJobAllResponsePortal, IJobDetailResponse, IJobsData } from '@/types/jo
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
-import { ChatResponse, chatRoomResponse } from '@/types/chatType';
+import { ChatResponse, chatRoomResponse, CheckChatResponse } from '@/types/chatType';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -220,6 +220,13 @@ export const portalHomeApi = createApi({
         params: { page, size },
       }),
     }),
+    //get a chatroom:
+    getAChatroom: builder.query<CheckChatResponse, { senderId: number; receiverId: number }>({
+      query: ({ senderId, receiverId }) => ({
+        url: `/chat/chatroom/get-a-chatroom?senderId=${senderId}&receiverId=${receiverId}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -242,4 +249,5 @@ export const {
   useCompanyApplyWorkshopMutation,
   useGetAllChatRoomsQuery,
   useGetAllMessagesQuery,
+  useGetAChatroomQuery,
 } = portalHomeApi;
