@@ -18,7 +18,7 @@ interface LinkCardProps {
   name: string;
   shortDes: string;
   websiteUrl: string;
-  receiverId: number;
+  receiverId?: number;
 }
 
 const LinkCard: React.FC<LinkCardProps> = ({ logoUrl, name, shortDes, websiteUrl, receiverId }) => {

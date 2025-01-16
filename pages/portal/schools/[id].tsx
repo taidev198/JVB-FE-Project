@@ -290,6 +290,7 @@ const SchoolDetailsPage: React.FC<SchoolDetailsPageProps> = () => {
                   name={universityDetails.universityName}
                   shortDes={universityDetails.universityShortDescription}
                   websiteUrl={universityDetails.linkWebsite}
+                  receiverId={universityDetails.account.id}
                 />
               </div>
             </div>
