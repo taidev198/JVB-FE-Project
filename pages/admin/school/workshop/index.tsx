@@ -191,11 +191,11 @@ const AdminSchoolWorkshop = () => {
                     <span className="min-w-max">Trường học</span>
                     <span>
                       <ButtonUp
-                        isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === true}
+                        isSort={sortState.activeColumn === 'university.universityName' && sortState.isAsc === true}
                         onClick={() => handleSort('university.universityName', true)}
                       />
                       <ButtonArrow
-                        isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === false}
+                        isSort={sortState.activeColumn === 'university.universityName' && sortState.isAsc === false}
                         onClick={() => handleSort('university.universityName', false)}
                       />
                     </span>

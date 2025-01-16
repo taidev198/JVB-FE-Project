@@ -27,7 +27,7 @@ export interface IJobCompany {
   minSalary: number;
 }
 
-export interface IJobCompanyPortal {
+interface IJobCompanyPortal {
   id: number;
   jobTitle: string;
   jobDescription: string;

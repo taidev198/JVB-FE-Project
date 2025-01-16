@@ -183,6 +183,15 @@ export const portalHomeApi = createApi({
       ],
     }),
 
+    // Read all messages
+    readAllMessagesOnAChatRoom: builder.mutation<void, { chatRoomId: number }>({
+      query: ({ chatRoomId }) => ({
+        url: `chat/chatroom/${chatRoomId}/read-all-latest-messages`,
+        method: 'PUT',
+      }),
+      invalidatesTags: (result, error, { chatRoomId }) => [{ type: 'JobDetail', chatRoomId: chatRoomId }],
+    }),
+
     // Apply job
     sendApplyJob: builder.mutation<void, { major: number; job: number }>({
       query: ({ major, job }) => ({
@@ -203,12 +212,12 @@ export const portalHomeApi = createApi({
     }),
 
     // Chat
-    getAllChatRooms: builder.query<chatRoomResponse, { userId: number }>({
-      query: ({ userId }) => {
+    getAllChatRooms: builder.query<chatRoomResponse, { userId: number; keyword: string }>({
+      query: ({ userId, keyword }) => {
         return {
           url: `/chat/chatroom`,
           method: 'GET',
-          params: { userId },
+          params: { userId, keyword },
         };
       },
     }),
@@ -250,4 +259,5 @@ export const {
   useGetAllChatRoomsQuery,
   useGetAllMessagesQuery,
   useGetAChatroomQuery,
+  useReadAllMessagesOnAChatRoomMutation,
 } = portalHomeApi;

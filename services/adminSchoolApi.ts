@@ -2,7 +2,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { persistor, RootState } from '@/store/store';
 import { ApiResponse, ApiResponseDetail, DepartmentResponse, DepartmentResponsePortal } from '@/types/departmentType';
-import { WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
+import { ChatResponse, ChatRoomResponse, WorkshopDetailResponse, WorkshopResponse } from '@/types/workshop';
 import { FieldsResponse } from '@/types/fields';
 import { formatDateSearch } from '@/utils/app/format';
 import { ApiResponseBusiness, ApiResponseDetailBusiness } from '@/types/businesTypes';
@@ -320,6 +320,22 @@ export const adminSchoolApi = createApi({
         providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Workshop', id }] : []),
       }),
 
+      getAllChatRoom: builder.query<ChatRoomResponse, { userId: number | null }>({
+        query: ({ userId }) => ({
+          url: `/chat/chatroom?userId=${userId}`,
+          method: 'GET',
+        }),
+        providesTags: (result, error, { userId }) => (userId !== null ? [{ type: 'Workshop', userId }] : []),
+      }),
+
+      getAllMessageInAChatRoom: builder.query<ChatResponse, { chatRoomId: number | null }>({
+        query: ({ chatRoomId }) => ({
+          url: `/chat/chatroom/${chatRoomId}/messages`,
+          method: 'GET',
+        }),
+        providesTags: (result, error, { chatRoomId }) => (chatRoomId !== null ? [{ type: 'Workshop', chatRoomId }] : []),
+      }),
+
       addWorkshop: builder.mutation({
         query: formData => ({
           url: '/university/workshops/create',
@@ -520,6 +536,15 @@ export const adminSchoolApi = createApi({
         }),
         invalidatesTags: (result, error, { id }) => [{ type: 'Jobs', id }, { type: 'Jobs' }],
       }),
+
+      createChatRoom: builder.mutation({
+        query: ({ major, job }) => ({
+          url: `/remove_apply`,
+          method: 'POST',
+          body: { major, job },
+        }),
+        invalidatesTags: (result, error, { id }) => [{ type: 'Jobs', id }, { type: 'Jobs' }],
+      }),
     };
   },
 });
@@ -570,4 +595,7 @@ export const {
   useAcceptJobsMutation,
   useCancelJobsMutation,
   useDeleteJobsMutation,
+  useGetAllChatRoomQuery,
+  useGetAllMessageInAChatRoomQuery,
+  useCreateChatRoomMutation,
 } = adminSchoolApi;

@@ -1,19 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Chip, TextField } from '@mui/material';
+import { debounce } from 'lodash';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import Select from 'react-select';
-import toast from 'react-hot-toast';
 import makeAnimated from 'react-select/animated';
-import { debounce } from 'lodash';
-import { Chip, TextField } from '@mui/material';
+import toast from 'react-hot-toast';
+import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import { useDeleteWorkShopMutation, useGetAllWorkShopCompanyQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setLoading, setName } from '@/store/slices/global';
 import { statusTextWorkShopCompany } from '@/utils/app/const';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
-import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import PaginationComponent from '@/components/Common/Pagination';
 import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import ButtonReject from '@/components/Common/ButtonIcon/ButtonReject';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
+import DatePickerComponent from '@/components/Common/DatePicker';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 
 const animatedComponents = makeAnimated();
@@ -26,8 +29,9 @@ const WorkShopCompany = () => {
   const dispatch = useDispatch();
   const [selectId, setSelectId] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
-  const [startDate] = useState<Date | null>(null);
-  const [endDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const name = useAppSelector(state => state.global.name);
 
   const handleAction = (actionType: BackdropType, JobsId: number) => {
@@ -35,16 +39,28 @@ const WorkShopCompany = () => {
     dispatch(setBackdrop(actionType));
   };
 
+  const [sortState, setSortState] = React.useState({
+    currentColumn: null,
+    isAsc: null,
+  });
+
+  const handleSort = (column: string, isAsc: boolean) => {
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
+    setSortState({ currentColumn: column, isAsc: isAsc });
+  };
+
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
         setKeyword(value);
+        setSortBy(value);
         setPage(1);
       }, 500),
     []
   );
   const { data: companyWorkShop, isLoading } = useGetAllWorkShopCompanyQuery(
-    { page, keyword, size, status, startDate: startDate, endDate: endDate },
+    { page, keyword, size, status, startDate: startDate, endDate: endDate, sortBy: sortBy || 'workshop.workshopTitle:asc' },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -78,9 +94,9 @@ const WorkShopCompany = () => {
     <>
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
-        <h1 className="mb-5 font-bold">Quản lý yêu cầu workShop</h1>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3">
+        <h1 className="mb-5 font-bold">Quản lý yêu cầu workshop</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3 md:mt-0">
+          <div className="flex flex-wrap items-center gap-3">
             <TextField
               id="filled-search"
               label="Tìm kiếm tiêu đề"
@@ -88,6 +104,7 @@ const WorkShopCompany = () => {
               variant="outlined"
               size="small"
               onChange={e => debouncedSearch(e.target.value)}
+              className="w-full sm:w-auto"
             />
 
             <Select
@@ -102,8 +119,10 @@ const WorkShopCompany = () => {
                 { value: 'REJECT', label: 'Từ chối' },
               ]}
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
-              className="w-[160px] cursor-pointer"
+              className="w-full cursor-pointer sm:w-[160px]"
             />
+
+            <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
           </div>
         </div>
       </div>
@@ -114,10 +133,54 @@ const WorkShopCompany = () => {
           <thead className="bg-white">
             <tr>
               <th className="p-3 sm:px-3 sm:py-4">STT</th>
-              <th className="px-5 py-4 text-left">Tiêu đề</th>
-              <th className="px-5 py-4 text-left">Trường học</th>
-              <th className="p-3 sm:px-3 sm:py-4">Thời gian bắt đầu</th>
-              <th className="p-3 sm:px-3 sm:py-4">Thời gian kết thúc</th>
+              <th className="pp-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max">Tiêu đề</span>
+                  <span>
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'workshopTitle' && sortState.isAsc === true}
+                      onClick={() => handleSort('workshop.workshopTitle', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'workshopTitle' && sortState.isAsc === false}
+                      onClick={() => handleSort('workshop.workshopTitle', false)}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="px-5 py-4 text-left">
+                <div className="flex items-center">
+                  <span className="min-w-max">Trường học</span>
+                  <span>
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'universityName' && sortState.isAsc === true}
+                      onClick={() => handleSort('workshop.university.universityName', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'universityName' && sortState.isAsc === false}
+                      onClick={() => handleSort('workshop.university.universityName', false)}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="p-3 sm:px-3 sm:py-4">
+                <div className="flex items-center">
+                  <span className="min-w-max">Thời gian bắt đầu</span>
+                  <span>
+                    <ButtonUp isSort={sortState.currentColumn === 'startTime' && sortState.isAsc === true} onClick={() => handleSort('startTime', true)} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'startTime' && sortState.isAsc === false} onClick={() => handleSort('startTime', false)} />
+                  </span>
+                </div>
+              </th>
+              <th className="p-3 sm:px-3 sm:py-4">
+                <div className="flex items-center">
+                  <span className="min-w-max">Thời gian kết thúc</span>
+                  <span>
+                    <ButtonUp isSort={sortState.currentColumn === 'endTime' && sortState.isAsc === true} onClick={() => handleSort('endTime', true)} />
+                    <ButtonArrow isSort={sortState.currentColumn === 'endTime' && sortState.isAsc === false} onClick={() => handleSort('endTime', false)} />
+                  </span>
+                </div>
+              </th>
               <th className="p-3 sm:px-3 sm:py-4">Trạng thái</th>
               <th className="p-3 sm:px-3 sm:py-4">Hành động</th>
             </tr>

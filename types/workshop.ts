@@ -3,7 +3,7 @@
 import { IUniversity } from './university';
 import { IAddress } from './addressesTypes';
 import { JobWork } from './workShopCompany';
-import { IFields } from './index';
+import { IAccount, IFields } from './index';
 
 export interface ImageWorkshops {
   id: number;
@@ -100,6 +100,33 @@ export interface WorkshopDetailResponse {
   code: number;
   message: string;
   data: IWorkshop;
+}
+
+export interface ChatRoomResponse {
+  code: number;
+  message: string;
+  data: {
+    id: number;
+    isDeleted: boolean;
+    owner: IAccount;
+    member: IAccount;
+  };
+}
+
+export interface ChatResponse {
+  code: number;
+  message: string;
+  data: {
+    id: number;
+    sender: IAccount;
+    receiver: IAccount;
+    chatRoomId: number;
+    content: string;
+    type: string;
+    referChat: ChatResponse;
+    isDeleted: boolean;
+    isRead: boolean;
+  };
 }
 
 // ---------------------company--------------------
