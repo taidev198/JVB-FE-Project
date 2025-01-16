@@ -70,7 +70,7 @@ const StudentsManagement = () => {
   });
 
   const handleSort = (column: String, isAsc: boolean) => {
-    const sortBy = `${column} :${isAsc ? 'asc' : 'desc'} `;
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
     setSortBy(sortBy),
       setSortState({
         activeColumn: column,
@@ -255,9 +255,12 @@ const StudentsManagement = () => {
                     Ngành
                   </span>
                   <span>
-                    <ButtonUp isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === true} onClick={() => handleSort('major.majorName', true)} />
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'majorName.majorName' && sortState.isAsc === true}
+                      onClick={() => handleSort('major.majorName', true)}
+                    />
                     <ButtonArrow
-                      isSort={sortState.activeColumn === 'majorName' && sortState.isAsc === false}
+                      isSort={sortState.activeColumn === 'major.majorName' && sortState.isAsc === false}
                       onClick={() => handleSort('major.majorName', false)}
                     />
                   </span>
@@ -272,11 +275,11 @@ const StudentsManagement = () => {
                   </span>
                   <span>
                     <ButtonUp
-                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === true}
+                      isSort={sortState.activeColumn === 'major.faculty.facultyName' && sortState.isAsc === true}
                       onClick={() => handleSort('major.faculty.facultyName', true)}
                     />
                     <ButtonArrow
-                      isSort={sortState.activeColumn === 'facultyName' && sortState.isAsc === false}
+                      isSort={sortState.activeColumn === 'major.faculty.facultyName' && sortState.isAsc === false}
                       onClick={() => handleSort('major.faculty.facultyName', false)}
                     />
                   </span>
