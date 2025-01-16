@@ -1,26 +1,55 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from 'react';
 import { Drawer, useMediaQuery, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
 import SearchIcon from '@mui/icons-material/Search';
 import UserChatItem from './UserChatItem';
 import { showSidebar } from '@/store/slices/global';
 import { useGetAllChatRoomsQuery } from '@/services/portalHomeApi';
 import { useAppSelector } from '@/store/hooks';
 import { setIdRoom, setNamePartnerChat, setReceiverId } from '@/store/slices/chatSlice';
-import { useState } from 'react';
 
 const SidebarChat = () => {
   const userId = useAppSelector(state => state.user.idAccount);
   const [keyword, setKeyword] = useState('');
   const dispatch = useDispatch();
 
-  const { data } = useGetAllChatRoomsQuery(
+  const { data, refetch } = useGetAllChatRoomsQuery(
     { userId, keyword },
     {
       refetchOnMountOrArgChange: true,
     }
   );
+
+  useEffect(() => {
+    const connectToWebSocket = () => {
+      const client = new Client({
+        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
+        onConnect: () => {
+          client.subscribe(`/topic/new-chatroom`, () => {
+            refetch();
+          });
+        },
+        onStompError: frame => {
+          console.error('STOMP Error:', frame.headers['message']);
+          console.error('Details:', frame.body);
+        },
+      });
+
+      client.activate();
+      return client;
+    };
+
+    const client = connectToWebSocket();
+
+    return () => {
+      if (client) client.deactivate();
+    };
+  }, [refetch]);
 
   return (
     <div className="flex h-full flex-col">
