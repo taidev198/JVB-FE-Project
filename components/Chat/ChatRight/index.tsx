@@ -34,7 +34,7 @@ const ChatRight = () => {
   const scrollContainerRef = useRef(null);
   const previousDataRef = useRef<ChatResponse | undefined>(undefined);
 
-  const [result] = useReadAllMessagesOnAChatRoomMutation({ chatRoomId: idRoom });
+  const [result] = useReadAllMessagesOnAChatRoomMutation();
 
   const { data, isSuccess, refetch } = useGetAllMessagesQuery(
     { roomId: idRoom, page, size },
@@ -82,9 +82,9 @@ const ChatRight = () => {
       const scrollContainer = scrollContainerRef.current;
       const scrollTop = scrollContainer.scrollTop;
 
-      // if (scrollTop <= 100) {
-      //   setPage(prevPage => prevPage + 1);
-      // }
+      if (scrollTop <= 100) {
+        setPage(prevPage => prevPage + 1);
+      }
     }, 500),
     [hasMore]
   );
