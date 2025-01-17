@@ -236,6 +236,13 @@ export const portalHomeApi = createApi({
         method: 'GET',
       }),
     }),
+    //Delete chatroom:
+    deleteOneMessage: builder.mutation<void, { chatRoomId: number; messageId: number }>({
+      query: ({ chatRoomId, messageId }) => ({
+        url: `/chat/chatroom/${chatRoomId}/messages/${messageId}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
@@ -260,4 +267,5 @@ export const {
   useGetAllMessagesQuery,
   useGetAChatroomQuery,
   useReadAllMessagesOnAChatRoomMutation,
+  useDeleteOneMessageMutation,
 } = portalHomeApi;
