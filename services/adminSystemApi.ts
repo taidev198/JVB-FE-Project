@@ -8,6 +8,7 @@ import { UniversityDetailResponse, UniversityResponse } from '@/types/university
 import { IPartnershipsSchoolResponse, IPartnershipsUniversityResponse } from '@/types/jobAndPartnershipsSchoolType';
 import { IJobAllResponseAdminSystem } from '@/types/jobCompany';
 import { logOut } from '@/store/slices/user';
+import { formatDateSearch } from '@/utils/app/format';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
@@ -98,13 +99,19 @@ export const adminSystemApi = createApi({
       }),
 
       // workshop
-      getAllWorkShopsAdminSystem: builder.query<WorkshopResponse, { page: number; size: number; keyword: string; status: string }>({
-        query: ({ page, size, keyword, status }) => {
+      getAllWorkShopsAdminSystem: builder.query<
+        WorkshopResponse,
+        { page: number; size: number; keyword: string; status: string; sortBy: string | null; startDate: Date | null; endDate: Date | null }
+      >({
+        query: ({ page, size, keyword, status, sortBy, startDate, endDate }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
+          if (sortBy) queryParams.append('sortBy', sortBy);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
 
           return `/admin/workshops?${queryParams.toString()}`;
         },
@@ -118,10 +125,11 @@ export const adminSystemApi = createApi({
         providesTags: (result, error, { id }) => (id !== null ? [{ type: 'Workshop', id }] : []),
       }),
 
-      deleteWorkshop: builder.mutation({
-        query: ({ id }) => ({
-          url: `/workshops/delete/${id}`,
+      deleteOneWorkshop: builder.mutation({
+        query: ({ ids }) => ({
+          url: `/workshops/delete`,
           method: 'DELETE',
+          body: { ids },
         }),
         invalidatesTags: (result, error, { id }) => [{ type: 'Workshop', id }, { type: 'Workshop' }],
       }),
@@ -175,14 +183,14 @@ export const adminSystemApi = createApi({
       }),
 
       // Company
-      getAllAccountCompany: builder.query<IAccountCompanyAllResponse, { page: number; size: number; keyword: string; status: string }>({
-        query: ({ page, size, keyword, status }) => {
+      getAllAccountCompany: builder.query<IAccountCompanyAllResponse, { page: number; size: number; keyword: string; status: string; sortBy: string | null }>({
+        query: ({ page, size, keyword, status, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
-
+          if (sortBy) queryParams.append('sortBy', sortBy);
           return `/admin/get-all-companies?${queryParams.toString()}`;
         },
         providesTags: ['Company'],
@@ -220,13 +228,17 @@ export const adminSystemApi = createApi({
       }),
 
       // Account School
-      getAllAccountSchool: builder.query<UniversityResponse, { page: number; size: number; keyword: string; status: string; universityType: string }>({
-        query: ({ page, size, keyword, status, universityType }) => {
+      getAllAccountSchool: builder.query<
+        UniversityResponse,
+        { page: number; size: number; keyword: string; status: string; universityType: string; sortBy: string | null }
+      >({
+        query: ({ page, size, keyword, status, universityType, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
+          if (sortBy) queryParams.append('sortBy', sortBy);
           if (universityType) queryParams.append('universityType', universityType);
 
           return `/admin/get-university?${queryParams.toString()}`;
@@ -357,7 +369,7 @@ export const {
   useRejectWorkshopMutation,
   useGetOtpMutation,
   useForgotPasswordMutation,
-  useDeleteWorkshopMutation,
+  useDeleteOneWorkshopMutation,
   useDeleteWorkshopsMutation,
   useGetAllAccountCompanyQuery,
   useGetDetailAccountCompanyQuery,

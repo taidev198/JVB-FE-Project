@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import Select from 'react-select';
-import { Checkbox, Chip, TextField } from '@mui/material';
+import { Checkbox, Chip, TextField, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
 import { useAppSelector } from '@/store/hooks';
@@ -303,8 +303,19 @@ const StudentsManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="w-fit">{index + 1 + (page - 1) * size}</p>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{student.studentCode}</p>
+                  <td className="w-[200px] px-5 py-4 text-center">
+                    <Tooltip title={student.studentCode} placement="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px',
+                        }}>
+                        {student.studentCode}
+                      </span>
+                    </Tooltip>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p> {student.fullName}</p>

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Checkbox, Chip, TextField } from '@mui/material';
+import { Checkbox, Chip, TextField, Tooltip } from '@mui/material';
 import React, { useEffect, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { useDispatch } from 'react-redux';
@@ -230,17 +230,40 @@ const AdminSchoolWorkshop = () => {
                     <td className="p-3 text-center sm:px-5 sm:py-4">
                       <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                     </td>
-                    <td className="px-2 py-4">
-                      <p className="sm:[230px] w-[210px]">{workshop.workshopTitle}</p>
+                    <td className="w-[200px] px-5 py-4 text-center">
+                      <Tooltip title={workshop.workshopTitle} placement="bottom" arrow>
+                        <span
+                          className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                          style={{
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            maxWidth: '50px',
+                          }}>
+                          {workshop.workshopTitle}
+                        </span>
+                      </Tooltip>
                     </td>
                     <td className="px-2 py-4">
                       <p className="sm:[230px] w-[210px]">{workshop.university.universityName}</p>
                     </td>
-                    <td className="px-2 py-4">
-                      <p className="w-[245px]">
-                        {workshop.address?.houseNumber}, {workshop.address?.ward.wardName}, {workshop.address?.district.districtName},
-                        {workshop.address?.province.provinceName}
-                      </p>
+                    <td className="w-[200px] px-5 py-4 text-center">
+                      <Tooltip
+                        title={`${workshop.address?.houseNumber}, ${workshop.address?.ward.wardName}, ${workshop.address?.district.districtName}, ${workshop.address?.province.provinceName}`}
+                        placement="bottom"
+                        arrow>
+                        <span
+                          className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                          style={{
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            maxWidth: '50px', // Đảm bảo nội dung cắt ngắn
+                          }}>
+                          {workshop.address?.houseNumber}, {workshop.address?.ward.wardName}, {workshop.address?.district.districtName},
+                          {workshop.address?.province.provinceName}
+                        </span>
+                      </Tooltip>
                     </td>
                     <td className="px-2 py-4">{workshop.startTime.split(' ')[0]}</td>
                     <td className="px-3 py-4">

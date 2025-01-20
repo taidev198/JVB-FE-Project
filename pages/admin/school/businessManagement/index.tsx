@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
-import { TextField, Checkbox } from '@mui/material';
+import { TextField, Checkbox, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
@@ -289,8 +289,19 @@ const BusinessManagement = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{index + 1 + (page - 1) * size}</p>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.majorCode}</p>
+                  <td className="w-[200px] px-5 py-4 text-center">
+                    <Tooltip title={item.majorCode} placement="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px',
+                        }}>
+                        {item.majorCode}
+                      </span>
+                    </Tooltip>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.majorName}</p>
