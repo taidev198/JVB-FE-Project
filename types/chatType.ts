@@ -74,11 +74,11 @@ export interface chatRoomResponse {
       memberName: string;
       lastMessage: ChatItem;
     }[];
+    totalPages: number;
+    totalElements: number;
+    pageSize: number;
+    currentPage: number;
   };
-  totalPages: number;
-  totalElements: number;
-  pageSize: number;
-  currentPage: number;
 }
 
 export interface ChatResponse {
