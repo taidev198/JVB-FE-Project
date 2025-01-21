@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
-import dayjs from 'dayjs';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
-import { Checkbox, TextField } from '@mui/material';
+import { Checkbox, TextField, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useDeleteDepartmentMultipleMutation, useDeleteDepartmentOneMutation, useGetAllDepartmentsQuery } from '@/services/adminSchoolApi';
 import { isErrorWithMessage, isFetchBaseQueryError } from '@/services/helpers';
@@ -70,9 +69,6 @@ const Department = () => {
     setSelectId(id);
     dispatch(setBackdrop(BackdropType.DeleteConfirmation));
   };
-
-  console.log('Check startDate: ', dayjs(startDate).format('YYYY'));
-  console.log('Check endDate: ', dayjs(endDate).format('YYYY'));
 
   const [deleteOne, { isLoading: isLoadingDeleteOne }] = useDeleteDepartmentOneMutation();
   const [deleteMultiple, { isLoading: isLoadingMultiple }] = useDeleteDepartmentMultipleMutation();
@@ -223,13 +219,24 @@ const Department = () => {
                   <td className="p-3 sm:px-5 sm:py-4">
                     <span className="min-w-max">{index + 1 + (page - 1) * size}</span>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <span className="min-w-max">{item.facultyCode}</span>
+                  <td className="w-[200px] px-5 py-4 text-center">
+                    <Tooltip title={item.facultyCode} placement="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px', // Đảm bảo nội dung cắt ngắn
+                        }}>
+                        {item.facultyCode}
+                      </span>
+                    </Tooltip>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <span className="min-w-max">{item.facultyName}</span>
+                  <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">
+                    <p>{item.facultyName}</p>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4 ">
+                  <td className="p-3 text-center sm:px-5 sm:py-4 ">
                     <span className="min-w-max">{item.nameDean}</span>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">

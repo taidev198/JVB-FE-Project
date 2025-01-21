@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import makeAnimated from 'react-select/animated';
-import { Chip, TextField } from '@mui/material';
+import { Chip, TextField, Tooltip } from '@mui/material';
 import { debounce } from 'lodash';
 import { BackdropType, setBackdrop, setLoading } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
@@ -201,8 +201,23 @@ const Partnerships = () => {
               jobs?.data?.content.map((job, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="px-5 py-4 text-center"> {index + 1 + (page - 1) * size}</td>
-                  <td className="px-5 py-4">{job.job.company?.companyName}</td>
-                  <td className="px-5 py-4">{job.job.jobTitle}</td>
+                  <td className="w-[200px] px-5 py-4 text-center">
+                    <Tooltip title={job.job.company?.companyName} placement="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '150px',
+                        }}>
+                        {job.job.company?.companyName}
+                      </span>
+                    </Tooltip>
+                  </td>
+                  <td className="max-w-[150px] whitespace-normal break-words px-5 py-4">
+                    <p>{job.job.jobTitle}</p>
+                  </td>
                   <td className="px-5 py-4">{jobType(job.job.jobType)}</td>
                   <td className="px-5 py-4">{job.job.jobLevel.charAt(0).toUpperCase() + job.job.jobLevel.slice(1).toLowerCase()}</td>
                   <td className="px-5 py-4">{job.job?.createAt?.split(' ')[0]}</td>

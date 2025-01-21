@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Chip } from '@mui/material';
+import { Chip, TextField, Tooltip } from '@mui/material';
 import Select from 'react-select';
 import { debounce } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -16,13 +16,14 @@ import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import PaginationComponent from '@/components/Common/Pagination';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { useAccountActionsCompanyAdminSystem } from '@/components/Admin/System/SystemCompany/Action';
-import Search from '@/components/Common/Search';
+import ButtonUp from '@/components/Common/ButtonIcon/ArrowUpwardIcon';
+import ButtonArrow from '@/components/Common/ButtonIcon/ArrowDownwardIcon';
 
 const AdminSystemSchool = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [universityType, setUniversityType] = useState<string | null>(null);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
@@ -39,18 +40,31 @@ const AdminSystemSchool = () => {
     },
     [dispatch]
   );
+  const [sortState, setSortState] = React.useState({
+    activeColumn: null,
+    isAsc: null,
+  });
 
+  const handleSort = (column: String, isAsc: boolean) => {
+    const sortBy = `${column}:${isAsc ? 'asc' : 'desc'}`;
+    setSortBy(sortBy);
+    setSortState({
+      activeColumn: column,
+      isAsc: isAsc,
+    });
+  };
   const debouncedSearch = useMemo(
     () =>
       debounce(value => {
         setKeyword(value);
+        setSortBy(value);
         setPage(1);
       }, 500),
     []
   );
 
   const { data: universities, isLoading: isLoadingDetAll } = useGetAllAccountSchoolQuery(
-    { page, size, keyword, status, universityType },
+    { page, size, keyword, status, universityType, sortBy: sortBy || 'universityCode:asc' },
     { refetchOnMountOrArgChange: true }
   );
 
@@ -92,18 +106,13 @@ const AdminSystemSchool = () => {
         <h1 className="mb-5 font-bold">Doanh sách tài khoản trường học</h1>
         <div className="flex items-center gap-3">
           <div className="flex flex-wrap items-center gap-3">
-            <Search
-              onChange={e => {
-                setInputValue(e.target.value);
-                debouncedSearch(e.target.value);
-              }}
-              value={inputValue}
-              onClear={() => {
-                setInputValue('');
-                setKeyword('');
-                debouncedSearch('');
-              }}
-              placeholder="Tìm kiếm tên, mã trường học"
+            <TextField
+              id="filled-search"
+              label="Tìm kiếm tên,mã trường học"
+              type="search"
+              variant="outlined"
+              size="small"
+              onChange={e => debouncedSearch(e.target.value)}
             />
             <Select
               placeholder="Trạng thái"
@@ -137,10 +146,74 @@ const AdminSystemSchool = () => {
           <thead className="bg-white">
             <tr>
               <th className="px-5 py-4">STT</th>
-              <th className="px-5 py-4 text-left">Mã trường học</th>
-              <th className="px-5 py-4 text-left">Tên tên trường học</th>
-              <th className="px-5 py-4 text-left">Loại trường</th>
-              <th className="px-5 py-4 text-left">Email</th>
+              <th className="cursor-pointer px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max" onClick={() => handleSort('universityCode', !(sortState.activeColumn === 'universityCode' && sortState.isAsc))}>
+                    Mã trường học
+                  </span>
+                  <span className="">
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'universityCode' && sortState.isAsc === true}
+                      onClick={() => handleSort('universityCode', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'universityCode' && sortState.isAsc === false}
+                      onClick={() => handleSort('universityCode', false)}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max" onClick={() => handleSort('universityName', !(sortState.activeColumn === 'universityName' && sortState.isAsc))}>
+                    Tên trường học
+                  </span>
+                  <span className="">
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === true}
+                      onClick={() => handleSort('universityName', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'universityName' && sortState.isAsc === false}
+                      onClick={() => handleSort('universityName', false)}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max" onClick={() => handleSort('universityType', !(sortState.activeColumn === 'universityType' && sortState.isAsc))}>
+                    Loại trường
+                  </span>
+                  <span className="">
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'universityType' && sortState.isAsc === true}
+                      onClick={() => handleSort('universityType', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'universityType' && sortState.isAsc === false}
+                      onClick={() => handleSort('universityType', false)}
+                    />
+                  </span>
+                </div>
+              </th>
+              <th className="cursor-pointer px-3 text-left sm:px-5">
+                <div className="flex items-center">
+                  <span className="min-w-max" onClick={() => handleSort('account.email', !(sortState.activeColumn === 'account.email' && sortState.isAsc))}>
+                    Email
+                  </span>
+                  <span className="">
+                    <ButtonUp
+                      isSort={sortState.activeColumn === 'account.email' && sortState.isAsc === true}
+                      onClick={() => handleSort('account.email', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.activeColumn === 'account.email' && sortState.isAsc === false}
+                      onClick={() => handleSort('account.email', false)}
+                    />
+                  </span>
+                </div>
+              </th>
               <th className="px-5 py-4 text-left">Trạng thái</th>
               <th className="px-5 py-4">Thao tác</th>
             </tr>
@@ -150,8 +223,22 @@ const AdminSystemSchool = () => {
               universities?.data.content.map((university, index) => (
                 <tr key={index} className={`${index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}`}>
                   <td className="px-5 py-4 text-center"> {index + 1 + (page - 1) * size}</td>
-                  <td className="px-5 py-4">{university.universityCode}</td>
-                  <td className="px-5 py-4">
+                  <td className="w-[200px] px-5 py-4 text-center">
+                    <Tooltip title={university.universityCode} placement="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px', // Đảm bảo nội dung cắt ngắn
+                        }}>
+                        {university.universityCode}
+                      </span>
+                    </Tooltip>
+                  </td>
+
+                  <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">
                     <p>{university.universityName}</p>
                   </td>
                   <td className="px-5 py-4">{typeUniversityTitle(university.universityType).title}</td>

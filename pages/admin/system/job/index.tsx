@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Chip } from '@mui/material';
+import { Chip, TextField } from '@mui/material';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
@@ -18,13 +18,11 @@ import ButtonSee from '@/components/Common/ButtonIcon/ButtonSee';
 import { statusLabelJob, truncateText } from '@/utils/app/const';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { ActionJobAdminSystem } from '@/components/Admin/System/SystemJob/action';
-import Search from '@/components/Common/Search';
 
 const AdminSystemJob = () => {
   const [page, setPage] = useState<number | null>(1);
   const [size, setSize] = useState<number | null>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
-  const [inputValue, setInputValue] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const dispatch = useDispatch();
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
@@ -81,19 +79,7 @@ const AdminSystemJob = () => {
         <h1 className="mb-5 font-bold">Quản lý jobs</h1>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3">
-            <Search
-              onChange={e => {
-                setInputValue(e.target.value);
-                debouncedSearch(e.target.value);
-              }}
-              value={inputValue}
-              onClear={() => {
-                setInputValue('');
-                setKeyword('');
-                debouncedSearch('');
-              }}
-              placeholder="Tìm kiếm tên job"
-            />
+            <TextField id="filled-search" label="Tìm kiếm job" type="search" variant="outlined" size="small" onChange={e => debouncedSearch(e.target.value)} />
           </div>
         </div>
       </div>
