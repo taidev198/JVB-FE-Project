@@ -51,6 +51,8 @@ const JobCompany = () => {
       status: null,
       sortBy: sortBy || 'jobTitle:asc',
       keyword,
+      startDate: startDate,
+      endDate: endDate,
     },
     { refetchOnMountOrArgChange: true }
   );
@@ -105,7 +107,6 @@ const JobCompany = () => {
   useEffect(() => {
     dispatch(setLoading(isLoading || isLoadingOne || isLoadingMultiple));
   }, [isLoading, dispatch, isLoadingMultiple, isLoadingOne]);
-
   return (
     <>
       {/* Header */}
