@@ -33,6 +33,7 @@
     "@types/styled-components": "^5.1.34",
     "antd": "^5.23.0",
     "chart.js": "^4.4.7",
+    "classnames": "^2.5.1",
     "clsx": "^1.2.1",
     "date-fns": "^4.1.0",
     "flowbite": "^1.6.6",

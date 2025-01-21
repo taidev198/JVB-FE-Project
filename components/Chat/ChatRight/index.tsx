@@ -1,33 +1,29 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
 import { Client } from '@stomp/stompjs';
-import { Input } from 'antd';
 import { useDispatch } from 'react-redux';
-import { Avatar, useMediaQuery, useTheme } from '@mui/material';
+import { Avatar, Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import dayjs from 'dayjs';
 import MenuIcon from '@mui/icons-material/Menu';
 import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import ReplyIcon from '@mui/icons-material/Reply';
 import { showSidebar } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
-import { useDeleteOneMessageMutation, useGetAllMessagesQuery, useReadAllMessagesOnAChatRoomMutation } from '@/services/portalHomeApi';
+import { useDeleteOneMessageMutation, useGetAllMessagesQuery } from '@/services/portalHomeApi';
 import { ChatResponse } from '@/types/chatType';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
-
-const { TextArea } = Input;
 
 const ChatRight = () => {
   const [page, setPage] = useState<number>(1);
   const size = 20;
   const [chats, setChats] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const [inputValue, setInputValue] = useState<string>(null);
+  const [inputValue, setInputValue] = useState<string>('');
   const [stompClient, setStompClient] = useState(null);
+  const [idDelete, setIdDelete] = useState(null);
   const { idRoom, namePartnerChat, receiverId } = useAppSelector(state => state.chat);
   const { idAccount } = useAppSelector(state => state.user);
   const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
@@ -37,7 +33,6 @@ const ChatRight = () => {
   const scrollContainerRef = useRef(null);
   const previousDataRef = useRef<ChatResponse | undefined>(undefined);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
-  const [result] = useReadAllMessagesOnAChatRoomMutation();
   const [deleteOneMessage] = useDeleteOneMessageMutation();
 
   const { data, isSuccess, refetch } = useGetAllMessagesQuery(
@@ -65,7 +60,6 @@ const ChatRight = () => {
 
   useEffect(() => {
     refetchMessage();
-    result({ chatRoomId: idRoom });
   }, [idRoom]);
 
   useEffect(() => {
@@ -86,9 +80,9 @@ const ChatRight = () => {
       const scrollContainer = scrollContainerRef.current;
       const scrollTop = scrollContainer.scrollTop;
 
-      if (scrollTop <= 100) {
-        setPage(prevPage => prevPage + 1);
-      }
+      // if (scrollTop <= 100) {
+      //   setPage(prevPage => prevPage + 1);
+      // }
     }, 500),
     [hasMore]
   );
@@ -158,9 +152,11 @@ const ChatRight = () => {
     }
   };
 
-  const handleDelete = (messageId: number) => {
-    deleteOneMessage({ chatRoomId: idRoom, messageId: messageId });
+  const handleDelete = () => {
+    deleteOneMessage({ chatRoomId: idRoom, messageId: idDelete });
     dispatch(setBackdrop(null));
+    refetchMessage();
+    setChats(prevChats => prevChats.filter(chat => chat.id !== idDelete));
   };
 
   return (
@@ -181,12 +177,11 @@ const ChatRight = () => {
         <div ref={scrollContainerRef} className="h-[90%] space-y-2 overflow-y-auto p-8">
           {chats.length > 0 ? (
             chats
-              .slice() // Tạo bản sao
+              .slice()
               .reverse()
-              .map(message => (
-                <>
+              .map((message, index) => (
+                <div key={index}>
                   <div
-                    key={message.id}
                     className={`flex w-full ${message.sender.id === idAccount ? 'justify-end' : ''}`}
                     onMouseEnter={() => setHoveredMessage(message.id)}
                     onMouseLeave={() => setHoveredMessage(null)}>
@@ -204,14 +199,19 @@ const ChatRight = () => {
                               className={`absolute flex flex-row flex-nowrap gap-1 ${
                                 message.sender.id === idAccount ? 'right-full -translate-x-2' : 'left-full translate-x-2'
                               }`}>
-                              <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white shadow-lg">
+                              {/* <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white shadow-lg">
                                 <ReplyIcon style={{ width: '20px', height: '20px' }} />
-                              </div>
+                              </div> */}
                               {message.sender.id === idAccount && (
                                 <div
                                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
-                                  onClick={() => dispatch(setBackdrop(BackdropType.AddModal))}>
-                                  <DeleteOutlineOutlinedIcon style={{ width: '20px', height: '20px' }} />
+                                  onClick={() => {
+                                    dispatch(setBackdrop(BackdropType.AddModal));
+                                    setIdDelete(message?.id);
+                                  }}>
+                                  <Tooltip title="Xóa tin nhắn" placement="top">
+                                    <DeleteOutlineOutlinedIcon style={{ width: '20px', height: '20px' }} />
+                                  </Tooltip>
                                 </div>
                               )}
                             </div>
@@ -222,32 +222,36 @@ const ChatRight = () => {
                             {dayjs(message.createAt).format('HH:mm')}
                           </p>
                           <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>
-                            {message.isRead ? 'Đã xem' : 'Chưa xem'}
+                            {/* {message.isRead ? 'Đã xem' : 'Chưa xem'} */}
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
                   {showBackdrop === BackdropType.AddModal && (
-                    <PopupConfirmAction name="" text="Bạn có chắc chắn muốn xóa không" onClick={() => handleDelete(message.id)} />
+                    <PopupConfirmAction name="" text="Bạn có chắc chắn muốn xóa không" onClick={() => handleDelete()} />
                   )}
-                </>
+                </div>
               ))
           ) : (
             <p className="text-center">Hãy bắt đầu cuộc trò chuyện bằng một lời chào 😍</p>
           )}
         </div>
 
-        <div className="absolute bottom-5 left-1/2 flex w-[96%] -translate-x-1/2 transform items-center rounded-lg bg-white shadow-md">
-          <TextArea
-            rows={1}
+        <div
+          className={`${
+            !idRoom ? 'cursor-not-allowed opacity-50' : ''
+          } absolute bottom-5 left-1/2 flex w-[96%] -translate-x-1/2 transform items-center rounded-lg bg-white shadow-md`}>
+          <textarea
+            name=""
+            id=""
+            disabled={!idRoom}
             value={inputValue}
-            placeholder="Nhập tin nhắn..."
-            className="w-full resize-none border-none focus:outline-none"
             onKeyDown={handleKeyDown}
             onChange={e => setInputValue(e.target.value)}
-          />
-          <IconButton className="!p-2" onClick={sendMessage}>
+            className="h-5 w-full border-none focus:outline-none"
+            style={{ boxShadow: 'none' }}></textarea>
+          <IconButton disabled={!idRoom} className="!p-2" onClick={sendMessage}>
             <SendIcon className="text-primary-main" fontSize="medium" />
           </IconButton>
         </div>
