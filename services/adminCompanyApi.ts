@@ -6,6 +6,7 @@ import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply, IStudentApply
 import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 import { logOut } from '@/store/slices/user';
+import { IWalletsResponse } from '@/types/wallets';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
@@ -300,6 +301,11 @@ export const adminCompanyApi = createApi({
         query: ({ id }) => `/company/student-apply-job-detail?studentId=${id}`,
         providesTags: (result, error, { id }) => [{ type: 'studentsApply', id: id }],
       }),
+      //wallet
+      //Get all wallet
+      getAllWallets: builder.query<IWalletsResponse, { accountId: number }>({
+        query: ({ accountId }) => `/account/${accountId}/wallets`,
+      }),
     };
   },
 });
@@ -329,4 +335,5 @@ export const {
   useGetAllStudentApplyJobQuery,
   useApproveStudentJobMutation,
   useGetDetailStudentApplyJobQuery,
+  useGetAllWalletsQuery,
 } = adminCompanyApi;
