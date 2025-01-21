@@ -210,7 +210,7 @@ const UserCompany = () => {
             {employee?.data.content.length > 0 ? (
               employee?.data.content.map((item, index) => (
                 <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 text-center sm:px-3 sm:py-4">
                     <Checkbox color="primary" checked={selectedEmployee.includes(item.id)} onChange={() => handleSelectEmployee(item.id)} />
                   </td>
                   <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td> {/* STT */}

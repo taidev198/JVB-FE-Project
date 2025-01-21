@@ -26,13 +26,13 @@ const WorkShopCompany = () => {
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
-  const dispatch = useDispatch();
   const [selectId, setSelectId] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const name = useAppSelector(state => state.global.name);
+  const dispatch = useDispatch();
 
   const handleAction = (actionType: BackdropType, JobsId: number) => {
     setSelectId(JobsId);
@@ -90,6 +90,7 @@ const WorkShopCompany = () => {
     dispatch(setLoading(isLoading || isLoadingOne));
   }, [dispatch, isLoading, isLoadingOne]);
 
+  // console.log("date", startDate)
   return (
     <>
       {/* Header */}
@@ -121,12 +122,10 @@ const WorkShopCompany = () => {
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-full cursor-pointer sm:w-[160px]"
             />
-
             <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
           </div>
         </div>
       </div>
-
       {/* Table */}
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
@@ -194,7 +193,7 @@ const WorkShopCompany = () => {
                   <td className="px-5 py-4">{item.workshop.university.universityName}</td>
                   <td className="px-5 py-4 text-center">{item.workshop.startTime.split(' ')[0]}</td>
                   <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-4 text-center">
                     <Chip
                       label={statusTextWorkShopCompany(item.status).title}
                       style={{
@@ -205,7 +204,7 @@ const WorkShopCompany = () => {
                   </td>
 
                   <td className="py-4">
-                    <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center justify-center gap-3 ">
                       <ButtonSee
                         onClick={() => {
                           setSelectId(item.workshop.id);
@@ -243,7 +242,7 @@ const WorkShopCompany = () => {
           </tbody>
         </table>
       </div>
-      {/* Xóa Khoa */}
+      {/* Xóa */}
       {backdropType === BackdropType.DeleteConfirmation && <PopupConfirmAction text="Hủy tham gia hội thảo" name={name} onClick={handleDelete} />}
 
       {/* Pagination */}
