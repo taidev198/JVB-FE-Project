@@ -7,7 +7,6 @@ import makeAnimated from 'react-select/animated';
 import debounce from 'lodash.debounce';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop, setId, setLoading, setName } from '@/store/slices/global';
-// import { BackDrop } from '@/components/Common/BackDrop';
 import { Button } from '@/components/Common/Button';
 import ButtonDelete from '@/components/Common/ButtonIcon/ButtonDelete';
 import {
@@ -34,7 +33,7 @@ const AdminSystemWorkshop = () => {
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
-  const [selectId, setSelectId] = useState<number | null>(null);
+  const [selectId, setSelectId] = useState<number[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [selectedWorkshopId, setSelectedWorkshopId] = useState<number | null>(null);
@@ -46,10 +45,7 @@ const AdminSystemWorkshop = () => {
   const dispatch = useDispatch();
 
   const name = useAppSelector(state => state.global.name);
-  const handleOpenConfirm = (id: number) => {
-    setSelectId(id);
-    dispatch(setBackdrop(BackdropType.DeleteConfirmation));
-  };
+
   const [sortState, setSortState] = React.useState({
     activeColumn: null,
     isAsc: null,
@@ -89,6 +85,7 @@ const AdminSystemWorkshop = () => {
   const handleAction = (actionType: BackdropType, workshopId: number) => {
     setSelectedWorkshopId(workshopId);
     setSelectedAction(actionType);
+    setSelectId(selectId);
     dispatch(setBackdrop(actionType));
   };
 
@@ -130,7 +127,7 @@ const AdminSystemWorkshop = () => {
               toast.success('Xóa workshop thành công');
             } else {
               await deleteOne({ ids: selectId }).unwrap();
-              setSelectedWorkshop([]);
+              setSelectId([]);
               toast.success('Xóa workshop thành công');
             }
             break;
@@ -344,9 +341,11 @@ const AdminSystemWorkshop = () => {
                           />
                         </>
                       )}
+
                       <ButtonDelete
                         onClick={() => {
-                          handleOpenConfirm(workshop.id);
+                          handleAction(BackdropType.DeleteConfirmation, null);
+                          dispatch(setId(workshop.id));
                           dispatch(setName(workshop.workshopTitle));
                         }}
                       />
@@ -377,25 +376,6 @@ const AdminSystemWorkshop = () => {
         totalItem={workshops?.data.totalElements}
         onSizeChange={value => setSize(value)}
       />
-      {/* Backdrops
-      {(backdropType === BackdropType.ApproveConfirmation ||
-        backdropType === BackdropType.RefuseConfirmation ||
-        backdropType === BackdropType.DeleteConfirmation) && (
-        <BackDrop isCenter>
-          <div className="max-w-[430px] rounded-md p-6">
-            <h3 className="font-bold">
-              {selectedAction === BackdropType.ApproveConfirmation && `Duyệt workshop ${name}`}
-              {selectedAction === BackdropType.RefuseConfirmation && `Từ chối workshop ${name}`}
-              {selectedAction === BackdropType.DeleteConfirmation && `Xóa workshop ${name}`}
-            </h3>
-            <p className="mt-1">Bạn có chắc chắn muốn thực hiện hành động này?</p>
-            <div className="mt-9 flex items-center gap-5">
-              <Button text="Hủy" className="bg-red-600" full={true} onClick={() => dispatch(setBackdrop(null))} />
-              <Button text="Xác nhận" full={true} onClick={handleConfirmAction} />
-            </div>
-          </div>
-        </BackDrop>
-      )} */}
     </>
   );
 };

@@ -190,7 +190,7 @@ const Partnerships = () => {
                 </div>
               </th>
               <th className="px-5 py-4 text-left">Loại hình</th>
-              <th className="px-5 py-4 text-left">Yêu cầu trình độ</th>
+              <th className="px-5 py-4 text-center">Yêu cầu trình độ</th>
               <th className="px-5 py-4 text-left">Ngày ứng tuyển</th>
               <th className="px-5 py-4 text-left">Trạng thái</th>
               <th className="px-5 py-4 text-left">Hành động</th>
@@ -219,7 +219,7 @@ const Partnerships = () => {
                     <p>{job.job.jobTitle}</p>
                   </td>
                   <td className="px-5 py-4">{jobType(job.job.jobType)}</td>
-                  <td className="px-5 py-4">{job.job.jobLevel.charAt(0).toUpperCase() + job.job.jobLevel.slice(1).toLowerCase()}</td>
+                  <td className="px-5 py-4 text-center">{job.job.jobLevel.charAt(0).toUpperCase() + job.job.jobLevel.slice(1).toLowerCase()}</td>
                   <td className="px-5 py-4">{job.job?.createAt?.split(' ')[0]}</td>
                   <td className="px-2 py-4">
                     <Chip

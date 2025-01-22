@@ -196,12 +196,10 @@ const Department = () => {
                   </span>
                 </div>
               </th>
-              <th className="cursor-pointer px-3 text-left sm:px-5">
-                <div className="flex items-center">
-                  <span className="min-w-max">Trưởng khoa</span>
-                </div>
-              </th>
               <th className="p-3 text-left sm:px-5">
+                <span className="min-w-max">Trưởng khoa</span>
+              </th>
+              <th className="p-3 text-center sm:px-5">
                 <span className="min-w-max">Năm thành lập</span>
               </th>
               <th className="p-3 text-left sm:px-5">
@@ -236,10 +234,10 @@ const Department = () => {
                   <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">
                     <p>{item.facultyName}</p>
                   </td>
-                  <td className="p-3 text-center sm:px-5 sm:py-4 ">
+                  <td className="p-3 text-left sm:px-5 sm:py-4 ">
                     <span className="min-w-max">{item.nameDean}</span>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
+                  <td className="p-3 text-center sm:px-5 sm:py-4">
                     <span className="min-w-max ">{item.establishYear}</span>
                   </td>
                   <td className="py-4">

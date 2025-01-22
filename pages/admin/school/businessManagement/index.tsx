@@ -234,7 +234,7 @@ const BusinessManagement = () => {
                   </span>
                 </div>
               </th>
-              <th className="p-3 text-left sm:px-5 sm:py-4">
+              <th className="p-3 text-center sm:px-5 sm:py-4">
                 <div className="flex items-center">
                   <span
                     className="min-w-max"
