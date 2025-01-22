@@ -27,7 +27,6 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
 
   return (
     <div>
-      {' '}
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-12 lg:col-span-8">
           <div className="rounded-md bg-white">
@@ -84,7 +83,7 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
           </div>
           <div className="px-7">
             <div className="flex items-center gap-5 border-b border-solid py-7">
-              <SchoolIcon fontSize="large" color="warning" />
+              <SchoolIcon fontSize="large" style={{ color: 'rgb(52, 168, 83)' }} />
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Trường học</span>
                 <span className="text-xs text-[#888]">{workshop?.data.university.universityName}</span>
@@ -92,7 +91,7 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
             </div>
 
             <div className="flex items-center gap-5 border-b border-solid py-7">
-              <CalendarMonthIcon fontSize="large" color="warning" />
+              <CalendarMonthIcon fontSize="large" style={{ color: 'rgb(52, 168, 83)' }} />
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Thời gian bắt đầu</span>
                 <span className="text-xs text-[#888]">{workshop?.data.startTime}</span>
@@ -100,7 +99,7 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
             </div>
 
             <div className="flex items-center gap-5 border-b border-solid py-7">
-              <CalendarMonthIcon fontSize="large" color="warning" />
+              <CalendarMonthIcon fontSize="large" style={{ color: 'rgb(52, 168, 83)' }} />
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Thời gian kết thúc</span>
                 <span className="text-xs text-[#888]">{workshop?.data.endTime}</span>
@@ -108,7 +107,7 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
             </div>
 
             <div className="flex items-center gap-5 border-b border-solid py-7">
-              <PeopleAltIcon fontSize="large" color="warning" />
+              <PeopleAltIcon fontSize="large" style={{ color: 'rgb(52, 168, 83)' }} />
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Quy mô</span>
                 <span className="text-xs text-[#888]">{workshop?.data.estimateCompanyParticipants} doanh nghiệp</span>
@@ -116,7 +115,7 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
             </div>
 
             <div className="flex items-center gap-5 border-b border-solid py-7">
-              <LocationOnIcon fontSize="large" color="warning" />
+              <LocationOnIcon fontSize="large" style={{ color: 'rgb(52, 168, 83)' }} />
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Vị trí</span>
                 <span className="text-xs text-[#888]">{workshop?.data.address.province.provinceName}</span>
@@ -124,7 +123,7 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
             </div>
 
             <div className="flex items-center gap-5 border-b border-solid py-7">
-              <MapIcon fontSize="large" color="warning" />
+              <MapIcon fontSize="large" style={{ color: 'rgb(52, 168, 83)' }} />
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Địa điểm</span>
                 <span className="text-xs text-[#888]">
@@ -134,7 +133,7 @@ const WorkshopDetail: React.FC<WorkshopDetailProps> = React.memo(({ workshop }) 
             </div>
 
             <div className="flex items-center gap-5 border-b border-solid py-7">
-              <LightModeIcon fontSize="large" color="warning" />
+              <LightModeIcon fontSize="large" style={{ color: 'rgb(52, 168, 83)' }} />
               <div className="flex flex-col gap-2">
                 <span className="font-medium">Trạng thái</span>
                 <span className="text-xs text-[#888]">{statusTextWorkshop(workshop?.data.moderationStatus).title}</span>
