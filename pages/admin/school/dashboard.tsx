@@ -59,7 +59,7 @@ const AdminSchoolDashboard = () => {
       <div className=" bg-white">
         {/* Thêm biểu đồ trạng thái */}
         <div style={{ padding: '20px' }} className="mt-20">
-          <h2 className="text-center text-xl font-semibold">Biểu đồ trạng thái</h2>
+          <h2 className="mb-10 text-center text-xl font-semibold">Biểu đồ trạng thái</h2>
           <PieChart labels={labels} dataValues={dataValues} />
         </div>
         {/* Biểu đồ cột */}

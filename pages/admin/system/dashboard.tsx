@@ -6,10 +6,9 @@ const Home = () => {
   const labels = ['Tài khoản doanh nghiệp', 'Trường học', 'Workshop', 'Job'];
 
   const dataValues = [
-    [10, 5, 2],
-    [8, 6, 4],
-    [12, 3, 2],
-    [15, 2, 1],
+    [80, 58, 2, 15],
+    [48, 36, 67, 43],
+    [12, 53, 2, 50],
   ];
 
   return (
@@ -49,7 +48,7 @@ const Home = () => {
         </div>
       </div>
       <div className=" bg-white">
-        <div style={{ padding: '20px', marginTop: '20px' }}>
+        <div style={{ marginTop: '20px' }}>
           <h2 className="text-center text-xl font-semibold">Biểu đồ trạng thái tổng hợp</h2>
           <BarChartSystem labels={labels} dataValues={dataValues} />
         </div>

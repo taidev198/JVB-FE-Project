@@ -238,7 +238,7 @@ const AdminSchoolWorkshop = () => {
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
-                            maxWidth: '50px',
+                            maxWidth: '130px',
                           }}>
                           {workshop.workshopTitle}
                         </span>
@@ -258,7 +258,7 @@ const AdminSchoolWorkshop = () => {
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
-                            maxWidth: '50px', // Đảm bảo nội dung cắt ngắn
+                            maxWidth: '100px',
                           }}>
                           {workshop.address?.houseNumber}, {workshop.address?.ward.wardName}, {workshop.address?.district.districtName},
                           {workshop.address?.province.provinceName}

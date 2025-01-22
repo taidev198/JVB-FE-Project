@@ -297,7 +297,7 @@ const AdminSystemWorkshop = () => {
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
-                          maxWidth: '50px',
+                          maxWidth: '100px',
                         }}>
                         {workshop.workshopTitle}
                       </span>

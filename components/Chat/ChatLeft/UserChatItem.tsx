@@ -6,6 +6,7 @@ const UserChatItem = ({ fullName, onClick, id, lastMessage, time, isRead }) => {
   const activeId = useAppSelector(state => state.chat.idRoom);
   const btnIsRead = classNames('', {
     'text-green-500': !isRead && id !== activeId,
+    'text-gray-500': isRead || id === activeId,
   });
 
   const btnIsActive = classNames('', {

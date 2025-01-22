@@ -16,17 +16,23 @@ const BarChartCompany: React.FC<BarChartCompanyProps> = ({ labels, dataValues })
       {
         label: 'Chờ xử lý',
         data: dataValues[0],
-        backgroundColor: 'pink',
+        backgroundColor: '#FEE1E8',
+        borderColor: 'pink',
+        borderWidth: 1,
       },
       {
         label: 'Chấp nhận/Duyệt',
         data: dataValues[1],
-        backgroundColor: 'green',
+        backgroundColor: '#B5E7A0',
+        borderColor: 'green',
+        borderWidth: 1,
       },
       {
         label: 'Từ chối',
         data: dataValues[2],
-        backgroundColor: 'red',
+        backgroundColor: '#FF968A',
+        borderColor: 'red',
+        borderWidth: 1,
       },
     ],
   };
