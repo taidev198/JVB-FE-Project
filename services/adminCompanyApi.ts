@@ -34,7 +34,7 @@ const baseQueryWithForceLogout = async (args, api, extraOptions) => {
 export const adminCompanyApi = createApi({
   reducerPath: 'adminCompanyApi',
   baseQuery: baseQueryWithForceLogout,
-  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply', 'studentsApply'],
+  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply', 'studentsApply', 'Wallet'],
   endpoints: builder => {
     return {
       getAllWorShopsUniversity: builder.query<void, void>({
@@ -305,6 +305,34 @@ export const adminCompanyApi = createApi({
       //Get all wallet
       getAllWallets: builder.query<IWalletsResponse, { accountId: number }>({
         query: ({ accountId }) => `/account/${accountId}/wallets`,
+        providesTags: (result, error, { accountId }) => [{ type: 'Wallet', id: accountId }],
+      }),
+      //Create Wallet
+      CreateWallet: builder.mutation({
+        query: ({ idAccount, pinCode }) => ({
+          url: `/account/${idAccount}/wallets/create-wallet`,
+          method: 'POST',
+          body: { pinCode: pinCode },
+        }),
+        invalidatesTags: (result, error, { idAccount }) => [{ type: 'Wallet', idAccount }, { type: 'Wallet' }],
+      }),
+      checkWallet: builder.mutation({
+        query: ({ idAccount, pinCode }) => ({
+          url: `/account/${idAccount}/wallets/check-pin-code`,
+          method: 'POST',
+          body: { pinCode: pinCode },
+        }),
+      }),
+      //Add money
+      addMoney: builder.query({
+        query: ({ amount }) => `/payments/vn-pay?amount=${amount}`,
+      }),
+      //Vnpay-callback
+      sendPaymentResult: builder.mutation({
+        query: params => ({
+          url: `/payments/vn-pay-callback?${new URLSearchParams(params)}`,
+          method: 'GET',
+        }),
       }),
     };
   },
@@ -336,4 +364,8 @@ export const {
   useApproveStudentJobMutation,
   useGetDetailStudentApplyJobQuery,
   useGetAllWalletsQuery,
+  useLazyAddMoneyQuery,
+  useCreateWalletMutation,
+  useCheckWalletMutation,
+  useSendPaymentResultMutation,
 } = adminCompanyApi;

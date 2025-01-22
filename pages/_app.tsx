@@ -31,6 +31,8 @@ const getLayout = (pathname: string) => {
     return AdminSchoolLayout;
   } else if (pathname.startsWith('/admin/company')) {
     return AdminCompanyLayout;
+  } else if (pathname.startsWith('/wallet')) {
+    return AdminCompanyLayout;
   }
   {
     // Default layout (or no layout if desired)

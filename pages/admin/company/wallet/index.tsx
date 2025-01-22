@@ -10,7 +10,9 @@ import { Dropdown, Space } from 'antd';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import PieArcLabel from './PieChart';
+import CreateWalletDialog from './CreateWalletDialog';
 import { statusTextJobCompany } from '@/utils/app/const';
 import { formatCurrencyVND } from '@/utils/app/format';
 import { useGetAllCompanyJobQuery, useGetAllWalletsQuery } from '@/services/adminCompanyApi';
@@ -29,10 +31,11 @@ const Wallet = () => {
   const dispatch = useDispatch();
   const idAccount = useAppSelector(state => state.user.idAccount);
   const [openRechargeDialog, setOpenRechargeDialog] = useState(false);
+  const [openCreateWalletDialog, setOpenCreateWalletDialog] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<number>(1);
-  console.log('Check idAccount in vnpay pages: ', idAccount);
-
-  const { data: dataAllWallets } = useGetAllWalletsQuery({ accountId: idAccount });
+  const [ isWallet, setIsWallet ] = useState<boolean>(false);
+  const router = useRouter();
+  const { data: dataAllWallets } = useGetAllWalletsQuery({ accountId: idAccount }, { refetchOnMountOrArgChange: true });
 
   const debouncedSearch = useMemo(
     () =>
@@ -66,15 +69,39 @@ const Wallet = () => {
   );
 
   useEffect(() => {
+    if (router.query) {
+      if (dataAllWallets && dataAllWallets.data && dataAllWallets.data.length > 0) {
+        setIsWallet(true);
+        setOpenRechargeDialog(true);
+      } else {
+        setOpenCreateWalletDialog(true);
+      }
+    }
+  }, [router.query, dataAllWallets]);
+
+  useEffect(() => {
     dispatch(setLoading(isLoading));
-  }, [isLoading, dispatch]);
+  }, [isLoading, dispatch]);  
 
-  //const totalAmount = dataAllWallets.data.reduce((total, item) => total + item.amount, 0);
-
-  const handleRechargeSubmit = (walletId, pin) => {
-    console.log('Nạp tiền vào ví:', walletId, 'với mã PIN:', pin);
-    // Thêm logic xử lý nạp tiền ở đây
+  const handleCreateWalletSubmit = () => {
+    setOpenCreateWalletDialog(false);
+    setOpenRechargeDialog(true);
   };
+
+  const handleWalletCreationSuccess = () => {
+    setOpenCreateWalletDialog(false);
+    setOpenRechargeDialog(false);
+    setIsWallet(true);
+  };
+
+  const handleCancel = () => {
+    if (isWallet) {
+      router.back()
+    } else {
+      setOpenRechargeDialog(false);
+      setOpenCreateWalletDialog(true);
+    }
+  }
 
   return (
     <>
@@ -85,26 +112,26 @@ const Wallet = () => {
           </h1>
           <span className="text-base text-[#475467]">Truy cập và quản lý tài khoản và giao dịch của bạn một cách hiệu quả.</span>
         </div>
-        <div className="flex w-full flex-wrap justify-between">
-          <div className="flex w-2/3 flex-col gap-8">
+        <div className="flex w-full flex-wrap justify-between flex-col lg:flex-row">
+          <div className="flex lg:w-2/3 w-full flex-col gap-8">
             <div className="flex w-full items-center justify-between gap-[20px] rounded-md bg-primary-white px-5 py-5">
               <div className="flex w-full  items-center gap-4">
                 <div className="w-fit rounded-md bg-[#F1F1F1] p-4">{<AccountBalanceWalletOutlinedIcon className="text-primary-main" />}</div>
                 <div className="flex w-full flex-col ">
                   <div className="flex w-full items-center justify-between">
                     <span className="text-base font-semibold">Tài khoản ví plus</span>
-                    <div
+                    <Link
                       className={
                         'mp_transition_4 flex h-[40px] cursor-pointer items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main bg-primary-main px-4 text-white'
                       }
-                      onClick={() => setOpenRechargeDialog(true)}>
+                      href={'/admin/company/wallet/AddMoney'}>
                       <AddOutlinedIcon />
                       <span>Nạp tiền</span>
-                    </div>
+                    </Link>
                   </div>
                   <span className="text-sm text-[#475467]">Số dư khả dụng</span>
                   <span className="text-2xl font-bold">
-                    Số tiền
+                    {dataAllWallets?.data[0].amount.toLocaleString('vi', { style : 'currency', currency : 'VND' })}
                   </span>
                 </div>
               </div>
@@ -221,33 +248,20 @@ const Wallet = () => {
               </div>
             </div>
           </div>
-          <div className="flex w-1/3 max-w-full flex-col gap-8 px-3">
-            <div className="single-items rounded-lg bg-white p-[30px]">
-              <div className="card-head mb-8 flex items-center justify-between">
-                <span className="text-lg font-semibold">Danh sách các ví</span>
-                <div className="text-sm font-semibold text-[#475467] cursor-pointer hover:bg-slate-200 rounded-full p-2">
-                  <Dropdown
-                    placement="bottomRight"
-                    menu={{
-                      items,
-                    }}>
-                      <a onClick={e => e.preventDefault()}>
-                        <Space className="cursor-pointer">
-                          <MoreVertIcon />
-                        </Space>
-                      </a>
-                    </Dropdown>
-                </div>
+          <div className="flex lg:w-1/3 w-full flex-col mt-8 lg:mt-0 gap-8 px-3">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+              <div className="flex flex-col w-full items-center rounded-md bg-primary-white px-5 py-5">
+                <span className="text-2xl font-bold">100</span>
+                <span>Giao dịch</span>
               </div>
-              <div className="grid grid-cols-1 gap-[30px] lg:grid-cols-2">
-                {dataAllWallets?.data?.slice(0, 6).map(wallet => (
-                  <div key={wallet.id} className="flex w-full items-center gap-[20px] rounded-md border border-[#475467] bg-primary-white p-3">
-                    <div className="flex flex-col ">
-                      <span className="text-xl font-bold">Wallet name</span>
-                      <span>{wallet.walletType}</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex flex-col w-full items-center rounded-md bg-primary-white px-5 py-5">
+                <span className="text-2xl font-bold">100.000.000.000đ</span>
+                <span>Tổng số tiền đã chi</span>
+              </div>
+
+              <div className="flex flex-col w-full items-center rounded-md bg-primary-white px-5 py-5">
+                <span className="text-2xl font-bold">111.222.333.444đ</span>
+                <span>Tổng số tiền đã nạp vào</span>
               </div>
             </div>
             <div className="single-items rounded-lg bg-white p-[30px]">
@@ -271,10 +285,27 @@ const Wallet = () => {
                 <PieArcLabel  />
               </div>
             </div>
+            <div className="single-items rounded-lg bg-white p-[30px]">
+              <div className="card-head mb-8 flex items-center justify-between">
+                <span className="text-lg font-semibold">Gợi ý</span>
+              </div>
+              <div className="flex flex-col gap-4">
+                <div className="item">Nâng cấp tài khoản</div>
+                <div className="item">Đăng tin tuyển dụng</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <RechargeDialog open={openRechargeDialog} onClose={() => setOpenRechargeDialog(false)} wallets={dataAllWallets?.data} onSubmit={handleRechargeSubmit} />
+      {openCreateWalletDialog && (
+        <CreateWalletDialog
+          open={openCreateWalletDialog}
+          onSubmit={handleCreateWalletSubmit}
+        />
+      )}
+      {openRechargeDialog && (
+        <RechargeDialog open={openRechargeDialog} onSuccess={handleWalletCreationSuccess} handleCancel={handleCancel} isWallet={isWallet} />
+      )}
     </>
   );
 };
