@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
-import { Checkbox, TextField } from '@mui/material';
+import { Checkbox, TextField, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button as MyButton } from '@/components/Common/Button';
@@ -162,8 +162,10 @@ const UserCompany = () => {
               <th className="p-3 py-4 text-left sm:px-3">STT</th>
               <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Mã nhân viên</span>
-                  <span className="">
+                  <span className="min-w-max" onClick={() => handleSort('employeeCode', !(sortState.currentColumn === 'employeeCode' && sortState.isAsc))}>
+                    Mã nhân viên
+                  </span>
+                  <span>
                     <ButtonUp
                       isSort={sortState.currentColumn === 'employeeCode' && sortState.isAsc === true}
                       onClick={() => handleSort('employeeCode', true)}
@@ -177,8 +179,10 @@ const UserCompany = () => {
               </th>
               <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Tên nhân viên</span>
-                  <span className="">
+                  <span className="min-w-max" onClick={() => handleSort('fullName', !(sortState.currentColumn === 'fullName' && sortState.isAsc))}>
+                    Tên nhân viên
+                  </span>
+                  <span>
                     <ButtonUp isSort={sortState.currentColumn === 'fullName' && sortState.isAsc === true} onClick={() => handleSort('fullName', true)} />
                     <ButtonArrow isSort={sortState.currentColumn === 'fullName' && sortState.isAsc === false} onClick={() => handleSort('fullName', false)} />
                   </span>
@@ -186,10 +190,18 @@ const UserCompany = () => {
               </th>
               <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Email</span>
+                  <span className="min-w-max" onClick={() => handleSort('account.email', !(sortState.currentColumn === 'account.email' && sortState.isAsc))}>
+                    Email
+                  </span>
                   <span className="">
-                    <ButtonUp isSort={sortState.currentColumn === 'email' && sortState.isAsc === true} onClick={() => handleSort('account.email', true)} />
-                    <ButtonArrow isSort={sortState.currentColumn === 'email' && sortState.isAsc === false} onClick={() => handleSort('account.email', false)} />
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'account.email' && sortState.isAsc === true}
+                      onClick={() => handleSort('account.email', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'account.email' && sortState.isAsc === false}
+                      onClick={() => handleSort('account.email', false)}
+                    />
                   </span>
                 </div>
               </th>
@@ -214,10 +226,23 @@ const UserCompany = () => {
                     <Checkbox color="primary" checked={selectedEmployee.includes(item.id)} onChange={() => handleSelectEmployee(item.id)} />
                   </td>
                   <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td> {/* STT */}
-                  <td className="px-5 py-4">{item.employeeCode}</td>
-                  <td className="px-5 py-4">{item.fullName}</td>
-                  <td className="px-5 py-4">{item.account.email}</td>
-                  <td className="px-5 py-4">{item.employeePosition}</td>
+                  <td className="w-[200px] px-5 py-4">
+                    <Tooltip title={item.employeeCode} placeholder="bottom" arrow>
+                      <span
+                        className="block w-full cursor-pointer overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px',
+                        }}>
+                        {item.employeeCode}
+                      </span>
+                    </Tooltip>
+                  </td>
+                  <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">{item.fullName}</td>
+                  <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">{item.account.email}</td>
+                  <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">{item.employeePosition}</td>
                   <td className="px-5 py-4">{item.phoneNumber}</td>
                   <td className="py-4">
                     <div className="flex items-center gap-2">

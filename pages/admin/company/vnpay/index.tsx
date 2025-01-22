@@ -1,76 +1,41 @@
-import Link from 'next/link';
 import React from 'react';
-import AddIcon from '@mui/icons-material/Add';
 
 const index = () => {
   return (
     <>
-      <div>
-        <div>
-          <h1>Welcome, Adrian</h1>
-          <p>Access & manage</p>
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-semibold leading-[38px]">
+            Welcome, <span className="text-blue-500">Adrian</span>
+          </h1>
+          <span className="text-base text-[#475467]">Truy cập và quản lý tài khoản và giao dịch của bạn một cách hiệu quả.</span>
+        </div>
 
-          <div>
-            <div>
-              <p>2 Bank Accounts</p>
-              <p>Total Current Balance</p>
-              <p>$2, 698.12</p>
-            </div>
-            <div>
-              <Link href={''}>
-                <AddIcon />
-                Nạp tiền
-              </Link>
-            </div>
-          </div>
-
-          <div className="mb-4 flex items-center ">
-            <h2 className="text-md font-bold text-gray-700">Recent transactions</h2>
-            <button className="font-medium text-blue-600">View all</button>
-          </div>
-
-          <div className="mb-4 border-b border-gray-200">
-            <ul className="flex space-x-4 text-sm">
-              <li>
-                <button className="border-b-2 border-blue-600 pb-1 font-medium text-blue-600">Chase Bank</button>
-              </li>
-              <li>
-                <button className="text-gray-500">Bank of America</button>
-              </li>
-              <li>
-                <button className="text-gray-500">First Platypus Bank</button>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="mb-4 flex items-center">
-              <div>
-                <h3 className="text-sm font-medium text-gray-700">Chase Bank</h3>
-                <p>$2,588.12</p>
+        <div className="flex w-full flex-wrap justify-between">
+          <div className="flex w-2/3 flex-col gap-8">
+            <div className="flex w-full items-center justify-between gap-[20px] rounded-md bg-primary-white px-5 py-5">
+              <div className="flex w-full  items-center gap-4">
+                <div className="w-fit rounded-md bg-[#F1F1F1] p-4"></div>
+                <div className="flex w-full flex-col ">
+                  <div className="flex w-full items-center justify-between">
+                    <span className="text-base font-semibold">Tài khoản ví Plus</span>
+                    <div
+                      className={
+                        'mp_transition_4 flex h-[40px] cursor-pointer items-center gap-2 rounded-[6px] border-[1px] border-solid border-primary-main bg-primary-main px-4 text-white'
+                      }>
+                      <span>Nạp tiền</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <span className="text-xs font-medium text-gray-500">Savings</span>
-            </div>
-
-            <div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Transaction</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Category</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Spotify</td>
-                    <td>Alexa Doe</td>
-                    <td>Spotify</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div>
+                <div>
+                  <span>Tài khoản ví Plus</span>
+                  <div>
+                    <span>Nạp tiền</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { TextField, Checkbox, Chip } from '@mui/material';
+import { TextField, Checkbox, Chip, Tooltip } from '@mui/material';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
@@ -165,7 +165,9 @@ const JobCompany = () => {
               </th>
               <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Tên công việc</span>
+                  <span className="min-w-max" onClick={() => handleSort('jobTitle', !(sortState.currentColumn === 'jobTitle' && sortState.isAsc))}>
+                    Tên công việc
+                  </span>
                   <span>
                     <ButtonUp isSort={sortState.currentColumn === 'jobTitle' && sortState.isAsc === true} onClick={() => handleSort('jobTitle', true)} />
                     <ButtonArrow isSort={sortState.currentColumn === 'jobTitle' && sortState.isAsc === false} onClick={() => handleSort('jobTitle', false)} />
@@ -174,7 +176,9 @@ const JobCompany = () => {
               </th>
               <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Mức lương</span>
+                  <span className="min-w-max" onClick={() => handleSort('salaryType', !(sortState.currentColumn === 'salaryType' && sortState.isAsc))}>
+                    Mức lương
+                  </span>
                   <span>
                     <ButtonUp isSort={sortState.currentColumn === 'salaryType' && sortState.isAsc === true} onClick={() => handleSort('salaryType', true)} />
                     <ButtonArrow
@@ -186,7 +190,9 @@ const JobCompany = () => {
               </th>
               <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Thời hạn</span>
+                  <span className="min-w-max" onClick={() => handleSort('expirationDate', !(sortState.currentColumn === 'expirationDate' && sortState.isAsc))}>
+                    Thời hạn
+                  </span>
                   <span>
                     <ButtonUp
                       isSort={sortState.currentColumn === 'expirationDate' && sortState.isAsc === true}
@@ -220,7 +226,20 @@ const JobCompany = () => {
                     <Checkbox color="primary" checked={selectedJob.includes(item.id)} onChange={() => handleSelectJob(item.id)} />
                   </td>
                   <td className="px-5 py-4"> {index + 1 + (page - 1) * size}</td>
-                  <td className="px-5 py-4">{item.jobTitle}</td>
+                  <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">
+                    <Tooltip title={item.jobTitle} placeholder="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px',
+                        }}>
+                        {item.jobTitle}
+                      </span>
+                    </Tooltip>
+                  </td>
                   <td className="px-5 py-4">
                     {item.salaryType === 'FIXED' ? formatCurrencyVND(item.minSalary) + ' - ' + formatCurrencyVND(item.maxSalary) : 'Thỏa thuận'}
                   </td>
