@@ -303,8 +303,8 @@ const BusinessManagement = () => {
                       </span>
                     </Tooltip>
                   </td>
-                  <td className="p-3 sm:px-5 sm:py-4">
-                    <p className="min-w-max">{item.majorName}</p>
+                  <td className="max-w-[150px] whitespace-normal break-words px-5 py-4">
+                    <p className="">{item.majorName}</p>
                   </td>
                   <td className="p-3 sm:px-5 sm:py-4">
                     <p className="min-w-max">{item.creditRequirement}</p>

@@ -16,17 +16,23 @@ const BarChartSystem: React.FC<BarChartSystemProps> = ({ labels, dataValues }) =
       {
         label: 'Đã duyệt / Chấp nhận',
         data: dataValues[0],
-        backgroundColor: 'pink',
+        backgroundColor: '#F6EAC2',
+        borderColor: 'yellow',
+        borderWidth: 1,
       },
       {
         label: 'Chờ duyệt',
         data: dataValues[1],
-        backgroundColor: 'green',
+        backgroundColor: '#FFD8BE',
+        borderColor: 'orange',
+        borderWidth: 1,
       },
       {
         label: 'Đã khóa / Từ chối',
         data: dataValues[2],
-        backgroundColor: 'blue',
+        backgroundColor: '#8FCACA',
+        borderColor: 'blue',
+        borderWidth: 1,
       },
     ],
   };

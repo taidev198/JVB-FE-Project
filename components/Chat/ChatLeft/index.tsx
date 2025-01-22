@@ -96,7 +96,6 @@ const SidebarChat = () => {
       client.activate();
       return client;
     };
-
     const client = connectToWebSocket();
 
     return () => {

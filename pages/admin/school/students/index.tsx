@@ -311,7 +311,7 @@ const StudentsManagement = () => {
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
-                          maxWidth: '50px',
+                          maxWidth: '80px',
                         }}>
                         {student.studentCode}
                       </span>
