@@ -13,6 +13,7 @@ import { IMajorByUniversityResponse } from '@/types/majorType';
 import { ApiResponseDetailSchool } from '@/types/school';
 import { IJobCompanyResponse } from '@/types/jobAndPartnershipsSchoolType';
 import { logOut } from '@/store/slices/user';
+import { IWalletsRespone } from '@/types/vnpay';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
@@ -545,6 +546,11 @@ export const adminSchoolApi = createApi({
         }),
         invalidatesTags: (result, error, { id }) => [{ type: 'Jobs', id }, { type: 'Jobs' }],
       }),
+
+      //VNPAY
+      getAllWallets: builder.query<IWalletsRespone, { accountId: number }>({
+        query: ({ accountId }) => `/account/${accountId}/wallets`,
+      }),
     };
   },
 });
@@ -598,4 +604,5 @@ export const {
   useGetAllChatRoomQuery,
   useGetAllMessageInAChatRoomQuery,
   useCreateChatRoomMutation,
+  useGetAllWalletsQuery,
 } = adminSchoolApi;

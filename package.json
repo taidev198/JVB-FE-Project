@@ -25,6 +25,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@mui/icons-material": "^6.1.8",
     "@mui/material": "^6.1.8",
+    "@mui/x-charts": "^7.24.0",
     "@reduxjs/toolkit": "^1.9.5",
     "@stomp/stompjs": "^7.0.0",
     "@tabler/icons-react": "^2.9.0",
