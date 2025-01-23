@@ -152,11 +152,15 @@ const ChatRight = () => {
     }
   };
 
-  const handleDelete = () => {
-    deleteOneMessage({ chatRoomId: idRoom, messageId: idDelete });
-    dispatch(setBackdrop(null));
-    refetchMessage();
-    setChats(prevChats => prevChats.filter(chat => chat.id !== idDelete));
+  const handleDelete = async () => {
+    try {
+      await deleteOneMessage({ chatRoomId: idRoom, messageId: idDelete });
+      setChats(prevChats => prevChats.filter(chat => chat.id !== idDelete));
+      dispatch(setBackdrop(null));
+      refetchMessage();
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
   };
 
   return (

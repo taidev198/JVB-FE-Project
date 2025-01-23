@@ -63,7 +63,7 @@ const AdminSchoolDashboard = () => {
           <PieChart labels={labels} dataValues={dataValues} />
         </div>
         {/* Biểu đồ cột */}
-        <div className="mt-20">
+        <div className="mb-10 ml-20 mt-20">
           <h2 className="text-center text-xl font-semibold">Biểu đồ số lượng yêu cầu</h2>
           <BarChart labels={barChartLabels} dataValues={barChartDataValues} />
         </div>
