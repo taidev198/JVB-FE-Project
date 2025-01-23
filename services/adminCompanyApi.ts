@@ -6,7 +6,7 @@ import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply, IStudentApply
 import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 import { logOut } from '@/store/slices/user';
-import { IWalletsResponse } from '@/types/wallets';
+import { ITransactionAllResponse, IWalletsResponse } from '@/types/wallets';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
@@ -334,6 +334,19 @@ export const adminCompanyApi = createApi({
           method: 'GET',
         }),
       }),
+      //Search transaction
+      getAllTransactions: builder.query<ITransactionAllResponse, { accountId: number; page: number; size: number; keyword: string; sortBy?: string | null }>({
+        query: ({ accountId, page, size, keyword, sortBy }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (sortBy) queryParams.append('sortBy', sortBy);
+
+          return `/wallet/${accountId}/payment-transactions?${queryParams.toString()}`;
+        },
+        providesTags: [{ type: 'JobCompany' }],
+      }),
     };
   },
 });
@@ -368,4 +381,5 @@ export const {
   useCreateWalletMutation,
   useCheckWalletMutation,
   useSendPaymentResultMutation,
+  useGetAllTransactionsQuery,
 } = adminCompanyApi;
