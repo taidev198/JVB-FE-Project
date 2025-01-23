@@ -21,7 +21,7 @@ const SidebarChat = () => {
   const [keyword, setKeyword] = useState<string>('');
   const [page, setPage] = useState<number>(1);
   const size = 15;
-  const [userChat, setUserChat] = useState([]);
+  const [userChat, setUserChat] = useState<any[]>([]); // Adjusted to handle any type
   const scrollContainerRef = useRef(null);
   const [hasMore, setHasMore] = useState(true);
   const dispatch = useDispatch();
@@ -35,6 +35,7 @@ const SidebarChat = () => {
 
   const [readMessage] = useReadAllMessagesOnAChatRoomMutation();
   const previousDataRef = useRef<chatRoomResponse>();
+
   useEffect(() => {
     if (data && isSuccess && previousDataRef.current !== data) {
       if (data?.data?.content.length === 0) {
@@ -42,7 +43,11 @@ const SidebarChat = () => {
         return;
       }
       previousDataRef.current = data;
-      setUserChat(prevChats => [...prevChats, ...data.data.content]);
+
+      // Avoid adding duplicate chat rooms
+      const newChats = data.data.content.filter(newChat => !userChat.some(existingChat => existingChat.id === newChat.id));
+
+      setUserChat(prevChats => [...prevChats, ...newChats]);
     }
   }, [data, isSuccess, page, userChat.length]);
 
@@ -81,10 +86,16 @@ const SidebarChat = () => {
         webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
         onConnect: () => {
           client.subscribe(`/topic/new-chatroom`, () => {
-            refetch();
+            refetch(); // Lấy lại danh sách phòng chat khi có phòng chat mới
           });
-          client.subscribe(`/topic/chatroom/${idRoom}`, () => {
-            readMessage({ chatRoomId: idRoom });
+          client.subscribe(`/topic/chatroom/${idRoom}`, message => {
+            const newMessage = JSON.parse(message.body);
+
+            setUserChat(prevChats => {
+              const updatedChats = prevChats.map(chat => (chat.id === newMessage.chatRoomId ? { ...chat, lastMessage: newMessage } : chat));
+
+              return updatedChats;
+            });
           });
         },
         onStompError: frame => {
@@ -96,17 +107,18 @@ const SidebarChat = () => {
       client.activate();
       return client;
     };
+
     const client = connectToWebSocket();
 
     return () => {
       if (client) client.deactivate();
     };
-  }, [refetch]);
+  }, [refetch, idRoom]);
 
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className=" border-b border-solid bg-white px-0 py-4 sm:px-5">
+      <div className="border-b border-solid bg-white px-0 py-4 sm:px-5">
         <Logo />
         <div className="mt-5 flex items-center rounded-[20px] border border-[#DBDADE] px-[14px]">
           <SearchIcon className="text-[#4B465C]" />

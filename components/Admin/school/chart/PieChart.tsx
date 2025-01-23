@@ -18,7 +18,7 @@ const PieChart: React.FC<PieChartProps> = ({ labels, dataValues }) => {
       {
         label: 'Số lượng trạng thái',
         data: dataValues,
-        backgroundColor: ['pink', 'green', 'red'],
+        backgroundColor: ['#FFD8BE', '#8FCACA', '#FFFFB5'],
         hoverOffset: 4,
       },
     ],

@@ -10,7 +10,7 @@ interface BarChartProps {
 }
 
 const BarChart: React.FC<BarChartProps> = ({ labels, dataValues }) => {
-  const colors = ['pink', '#36A2EB', '#FFCE56', 'green', '#FF9F40', '#FFCD56', '#FFB6C1', '#FFA07A'];
+  const colors = ['#F6EAC2', '#FFD8BE', '#8FCACA', '#CCE2CB', '#CBAACB'];
 
   const data = {
     labels,
@@ -27,19 +27,19 @@ const BarChart: React.FC<BarChartProps> = ({ labels, dataValues }) => {
   };
 
   const options = {
-    responsive: true, // Biểu đồ sẽ tự động điều chỉnh kích thước theo màn hình
+    responsive: true,
     plugins: {
       legend: {
         position: 'top' as const,
       },
       title: {
         display: true,
-        text: 'Biểu đồ cột', // Tiêu đề cho biểu đồ
+        text: 'Biểu đồ cột',
       },
     },
     scales: {
       y: {
-        beginAtZero: true, // Đảm bảo trục Y bắt đầu từ 0
+        beginAtZero: true,
       },
     },
   };

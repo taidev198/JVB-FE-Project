@@ -152,11 +152,22 @@ const ChatRight = () => {
     }
   };
 
-  const handleDelete = () => {
-    deleteOneMessage({ chatRoomId: idRoom, messageId: idDelete });
-    dispatch(setBackdrop(null));
-    refetchMessage();
-    setChats(prevChats => prevChats.filter(chat => chat.id !== idDelete));
+  const handleDelete = async () => {
+    try {
+      // Xóa tin nhắn từ server
+      await deleteOneMessage({ chatRoomId: idRoom, messageId: idDelete });
+
+      // Cập nhật lại trạng thái chỉ khi xóa thành công
+      setChats(prevChats => prevChats.filter(chat => chat.id !== idDelete));
+
+      // Đóng popup xác nhận
+      dispatch(setBackdrop(null));
+
+      // Refetch lại danh sách tin nhắn nếu cần thiết
+      refetchMessage();
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
   };
 
   return (
