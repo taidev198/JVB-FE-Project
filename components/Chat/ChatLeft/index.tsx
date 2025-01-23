@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
@@ -49,7 +50,7 @@ const SidebarChat = () => {
 
       setUserChat(prevChats => [...prevChats, ...newChats]);
     }
-  }, [data, isSuccess, page, userChat.length]);
+  }, [data, isSuccess, page, userChat, userChat.length]);
 
   const handleScroll = useCallback(
     throttle(() => {

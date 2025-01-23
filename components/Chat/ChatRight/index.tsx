@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
@@ -80,9 +81,9 @@ const ChatRight = () => {
       const scrollContainer = scrollContainerRef.current;
       const scrollTop = scrollContainer.scrollTop;
 
-      // if (scrollTop <= 100) {
-      //   setPage(prevPage => prevPage + 1);
-      // }
+      if (scrollTop <= 100) {
+        setPage(prevPage => prevPage + 1);
+      }
     }, 500),
     [hasMore]
   );
