@@ -123,14 +123,19 @@ export const adminCompanyApi = createApi({
       }),
 
       //JOBCOMPANY
-      getAllCompanyJob: builder.query<IJobAllResponse, { page: number; size: number; keyword: string; status: string; sortBy: string | null }>({
-        query: ({ page, size, keyword, status, sortBy }) => {
+      getAllCompanyJob: builder.query<
+        IJobAllResponse,
+        { page: number; size: number; keyword: string; status: string; startDate: Date | null; endDate: Date | null; sortBy: string | null }
+      >({
+        query: ({ page, size, keyword, startDate, endDate, status, sortBy }) => {
           let queryParams = new URLSearchParams();
           if (page) queryParams.append('page', String(page));
           if (size) queryParams.append('size', String(size));
           if (keyword) queryParams.append('keyword', keyword);
           if (status) queryParams.append('status', status);
           if (sortBy) queryParams.append('sortBy', sortBy);
+          if (startDate) queryParams.append('startDate', formatDateSearch(startDate) || '');
+          if (endDate) queryParams.append('endDate', formatDateSearch(endDate) || '');
 
           return `/company/get_all_jobs?${queryParams.toString()}`;
         },

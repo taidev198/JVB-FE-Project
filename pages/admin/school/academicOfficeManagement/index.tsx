@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
-import { Checkbox, TextField } from '@mui/material';
+import { Checkbox, TextField, Tooltip } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { debounce } from 'lodash';
 import { useAppSelector } from '@/store/hooks';
@@ -198,7 +198,20 @@ const AcademicOfficeManagement = () => {
                     <p className="min-w-max ">{index + 1 + (page - 1) * size}</p>
                   </td>
 
-                  <td className="p-3 sm:px-5 sm:py-4">{item.employeeCode}</td>
+                  <td className="w-[200px] px-5 py-4 text-center">
+                    <Tooltip title={item.employeeCode} placement="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px',
+                        }}>
+                        {item.employeeCode}
+                      </span>
+                    </Tooltip>
+                  </td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.fullName}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{item.phoneNumber}</td>
                   <td className="p-3 sm:px-5 sm:py-4">{genderTitle(item.gender)}</td>

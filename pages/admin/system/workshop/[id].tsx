@@ -22,7 +22,7 @@ const DetailWorkshop: FC = () => {
   }
 
   return (
-    <div className="rounded-2xl p-5 pb-[90px]">
+    <div className="rounded-2xl bg-white p-5 pb-[90px] ">
       {/* Icon */}
       <div className="py-5">
         <Link href={'/admin/system/workshop'}>

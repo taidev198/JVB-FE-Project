@@ -23,7 +23,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail'],
+  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
     // Fetch all jobs with pagination and additional filters
@@ -183,15 +183,6 @@ export const portalHomeApi = createApi({
       ],
     }),
 
-    // Read all messages
-    readAllMessagesOnAChatRoom: builder.mutation<void, { chatRoomId: number }>({
-      query: ({ chatRoomId }) => ({
-        url: `chat/chatroom/${chatRoomId}/read-all-latest-messages`,
-        method: 'PUT',
-      }),
-      invalidatesTags: (result, error, { chatRoomId }) => [{ type: 'JobDetail', chatRoomId: chatRoomId }],
-    }),
-
     // Apply job
     sendApplyJob: builder.mutation<void, { major: number; job: number }>({
       query: ({ major, job }) => ({
@@ -212,14 +203,31 @@ export const portalHomeApi = createApi({
     }),
 
     // Chat
-    getAllChatRooms: builder.query<chatRoomResponse, { userId: number; keyword: string }>({
-      query: ({ userId, keyword }) => {
-        return {
-          url: `/chat/chatroom`,
-          method: 'GET',
-          params: { userId, keyword },
-        };
-      },
+    getAllChatRooms: builder.query<chatRoomResponse, { userId: number; page: number; size: number; keyword: string }>({
+      query: ({ userId, keyword, page, size }) => ({
+        url: `/chat/chatroom`,
+        method: 'GET',
+        params: { userId, keyword, page, size },
+      }),
+      providesTags: result =>
+        result
+          ? [
+              ...result.data.content.map(({ id: chatRoomId }) => ({
+                type: 'Chat' as const,
+                id: chatRoomId,
+              })),
+              { type: 'Chat', id: 'LIST' },
+            ]
+          : [{ type: 'Chat', id: 'LIST' }],
+    }),
+
+    // Read all messages
+    readAllMessagesOnAChatRoom: builder.mutation<void, { chatRoomId: number }>({
+      query: ({ chatRoomId }) => ({
+        url: `chat/chatroom/${chatRoomId}/read-all-latest-messages`,
+        method: 'PUT',
+      }),
+      invalidatesTags: (result, error, { chatRoomId }) => [{ type: 'Chat', id: chatRoomId }],
     }),
 
     getAllMessages: builder.query<ChatResponse, { roomId: number; page: number; size: number }>({
@@ -228,7 +236,9 @@ export const portalHomeApi = createApi({
         method: 'GET',
         params: { page, size },
       }),
+      providesTags: [{ type: 'MessagesChat' }],
     }),
+
     //get a chatroom:
     getAChatroom: builder.query<CheckChatResponse, { senderId: number; receiverId: number }>({
       query: ({ senderId, receiverId }) => ({
@@ -241,6 +251,14 @@ export const portalHomeApi = createApi({
       query: ({ chatRoomId, messageId }) => ({
         url: `/chat/chatroom/${chatRoomId}/messages/${messageId}`,
         method: 'DELETE',
+      }),
+      invalidatesTags: () => [{ type: 'MessagesChat' }],
+    }),
+
+    getAllCountUnreadChat: builder.query({
+      query: ({ userId }) => ({
+        url: `/chat/chatroom/count-unread-chat?userId=2`,
+        params: { userId },
       }),
     }),
   }),
@@ -268,4 +286,5 @@ export const {
   useGetAChatroomQuery,
   useReadAllMessagesOnAChatRoomMutation,
   useDeleteOneMessageMutation,
+  useGetAllCountUnreadChatQuery,
 } = portalHomeApi;

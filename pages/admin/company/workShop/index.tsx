@@ -1,4 +1,4 @@
-import { Chip, TextField } from '@mui/material';
+import { Chip, TextField, Tooltip } from '@mui/material';
 import { debounce } from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -26,13 +26,13 @@ const WorkShopCompany = () => {
   const [size, setSize] = useState<number>(10);
   const [keyword, setKeyword] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
-  const dispatch = useDispatch();
   const [selectId, setSelectId] = useState<number | null>(null);
   const backdropType = useAppSelector(state => state.global.backdropType);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [sortBy, setSortBy] = useState<string | null>(null);
   const name = useAppSelector(state => state.global.name);
+  const dispatch = useDispatch();
 
   const handleAction = (actionType: BackdropType, JobsId: number) => {
     setSelectId(JobsId);
@@ -90,6 +90,7 @@ const WorkShopCompany = () => {
     dispatch(setLoading(isLoading || isLoadingOne));
   }, [dispatch, isLoading, isLoadingOne]);
 
+  // console.log("date", startDate)
   return (
     <>
       {/* Header */}
@@ -121,63 +122,91 @@ const WorkShopCompany = () => {
               onChange={(selectedOption: { value: React.SetStateAction<string> }) => setStatus(selectedOption.value)}
               className="w-full cursor-pointer sm:w-[160px]"
             />
-
             <DatePickerComponent startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} />
           </div>
         </div>
       </div>
-
       {/* Table */}
       <div className="w-full overflow-x-auto">
         <table className="w-full table-auto rounded-lg rounded-b-md bg-white text-[14px]">
           <thead className="bg-white">
             <tr>
               <th className="p-3 sm:px-3 sm:py-4">STT</th>
-              <th className="pp-3 text-left sm:px-5">
+              <th className="cursor-pointer p-3 text-left sm:px-5">
                 <div className="flex items-center">
-                  <span className="min-w-max">Tiêu đề</span>
+                  <span
+                    className="min-w-max"
+                    onClick={() => handleSort('workshop.workshopTitle', !(sortState.currentColumn === 'workshop.workshopTitle' && sortState.isAsc))}>
+                    Tiêu đề
+                  </span>
                   <span>
                     <ButtonUp
-                      isSort={sortState.currentColumn === 'workshopTitle' && sortState.isAsc === true}
+                      isSort={sortState.currentColumn === 'workshop.workshopTitle' && sortState.isAsc === true}
                       onClick={() => handleSort('workshop.workshopTitle', true)}
                     />
                     <ButtonArrow
-                      isSort={sortState.currentColumn === 'workshopTitle' && sortState.isAsc === false}
+                      isSort={sortState.currentColumn === 'workshop.workshopTitle' && sortState.isAsc === false}
                       onClick={() => handleSort('workshop.workshopTitle', false)}
                     />
                   </span>
                 </div>
               </th>
-              <th className="px-5 py-4 text-left">
+              <th className="cursor-pointer px-5 py-4 text-left">
                 <div className="flex items-center">
-                  <span className="min-w-max">Trường học</span>
+                  <span
+                    className="min-w-max"
+                    onClick={() =>
+                      handleSort('workshop.university.universityName', !(sortState.currentColumn === 'workshop.university.universityName' && sortState.isAsc))
+                    }>
+                    Trường học
+                  </span>
                   <span>
                     <ButtonUp
-                      isSort={sortState.currentColumn === 'universityName' && sortState.isAsc === true}
+                      isSort={sortState.currentColumn === 'workshop.university.universityName' && sortState.isAsc === true}
                       onClick={() => handleSort('workshop.university.universityName', true)}
                     />
                     <ButtonArrow
-                      isSort={sortState.currentColumn === 'universityName' && sortState.isAsc === false}
+                      isSort={sortState.currentColumn === 'workshop.university.universityName' && sortState.isAsc === false}
                       onClick={() => handleSort('workshop.university.universityName', false)}
                     />
                   </span>
                 </div>
               </th>
-              <th className="p-3 sm:px-3 sm:py-4">
+              <th className="cursor-pointer p-3 sm:px-3 sm:py-4">
                 <div className="flex items-center">
-                  <span className="min-w-max">Thời gian bắt đầu</span>
+                  <span
+                    className="min-w-max"
+                    onClick={() => handleSort('workshop.startTime', !(sortState.currentColumn === 'workshop.startTime' && sortState.isAsc))}>
+                    Thời gian bắt đầu
+                  </span>
                   <span>
-                    <ButtonUp isSort={sortState.currentColumn === 'startTime' && sortState.isAsc === true} onClick={() => handleSort('startTime', true)} />
-                    <ButtonArrow isSort={sortState.currentColumn === 'startTime' && sortState.isAsc === false} onClick={() => handleSort('startTime', false)} />
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'workshop.startTime' && sortState.isAsc === true}
+                      onClick={() => handleSort('workshop.startTime', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'workshop.startTime' && sortState.isAsc === false}
+                      onClick={() => handleSort('workshop.startTime', false)}
+                    />
                   </span>
                 </div>
               </th>
-              <th className="p-3 sm:px-3 sm:py-4">
+              <th className="cursor-pointer p-3 sm:px-3 sm:py-4">
                 <div className="flex items-center">
-                  <span className="min-w-max">Thời gian kết thúc</span>
+                  <span
+                    className="min-w-max"
+                    onClick={() => handleSort('workshop.endTime', !(sortState.currentColumn === 'workshop.endTime' && sortState.isAsc))}>
+                    Thời gian kết thúc
+                  </span>
                   <span>
-                    <ButtonUp isSort={sortState.currentColumn === 'endTime' && sortState.isAsc === true} onClick={() => handleSort('endTime', true)} />
-                    <ButtonArrow isSort={sortState.currentColumn === 'endTime' && sortState.isAsc === false} onClick={() => handleSort('endTime', false)} />
+                    <ButtonUp
+                      isSort={sortState.currentColumn === 'workshop.endTime' && sortState.isAsc === true}
+                      onClick={() => handleSort('workshop.endTime', true)}
+                    />
+                    <ButtonArrow
+                      isSort={sortState.currentColumn === 'workshop.endTime' && sortState.isAsc === false}
+                      onClick={() => handleSort('workshop.endTime', false)}
+                    />
                   </span>
                 </div>
               </th>
@@ -190,11 +219,24 @@ const WorkShopCompany = () => {
               companyWorkShop?.data.content.map((item, index) => (
                 <tr key={item.id} className={index % 2 === 0 ? 'bg-[#F7F6FE]' : 'bg-primary-white'}>
                   <td className="px-5 py-4">{index + 1 + (page - 1) * size}</td>
-                  <td className="px-5 py-4">{item.workshop.workshopTitle}</td>
-                  <td className="px-5 py-4">{item.workshop.university.universityName}</td>
-                  <td className="px-5 py-4 text-center">{item.workshop.startTime.split(' ')[0]}</td>
-                  <td className="px-5 py-4 text-center">{item.workshop.endTime.split(' ')[0]}</td>
-                  <td className="px-5 py-4">
+                  <td className=" max-w-[200px] whitespace-normal break-words px-5 py-4">
+                    <Tooltip title={item.workshop.workshopTitle} placement="bottom" arrow>
+                      <span
+                        className="block w-full overflow-hidden text-ellipsis whitespace-nowrap"
+                        style={{
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          maxWidth: '50px',
+                        }}>
+                        {item.workshop.workshopTitle}
+                      </span>
+                    </Tooltip>
+                  </td>
+                  <td className="max-w-[200px] whitespace-normal break-words px-5 py-4">{item.workshop.university.universityName}</td>
+                  <td className="px-5 py-4 ">{item.workshop.startTime.split(' ')[0]}</td>
+                  <td className="px-5 py-4 ">{item.workshop.endTime.split(' ')[0]}</td>
+                  <td className="px-5 py-4 text-center">
                     <Chip
                       label={statusTextWorkShopCompany(item.status).title}
                       style={{
@@ -205,7 +247,7 @@ const WorkShopCompany = () => {
                   </td>
 
                   <td className="py-4">
-                    <div className="flex items-center justify-center gap-3">
+                    <div className="flex items-center justify-center gap-3 ">
                       <ButtonSee
                         onClick={() => {
                           setSelectId(item.workshop.id);
@@ -243,7 +285,7 @@ const WorkShopCompany = () => {
           </tbody>
         </table>
       </div>
-      {/* Xóa Khoa */}
+      {/* Xóa */}
       {backdropType === BackdropType.DeleteConfirmation && <PopupConfirmAction text="Hủy tham gia hội thảo" name={name} onClick={handleDelete} />}
 
       {/* Pagination */}

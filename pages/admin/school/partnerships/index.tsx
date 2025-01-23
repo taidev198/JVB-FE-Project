@@ -83,11 +83,7 @@ const JobAdminSchool = () => {
             toast.success('Từ chối hợp tác');
             break;
           }
-          // case BackdropType.DeleteConfirmation: {
-          //   const response = await remove({ accountLoginId: universityId, toDoAccountId: selectId, doBy }).unwrap();
-          //   toast.success(response.message);
-          //   break;
-          // }
+
           default:
             throw new Error('Invalid action type');
         }
@@ -115,7 +111,7 @@ const JobAdminSchool = () => {
       {/* Header */}
       <div className="rounded-t-md bg-white p-5 pb-5">
         <div className="flex items-center justify-between">
-          <h1 className="mb-5 font-bold">Quản lý đối tác</h1>
+          <h1 className="mb-5 font-bold">Quản lý hợp tác</h1>
           <div className="flex items-center gap-3">
             <button
               onClick={() => {

@@ -12,6 +12,7 @@ import {
 import { Drawer, Dropdown, Menu, Space } from 'antd';
 import Link from 'next/link';
 import ChatIcon from '@mui/icons-material/Chat';
+import { Badge } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -20,6 +21,7 @@ import Notification from '../Common/Notification';
 import { getUserState, logOut, MenuItem } from '@/store/slices/user';
 import { useAppSelector } from '@/store/hooks';
 import { formatRoleAccount } from '@/utils/app/format';
+import { useGetAllCountUnreadChatQuery } from '@/services/portalHomeApi';
 
 type ItemType =
   | { label: React.ReactNode; key: string } // Mục có label và key
@@ -28,6 +30,7 @@ type ItemType =
 const PortalHeader: React.FC = () => {
   const [isSticky, setIsSticky] = useState(false);
   const role = useAppSelector(state => state.user.roleAccount);
+  const userId = useAppSelector(state => state.user.idAccount);
 
   const url = (role: string) => {
     switch (role) {
@@ -46,6 +49,8 @@ const PortalHeader: React.FC = () => {
   const user = useAppSelector(state => state.user);
   const router = useRouter(); // Hook lấy thông tin đường dẫn
   const dispatch = useDispatch();
+
+  const { data } = useGetAllCountUnreadChatQuery({ userId }, { refetchOnMountOrArgChange: true });
 
   const handleLogout = () => {
     dispatch(logOut());
@@ -322,6 +327,13 @@ const PortalHeader: React.FC = () => {
                             Về chúng tôi
                           </Link>
                         </li>
+                        <li className="navigation__menu--item relative">
+                          <Link
+                            href="/portal/chat"
+                            className={`mp_transition_4 after:mp_transition_4 mp_nav_menu_item relative py-[39px] ${isActiveLink('/portal/chat')}`}>
+                            Trò chuyện
+                          </Link>
+                        </li>
                       </ul>
                     </nav>
                   </div>
@@ -412,9 +424,11 @@ const PortalHeader: React.FC = () => {
                         </Dropdown>
                       </div>
                     </div>
-                    <Link href={'/portal/chat'}>
-                      <ChatIcon />
-                    </Link>
+                    <Badge badgeContent={data?.data} color="primary">
+                      <Link href={'/portal/chat'}>
+                        <ChatIcon />
+                      </Link>
+                    </Badge>
                     <Notification />
                   </>
                 )}
