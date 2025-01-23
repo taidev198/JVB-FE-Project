@@ -1,14 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
 import { Client } from '@stomp/stompjs';
 import { useDispatch } from 'react-redux';
 import { Avatar, Tooltip, useMediaQuery, useTheme } from '@mui/material';
-import dayjs from 'dayjs';
 import MenuIcon from '@mui/icons-material/Menu';
 import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import { showSidebar } from '@/store/slices/global';
 import { useAppSelector } from '@/store/hooks';
 import { BackdropType, setBackdrop } from '@/store/slices/global';
@@ -77,8 +79,8 @@ const ChatRight = () => {
     throttle(() => {
       if (!hasMore) return;
 
-      const scrollContainer = scrollContainerRef.current;
-      const scrollTop = scrollContainer.scrollTop;
+      //const scrollContainer = scrollContainerRef.current;
+      //const scrollTop = scrollContainer.scrollTop;
 
       // if (scrollTop <= 100) {
       //   setPage(prevPage => prevPage + 1);
@@ -105,6 +107,10 @@ const ChatRight = () => {
         onConnect: () => {
           setStompClient(client);
           client.subscribe(`/topic/chatroom/${idRoom}`, () => {
+            refetchMessage();
+            refetch();
+          });
+          client.subscribe(`/topic/chatroom/${idRoom}/delete-message`, () => {
             refetchMessage();
             refetch();
           });
@@ -223,11 +229,9 @@ const ChatRight = () => {
                         </div>
                         <div className={`flex items-center ${message.sender.id === idAccount ? 'justify-end' : 'justify-start'} gap-2`}>
                           <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>
-                            {dayjs(message.createAt).format('HH:mm')}
+                            {formatDistanceToNow(new Date(message?.createAt), { addSuffix: true, locale: vi })}
                           </p>
-                          <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>
-                            {/* {message.isRead ? 'Đã xem' : 'Chưa xem'} */}
-                          </p>
+                          <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>Đã xem</p>
                         </div>
                       </div>
                     </div>

@@ -6,6 +6,7 @@ import { IJobAllResponse, IJobDetailResponse, IJobUniversityApply, IStudentApply
 import { WorkshopResponseCompany } from '@/types/workshop';
 import { formatDateSearch } from '@/utils/app/format';
 import { logOut } from '@/store/slices/user';
+import { ITransactionAllResponse, IWalletsResponse } from '@/types/wallets';
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
@@ -33,7 +34,7 @@ const baseQueryWithForceLogout = async (args, api, extraOptions) => {
 export const adminCompanyApi = createApi({
   reducerPath: 'adminCompanyApi',
   baseQuery: baseQueryWithForceLogout,
-  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply', 'studentsApply'],
+  tagTypes: ['Workshop', 'Company', 'JobCompany', 'Profile', 'UniversityApply', 'studentsApply', 'Wallet'],
   endpoints: builder => {
     return {
       getAllWorShopsUniversity: builder.query<void, void>({
@@ -305,6 +306,52 @@ export const adminCompanyApi = createApi({
         query: ({ id }) => `/company/student-apply-job-detail?studentId=${id}`,
         providesTags: (result, error, { id }) => [{ type: 'studentsApply', id: id }],
       }),
+      //wallet
+      //Get all wallet
+      getAllWallets: builder.query<IWalletsResponse, { accountId: number }>({
+        query: ({ accountId }) => `/account/${accountId}/wallets`,
+        providesTags: (result, error, { accountId }) => [{ type: 'Wallet', id: accountId }],
+      }),
+      //Create Wallet
+      CreateWallet: builder.mutation({
+        query: ({ idAccount, pinCode }) => ({
+          url: `/account/${idAccount}/wallets/create-wallet`,
+          method: 'POST',
+          body: { pinCode: pinCode },
+        }),
+        invalidatesTags: (result, error, { idAccount }) => [{ type: 'Wallet', idAccount }, { type: 'Wallet' }],
+      }),
+      checkWallet: builder.mutation({
+        query: ({ idAccount, pinCode }) => ({
+          url: `/account/${idAccount}/wallets/check-pin-code`,
+          method: 'POST',
+          body: { pinCode: pinCode },
+        }),
+      }),
+      //Add money
+      addMoney: builder.query({
+        query: ({ amount }) => `/payments/vn-pay?amount=${amount}`,
+      }),
+      //Vnpay-callback
+      sendPaymentResult: builder.mutation({
+        query: params => ({
+          url: `/payments/vn-pay-callback?${new URLSearchParams(params)}`,
+          method: 'GET',
+        }),
+      }),
+      //Search transaction
+      getAllTransactions: builder.query<ITransactionAllResponse, { accountId: number; page: number; size: number; keyword: string; sortBy?: string | null }>({
+        query: ({ accountId, page, size, keyword, sortBy }) => {
+          let queryParams = new URLSearchParams();
+          if (page) queryParams.append('page', String(page));
+          if (size) queryParams.append('size', String(size));
+          if (keyword) queryParams.append('keyword', keyword);
+          if (sortBy) queryParams.append('sortBy', sortBy);
+
+          return `/wallet/${accountId}/payment-transactions?${queryParams.toString()}`;
+        },
+        providesTags: [{ type: 'JobCompany' }],
+      }),
     };
   },
 });
@@ -334,4 +381,10 @@ export const {
   useGetAllStudentApplyJobQuery,
   useApproveStudentJobMutation,
   useGetDetailStudentApplyJobQuery,
+  useGetAllWalletsQuery,
+  useLazyAddMoneyQuery,
+  useCreateWalletMutation,
+  useCheckWalletMutation,
+  useSendPaymentResultMutation,
+  useGetAllTransactionsQuery,
 } = adminCompanyApi;
