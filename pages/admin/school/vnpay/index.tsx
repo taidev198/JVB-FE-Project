@@ -30,7 +30,7 @@ const Wallet = () => {
   const idAccount = useAppSelector(state => state.user.idAccount);
   const [openRechargeDialog, setOpenRechargeDialog] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<number>(1);
-  console.log('Check idAccount in vnpay pages: ', idAccount);
+  // console.log('Check idAccount in vnpay pages: ', idAccount);
 
   const { data: dataAllWallets } = useGetAllWalletsQuery({ accountId: idAccount });
 
@@ -277,6 +277,12 @@ const Wallet = () => {
               </div>
               <div>
                 <PieArcLabel />
+              </div>
+            </div>
+
+            <div>
+              <div>
+                <span>Gợi ý</span>
               </div>
             </div>
           </div>
