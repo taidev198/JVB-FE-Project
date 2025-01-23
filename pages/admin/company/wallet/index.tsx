@@ -53,7 +53,7 @@ const Wallet = () => {
       {openRechargeDialog && (
         <RechargeDialog open={openRechargeDialog} onSuccess={handleWalletCreationSuccess} handleCancel={handleCancel} isWallet={isWallet} />
       )}
-      <WalletDashboard />
+      <WalletDashboard dataAllWallets={dataAllWallets} />
     </>
   );
 };

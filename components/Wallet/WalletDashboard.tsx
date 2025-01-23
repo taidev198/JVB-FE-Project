@@ -11,19 +11,23 @@ import dayjs from 'dayjs';
 import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import ModalAddMoneyDialog from './ModalAddMoney';
-import { useGetAllTransactionsQuery, useGetAllWalletsQuery } from '@/services/adminCompanyApi';
+import { useGetAllTransactionsQuery } from '@/services/adminCompanyApi';
 import { useAppSelector } from '@/store/hooks';
 import PaginationComponent from '@/components/Common/Pagination';
 import { setLoading } from '@/store/slices/global';
+import { IWalletsResponse } from '@/types/wallets';
 
 const { RangePicker } = DatePicker;
 
-const WalletDashboard = () => {
+interface Props {
+  dataAllWallets: IWalletsResponse;
+}
+
+const WalletDashboard: React.FC<Props> = ({ dataAllWallets }) => {
   const [keyword, setKeyword] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
   const [size, setSize] = useState<number>(10);
   const dispatch = useDispatch();
-  const idAccount = useAppSelector(state => state.user.idAccount);
   const nameAccount = useAppSelector(state => state.user.name);
   const [modalAddMoney, setModalAddMoney] = useState<boolean>(false);
 
@@ -32,13 +36,11 @@ const WalletDashboard = () => {
     bank: '',
   });
 
-  const { data: dataAllWallets } = useGetAllWalletsQuery({ accountId: idAccount }, { refetchOnMountOrArgChange: true });
-
   const [selectedTransaction, setSelectedTransaction] = useState<number>(1);
 
   const { data: dataTranSaction, isLoading } = useGetAllTransactionsQuery(
     {
-      accountId: dataAllWallets?.data[0].id,
+      accountId: dataAllWallets?.data[0]?.id,
       keyword,
       page: page,
       size: size,
@@ -102,7 +104,7 @@ const WalletDashboard = () => {
                   <div className="flex flex-col">
                     <span className="text-base font-semibold">Tài khoản ví</span>
                     <span className="text-sm text-[#475467]">Số dư khả dụng</span>
-                    <span className="text-2xl font-bold">{dataAllWallets?.data[0].amount.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
+                    <span className="text-2xl font-bold">{dataAllWallets?.data[0]?.amount.toLocaleString('vi', { style: 'currency', currency: 'VND' })}</span>
                   </div>
                   <button
                     className={

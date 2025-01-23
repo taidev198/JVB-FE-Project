@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import { Drawer, useMediaQuery, useTheme } from '@mui/material';
-import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchIcon from '@mui/icons-material/Search';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import UserChatItem from './UserChatItem';
 import { showSidebar } from '@/store/slices/global';
 import { useGetAllChatRoomsQuery, useReadAllMessagesOnAChatRoomMutation } from '@/services/portalHomeApi';
@@ -89,6 +90,28 @@ const SidebarChat = () => {
           client.subscribe(`/topic/new-chatroom`, () => {
             refetch(); // Lấy lại danh sách phòng chat khi có phòng chat mới
           });
+
+          client.subscribe(`/topic/${userId}/new-message`, message => {
+            refetch();
+            const newMessage = JSON.parse(message.body);
+
+            setUserChat(prevChats => {
+              // Update the specific chat room with the new message
+              const updatedChats = prevChats.map(chat => (chat.id === newMessage.chatRoomId ? { ...chat, lastMessage: newMessage } : chat));
+
+              // Sort the chats by the createAt property of the lastMessage
+              return updatedChats.sort((a, b) => {
+                const dateA = new Date(a.lastMessage.createAt).getTime();
+                const dateB = new Date(b.lastMessage.createAt).getTime();
+                return dateB - dateA; // Sort in descending order (newest first)
+              });
+            });
+          });
+
+          client.subscribe(`/topic/new-chatroom`, () => {
+            refetch(); // Lấy lại danh sách phòng chat khi có phòng chat mới
+          });
+
           client.subscribe(`/topic/chatroom/${idRoom}`, message => {
             const newMessage = JSON.parse(message.body);
 
@@ -118,7 +141,6 @@ const SidebarChat = () => {
 
   return (
     <div className="flex h-full flex-col">
-      {/* Header */}
       <div className="border-b border-solid bg-white px-0 py-4 sm:px-5">
         <Logo />
         <div className="mt-5 flex items-center rounded-[20px] border border-[#DBDADE] px-[14px]">
@@ -126,7 +148,11 @@ const SidebarChat = () => {
           <input
             type="text"
             value={keyword}
-            onChange={e => setKeyword(e.target.value)}
+            onChange={e => {
+              setKeyword(e.target.value);
+              setPage(1); // Reset to page 1 when searching
+              refetch(); // Fetch new data based on the keyword
+            }}
             className="w-[90%] border-none placeholder:text-[15px] placeholder:text-[#4B465C]"
             placeholder="Tìm kiếm đoạn chat..."
           />
@@ -148,7 +174,7 @@ const SidebarChat = () => {
                   readMessage({ chatRoomId: user?.id });
                 }}
                 lastMessage={user?.member.id !== userId ? 'Sent: ' + user?.lastMessage?.content : user?.lastMessage.content}
-                time={dayjs(user?.lastMessage?.createAt).format('HH:mm')}
+                time={formatDistanceToNow(new Date(user?.lastMessage?.createAt), { addSuffix: true, locale: vi })}
                 isRead={user?.lastMessage?.isRead}
               />
             ))

@@ -1,5 +1,6 @@
-import { useRouter } from 'next/router';
+/* eslint-disable no-console */
 import React, { memo, ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Navbar from './Sidebar';
 import Header from '@/components/Header/Header';
@@ -18,6 +19,9 @@ const AdminSchoolLayout = memo(({ children }: { children: ReactNode }) => {
       router.push('/auth/login');
     }
   }, [roleAccount, router]);
+
+  console.log('Check isLoading: ', isLoading);
+
   return (
     <>
       {/* Loading Overlay */}
