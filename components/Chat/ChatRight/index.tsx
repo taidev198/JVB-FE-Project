@@ -209,9 +209,6 @@ const ChatRight = () => {
                               className={`absolute flex flex-row flex-nowrap gap-1 ${
                                 message.sender.id === idAccount ? 'right-full -translate-x-2' : 'left-full translate-x-2'
                               }`}>
-                              {/* <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white shadow-lg">
-                                <ReplyIcon style={{ width: '20px', height: '20px' }} />
-                              </div> */}
                               {message.sender.id === idAccount && (
                                 <div
                                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
