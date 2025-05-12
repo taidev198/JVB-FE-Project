@@ -103,7 +103,7 @@ const ChatRight = () => {
   useEffect(() => {
     const connectToWebSocket = () => {
       const client = new Client({
-        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
+        webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/ws/stomp`),
         onConnect: () => {
           setStompClient(client);
           client.subscribe(`/topic/chatroom/${idRoom}`, () => {

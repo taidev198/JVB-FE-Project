@@ -38,7 +38,7 @@ const LinkCard: React.FC<LinkCardProps> = ({ logoUrl, name, shortDes, websiteUrl
 
   const connectToWebSocket = useCallback(() => {
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
+      webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/ws/stomp`),
       onConnect: () => {
         setStompClient(client);
         refetch();

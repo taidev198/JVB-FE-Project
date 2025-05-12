@@ -85,7 +85,7 @@ const SidebarChat = () => {
   useEffect(() => {
     const connectToWebSocket = () => {
       const client = new Client({
-        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
+        webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/ws/stomp`),
         onConnect: () => {
           client.subscribe(`/topic/new-chatroom`, () => {
             refetch(); // Lấy lại danh sách phòng chat khi có phòng chat mới
