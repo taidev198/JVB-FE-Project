@@ -16,6 +16,7 @@ import { useAppSelector } from '@/store/hooks';
 import { setIdRoom, setNamePartnerChat, setReceiverId } from '@/store/slices/chatSlice';
 import Logo from '@/components/Logo';
 import { chatRoomResponse } from '@/types/chatType';
+import { useDebounce } from 'use-debounce';
 
 const SidebarChat = () => {
   const userId = useAppSelector(state => state.user.idAccount);
@@ -39,19 +40,30 @@ const SidebarChat = () => {
   const previousDataRef = useRef<chatRoomResponse>();
 
   useEffect(() => {
-    if (data && isSuccess && previousDataRef.current !== data) {
-      if (data?.data?.content.length === 0) {
-        setHasMore(false);
-        return;
-      }
-      previousDataRef.current = data;
+    previousDataRef.current = data;
 
-      // Avoid adding duplicate chat rooms
-      const newChats = data.data.content.filter(newChat => !userChat.some(existingChat => existingChat.id === newChat.id));
-
-      setUserChat(prevChats => [...prevChats, ...newChats]);
+    if (page === 1) {
+      // New search or reset
+      setUserChat(data.data.content || []);
+    } else {
+      // Pagination
+      setUserChat(prev => [
+        ...prev,
+        ...data.data.content.filter(item => !prev.some(p => p.id === item.id)),
+      ]);
     }
+
+    // Check if there's more data
+    setHasMore((data.data.content?.length || 0) === size);
   }, [data, isSuccess, page, userChat, userChat.length]);
+
+  useEffect(() => {
+    setPage(1);
+    setUserChat([]);
+    setHasMore(true);
+    refetch();
+  }, [keyword]);
+  
 
   const handleScroll = useCallback(
     throttle(() => {
@@ -96,6 +108,7 @@ const SidebarChat = () => {
             const newMessage = JSON.parse(message.body);
 
             setUserChat(prevChats => {
+              console.log('setUserChat on new-message');
               // Update the specific chat room with the new message
               const updatedChats = prevChats.map(chat => (chat.id === newMessage.chatRoomId ? { ...chat, lastMessage: newMessage } : chat));
 
@@ -103,7 +116,7 @@ const SidebarChat = () => {
               return updatedChats.sort((a, b) => {
                 const dateA = new Date(a.lastMessage.createAt).getTime();
                 const dateB = new Date(b.lastMessage.createAt).getTime();
-                return dateB - dateA; // Sort in descending order (newest first)
+                return dateB - dateA; // Sort in descending order (newest message comes firstly)
               });
             });
           });
@@ -116,6 +129,7 @@ const SidebarChat = () => {
             const newMessage = JSON.parse(message.body);
 
             setUserChat(prevChats => {
+              console.log('setUserChat on chatroom');
               const updatedChats = prevChats.map(chat => (chat.id === newMessage.chatRoomId ? { ...chat, lastMessage: newMessage } : chat));
 
               return updatedChats;
@@ -150,9 +164,11 @@ const SidebarChat = () => {
             value={keyword}
             onChange={e => {
               setKeyword(e.target.value);
-              setPage(1); // Reset to page 1 when searching
-              refetch(); // Fetch new data based on the keyword
-            }}
+              setPage(1);
+              setHasMore(true);
+              setUserChat([]);//set to update new data
+            }
+            }
             className="w-[90%] border-none placeholder:text-[15px] placeholder:text-[#4B465C]"
             placeholder="Tìm kiếm đoạn chat..."
           />
