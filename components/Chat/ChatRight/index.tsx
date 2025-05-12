@@ -62,6 +62,14 @@ const ChatRight = () => {
 
   useEffect(() => {
     refetchMessage();
+    if(chats?.length > 0 ) {
+      chats.forEach((chat) => {
+        console.log(chat);
+        console.log('chat', chat.sender.id);
+        console.log('idAccount', idAccount);
+      }
+      );
+    }
   }, [idRoom]);
 
   useEffect(() => {

@@ -189,7 +189,7 @@ const SidebarChat = () => {
                   dispatch(setReceiverId(user?.member.id !== userId ? user?.member.id : user?.owner.id));
                   readMessage({ chatRoomId: user?.id });
                 }}
-                lastMessage={user?.member.id !== userId ? 'Sent: ' + user?.lastMessage?.content : user?.lastMessage.content}
+                lastMessage={user?.lastMessage.sender.id === userId ? 'Sent: ' + user?.lastMessage?.content : user?.lastMessage.content}
                 time={formatDistanceToNow(new Date(user?.lastMessage?.createAt), { addSuffix: true, locale: vi })}
                 isRead={user?.lastMessage?.isRead}
               />
