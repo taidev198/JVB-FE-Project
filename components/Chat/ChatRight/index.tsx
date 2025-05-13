@@ -41,6 +41,7 @@ const ChatRight = () => {
   const [deleteOneMessage] = useDeleteOneMessageMutation();
   const [replyingTo, setReplyingTo] = useState(null);
   const [touchStartX, setTouchStartX] = useState(0);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
 const handleTouchStart = (e) => {
   setTouchStartX(e.changedTouches[0].clientX);
@@ -104,12 +105,12 @@ const handleTouchEnd = (e, message) => {
     throttle(() => {
       if (!hasMore) return;
 
-      //const scrollContainer = scrollContainerRef.current;
-      //const scrollTop = scrollContainer.scrollTop;
+      const scrollContainer = scrollContainerRef.current;
+      const scrollTop = scrollContainer.scrollTop;
 
-      // if (scrollTop <= 100) {
-      //   setPage(prevPage => prevPage + 1);
-      // }
+      if (scrollTop <= 100) {
+        setPage(prevPage => prevPage + 1);
+      }
     }, 500),
     [hasMore]
   );
@@ -161,6 +162,11 @@ const handleTouchEnd = (e, message) => {
       if (client) client.deactivate();
     };
   }, [refetch, idRoom]);
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [chats]); // Run every time new messages are set
 
   const sendMessage = () => {
     if (stompClient && stompClient.connected) {
@@ -296,6 +302,7 @@ const handleTouchEnd = (e, message) => {
           ) : (
             <p className="text-center">Hãy bắt đầu cuộc trò chuyện bằng một lời chào 😍</p>
           )}
+        <div ref={bottomRef}></div>
         </div>
         {replyingTo && (
       <div className="px-4 py-2 text-sm bg-gray-200 border-b">
