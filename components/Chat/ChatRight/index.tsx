@@ -9,6 +9,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import ReplyIcon from '@mui/icons-material/Reply';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { showSidebar } from '@/store/slices/global';
@@ -17,6 +18,7 @@ import { BackdropType, setBackdrop } from '@/store/slices/global';
 import { useDeleteOneMessageMutation, useGetAllMessagesQuery } from '@/services/portalHomeApi';
 import { ChatResponse } from '@/types/chatType';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import { useSwipeable } from 'react-swipeable';
 
 const ChatRight = () => {
   const [page, setPage] = useState<number>(1);
@@ -26,6 +28,7 @@ const ChatRight = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [stompClient, setStompClient] = useState(null);
   const [idDelete, setIdDelete] = useState(null);
+  const [idReplyMes, setIdReplyMes] = useState(null);
   const { idRoom, namePartnerChat, receiverId } = useAppSelector(state => state.chat);
   const { idAccount } = useAppSelector(state => state.user);
   const [hoveredMessage, setHoveredMessage] = useState<number | null>(null);
@@ -36,6 +39,20 @@ const ChatRight = () => {
   const previousDataRef = useRef<ChatResponse | undefined>(undefined);
   const showBackdrop = useAppSelector(state => state.global.backdropType);
   const [deleteOneMessage] = useDeleteOneMessageMutation();
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [touchStartX, setTouchStartX] = useState(0);
+
+const handleTouchStart = (e) => {
+  setTouchStartX(e.changedTouches[0].clientX);
+};
+
+const handleTouchEnd = (e, message) => {
+  const touchEndX = e.changedTouches[0].clientX;
+  const delta = touchEndX - touchStartX;
+  if (delta > 50) {
+    handleSwipeReply(message.content);
+  }
+};
 
   const { data, isSuccess, refetch } = useGetAllMessagesQuery(
     { roomId: idRoom, page, size },
@@ -97,6 +114,11 @@ const ChatRight = () => {
     [hasMore]
   );
 
+  const handleSwipeReply = (messageContent: string) => {
+  setInputValue(`@${messageContent} `); // pre-fill the reply
+  };
+
+
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) return;
@@ -149,9 +171,11 @@ const ChatRight = () => {
           senderId: idAccount,
           receiverId: receiverId,
           content: inputValue,
+          referChatId: replyingTo?.id,
           chatType: 'TEXT',
         }),
       });
+      setReplyingTo(null); // Clear the replyingTo state after sending the message
       setInputValue('');
       refetch();
     } else {
@@ -198,7 +222,10 @@ const ChatRight = () => {
               .slice()
               .reverse()
               .map((message, index) => (
-                <div key={index}>
+                <div key={index}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={(e) => handleTouchEnd(e, message)}
+                >
                   <div
                     className={`flex w-full ${message.sender.id === idAccount ? 'justify-end' : ''}`}
                     onMouseEnter={() => setHoveredMessage(message.id)}
@@ -206,6 +233,12 @@ const ChatRight = () => {
                     <div className={`flex max-w-[60%] ${message.sender.id === idAccount ? 'justify-end ' : ''}`}>
                       <div className="relative my-1 flex flex-col">
                         <div className="relative flex justify-center gap-5">
+                          {/* Replied to message block */}
+                          {message.referChat && (
+                            <div className="mb-1 rounded-md bg-gray-100 px-3 py-1 text-sm text-gray-600 shadow-inner">
+                              Đang trả lời: {message.referChat.content}
+                            </div>
+                          )}
                           <div
                             className={`flex rounded-bl-lg rounded-br-lg px-4 py-2 shadow-lg ${
                               message.sender.id === idAccount ? ' justify-end rounded-tl-lg bg-[#246AA3] text-white' : 'rounded-tr-lg bg-white'
@@ -232,6 +265,17 @@ const ChatRight = () => {
                                   </Tooltip>
                                 </div>
                               )}
+                              <div
+                                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
+                                  onClick={() => {
+                                    setIdReplyMes(message?.id);//set id reply message
+                                    setReplyingTo(message);
+                                    setInputValue(`@${message?.content} `); // pre-fill the reply
+                                  }}>
+                                  <Tooltip title="Rep tin nhắn" placement="top">
+                                    <ReplyIcon style={{ width: '20px', height: '20px' }} />
+                                  </Tooltip>
+                              </div>
                             </div>
                           )}
                         </div>
@@ -253,7 +297,13 @@ const ChatRight = () => {
             <p className="text-center">Hãy bắt đầu cuộc trò chuyện bằng một lời chào 😍</p>
           )}
         </div>
-
+        {replyingTo && (
+      <div className="px-4 py-2 text-sm bg-gray-200 border-b">
+        <span>Đang trả lời: </span>
+        <strong>{replyingTo?.content}</strong>
+        <button onClick={() => setReplyingTo(null)} className="ml-2 text-red-500">Hủy</button>
+      </div>
+    )}
         <div
           className={`${
             !idRoom ? 'cursor-not-allowed opacity-50' : ''
