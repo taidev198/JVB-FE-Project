@@ -42,6 +42,7 @@ const ChatRight = () => {
   const [replyingTo, setReplyingTo] = useState(null);
   const [touchStartX, setTouchStartX] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
 const handleTouchStart = (e) => {
   setTouchStartX(e.changedTouches[0].clientX);
@@ -137,6 +138,7 @@ const handleTouchEnd = (e, message) => {
         webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/ws/stomp`),
         onConnect: () => {
           setStompClient(client);
+          setIsConnected(true);
           client.subscribe(`/topic/chatroom/${idRoom}`, () => {
             refetchMessage();
             refetch();
@@ -150,6 +152,14 @@ const handleTouchEnd = (e, message) => {
           console.error('STOMP Error:', frame.headers['message']);
           console.error('Details:', frame.body);
         },
+        onDisconnect: () => {
+          if(client !== null) {
+            client.deactivate();
+            setIsConnected(false);
+          }
+          console.log('disconnect');
+          
+        },
       });
 
       client.activate();
@@ -159,7 +169,11 @@ const handleTouchEnd = (e, message) => {
     const client = connectToWebSocket();
 
     return () => {
-      if (client) client.deactivate();
+      if (client) {
+        client.deactivate();
+        setIsConnected(false);
+      }
+
     };
   }, [refetch, idRoom]);
   useEffect(() => {
