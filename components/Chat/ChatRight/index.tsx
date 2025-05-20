@@ -5,6 +5,7 @@ import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
 import { Client } from '@stomp/stompjs';
 import { useDispatch } from 'react-redux';
 import { Avatar, Tooltip, useMediaQuery, useTheme } from '@mui/material';
+import VideoCallIcon from '@mui/icons-material/VideoCall';
 import MenuIcon from '@mui/icons-material/Menu';
 import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
@@ -221,6 +222,13 @@ const handleTouchEnd = (e, message) => {
     }
   };
 
+  const handleVideoCallBtn = () => {
+    const data = encodeURIComponent(JSON.stringify({ userId: idAccount }));
+    const windowFeatures = 'width=800,height=600,noopener,noreferrer';
+    const url = `http://localhost:3000/portal/video-call?data=${data}`
+    window.open(url, '_blank', windowFeatures);
+  }
+
   return (
     <div className="flex h-screen flex-col">
       <div className="border-b bg-white py-4">
@@ -232,6 +240,7 @@ const handleTouchEnd = (e, message) => {
           )}
           <Avatar>G</Avatar>
           <p className="text-base font-medium text-gray-700">{namePartnerChat}</p>
+          <VideoCallIcon onClick = {handleVideoCallBtn}></VideoCallIcon>
         </div>
       </div>
 

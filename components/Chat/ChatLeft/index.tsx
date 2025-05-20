@@ -44,7 +44,7 @@ const SidebarChat = () => {
 
     if (page === 1) {
       // New search or reset
-      setUserChat(data.data.content || []);
+      setUserChat(data?.data?.content || []);
     } else {
       // Pagination
       setUserChat(prev => [
@@ -54,7 +54,7 @@ const SidebarChat = () => {
     }
 
     // Check if there's more data
-    setHasMore((data.data.content?.length || 0) === size);
+    setHasMore((data?.data.content?.length || 0) === size);
   }, [data, isSuccess, page, userChat, userChat.length]);
 
   useEffect(() => {
