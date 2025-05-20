@@ -11,6 +11,7 @@ import SendIcon from '@mui/icons-material/Send';
 import { IconButton } from '@mui/material';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import ReplyIcon from '@mui/icons-material/Reply';
+import ImageIcon from '@mui/icons-material/Image';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { showSidebar } from '@/store/slices/global';
@@ -44,6 +45,10 @@ const ChatRight = () => {
   const [touchStartX, setTouchStartX] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
 const handleTouchStart = (e) => {
   setTouchStartX(e.changedTouches[0].clientX);
@@ -229,6 +234,133 @@ const handleTouchEnd = (e, message) => {
     window.open(url, '_blank', windowFeatures);
   }
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        handleImageSelect(file);
+      }
+    }
+  };
+
+  const handleImageSelect = (file: File) => {
+    setSelectedImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleImageSelect(file);
+    }
+  };
+
+  const sendImage = () => {
+    console.log('Starting image send process...');
+    console.log('WebSocket status:', {
+      hasStompClient: !!stompClient,
+      isConnected: stompClient?.connected,
+      hasSelectedImage: !!selectedImage,
+      roomId: idRoom,
+      senderId: idAccount,
+      receiverId: receiverId
+    });
+
+    if (!stompClient) {
+      console.error('STOMP client is not initialized');
+      return;
+    }
+
+    if (!stompClient.connected) {
+      console.error('STOMP client is not connected');
+      return;
+    }
+
+    if (!selectedImage) {
+      console.error('No image selected');
+      return;
+    }
+
+    if (!idRoom || !idAccount || !receiverId) {
+      console.error('Missing required data:', { idRoom, idAccount, receiverId });
+      return;
+    }
+
+    try {
+      const reader = new FileReader();
+      
+      reader.onloadend = () => {
+        try {
+          const base64Image = reader.result as string;
+          console.log('Image converted to base64, length:', base64Image.length);
+          
+          const message = {
+            chatRoomId: idRoom,
+            senderId: idAccount,
+            receiverId: receiverId,
+            content: base64Image,
+            referChatId: replyingTo?.id,
+            chatType: 'IMAGE'
+          };
+          
+          console.log('Sending image message:', {
+            destination: `/app/chatroom/${idRoom}`,
+            messageType: 'IMAGE',
+            contentLength: base64Image.length,
+            message
+          });
+
+          stompClient.publish({
+            destination: `/app/chatroom/${idRoom}`,
+            body: JSON.stringify(message)
+          });
+
+          console.log('Image message sent successfully');
+          setSelectedImage(null);
+          setImagePreview(null);
+          refetch();
+        } catch (error) {
+          console.error('Error in onloadend handler:', error);
+        }
+      };
+
+      reader.onerror = (error) => {
+        console.error('Error reading file:', error);
+      };
+
+      reader.readAsDataURL(selectedImage);
+    } catch (error) {
+      console.error('Error in sendImage:', error);
+    }
+  };
+
+  const cancelImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
+
   return (
     <div className="flex h-screen flex-col">
       <div className="border-b bg-white py-4">
@@ -244,7 +376,19 @@ const handleTouchEnd = (e, message) => {
         </div>
       </div>
 
-      <div className="relative h-full overflow-y-auto bg-gray-50">
+      <div 
+        className="relative h-full overflow-y-auto bg-gray-50"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="rounded-lg bg-white p-4 text-center">
+              <p>Drop your image here</p>
+            </div>
+          </div>
+        )}
         <div ref={scrollContainerRef} className="h-[90%] space-y-2 overflow-y-auto p-8">
           {chats.length > 0 ? (
             chats
@@ -334,10 +478,44 @@ const handleTouchEnd = (e, message) => {
         <button onClick={() => setReplyingTo(null)} className="ml-2 text-red-500">Hủy</button>
       </div>
     )}
+        {imagePreview && (
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 transform rounded-lg bg-white p-4 shadow-lg">
+            <img src={imagePreview} alt="Preview" className="max-h-40 rounded" />
+            <div className="mt-2 flex justify-end gap-2">
+              <button
+                onClick={cancelImage}
+                className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendImage}
+                className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
+                disabled={!stompClient?.connected}
+              >
+                {stompClient?.connected ? 'Send' : 'Connecting...'}
+              </button>
+            </div>
+          </div>
+        )}
         <div
           className={`${
             !idRoom ? 'cursor-not-allowed opacity-50' : ''
           } absolute bottom-5 left-1/2 flex w-[96%] -translate-x-1/2 transform items-center rounded-lg bg-white shadow-md`}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileInputChange}
+            accept="image/*"
+            className="hidden"
+          />
+          <IconButton 
+            disabled={!idRoom} 
+            className="!p-2" 
+            onClick={handleImageClick}
+          >
+            <ImageIcon className="text-primary-main" fontSize="medium" />
+          </IconButton>
           <textarea
             name=""
             id=""
@@ -346,7 +524,8 @@ const handleTouchEnd = (e, message) => {
             onKeyDown={handleKeyDown}
             onChange={e => setInputValue(e.target.value)}
             className="h-5 w-full border-none focus:outline-none"
-            style={{ boxShadow: 'none' }}></textarea>
+            style={{ boxShadow: 'none' }}
+          />
           <IconButton disabled={!idRoom} className="!p-2" onClick={sendMessage}>
             <SendIcon className="text-primary-main" fontSize="medium" />
           </IconButton>
