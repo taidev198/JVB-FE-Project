@@ -21,6 +21,15 @@ import { useDeleteOneMessageMutation, useGetAllMessagesQuery } from '@/services/
 import { ChatResponse } from '@/types/chatType';
 import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { useSwipeable } from 'react-swipeable';
+import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import CloseIcon from '@mui/icons-material/Close';
+
+const MAX_IMAGE_SIZE = 800; // Maximum width/height in pixels
+const QUALITY = 0.7; // JPEG quality (0.7 = 70% quality)
 
 const ChatRight = () => {
   const [page, setPage] = useState<number>(1);
@@ -49,18 +58,22 @@ const ChatRight = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-const handleTouchStart = (e) => {
-  setTouchStartX(e.changedTouches[0].clientX);
-};
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.changedTouches[0].clientX);
+  };
 
-const handleTouchEnd = (e, message) => {
-  const touchEndX = e.changedTouches[0].clientX;
-  const delta = touchEndX - touchStartX;
-  if (delta > 50) {
-    handleSwipeReply(message.content);
-  }
-};
+  const handleTouchEnd = (e, message) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const delta = touchEndX - touchStartX;
+    if (delta > 50) {
+      handleSwipeReply(message.content);
+    }
+  };
 
   const { data, isSuccess, refetch } = useGetAllMessagesQuery(
     { roomId: idRoom, page, size },
@@ -123,9 +136,8 @@ const handleTouchEnd = (e, message) => {
   );
 
   const handleSwipeReply = (messageContent: string) => {
-  setInputValue(`@${messageContent} `); // pre-fill the reply
+    setInputValue(`@${messageContent} `); // pre-fill the reply
   };
-
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -266,8 +278,12 @@ const handleTouchEnd = (e, message) => {
     reader.readAsDataURL(file);
   };
 
-  const handleImageClick = () => {
-    fileInputRef.current?.click();
+  const handleImageClick = (imageUrl: string) => {
+    setPreviewImage(imageUrl);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewImage(null);
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -277,88 +293,150 @@ const handleTouchEnd = (e, message) => {
     }
   };
 
-  const sendImage = () => {
-    console.log('Starting image send process...');
-    console.log('WebSocket status:', {
-      hasStompClient: !!stompClient,
-      isConnected: stompClient?.connected,
-      hasSelectedImage: !!selectedImage,
-      roomId: idRoom,
-      senderId: idAccount,
-      receiverId: receiverId
+  const uploadImage = async (file: File): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      return response.data.url; // Assuming the API returns the image URL
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  };
+
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_IMAGE_SIZE) {
+              height = Math.round((height * MAX_IMAGE_SIZE) / width);
+              width = MAX_IMAGE_SIZE;
+            }
+          } else {
+            if (height > MAX_IMAGE_SIZE) {
+              width = Math.round((width * MAX_IMAGE_SIZE) / height);
+              height = MAX_IMAGE_SIZE;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                const compressedFile = new File([blob], file.name, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                console.log('Original size:', file.size, 'bytes');
+                console.log('Compressed size:', compressedFile.size, 'bytes');
+                resolve(compressedFile);
+              } else {
+                reject(new Error('Failed to compress image'));
+              }
+            },
+            'image/jpeg',
+            QUALITY
+          );
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
     });
+  };
 
-    if (!stompClient) {
-      console.error('STOMP client is not initialized');
-      return;
-    }
-
-    if (!stompClient.connected) {
-      console.error('STOMP client is not connected');
-      return;
-    }
-
-    if (!selectedImage) {
-      console.error('No image selected');
-      return;
-    }
-
-    if (!idRoom || !idAccount || !receiverId) {
-      console.error('Missing required data:', { idRoom, idAccount, receiverId });
+  const sendImage = async () => {
+    if (!stompClient?.connected || !selectedImage || !idRoom || !idAccount || !receiverId) {
+      console.error('Missing required data or connection');
       return;
     }
 
     try {
-      const reader = new FileReader();
+      setIsUploading(true);
+      const imageUrl = await uploadImage(selectedImage);
       
-      reader.onloadend = () => {
-        try {
-          const base64Image = reader.result as string;
-          console.log('Image converted to base64, length:', base64Image.length);
-          
-          const message = {
-            chatRoomId: idRoom,
-            senderId: idAccount,
-            receiverId: receiverId,
-            content: base64Image,
-            referChatId: replyingTo?.id,
-            chatType: 'IMAGE'
-          };
-          
-          console.log('Sending image message:', {
-            destination: `/app/chatroom/${idRoom}`,
-            messageType: 'IMAGE',
-            contentLength: base64Image.length,
-            message
-          });
-
-          stompClient.publish({
-            destination: `/app/chatroom/${idRoom}`,
-            body: JSON.stringify(message)
-          });
-
-          console.log('Image message sent successfully');
-          setSelectedImage(null);
-          setImagePreview(null);
-          refetch();
-        } catch (error) {
-          console.error('Error in onloadend handler:', error);
-        }
+      const message = {
+        chatRoomId: idRoom,
+        senderId: idAccount,
+        receiverId: receiverId,
+        content: imageUrl,
+        referChatId: replyingTo?.id,
+        chatType: 'IMAGE'
       };
+      
+      console.log('Sending image message:', {
+        destination: `/app/chatroom/${idRoom}`,
+        messageType: 'IMAGE',
+        imageUrl
+      });
 
-      reader.onerror = (error) => {
-        console.error('Error reading file:', error);
-      };
+      stompClient.publish({
+        destination: `/app/chatroom/${idRoom}`,
+        body: JSON.stringify(message)
+      });
 
-      reader.readAsDataURL(selectedImage);
+      console.log('Image message sent successfully');
+      setSelectedImage(null);
+      setImagePreview(null);
+      refetch();
     } catch (error) {
       console.error('Error in sendImage:', error);
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const cancelImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
+  };
+
+  const renderMessageContent = (message: any) => {
+    if (message.type === 'IMAGE') {
+      const imageUrl = message.content?.startsWith('http') ? message.content : null;
+
+      if (!imageUrl) {
+        return <p>Invalid image URL</p>;
+      }
+
+      return (
+        <div className="relative group">
+          <div className="relative w-[300px] h-[200px]">
+            <img 
+              src={imageUrl} 
+              alt="Shared image" 
+              className="w-full h-full rounded-lg object-contain cursor-pointer"
+              onClick={() => handleImageClick(imageUrl)}
+            />
+          </div>
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity rounded-lg" />
+        </div>
+      );
+    }
+    return <p>{message.content}</p>;
   };
 
   return (
@@ -414,18 +492,17 @@ const handleTouchEnd = (e, message) => {
                           )}
                           <div
                             className={`flex rounded-bl-lg rounded-br-lg px-4 py-2 shadow-lg ${
-                              message.sender.id === idAccount ? ' justify-end rounded-tl-lg bg-[#246AA3] text-white' : 'rounded-tr-lg bg-white'
-                            }`}>
-                            <p>{message.content}</p>
+                              message.sender.id === idAccount 
+                                ? 'justify-end rounded-tl-lg bg-[#246AA3] text-white' 
+                                : 'rounded-tr-lg bg-white'
+                            } ${message.chatType === 'IMAGE' ? 'p-2' : ''}`}>
+                            {renderMessageContent(message)}
                           </div>
                           {hoveredMessage === message.id && (
                             <div
                               className={`absolute flex flex-row flex-nowrap gap-1 ${
                                 message.sender.id === idAccount ? 'right-full -translate-x-2' : 'left-full translate-x-2'
                               }`}>
-                              {/* <div className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white shadow-lg">
-                                <ReplyIcon style={{ width: '20px', height: '20px' }} />
-                              </div> */}
                               {message.sender.id === idAccount && (
                                 <div
                                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
@@ -439,15 +516,15 @@ const handleTouchEnd = (e, message) => {
                                 </div>
                               )}
                               <div
-                                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
-                                  onClick={() => {
-                                    setIdReplyMes(message?.id);//set id reply message
-                                    setReplyingTo(message);
-                                    setInputValue(`@${message?.content} `); // pre-fill the reply
-                                  }}>
-                                  <Tooltip title="Rep tin nhắn" placement="top">
-                                    <ReplyIcon style={{ width: '20px', height: '20px' }} />
-                                  </Tooltip>
+                                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
+                                onClick={() => {
+                                  setIdReplyMes(message?.id);
+                                  setReplyingTo(message);
+                                  setInputValue(`@${message?.content} `);
+                                }}>
+                                <Tooltip title="Rep tin nhắn" placement="top">
+                                  <ReplyIcon style={{ width: '20px', height: '20px' }} />
+                                </Tooltip>
                               </div>
                             </div>
                           )}
@@ -469,7 +546,7 @@ const handleTouchEnd = (e, message) => {
           ) : (
             <p className="text-center">Hãy bắt đầu cuộc trò chuyện bằng một lời chào 😍</p>
           )}
-        <div ref={bottomRef}></div>
+          <div ref={bottomRef}></div>
         </div>
         {replyingTo && (
       <div className="px-4 py-2 text-sm bg-gray-200 border-b">
@@ -485,15 +562,16 @@ const handleTouchEnd = (e, message) => {
               <button
                 onClick={cancelImage}
                 className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+                disabled={isUploading}
               >
                 Cancel
               </button>
               <button
                 onClick={sendImage}
-                className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600"
-                disabled={!stompClient?.connected}
+                className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:bg-gray-400"
+                disabled={!stompClient?.connected || isUploading}
               >
-                {stompClient?.connected ? 'Send' : 'Connecting...'}
+                {isUploading ? 'Uploading...' : 'Send'}
               </button>
             </div>
           </div>
@@ -512,7 +590,7 @@ const handleTouchEnd = (e, message) => {
           <IconButton 
             disabled={!idRoom} 
             className="!p-2" 
-            onClick={handleImageClick}
+            onClick={() => fileInputRef.current?.click()}
           >
             <ImageIcon className="text-primary-main" fontSize="medium" />
           </IconButton>
@@ -531,6 +609,32 @@ const handleTouchEnd = (e, message) => {
           </IconButton>
         </div>
       </div>
+
+      {/* Image Preview Modal */}
+      <Dialog
+        open={!!previewImage}
+        onClose={handleClosePreview}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogContent className="relative p-0">
+          <IconButton
+            onClick={handleClosePreview}
+            className="absolute right-2 top-2 z-10 bg-white/80 hover:bg-white"
+          >
+            <CloseIcon />
+          </IconButton>
+          {previewImage && (
+            <div className="flex items-center justify-center min-h-[80vh]">
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="max-w-full max-h-[80vh] object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
