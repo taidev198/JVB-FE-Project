@@ -27,6 +27,19 @@ import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import CloseIcon from '@mui/icons-material/Close';
+import MicIcon from '@mui/icons-material/Mic';
+import StopIcon from '@mui/icons-material/Stop';
+import AudioFileIcon from '@mui/icons-material/AudioFile';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import DownloadIcon from '@mui/icons-material/Download';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DescriptionIcon from '@mui/icons-material/Description';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 
 const MAX_IMAGE_SIZE = 800; // Maximum width/height in pixels
 const QUALITY = 0.7; // JPEG quality (0.7 = 70% quality)
@@ -62,6 +75,14 @@ const ChatRight = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleTouchStart = (e) => {
     setTouchStartX(e.changedTouches[0].clientX);
@@ -286,10 +307,61 @@ const ChatRight = () => {
     setPreviewImage(null);
   };
 
+  const getFileIcon = (fileType: string) => {
+    if (fileType.includes('pdf')) {
+      return <PictureAsPdfIcon className="text-red-500" />;
+    } else if (fileType.includes('word') || fileType.includes('doc')) {
+      return <DescriptionIcon className="text-blue-500" />;
+    } else if (fileType.includes('excel') || fileType.includes('sheet') || fileType.includes('csv')) {
+      return <TableChartIcon className="text-green-500" />;
+    } else if (fileType.includes('text')) {
+      return <TextSnippetIcon className="text-gray-500" />;
+    }
+    return <InsertDriveFileIcon className="text-primary-main" />;
+  };
+
+  const getFileTypeName = (fileType: string) => {
+    if (fileType.includes('pdf')) {
+      return 'PDF Document';
+    } else if (fileType.includes('word') || fileType.includes('doc')) {
+      return 'Word Document';
+    } else if (fileType.includes('excel') || fileType.includes('sheet') || fileType.includes('csv')) {
+      return 'Excel Spreadsheet';
+    } else if (fileType.includes('text')) {
+      return 'Text Document';
+    }
+    return 'File';
+  };
+
+  const handleFileSelect = (file: File) => {
+    // Check if file type is allowed
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'application/vnd.ms-powerpoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Please select a valid document file (PDF, Word, Excel, PowerPoint, or Text)');
+      return;
+    }
+
+    setSelectedFile(file);
+  };
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      handleImageSelect(file);
+      handleFileSelect(file);
     }
   };
 
@@ -414,6 +486,128 @@ const ChatRight = () => {
     setImagePreview(null);
   };
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+        const url = URL.createObjectURL(audioBlob);
+        setAudioUrl(url);
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      setIsRecording(false);
+    }
+  };
+
+  const sendAudio = async () => {
+    if (!stompClient?.connected || !audioBlob || !idRoom || !idAccount || !receiverId) {
+      console.error('Missing required data or connection');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'audio.webm');
+      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      const audioUrl = response.data.url;
+      
+      const message = {
+        chatRoomId: idRoom,
+        senderId: idAccount,
+        receiverId: receiverId,
+        content: audioUrl,
+        referChatId: replyingTo?.id,
+        chatType: 'AUDIO'
+      };
+
+      stompClient.publish({
+        destination: `/app/chatroom/${idRoom}`,
+        body: JSON.stringify(message)
+      });
+
+      setAudioBlob(null);
+      setAudioUrl(null);
+      refetch();
+    } catch (error) {
+      console.error('Error sending audio:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const cancelAudio = () => {
+    setAudioBlob(null);
+    setAudioUrl(null);
+  };
+
+  const handlePlayPause = (messageId: string) => {
+    const audioElement = audioRefs.current[messageId];
+    if (!audioElement) return;
+
+    if (playingAudio === messageId) {
+      audioElement.pause();
+      setPlayingAudio(null);
+    } else {
+      // Stop any currently playing audio
+      if (playingAudio && audioRefs.current[playingAudio]) {
+        audioRefs.current[playingAudio].pause();
+      }
+      audioElement.play();
+      setPlayingAudio(messageId);
+    }
+  };
+
+  const handleAudioEnded = (messageId: string) => {
+    setPlayingAudio(null);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const renderMessageContent = (message: any) => {
     if (message.type === 'IMAGE') {
       const imageUrl = message.content?.startsWith('http') ? message.content : null;
@@ -435,8 +629,142 @@ const ChatRight = () => {
           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity rounded-lg" />
         </div>
       );
+    } else if (message.type === 'AUDIO') {
+      return (
+        <div className="flex items-center gap-2 min-w-[200px]">
+          <button
+            onClick={() => handlePlayPause(message.id)}
+            className={`flex items-center justify-center w-8 h-8 rounded-full ${
+              message.sender.id === idAccount ? 'bg-white' : 'bg-gray-100'
+            }`}
+          >
+            {playingAudio === message.id ? (
+              <PauseIcon className="text-primary-main" />
+            ) : (
+              <PlayArrowIcon className="text-primary-main" />
+            )}
+          </button>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <VolumeUpIcon className="text-gray-500" />
+              <div className="flex-1 h-1 bg-gray-200 rounded-full">
+                <div 
+                  className="h-full bg-primary-main rounded-full"
+                  style={{ 
+                    width: audioRefs.current[message.id]?.currentTime 
+                      ? `${(audioRefs.current[message.id].currentTime / audioRefs.current[message.id].duration) * 100}%` 
+                      : '0%' 
+                  }}
+                />
+              </div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <span>
+                {audioRefs.current[message.id]?.currentTime 
+                  ? formatTime(audioRefs.current[message.id].currentTime)
+                  : '0:00'}
+              </span>
+              <span>
+                {audioRefs.current[message.id]?.duration 
+                  ? formatTime(audioRefs.current[message.id].duration)
+                  : '0:00'}
+              </span>
+            </div>
+          </div>
+          <audio
+            ref={(el) => {
+              if (el) {
+                audioRefs.current[message.id] = el;
+              }
+            }}
+            src={message.content}
+            onEnded={() => handleAudioEnded(message.id)}
+            onTimeUpdate={() => {
+              // Force re-render to update progress bar
+              setPlayingAudio(prev => prev);
+            }}
+            className="hidden"
+          />
+        </div>
+      );
+    } else if (message.type === 'FILE') {
+      return (
+        <div className="flex items-center gap-2 min-w-[200px]">
+          {getFileIcon(message.fileType)}
+          <div className="flex-1">
+            <div className="text-sm font-medium truncate">{message.fileName}</div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-500">{getFileTypeName(message.fileType)}</span>
+              <span className="text-xs text-gray-500">•</span>
+              {/* <span className="text-xs text-gray-500">{formatFileSize(message.fileSize)}</span> */}
+            </div>
+          </div>
+          <a
+            href={message.content}
+            download={message.fileName}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-1 hover:bg-gray-100 rounded-full"
+          >
+            <DownloadIcon className="text-primary-main" />
+          </a>
+        </div>
+      );
     }
     return <p>{message.content}</p>;
+  };
+
+  const sendFile = async () => {
+    if (!stompClient?.connected || !selectedFile || !idRoom || !idAccount || !receiverId) {
+      console.error('Missing required data or connection');
+      return;
+    }
+
+    try {
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      const fileUrl = response.data.url;
+      
+      const message = {
+        chatRoomId: idRoom,
+        senderId: idAccount,
+        receiverId: receiverId,
+        content: fileUrl,
+        fileName: selectedFile.name,
+        // fileSize: selectedFile.size,
+        fileType: selectedFile.type,
+        referChatId: replyingTo?.id,
+        chatType: 'FILE'
+      };
+
+      stompClient.publish({
+        destination: `/app/chatroom/${idRoom}`,
+        body: JSON.stringify(message)
+      });
+
+      setSelectedFile(null);
+      refetch();
+    } catch (error) {
+      console.error('Error sending file:', error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const cancelFile = () => {
+    setSelectedFile(null);
   };
 
   return (
@@ -584,7 +912,7 @@ const ChatRight = () => {
             type="file"
             ref={fileInputRef}
             onChange={handleFileInputChange}
-            accept="image/*"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.ppt,.pptx"
             className="hidden"
           />
           <IconButton 
@@ -594,6 +922,26 @@ const ChatRight = () => {
           >
             <ImageIcon className="text-primary-main" fontSize="medium" />
           </IconButton>
+          <IconButton 
+            disabled={!idRoom} 
+            className="!p-2" 
+            onClick={handleFileClick}
+          >
+            <AttachFileIcon className="text-primary-main" fontSize="medium" />
+          </IconButton>
+          {!audioUrl ? (
+            <IconButton 
+              disabled={!idRoom} 
+              className="!p-2" 
+              onClick={isRecording ? stopRecording : startRecording}
+            >
+              {isRecording ? (
+                <StopIcon className="text-red-500" fontSize="medium" />
+              ) : (
+                <MicIcon className="text-primary-main" fontSize="medium" />
+              )}
+            </IconButton>
+          ) : null}
           <textarea
             name=""
             id=""
@@ -609,6 +957,63 @@ const ChatRight = () => {
           </IconButton>
         </div>
       </div>
+
+      {audioUrl && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 transform rounded-lg bg-white p-4 shadow-lg">
+          <audio controls className="mb-2">
+            <source src={audioUrl} type="audio/webm" />
+            Your browser does not support the audio element.
+          </audio>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={cancelAudio}
+              className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+              disabled={isUploading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={sendAudio}
+              className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:bg-gray-400"
+              disabled={!stompClient?.connected || isUploading}
+            >
+              {isUploading ? 'Sending...' : 'Send'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selectedFile && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 transform rounded-lg bg-white p-4 shadow-lg">
+          <div className="flex items-center gap-2 mb-2">
+            {getFileIcon(selectedFile.type)}
+            <div>
+              <div className="text-sm font-medium truncate max-w-[200px]">{selectedFile.name}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">{getFileTypeName(selectedFile.type)}</span>
+                <span className="text-xs text-gray-500">•</span>
+                <span className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={cancelFile}
+              className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
+              disabled={isUploading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={sendFile}
+              className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:bg-gray-400"
+              disabled={!stompClient?.connected || isUploading}
+            >
+              {isUploading ? 'Sending...' : 'Send'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Image Preview Modal */}
       <Dialog
