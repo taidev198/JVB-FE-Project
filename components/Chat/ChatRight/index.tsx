@@ -261,9 +261,10 @@ const ChatRight = () => {
   };
 
   const handleVideoCallBtn = () => {
-    const data = encodeURIComponent(JSON.stringify({ userId: idAccount }));
+    const data = encodeURIComponent(JSON.stringify({ userId: idAccount, currentId: receiverId }));
     const windowFeatures = 'width=800,height=600,noopener,noreferrer';
     const url = `http://localhost:3000/portal/video-call?data=${data}`
+    console.log('userId: '+idAccount);
     window.open(url, '_blank', windowFeatures);
   }
 
@@ -308,26 +309,26 @@ const ChatRight = () => {
   };
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.includes('pdf')) {
+    if (fileType?.includes('pdf')) {
       return <PictureAsPdfIcon className="text-red-500" />;
-    } else if (fileType.includes('word') || fileType.includes('doc')) {
+    } else if (fileType?.includes('word') || fileType?.includes('doc')) {
       return <DescriptionIcon className="text-blue-500" />;
-    } else if (fileType.includes('excel') || fileType.includes('sheet') || fileType.includes('csv')) {
+    } else if (fileType?.includes('excel') || fileType?.includes('sheet') || fileType?.includes('csv')) {
       return <TableChartIcon className="text-green-500" />;
-    } else if (fileType.includes('text')) {
+    } else if (fileType?.includes('text')) {
       return <TextSnippetIcon className="text-gray-500" />;
     }
     return <InsertDriveFileIcon className="text-primary-main" />;
   };
 
   const getFileTypeName = (fileType: string) => {
-    if (fileType.includes('pdf')) {
+    if (fileType?.includes('pdf')) {
       return 'PDF Document';
-    } else if (fileType.includes('word') || fileType.includes('doc')) {
+    } else if (fileType?.includes('word') || fileType?.includes('doc')) {
       return 'Word Document';
-    } else if (fileType.includes('excel') || fileType.includes('sheet') || fileType.includes('csv')) {
+    } else if (fileType?.includes('excel') || fileType?.includes('sheet') || fileType?.includes('csv')) {
       return 'Excel Spreadsheet';
-    } else if (fileType.includes('text')) {
+    } else if (fileType?.includes('text')) {
       return 'Text Document';
     }
     return 'File';
