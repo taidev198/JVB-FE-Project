@@ -43,7 +43,6 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import { setIncommingCallFrom, setIncommingCallOffer } from '@/store/slices/chatSlice';
 import CallIcon from '@mui/icons-material/Call';
 import CallEndIcon from '@mui/icons-material/CallEnd';
-import { setVideoCallActive, setVideoCallWindowId } from '@/store/slices/global';
 
 const MAX_IMAGE_SIZE = 800; // Maximum width/height in pixels
 const QUALITY = 0.7; // JPEG quality (0.7 = 70% quality)
@@ -91,23 +90,116 @@ const ChatRight = () => {
     from: string;
     offer: RTCSessionDescriptionInit;
   } | null>(null);
-  const isVideoCallActive = useAppSelector(state => state.global.isVideoCallActive);
-  const videoCallWindowId = useAppSelector(state => state.global.videoCallWindowId);
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
-const handleTouchStart = (e) => {
-  setTouchStartX(e.changedTouches[0].clientX);
-};
+  // Initialize peer connection and local stream
+  useEffect(() => {
+    const initializePeerConnection = async () => {
+      try {
+        // Get local media stream
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(stream);
 
-const handleTouchEnd = (e, message) => {
-  const touchEndX = e.changedTouches[0].clientX;
-  const delta = touchEndX - touchStartX;
-  if (delta > 50) {
-    handleSwipeReply(message.content);
-  }
-};
+        // Create peer connection
+        const pc = new RTCPeerConnection({
+          iceServers: [
+            { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+            {
+              urls: 'turn:relay.metered.ca:80',
+              username: 'openai',
+              credential: 'chatgpt'
+            },
+            {
+              urls: 'turn:relay.metered.ca:443',
+              username: 'openai',
+              credential: 'chatgpt'
+            },
+            {
+              urls: 'turn:relay.metered.ca:443?transport=tcp',
+              username: 'openai',
+              credential: 'chatgpt'
+            }
+          ],
+          iceCandidatePoolSize: 10,
+          bundlePolicy: 'max-bundle',
+          rtcpMuxPolicy: 'require',
+          iceTransportPolicy: 'all'
+        });
+
+        // Add local tracks to peer connection
+        stream.getTracks().forEach(track => {
+          pc.addTrack(track, stream);
+        });
+
+        // Set up event handlers
+        pc.onicegatheringstatechange = () => {
+          console.log("ICE gathering state:", pc.iceGatheringState);
+        };
+
+        pc.onicecandidate = (event) => {
+          if (event.candidate && stompClient?.connected) {
+            console.log("Sending ICE candidate:", event.candidate);
+            const candidatePayload = {
+              chatRoomId: idRoom,
+              chatType: "candidate",
+              candidate: JSON.stringify(event.candidate),
+              senderId: idAccount,
+              receiverId: receiverId
+            };
+            
+            stompClient.publish({
+              destination: `/app/videochat/${receiverId}`,
+              body: JSON.stringify(candidatePayload),
+            });
+          }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+          console.log("ICE Connection State:", pc.iceConnectionState);
+        };
+
+        pc.onconnectionstatechange = () => {
+          console.log("Connection state changed:", pc.connectionState);
+        };
+
+        pc.ontrack = (event) => {
+          console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
+        };
+
+        peerConnectionRef.current = pc;
+      } catch (error) {
+        console.error('Error initializing peer connection:', error);
+      }
+    };
+
+    initializePeerConnection();
+
+    // Cleanup
+    return () => {
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
+  const handleTouchStart = (e) => {
+    setTouchStartX(e.changedTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e, message) => {
+    const touchEndX = e.changedTouches[0].clientX;
+    const delta = touchEndX - touchStartX;
+    if (delta > 50) {
+      handleSwipeReply(message.content);
+    }
+  };
 
   const { data, isSuccess, refetch } = useGetAllMessagesQuery(
-    { roomId: idRoom, page, size },
+    { roomId: Number(idRoom), page, size },
     {
       refetchOnMountOrArgChange: true,
     }
@@ -167,7 +259,7 @@ const handleTouchEnd = (e, message) => {
   );
 
   const handleSwipeReply = (messageContent: string) => {
-  setInputValue(`@${messageContent} `); // pre-fill the reply
+    setInputValue(`@${messageContent} `); // pre-fill the reply
   };
 
   useEffect(() => {
@@ -227,23 +319,21 @@ const handleTouchEnd = (e, message) => {
                   }
                 });
               } else if (payload.chatType === "answer") {
-                // If we're the caller and receive an answer, open the video call page
-                if (payload.receiverId === idAccount) {
-                  // Ensure the SDP is properly formatted
-                  if (!payload.sdp || typeof payload.sdp !== 'string') {
-                    console.error("Invalid SDP in answer:", payload.sdp);
-                    return;
-                  }
-                  
-                  const data = encodeURIComponent(JSON.stringify({ 
-                    chatRoomId: payload.chatRoomId,
-                    senderId: idAccount, 
-                    receiverId: payload.senderId,
-                    isCaller: true
-                  }));
-                  const windowFeatures = 'width=800,height=600,noopener,noreferrer';
-                  const url = `http://localhost:3000/portal/video-call?data=${data}`;
-                  window.open(url, '_blank', windowFeatures);
+                console.log("Received answer from peer");
+                if (peerConnectionRef.current) {
+                  const remoteDesc = new RTCSessionDescription({
+                    type: "answer",
+                    sdp: payload.sdp
+                  });
+                  await peerConnectionRef.current.setRemoteDescription(remoteDesc);
+                  console.log("Set remote description (answer)");
+                }
+              } else if (payload.chatType === "candidate") {
+                console.log("Received ICE candidate from peer");
+                if (peerConnectionRef.current) {
+                  const candidate = new RTCIceCandidate(JSON.parse(payload.candidate));
+                  await peerConnectionRef.current.addIceCandidate(candidate);
+                  console.log("Added ICE candidate");
                 }
               }
             } catch (error) {
@@ -313,7 +403,7 @@ const handleTouchEnd = (e, message) => {
 
   const handleDelete = async () => {
     try {
-      await deleteOneMessage({ chatRoomId: idRoom, messageId: idDelete });
+      await deleteOneMessage({ chatRoomId: Number(idRoom), messageId: Number(idDelete) });
       setChats(prevChats => prevChats.filter(chat => chat.id !== idDelete));
       dispatch(setBackdrop(null));
       refetchMessage();
@@ -328,40 +418,16 @@ const handleTouchEnd = (e, message) => {
       return;
     }
 
-    // Check if there's already an active video call
-    if (isVideoCallActive) {
-      console.log('Video call is already active');
-      return;
-    }
-
     try {
-      // Create peer connection
-      const pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
-          {
-            urls: 'turn:relay.metered.ca:80',
-            username: 'openai',
-            credential: 'chatgpt'
-          }
-        ]
-      });
-
-      // Get local media stream
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      
-      // Add tracks to peer connection
-      stream.getTracks().forEach(track => {
-        pc.addTrack(track, stream);
-      });
-
       // Create and send offer
-      const offer = await pc.createOffer({
+      const offer = await peerConnectionRef.current.createOffer({
         offerToReceiveAudio: true,
-        offerToReceiveVideo: true
+        offerToReceiveVideo: true,
+        iceRestart: true
       });
       
-      await pc.setLocalDescription(offer);
+      await peerConnectionRef.current.setLocalDescription(offer);
+      console.log("Set local description (offer)");
 
       const destination = `/app/videochat/${receiverId}`;
       const offerPayload = {
@@ -378,29 +444,20 @@ const handleTouchEnd = (e, message) => {
         body: JSON.stringify(offerPayload),
       });
 
-      // Clean up
-      pc.close();
-      stream.getTracks().forEach(track => track.stop());
-
-      // Open video call page for caller
+      // Open video call page for caller only
       const data = encodeURIComponent(JSON.stringify({ 
         chatRoomId: idRoom,
         senderId: idAccount, 
         receiverId: receiverId,
-        isCaller: true
+        isCaller: true,
+        offer: {
+          type: "offer",
+          sdp: offer.sdp
+        }
       }));
       const windowFeatures = 'width=800,height=600,noopener,noreferrer';
       const url = `http://localhost:3000/portal/video-call?data=${data}`;
-      
-      // Generate a unique ID for this video call window
-      const windowId = `video-call-${Date.now()}`;
-      
-      // Open the window and store its ID
-      const videoCallWindow = window.open(url, windowId, windowFeatures);
-      if (videoCallWindow) {
-        dispatch(setVideoCallActive(true));
-        dispatch(setVideoCallWindowId(windowId));
-      }
+      window.open(url, '_blank', windowFeatures);
     } catch (error) {
       console.error('Error initiating video call:', error);
     }
@@ -412,46 +469,23 @@ const handleTouchEnd = (e, message) => {
       return;
     }
 
-    // Check if there's already an active video call
-    if (isVideoCallActive) {
-      console.log('Video call is already active');
-      return;
-    }
-
     try {
-      // Create peer connection
-      const pc = new RTCPeerConnection({
-        iceServers: [
-          { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
-          {
-            urls: 'turn:relay.metered.ca:80',
-            username: 'openai',
-            credential: 'chatgpt'
-          }
-        ]
-      });
-
-      // Get local media stream
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      
-      // Add tracks to peer connection
-      stream.getTracks().forEach(track => {
-        pc.addTrack(track, stream);
-      });
-
-      // Set remote description from offer
+      // First set the remote description (offer)
       const remoteDesc = new RTCSessionDescription({
         type: "offer",
         sdp: incomingCall.offer.sdp
       });
-      await pc.setRemoteDescription(remoteDesc);
+      await peerConnectionRef.current.setRemoteDescription(remoteDesc);
+      console.log("Set remote description (offer)");
 
-      // Create and set local description (answer)
-      const answer = await pc.createAnswer({
+      // Then create and set local description (answer)
+      const answer = await peerConnectionRef.current.createAnswer({
         offerToReceiveAudio: true,
-        offerToReceiveVideo: true
+        offerToReceiveVideo: true,
+        iceRestart: true
       });
-      await pc.setLocalDescription(answer);
+      await peerConnectionRef.current.setLocalDescription(answer);
+      console.log("Set local description (answer)");
 
       // Send answer
       const answerPayload = {
@@ -467,29 +501,24 @@ const handleTouchEnd = (e, message) => {
         body: JSON.stringify(answerPayload),
       });
 
-      // Clean up
-      pc.close();
-      stream.getTracks().forEach(track => track.stop());
-
-      // Open video call page
+      // Open video call page for receiver only
       const data = encodeURIComponent(JSON.stringify({ 
         chatRoomId: idRoom,
         senderId: incomingCall.from, 
         receiverId: idAccount,
-        isCaller: false
+        isCaller: false,
+        offer: {
+          type: "offer",
+          sdp: incomingCall.offer.sdp
+        },
+        answer: {
+          type: "answer",
+          sdp: answer.sdp
+        }
       }));
       const windowFeatures = 'width=800,height=600,noopener,noreferrer';
       const url = `http://localhost:3000/portal/video-call?data=${data}`;
-      
-      // Generate a unique ID for this video call window
-      const windowId = `video-call-${Date.now()}`;
-      
-      // Open the window and store its ID
-      const videoCallWindow = window.open(url, windowId, windowFeatures);
-      if (videoCallWindow) {
-        dispatch(setVideoCallActive(true));
-        dispatch(setVideoCallWindowId(windowId));
-      }
+      window.open(url, '_blank', windowFeatures);
       
       setIncomingCall(null);
     } catch (error) {
