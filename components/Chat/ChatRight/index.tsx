@@ -93,99 +93,6 @@ const ChatRight = () => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
-  // Initialize peer connection and local stream
-  useEffect(() => {
-    const initializePeerConnection = async () => {
-      try {
-        // Get local media stream
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        setLocalStream(stream);
-
-        // Create peer connection
-        const pc = new RTCPeerConnection({
-          iceServers: [
-            { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
-            {
-              urls: 'turn:relay.metered.ca:80',
-              username: 'openai',
-              credential: 'chatgpt'
-            },
-            {
-              urls: 'turn:relay.metered.ca:443',
-              username: 'openai',
-              credential: 'chatgpt'
-            },
-            {
-              urls: 'turn:relay.metered.ca:443?transport=tcp',
-              username: 'openai',
-              credential: 'chatgpt'
-            }
-          ],
-          iceCandidatePoolSize: 10,
-          bundlePolicy: 'max-bundle',
-          rtcpMuxPolicy: 'require',
-          iceTransportPolicy: 'all'
-        });
-
-        // Add local tracks to peer connection
-        stream.getTracks().forEach(track => {
-          pc.addTrack(track, stream);
-        });
-
-        // Set up event handlers
-        pc.onicegatheringstatechange = () => {
-          console.log("ICE gathering state:", pc.iceGatheringState);
-        };
-
-        pc.onicecandidate = (event) => {
-          if (event.candidate && stompClient?.connected) {
-            console.log("Sending ICE candidate:", event.candidate);
-            const candidatePayload = {
-              chatRoomId: idRoom,
-              chatType: "candidate",
-              candidate: JSON.stringify(event.candidate),
-              senderId: idAccount,
-              receiverId: receiverId
-            };
-            
-            stompClient.publish({
-              destination: `/app/videochat/${receiverId}`,
-              body: JSON.stringify(candidatePayload),
-            });
-          }
-        };
-
-        pc.oniceconnectionstatechange = () => {
-          console.log("ICE Connection State:", pc.iceConnectionState);
-        };
-
-        pc.onconnectionstatechange = () => {
-          console.log("Connection state changed:", pc.connectionState);
-        };
-
-        pc.ontrack = (event) => {
-          console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
-        };
-
-        peerConnectionRef.current = pc;
-      } catch (error) {
-        console.error('Error initializing peer connection:', error);
-      }
-    };
-
-    initializePeerConnection();
-
-    // Cleanup
-    return () => {
-      if (peerConnectionRef.current) {
-        peerConnectionRef.current.close();
-      }
-      if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
   const handleTouchStart = (e) => {
     setTouchStartX(e.changedTouches[0].clientX);
   };
@@ -210,9 +117,9 @@ const ChatRight = () => {
       scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
   };
-  useEffect(() => {
-    scrollToBottom();
-  }, [chats]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [chats]);
 
   const refetchMessage = () => {
     setChats([]);
@@ -366,12 +273,12 @@ const ChatRight = () => {
         setIsConnected(false);
       }
     };
-  }, [refetch, idRoom, idAccount]);
-  useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [chats]); // Run every time new messages are set
+  }, [idRoom, idAccount]);
+  // useEffect(() => {
+  //   if (bottomRef.current) {
+  //     bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+  //   }
+  // }, [chats]); // Run every time new messages are set
 
   const sendMessage = () => {
     if (stompClient && stompClient.connected) {
@@ -388,6 +295,7 @@ const ChatRight = () => {
       });
       setReplyingTo(null); // Clear the replyingTo state after sending the message
       setInputValue('');
+      refetchMessage();
       refetch();
     } else {
       console.error('STOMP client is not connected!');
@@ -419,6 +327,81 @@ const ChatRight = () => {
     }
 
     try {
+      // Initialize peer connection and local stream only when starting a call
+      if (!peerConnectionRef.current) {
+        // Get local media stream
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(stream);
+
+        // Create peer connection
+        const pc = new RTCPeerConnection({
+          iceServers: [
+            { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+            {
+              urls: 'turn:relay.metered.ca:80',
+              username: 'openai',
+              credential: 'chatgpt'
+            },
+            {
+              urls: 'turn:relay.metered.ca:443',
+              username: 'openai',
+              credential: 'chatgpt'
+            },
+            {
+              urls: 'turn:relay.metered.ca:443?transport=tcp',
+              username: 'openai',
+              credential: 'chatgpt'
+            }
+          ],
+          iceCandidatePoolSize: 10,
+          bundlePolicy: 'max-bundle',
+          rtcpMuxPolicy: 'require',
+          iceTransportPolicy: 'all'
+        });
+
+        // Add local tracks to peer connection
+        stream.getTracks().forEach(track => {
+          pc.addTrack(track, stream);
+        });
+
+        // Set up event handlers
+        pc.onicegatheringstatechange = () => {
+          console.log("ICE gathering state:", pc.iceGatheringState);
+        };
+
+        pc.onicecandidate = (event) => {
+          if (event.candidate && stompClient?.connected) {
+            console.log("Sending ICE candidate:", event.candidate);
+            const candidatePayload = {
+              chatRoomId: idRoom,
+              chatType: "candidate",
+              candidate: JSON.stringify(event.candidate),
+              senderId: idAccount,
+              receiverId: receiverId
+            };
+            
+            stompClient.publish({
+              destination: `/app/videochat/${receiverId}`,
+              body: JSON.stringify(candidatePayload),
+            });
+          }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+          console.log("ICE Connection State:", pc.iceConnectionState);
+        };
+
+        pc.onconnectionstatechange = () => {
+          console.log("Connection state changed:", pc.connectionState);
+        };
+
+        pc.ontrack = (event) => {
+          console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
+        };
+
+        peerConnectionRef.current = pc;
+      }
+
       // Create and send offer
       const offer = await peerConnectionRef.current.createOffer({
         offerToReceiveAudio: true,
@@ -470,6 +453,81 @@ const ChatRight = () => {
     }
 
     try {
+      // Initialize peer connection and local stream only when accepting a call
+      if (!peerConnectionRef.current) {
+        // Get local media stream
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        setLocalStream(stream);
+
+        // Create peer connection
+        const pc = new RTCPeerConnection({
+          iceServers: [
+            { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+            {
+              urls: 'turn:relay.metered.ca:80',
+              username: 'openai',
+              credential: 'chatgpt'
+            },
+            {
+              urls: 'turn:relay.metered.ca:443',
+              username: 'openai',
+              credential: 'chatgpt'
+            },
+            {
+              urls: 'turn:relay.metered.ca:443?transport=tcp',
+              username: 'openai',
+              credential: 'chatgpt'
+            }
+          ],
+          iceCandidatePoolSize: 10,
+          bundlePolicy: 'max-bundle',
+          rtcpMuxPolicy: 'require',
+          iceTransportPolicy: 'all'
+        });
+
+        // Add local tracks to peer connection
+        stream.getTracks().forEach(track => {
+          pc.addTrack(track, stream);
+        });
+
+        // Set up event handlers
+        pc.onicegatheringstatechange = () => {
+          console.log("ICE gathering state:", pc.iceGatheringState);
+        };
+
+        pc.onicecandidate = (event) => {
+          if (event.candidate && stompClient?.connected) {
+            console.log("Sending ICE candidate:", event.candidate);
+            const candidatePayload = {
+              chatRoomId: idRoom,
+              chatType: "candidate",
+              candidate: JSON.stringify(event.candidate),
+              senderId: idAccount,
+              receiverId: incomingCall.from
+            };
+            
+            stompClient.publish({
+              destination: `/app/videochat/${incomingCall.from}`,
+              body: JSON.stringify(candidatePayload),
+            });
+          }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+          console.log("ICE Connection State:", pc.iceConnectionState);
+        };
+
+        pc.onconnectionstatechange = () => {
+          console.log("Connection state changed:", pc.connectionState);
+        };
+
+        pc.ontrack = (event) => {
+          console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
+        };
+
+        peerConnectionRef.current = pc;
+      }
+
       // First set the remote description (offer)
       const remoteDesc = new RTCSessionDescription({
         type: "offer",
@@ -1029,6 +1087,20 @@ const ChatRight = () => {
   const cancelFile = () => {
     setSelectedFile(null);
   };
+
+  // Add cleanup for peer connection and media stream
+  useEffect(() => {
+    return () => {
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
+      }
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        setLocalStream(null);
+      }
+    };
+  }, []);
 
   return (
     <div className="flex h-screen flex-col">
