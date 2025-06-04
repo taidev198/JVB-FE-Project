@@ -40,6 +40,10 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
+import { setIncommingCallFrom, setIncommingCallOffer } from '@/store/slices/chatSlice';
+import CallIcon from '@mui/icons-material/Call';
+import CallEndIcon from '@mui/icons-material/CallEnd';
+import { setVideoCallActive, setVideoCallWindowId } from '@/store/slices/global';
 
 const MAX_IMAGE_SIZE = 800; // Maximum width/height in pixels
 const QUALITY = 0.7; // JPEG quality (0.7 = 70% quality)
@@ -83,18 +87,24 @@ const ChatRight = () => {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const audioRefs = useRef<{ [key: string]: HTMLAudioElement }>({});
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [incomingCall, setIncomingCall] = useState<{
+    from: string;
+    offer: RTCSessionDescriptionInit;
+  } | null>(null);
+  const isVideoCallActive = useAppSelector(state => state.global.isVideoCallActive);
+  const videoCallWindowId = useAppSelector(state => state.global.videoCallWindowId);
 
-  const handleTouchStart = (e) => {
-    setTouchStartX(e.changedTouches[0].clientX);
-  };
+const handleTouchStart = (e) => {
+  setTouchStartX(e.changedTouches[0].clientX);
+};
 
-  const handleTouchEnd = (e, message) => {
-    const touchEndX = e.changedTouches[0].clientX;
-    const delta = touchEndX - touchStartX;
-    if (delta > 50) {
-      handleSwipeReply(message.content);
-    }
-  };
+const handleTouchEnd = (e, message) => {
+  const touchEndX = e.changedTouches[0].clientX;
+  const delta = touchEndX - touchStartX;
+  if (delta > 50) {
+    handleSwipeReply(message.content);
+  }
+};
 
   const { data, isSuccess, refetch } = useGetAllMessagesQuery(
     { roomId: idRoom, page, size },
@@ -157,7 +167,7 @@ const ChatRight = () => {
   );
 
   const handleSwipeReply = (messageContent: string) => {
-    setInputValue(`@${messageContent} `); // pre-fill the reply
+  setInputValue(`@${messageContent} `); // pre-fill the reply
   };
 
   useEffect(() => {
@@ -186,6 +196,60 @@ const ChatRight = () => {
             refetchMessage();
             refetch();
           });
+
+          // Subscribe to video call topic
+          const userTopic = `/topic/new-videocall/${idAccount}`;
+          console.log("Subscribing to user topic:", userTopic);
+          
+          client.subscribe(userTopic, async (message) => {
+            if (!message.body) {
+              console.warn('Received empty message');
+              return;
+            }
+
+            const payload = JSON.parse(message.body);
+            console.log('Received message on topic', userTopic, ':', payload);
+
+            try {
+              if (payload.chatType === "offer") {
+                console.log("Received offer from peer");
+                // Ensure the SDP is properly formatted
+                if (!payload.sdp || typeof payload.sdp !== 'string') {
+                  console.error("Invalid SDP in offer:", payload.sdp);
+                  return;
+                }
+                
+                setIncomingCall({
+                  from: payload.senderId,
+                  offer: {
+                    type: "offer",
+                    sdp: payload.sdp
+                  }
+                });
+              } else if (payload.chatType === "answer") {
+                // If we're the caller and receive an answer, open the video call page
+                if (payload.receiverId === idAccount) {
+                  // Ensure the SDP is properly formatted
+                  if (!payload.sdp || typeof payload.sdp !== 'string') {
+                    console.error("Invalid SDP in answer:", payload.sdp);
+                    return;
+                  }
+                  
+                  const data = encodeURIComponent(JSON.stringify({ 
+                    chatRoomId: payload.chatRoomId,
+                    senderId: idAccount, 
+                    receiverId: payload.senderId,
+                    isCaller: true
+                  }));
+                  const windowFeatures = 'width=800,height=600,noopener,noreferrer';
+                  const url = `http://localhost:3000/portal/video-call?data=${data}`;
+                  window.open(url, '_blank', windowFeatures);
+                }
+              }
+            } catch (error) {
+              console.error("Error handling message:", error);
+            }
+          });
         },
         onStompError: frame => {
           console.error('STOMP Error:', frame.headers['message']);
@@ -197,7 +261,6 @@ const ChatRight = () => {
             setIsConnected(false);
           }
           console.log('disconnect');
-          
         },
       });
 
@@ -212,9 +275,8 @@ const ChatRight = () => {
         client.deactivate();
         setIsConnected(false);
       }
-
     };
-  }, [refetch, idRoom]);
+  }, [refetch, idRoom, idAccount]);
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -260,13 +322,184 @@ const ChatRight = () => {
     }
   };
 
-  const handleVideoCallBtn = () => {
-    const data = encodeURIComponent(JSON.stringify({ userId: idAccount, currentId: receiverId }));
-    const windowFeatures = 'width=800,height=600,noopener,noreferrer';
-    const url = `http://localhost:3000/portal/video-call?data=${data}`
-    console.log('userId: '+idAccount);
-    window.open(url, '_blank', windowFeatures);
-  }
+  const handleVideoCallBtn = async () => {
+    if (!stompClient || !stompClient.connected) {
+      console.error('STOMP client is not connected!');
+      return;
+    }
+
+    // Check if there's already an active video call
+    if (isVideoCallActive) {
+      console.log('Video call is already active');
+      return;
+    }
+
+    try {
+      // Create peer connection
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+          {
+            urls: 'turn:relay.metered.ca:80',
+            username: 'openai',
+            credential: 'chatgpt'
+          }
+        ]
+      });
+
+      // Get local media stream
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      
+      // Add tracks to peer connection
+      stream.getTracks().forEach(track => {
+        pc.addTrack(track, stream);
+      });
+
+      // Create and send offer
+      const offer = await pc.createOffer({
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true
+      });
+      
+      await pc.setLocalDescription(offer);
+
+      const destination = `/app/videochat/${receiverId}`;
+      const offerPayload = {
+        chatRoomId: idRoom,
+        chatType: "offer",
+        sdp: offer.sdp,
+        senderId: idAccount,
+        receiverId: receiverId
+      };
+      
+      console.log("Sending video call offer:", offerPayload);
+      stompClient.publish({
+        destination,
+        body: JSON.stringify(offerPayload),
+      });
+
+      // Clean up
+      pc.close();
+      stream.getTracks().forEach(track => track.stop());
+
+      // Open video call page for caller
+      const data = encodeURIComponent(JSON.stringify({ 
+        chatRoomId: idRoom,
+        senderId: idAccount, 
+        receiverId: receiverId,
+        isCaller: true
+      }));
+      const windowFeatures = 'width=800,height=600,noopener,noreferrer';
+      const url = `http://localhost:3000/portal/video-call?data=${data}`;
+      
+      // Generate a unique ID for this video call window
+      const windowId = `video-call-${Date.now()}`;
+      
+      // Open the window and store its ID
+      const videoCallWindow = window.open(url, windowId, windowFeatures);
+      if (videoCallWindow) {
+        dispatch(setVideoCallActive(true));
+        dispatch(setVideoCallWindowId(windowId));
+      }
+    } catch (error) {
+      console.error('Error initiating video call:', error);
+    }
+  };
+
+  const handleAcceptCall = async () => {
+    if (!incomingCall || !stompClient || !stompClient.connected) {
+      console.error('Cannot accept call: missing incoming call or STOMP client');
+      return;
+    }
+
+    // Check if there's already an active video call
+    if (isVideoCallActive) {
+      console.log('Video call is already active');
+      return;
+    }
+
+    try {
+      // Create peer connection
+      const pc = new RTCPeerConnection({
+        iceServers: [
+          { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+          {
+            urls: 'turn:relay.metered.ca:80',
+            username: 'openai',
+            credential: 'chatgpt'
+          }
+        ]
+      });
+
+      // Get local media stream
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      
+      // Add tracks to peer connection
+      stream.getTracks().forEach(track => {
+        pc.addTrack(track, stream);
+      });
+
+      // Set remote description from offer
+      const remoteDesc = new RTCSessionDescription({
+        type: "offer",
+        sdp: incomingCall.offer.sdp
+      });
+      await pc.setRemoteDescription(remoteDesc);
+
+      // Create and set local description (answer)
+      const answer = await pc.createAnswer({
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true
+      });
+      await pc.setLocalDescription(answer);
+
+      // Send answer
+      const answerPayload = {
+        chatRoomId: idRoom,
+        chatType: "answer",
+        sdp: answer.sdp,
+        senderId: idAccount,
+        receiverId: incomingCall.from
+      };
+
+      stompClient.publish({
+        destination: `/app/videochat/${incomingCall.from}`,
+        body: JSON.stringify(answerPayload),
+      });
+
+      // Clean up
+      pc.close();
+      stream.getTracks().forEach(track => track.stop());
+
+      // Open video call page
+      const data = encodeURIComponent(JSON.stringify({ 
+        chatRoomId: idRoom,
+        senderId: incomingCall.from, 
+        receiverId: idAccount,
+        isCaller: false
+      }));
+      const windowFeatures = 'width=800,height=600,noopener,noreferrer';
+      const url = `http://localhost:3000/portal/video-call?data=${data}`;
+      
+      // Generate a unique ID for this video call window
+      const windowId = `video-call-${Date.now()}`;
+      
+      // Open the window and store its ID
+      const videoCallWindow = window.open(url, windowId, windowFeatures);
+      if (videoCallWindow) {
+        dispatch(setVideoCallActive(true));
+        dispatch(setVideoCallWindowId(windowId));
+      }
+      
+      setIncomingCall(null);
+    } catch (error) {
+      console.error('Error accepting call:', error);
+    }
+  };
+
+  const handleRejectCall = () => {
+    setIncomingCall(null);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -779,7 +1012,9 @@ const ChatRight = () => {
           )}
           <Avatar>G</Avatar>
           <p className="text-base font-medium text-gray-700">{namePartnerChat}</p>
-          <VideoCallIcon onClick = {handleVideoCallBtn}></VideoCallIcon>
+          <IconButton onClick={handleVideoCallBtn}>
+            <VideoCallIcon className="text-primary-main" />
+          </IconButton>
         </div>
       </div>
 
@@ -845,15 +1080,15 @@ const ChatRight = () => {
                                 </div>
                               )}
                               <div
-                                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
-                                onClick={() => {
+                                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
+                                  onClick={() => {
                                   setIdReplyMes(message?.id);
                                   setReplyingTo(message);
                                   setInputValue(`@${message?.content} `);
-                                }}>
-                                <Tooltip title="Rep tin nhắn" placement="top">
-                                  <ReplyIcon style={{ width: '20px', height: '20px' }} />
-                                </Tooltip>
+                                  }}>
+                                  <Tooltip title="Rep tin nhắn" placement="top">
+                                    <ReplyIcon style={{ width: '20px', height: '20px' }} />
+                                  </Tooltip>
                               </div>
                             </div>
                           )}
@@ -875,7 +1110,7 @@ const ChatRight = () => {
           ) : (
             <p className="text-center">Hãy bắt đầu cuộc trò chuyện bằng một lời chào 😍</p>
           )}
-          <div ref={bottomRef}></div>
+        <div ref={bottomRef}></div>
         </div>
         {replyingTo && (
       <div className="px-4 py-2 text-sm bg-gray-200 border-b">
@@ -903,8 +1138,8 @@ const ChatRight = () => {
                 {isUploading ? 'Uploading...' : 'Send'}
               </button>
             </div>
-          </div>
-        )}
+      </div>
+    )}
         <div
           className={`${
             !idRoom ? 'cursor-not-allowed opacity-50' : ''
@@ -1041,6 +1276,37 @@ const ChatRight = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Incoming Call Notification */}
+      {incomingCall && (
+        <div className="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 z-50">
+          <div className="flex items-center gap-4">
+            <div className="animate-pulse">
+              <CallIcon className="text-green-500 text-3xl" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Incoming Call</h3>
+              <p className="text-sm text-gray-600">From: {incomingCall.from}</p>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={handleAcceptCall}
+              className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2"
+            >
+              <CallIcon />
+              Accept
+            </button>
+            <button
+              onClick={handleRejectCall}
+              className="flex-1 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center justify-center gap-2"
+            >
+              <CallEndIcon />
+              Reject
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

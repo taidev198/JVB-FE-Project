@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import CallIcon from '@mui/icons-material/Call';
 import CallEndIcon from '@mui/icons-material/CallEnd';
+import { useDispatch } from 'react-redux';
+import { setVideoCallActive, setVideoCallWindowId } from '@/store/slices/chatSlice';
 
 // const iceServers = [
 //     // { urls: "stun:stun.1.google.com:19302" },
@@ -32,9 +34,10 @@ export default function Home() {
     const searchParams = useSearchParams();
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
-    const [data, setData] = useState<any>(null);
-    const [currentId, setCurrentId] = useState<any>(null);
-    const [idAccount, setIdAccount] = useState<string>('');
+    const [receiverId, setReceiverId] = useState<string>('');
+    const [chatrommId, setChatrommId] = useState<string>('');
+    const [senderId, setSenderId] = useState<string>('');
+    const [isCaller, setIsCaller] = useState<boolean>(false);
 
     const [localStream, setLocalStream] = useState<MediaStream | null>(null);
     const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
@@ -64,180 +67,32 @@ export default function Home() {
     const MAX_RECONNECT_ATTEMPTS = 3;
     const RECONNECT_DELAY = 2000; // 2 seconds
 
+    const dispatch = useDispatch();
+
     useEffect(() => {
         const rawData = searchParams.get('data');
         if (rawData) {
-            try {
+          try {
                 const parsedData = JSON.parse(decodeURIComponent(rawData));
                 console.log("Parsed data:", parsedData);
-                setData(parsedData.userId);
-                setCurrentId(parsedData.currentId)
-                setIdAccount(parsedData.userId);
-            } catch (e) {
-                console.error('Failed to parse data', e);
-            }
-        }
-    }, []);
-//step 1: get video from local stream
-    useEffect(() => {
-        async function startLocalStream() {
-            try {
-                console.log("Requesting media devices...");
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                console.log("Got local stream:", stream.getTracks().map(t => t.kind));
-                setLocalStream(stream);
-                if (localVideoRef.current) {
-                    localVideoRef.current.srcObject = stream;
-                }
-            } catch (error) {
-                console.error("Error accessing media devices", error);
-            }
-        }
-        startLocalStream();
-        return () => {
-            localStream?.getTracks().forEach((t) => t.stop());
+                setReceiverId(parsedData.receiverId);
+                setSenderId(parsedData.senderId);
+                setChatrommId(parsedData.chatRoomId);
+                setIsCaller(parsedData.isCaller || false);
+          } catch (e) {
+            console.error('Failed to parse data', e);
+          }
         }
     }, []);
 
+    // Initialize WebSocket connection first
     useEffect(() => {
-        if (!localStream || !data) {
-            console.log("Waiting for localStream and data...", { localStream: !!localStream, data });
+        if (!senderId) {
+            console.log("Waiting for senderId before connecting to WebSocket...");
             return;
         }
 
-        console.log("Setting up peer connection...");
-        
-        // Cleanup existing peer connection if it exists
-        if (peerConnectionRef.current) {
-            console.log("Cleaning up existing peer connection");
-            peerConnectionRef.current.close();
-            peerConnectionRef.current = null;
-        }
-
-        const pc = new RTCPeerConnection({
-            iceServers: [
-                { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
-                {
-                    urls: 'turn:relay.metered.ca:80',
-                    username: 'openai',
-                    credential: 'chatgpt'
-                },
-                {
-                    urls: 'turn:relay.metered.ca:443',
-                    username: 'openai',
-                    credential: 'chatgpt'
-                },
-                {
-                    urls: 'turn:relay.metered.ca:443?transport=tcp',
-                    username: 'openai',
-                    credential: 'chatgpt'
-                }
-            ],
-            iceCandidatePoolSize: 10,
-            bundlePolicy: 'max-bundle',
-            rtcpMuxPolicy: 'require',
-            iceTransportPolicy: 'all'
-        });
-
-        remoteVideoRef.current.srcObject = new MediaStream();
-
-        console.log("Created new peer connection");
-        peerConnectionRef.current = pc;
-
-        // Add local tracks to peer connection
-        localStream.getTracks().forEach((track) => {
-            console.log("Adding local track to peer connection:", track.kind);
-            pc.addTrack(track, localStream);
-        });
-
-        // Handle ICE gathering state
-        pc.onicegatheringstatechange = () => {
-            console.log("ICE gathering state:", pc.iceGatheringState);
-            setIceGatheringState(pc.iceGatheringState);
-        };
-
-        // Handle ICE candidates
-        pc.onicecandidate = (event) => {
-            if (event.candidate && stompClient && isStompConnected) {
-                console.log("Sending ICE candidate:", event.candidate);
-                const candidatePayload = {
-                    chatRoomId: currentId,
-                    chatType: "candidate",
-                    candidate: JSON.stringify(event.candidate),
-                    senderId: data,
-                    receiverId: incomingCall?.from || currentId
-                };
-                
-                // Store candidate if we're not connected yet
-                if (!isStompConnected) {
-                    pendingCandidatesRef.current.push(candidatePayload);
-                } else {
-                    stompClient.publish({
-                        destination: `/app/videochat/${data}`,
-                        body: JSON.stringify(candidatePayload),
-                    });
-                }
-            }
-        };
-
-        // Handle ICE connection state
-        pc.oniceconnectionstatechange = () => {
-            console.log("ICE Connection State:", pc.iceConnectionState);
-            if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
-                console.log("ICE connection failed/disconnected, attempting to recover...");
-                handleReconnect();
-            }
-        };
-
-        // Handle connection state changes
-        pc.onconnectionstatechange = () => {
-            console.log("Connection state changed:", pc.connectionState);
-            setConnectionState(pc.connectionState);
-            if (pc.connectionState === 'connected') {
-                setConnected(true);
-                setReconnectAttempts(0);
-            } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
-                setConnected(false);
-                handleReconnect();
-            }
-        };
-
-        // Handle signaling state changes
-        pc.onsignalingstatechange = () => {
-            console.log("Signaling state changed:", pc.signalingState);
-            if (pc.signalingState === 'closed') {
-                console.log("Signaling state closed, attempting to recover...");
-                handleReconnect();
-            }
-        };
-
-        // Handle remote track
-        pc.ontrack = (event) => {
-            console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
-            if (remoteVideoRef.current) {
-                remoteVideoRef.current.srcObject = event.streams[0];
-            }
-        };
-
-        setPeerConnection(pc);
-
-        return () => {
-            if (pc) {
-                console.log("Cleaning up peer connection on unmount");
-                pc.close();
-                peerConnectionRef.current = null;
-                pendingCandidatesRef.current = [];
-            }
-        };
-    }, [localStream, data]);
-
-    useEffect(() => {
-        if (!data) {
-            console.log("Waiting for data before connecting to WebSocket...");
-            return;
-        }
-
-        console.log("Connecting to WebSocket with data:", data);
+        console.log("Connecting to WebSocket with senderId:", senderId);
         const client = new Client({
             webSocketFactory: () => {
                 const url = `${process.env.NEXT_PUBLIC_API_URL_CHAT}/ws/stomp`;
@@ -249,7 +104,7 @@ export default function Home() {
                 setStompClient(client);
                 setIsStompConnected(true);
                 
-                const userTopic = `/topic/new-videocall/${data}`;
+                const userTopic = `/topic/new-videocall/${senderId}`;
                 console.log("Subscribing to user topic:", userTopic);
                 
                 client.subscribe(userTopic, async (message) => {
@@ -269,34 +124,53 @@ export default function Home() {
                     try {
                         if (payload.chatType === "offer") {
                             console.log("Received offer from peer");
-                            setIncomingCall({
-                                from: payload.senderId,
-                                offer: {
-                                    type: "offer",
-                                    sdp: payload.sdp
-                                }
-                            });
+                            // If we're not the caller and don't already have an incoming call
+                            if (!isCaller && !incomingCall) {
+                                setIncomingCall({
+                                    from: payload.senderId,
+                                    offer: {
+                                        type: "offer",
+                                        sdp: payload.sdp
+                                    }
+                                });
+                            }
                         } else if (payload.chatType === "answer") {
                             console.log("Received answer from peer");
                             if (peerConnectionRef.current.signalingState === 'have-local-offer') {
-                                await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription({
-                                    type: "answer",
-                                    sdp: payload.sdp
-                                }));
-                                console.log("Set remote description (answer)");
+                                console.log("Setting remote description with answer:", payload.sdp);
+                                try {
+                                    const remoteDesc = new RTCSessionDescription({
+                                        type: "answer",
+                                        sdp: payload.sdp
+                                    });
+                                    await peerConnectionRef.current.setRemoteDescription(remoteDesc);
+                                    console.log("Set remote description (answer)");
+                                    
+                                    // Start gathering ICE candidates after setting remote description
+                                    if (peerConnectionRef.current.iceGatheringState === 'new') {
+                                        console.log("Starting ICE gathering after answer...");
+                                        peerConnectionRef.current.restartIce();
+                                    }
+                                } catch (error) {
+                                    console.error("Error setting remote description:", error);
+                                }
                             } else {
                                 console.warn("Cannot set remote answer in current state:", peerConnectionRef.current.signalingState);
                             }
                         } else if (payload.chatType === "candidate") {
                             console.log("Received ICE candidate from peer");
-                            const candidate = new RTCIceCandidate(JSON.parse(payload.candidate));
-                            
-                            if (peerConnectionRef.current.remoteDescription && peerConnectionRef.current.remoteDescription.type) {
-                                console.log("Adding ICE candidate immediately");
-                                await peerConnectionRef.current.addIceCandidate(candidate);
-                            } else {
-                                console.log("Storing candidate for later");
-                                pendingCandidatesRef.current.push(candidate);
+                            try {
+                                const candidate = new RTCIceCandidate(JSON.parse(payload.candidate));
+                                
+                                if (peerConnectionRef.current.remoteDescription && peerConnectionRef.current.remoteDescription.type) {
+                                    console.log("Adding ICE candidate immediately");
+                                    await peerConnectionRef.current.addIceCandidate(candidate);
+                                } else {
+                                    console.log("Storing candidate for later");
+                                    pendingCandidatesRef.current.push(candidate);
+                                }
+                            } catch (error) {
+                                console.error("Error handling ICE candidate:", error);
                             }
                         }
                     } catch (error) {
@@ -321,11 +195,169 @@ export default function Home() {
             client.deactivate();
             setIsStompConnected(false);
         };
-    }, [data]);
+    }, [senderId, isCaller, incomingCall]);
 
-    const startCall = async () => {
-        if (!peerConnectionRef.current || !stompClient || !isStompConnected) {
-            console.error("Cannot start call:", {
+    // Initialize local stream
+    useEffect(() => {
+        async function startLocalStream() {
+            try {
+                console.log("Requesting media devices...");
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                console.log("Got local stream:", stream.getTracks().map(t => t.kind));
+                setLocalStream(stream);
+                if (localVideoRef.current) {
+                    localVideoRef.current.srcObject = stream;
+                }
+            } catch (error) {
+                console.error("Error accessing media devices", error);
+            }
+        }
+        startLocalStream();
+        return () => {
+            localStream?.getTracks().forEach((t) => t.stop());
+        }
+    }, []);
+
+    // Initialize peer connection after local stream and WebSocket are ready
+    useEffect(() => {
+        if (!localStream || !senderId || !isStompConnected) {
+            console.log("Waiting for localStream, senderId, and WebSocket connection...", { 
+                hasLocalStream: !!localStream, 
+                hasSenderId: !!senderId,
+                isStompConnected 
+            });
+            return;
+        }
+
+        console.log("Setting up peer connection...");
+        
+        // Cleanup existing peer connection if it exists
+        if (peerConnectionRef.current) {
+            console.log("Cleaning up existing peer connection");
+            peerConnectionRef.current.close();
+            peerConnectionRef.current = null;
+        }
+
+        const pc = new RTCPeerConnection({
+            iceServers: [
+                { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+                {
+                    urls: 'turn:relay.metered.ca:80',
+                    username: 'openai',
+                    credential: 'chatgpt'
+                }
+            ],
+            iceCandidatePoolSize: 10,
+            bundlePolicy: 'max-bundle',
+            rtcpMuxPolicy: 'require',
+            iceTransportPolicy: 'all'
+        });
+
+        console.log("Created new peer connection");
+        peerConnectionRef.current = pc;
+
+        // Add local tracks to peer connection
+        localStream.getTracks().forEach((track) => {
+            console.log("Adding local track to peer connection:", track.kind);
+            pc.addTrack(track, localStream);
+        });
+
+        // Set up event handlers
+        pc.onicegatheringstatechange = () => {
+            console.log("ICE gathering state:", pc.iceGatheringState);
+            setIceGatheringState(pc.iceGatheringState);
+        };
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate && stompClient && isStompConnected) {
+                console.log("Sending ICE candidate:", event.candidate);
+                const candidatePayload = {
+                    chatRoomId: chatrommId,
+                    chatType: "candidate",
+                    candidate: JSON.stringify(event.candidate),
+                    senderId: senderId,
+                    receiverId: isCaller ? receiverId : incomingCall?.from
+                };
+                
+                stompClient.publish({
+                    destination: `/app/videochat/${isCaller ? receiverId : incomingCall?.from}`,
+                    body: JSON.stringify(candidatePayload),
+                });
+            }
+        };
+
+        pc.oniceconnectionstatechange = () => {
+            console.log("ICE Connection State:", pc.iceConnectionState);
+            if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+                console.log("ICE connection failed/disconnected, attempting to recover...");
+                handleReconnect();
+            }
+        };
+
+        pc.onconnectionstatechange = () => {
+            console.log("Connection state changed:", pc.connectionState);
+            setConnectionState(pc.connectionState);
+            if (pc.connectionState === 'connected') {
+                setConnected(true);
+                setReconnectAttempts(0);
+            } else if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+                setConnected(false);
+                handleReconnect();
+            }
+        };
+
+        pc.ontrack = (event) => {
+            console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = event.streams[0];
+            }
+        };
+
+        // Add signaling state change handler
+        pc.onsignalingstatechange = () => {
+            console.log("Signaling state changed:", pc.signalingState);
+            if (pc.signalingState === 'stable') {
+                console.log("Signaling state is stable, checking connection state");
+                if (pc.connectionState === 'new') {
+                    console.log("Connection still new, attempting to establish connection");
+                    // Force ICE gathering to start
+                    pc.restartIce();
+                }
+            }
+        };
+
+        setPeerConnection(pc);
+
+        // If we're the caller, start the call immediately
+        if (isCaller) {
+            console.log("We are the caller, starting call...");
+            startCall();
+        } else {
+            // If we're the receiver, we need to wait for the offer
+            console.log("We are the receiver, waiting for offer...");
+        }
+
+        return () => {
+            if (pc) {
+                console.log("Cleaning up peer connection on unmount");
+                pc.close();
+                peerConnectionRef.current = null;
+            }
+        };
+    }, [localStream, senderId, isStompConnected, isCaller, receiverId, incomingCall]);
+
+    // Handle incoming offer
+    useEffect(() => {
+        if (!isCaller && incomingCall && peerConnectionRef.current && stompClient && isStompConnected) {
+            console.log("Received incoming call, handling offer...");
+            handleAcceptCall();
+        }
+    }, [incomingCall, isCaller, peerConnectionRef.current, stompClient, isStompConnected]);
+
+    const handleAcceptCall = async () => {
+        if (!incomingCall || !peerConnectionRef.current || !stompClient || !isStompConnected) {
+            console.error("Cannot accept call: missing required data", {
+                hasIncomingCall: !!incomingCall,
                 hasPeerConnection: !!peerConnectionRef.current,
                 hasStompClient: !!stompClient,
                 isStompConnected
@@ -334,29 +366,107 @@ export default function Home() {
         }
 
         try {
-            console.log("Creating offer...");
-            const offer = await peerConnectionRef.current.createOffer();
-            console.log("Offer created:", offer);
+            console.log("Accepting call from:", incomingCall.from);
+            console.log("Incoming offer:", incomingCall.offer);
             
-            await peerConnectionRef.current.setLocalDescription(offer);
-            console.log("Local description set");
-            remoteVideoRef.current.srcObject = new MediaStream();
+            // Create a proper RTCSessionDescription object
+            const remoteDesc = new RTCSessionDescription({
+                type: "offer",
+                sdp: incomingCall.offer.sdp
+            });
             
-            const destination = `/app/videochat/${data}`;
-            const offerPayload = {
-                chatRoomId: currentId,
-                chatType: "offer",
-                sdp: offer.sdp,
-                senderId: data,
-                receiverId: currentId // This will be replaced by the backend with the correct receiver ID
+            console.log("Setting remote description:", remoteDesc);
+            await peerConnectionRef.current.setRemoteDescription(remoteDesc);
+            console.log("Set remote description (offer)");
+            
+            // Create and set local description
+            const answer = await peerConnectionRef.current.createAnswer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: true
+            });
+            console.log("Created answer:", answer);
+            
+            await peerConnectionRef.current.setLocalDescription(answer);
+            console.log("Set local description (answer)");
+            
+            // Send answer
+            const answerPayload = {
+                chatRoomId: chatrommId,
+                chatType: "answer",
+                sdp: answer.sdp,
+                senderId: senderId,
+                receiverId: incomingCall.from
             };
             
-            console.log("Sending offer to", destination, ":", offerPayload);
+            console.log("Sending answer:", answerPayload);
             stompClient.publish({
-                destination,
+                destination: `/app/videochat/${incomingCall.from}`,
+                body: JSON.stringify(answerPayload),
+            });
+
+            // Send any pending ICE candidates
+            while (pendingCandidatesRef.current.length > 0) {
+                const candidate = pendingCandidatesRef.current.shift();
+                if (candidate) {
+                    stompClient.publish({
+                        destination: `/app/videochat/${incomingCall.from}`,
+                        body: JSON.stringify({
+                            chatRoomId: chatrommId,
+                            chatType: "candidate",
+                            candidate: JSON.stringify(candidate),
+                            senderId: senderId,
+                            receiverId: incomingCall.from
+                        }),
+                    });
+                }
+            }
+
+            // Force ICE gathering to start
+            if (peerConnectionRef.current.iceGatheringState === 'new') {
+                console.log("Starting ICE gathering after accepting call...");
+                peerConnectionRef.current.restartIce();
+            }
+            
+            setIncomingCall(null);
+        } catch (error) {
+            console.error("Error accepting call:", error);
+            if (peerConnectionRef.current) {
+                peerConnectionRef.current.restartIce();
+            }
+        }
+    };
+
+    const startCall = async () => {
+        if (!peerConnectionRef.current || !stompClient || !isStompConnected) {
+            console.error("Cannot start call: missing peer connection or STOMP client");
+            return;
+        }
+
+        try {
+            console.log("Creating offer...");
+            const offer = await peerConnectionRef.current.createOffer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: true
+            });
+
+            console.log("Setting local description...");
+            await peerConnectionRef.current.setLocalDescription(offer);
+
+            console.log("Sending offer...");
+            const offerPayload = {
+                chatRoomId: chatrommId,
+                chatType: "offer",
+                sdp: offer.sdp,
+                senderId: senderId,
+                receiverId: receiverId
+            };
+
+            stompClient.publish({
+                destination: `/app/videochat/${receiverId}`,
                 body: JSON.stringify(offerPayload),
             });
-            console.log("Offer sent");
+
+            console.log("Offer sent successfully");
         } catch (error) {
             console.error("Error starting call:", error);
         }
@@ -433,7 +543,7 @@ export default function Home() {
                 const newTranscription: Transcription = {
                     text: response.data.text,
                     timestamp: Date.now(),
-                    speaker: data === idAccount ? 'You' : 'Other'
+                    speaker: senderId === senderId ? 'You' : 'Other'
                 };
 
                 setTranscriptions(prev => [...prev, newTranscription]);
@@ -447,74 +557,13 @@ export default function Home() {
 
     // Cleanup function
     useEffect(() => {
-        return () => {
+    return () => {
             stopRecording();
             if (transcriptionTimeoutRef.current) {
                 clearInterval(transcriptionTimeoutRef.current);
             }
         };
     }, []);
-
-    const handleAcceptCall = async () => {
-        if (!incomingCall || !peerConnectionRef.current || !stompClient || !isStompConnected) {
-            console.error("Cannot accept call: missing required data", {
-                hasIncomingCall: !!incomingCall,
-                hasPeerConnection: !!peerConnectionRef.current,
-                hasStompClient: !!stompClient,
-                isStompConnected
-            });
-            return;
-        }
-
-        try {
-            console.log("Accepting call from:", incomingCall.from);
-            
-            // Set remote description
-            await peerConnectionRef.current.setRemoteDescription(new RTCSessionDescription(incomingCall.offer));
-            console.log("Set remote description (offer)");
-            
-            // Create and set local description
-            const answer = await peerConnectionRef.current.createAnswer();
-            console.log("Created answer");
-            
-            await peerConnectionRef.current.setLocalDescription(answer);
-            console.log("Set local description (answer)");
-            
-            // Send answer
-            const destination = `/app/videochat/${data}`;
-            const answerPayload = {
-                chatRoomId: currentId,
-                chatType: "answer",
-                sdp: answer.sdp,
-                senderId: data,
-                receiverId: incomingCall.from
-            };
-            
-            console.log("Sending answer to", destination, ":", answerPayload);
-            stompClient.publish({
-                destination,
-                body: JSON.stringify(answerPayload),
-            });
-
-            // Send any pending ICE candidates
-            while (pendingCandidatesRef.current.length > 0) {
-                const candidate = pendingCandidatesRef.current.shift();
-                if (candidate) {
-                    stompClient.publish({
-                        destination: `/app/videochat/${data}`,
-                        body: JSON.stringify(candidate),
-                    });
-                }
-            }
-            
-            setIncomingCall(null);
-        } catch (error) {
-            console.error("Error accepting call:", error);
-            if (peerConnectionRef.current) {
-                peerConnectionRef.current.restartIce();
-            }
-        }
-    };
 
     const handleRejectCall = () => {
         setIncomingCall(null);
@@ -547,13 +596,13 @@ export default function Home() {
                 await pc.setLocalDescription(offer);
                 
                 if (stompClient && isStompConnected) {
-                    const destination = `/app/videochat/${data}`;
+                    const destination = `/app/videochat/${receiverId}`;
                     const offerPayload = {
-                        chatRoomId: currentId,
+                        chatRoomId: chatrommId,
                         chatType: "offer",
                         sdp: offer.sdp,
-                        senderId: data,
-                        receiverId: currentId
+                        senderId: senderId,
+                        receiverId: receiverId
                     };
                     
                     stompClient.publish({
@@ -570,13 +619,13 @@ export default function Home() {
                 await pc.setLocalDescription(answer);
                 
                 if (stompClient && isStompConnected) {
-                    const destination = `/app/videochat/${data}`;
+                    const destination = `/app/videochat/${receiverId}`;
                     const answerPayload = {
-                        chatRoomId: currentId,
+                        chatRoomId: chatrommId,
                         chatType: "answer",
                         sdp: answer.sdp,
-                        senderId: data,
-                        receiverId: incomingCall?.from || currentId
+                        senderId: senderId,
+                        receiverId: incomingCall?.from || receiverId
                     };
                     
                     stompClient.publish({
@@ -627,13 +676,13 @@ export default function Home() {
                 newPc.onicecandidate = (event) => {
                     if (event.candidate && stompClient && isStompConnected) {
                         stompClient.publish({
-                            destination: `/app/videochat/${data}`,
+                            destination: `/app/videochat/${receiverId}`,
                             body: JSON.stringify({
-                                chatRoomId: currentId,
+                                chatRoomId: chatrommId,
                                 chatType: "candidate",
                                 candidate: JSON.stringify(event.candidate),
-                                senderId: data,
-                                receiverId: incomingCall?.from || currentId
+                                senderId: senderId,
+                                receiverId: incomingCall?.from || receiverId
                             }),
                         });
                     }
@@ -664,32 +713,74 @@ export default function Home() {
         }
     };
 
+    // Add cleanup effect
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            // Clean up peer connection
+            if (peerConnectionRef.current) {
+                peerConnectionRef.current.close();
+                peerConnectionRef.current = null;
+            }
+
+            // Clean up media streams
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if (remoteStream) {
+                remoteStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Clean up WebSocket connection
+            if (stompClient) {
+                stompClient.deactivate();
+            }
+
+            // Reset video call state
+            dispatch(setVideoCallActive(false));
+            dispatch(setVideoCallWindowId(null));
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            handleBeforeUnload();
+        };
+    }, [localStream, remoteStream, stompClient, dispatch]);
+
     return (
         <div className="p-4">
             <div className="mb-4">
                 <h2 className="text-xl font-bold mb-2">Video Call</h2>
-                <div className="bg-blue-50 p-4 rounded mb-4">
-                    <h3 className="font-semibold mb-2">How to test:</h3>
-                    <ol className="list-decimal list-inside space-y-1">
-                        <li>Open this page in two different tabs</li>
-                        <li>Wait for "WebSocket Connected" status in both tabs</li>
-                        <li>Click "Start Call" in ONE tab only</li>
-                        <li>The other tab will receive an incoming call notification</li>
-                        <li>Accept or reject the call in the receiving tab</li>
-                    </ol>
-                </div>
+                {!isCaller && !incomingCall && (
+                    <div className="bg-yellow-50 p-4 rounded mb-4">
+                        <p>Waiting for incoming call...</p>
+                    </div>
+                )}
+                {isCaller && !connected && (
+                    <div className="bg-blue-50 p-4 rounded mb-4">
+                        <p>Calling {receiverId}...</p>
+                    </div>
+                )}
+                {connected && (
+                    <div className="bg-green-50 p-4 rounded mb-4">
+                        <p>Call connected!</p>
+                    </div>
+                )}
                 <div className="flex gap-2">
-                    <button 
-                        onClick={startCall}
-                        className={`px-4 py-2 rounded text-white ${
-                            isStompConnected 
-                                ? 'bg-blue-500 hover:bg-blue-600' 
-                                : 'bg-gray-400 cursor-not-allowed'
-                        }`}
-                        disabled={!isStompConnected}
-                    >
-                        {isStompConnected ? "Start Call" : "Connecting..."}
-                    </button>
+                    {isCaller && !connected && (
+                        <button 
+                            onClick={startCall}
+                            className={`px-4 py-2 rounded text-white ${
+                                isStompConnected 
+                                    ? 'bg-blue-500 hover:bg-blue-600' 
+                                    : 'bg-gray-400 cursor-not-allowed'
+                            }`}
+                            disabled={!isStompConnected}
+                        >
+                            {isStompConnected ? "Start Call" : "Connecting..."}
+                        </button>
+                    )}
                     <button
                         onClick={isRecording ? stopRecording : startRecording}
                         className={`px-4 py-2 rounded text-white ${
@@ -704,7 +795,7 @@ export default function Home() {
             </div>
 
             {/* Incoming Call Notification */}
-            {incomingCall && (
+            {incomingCall && !isCaller && (
                 <div className="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 z-50">
                     <div className="flex items-center gap-4">
                         <div className="animate-pulse">
