@@ -257,7 +257,7 @@ export const portalHomeApi = createApi({
 
     getAllCountUnreadChat: builder.query({
       query: ({ userId }) => ({
-        url: `/chat/chatroom/count-unread-chat?userId=2`,
+        url: `/chat/chatroom/count-unread-chat`,
         params: { userId },
       }),
     }),
