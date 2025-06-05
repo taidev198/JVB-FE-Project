@@ -127,12 +127,18 @@ const SidebarChat = () => {
 
           client.subscribe(`/topic/chatroom/${idRoom}`, message => {
             const newMessage = JSON.parse(message.body);
-
+            refetch();
             setUserChat(prevChats => {
-              console.log('setUserChat on chatroom');
+              console.log('setUserChat on new-message');
+              // Update the specific chat room with the new message
               const updatedChats = prevChats.map(chat => (chat.id === newMessage.chatRoomId ? { ...chat, lastMessage: newMessage } : chat));
 
-              return updatedChats;
+              // Sort the chats by the createAt property of the lastMessage
+              return updatedChats.sort((a, b) => {
+                const dateA = new Date(a.lastMessage.createAt).getTime();
+                const dateB = new Date(b.lastMessage.createAt).getTime();
+                return dateB - dateA; // Sort in descending order (newest message comes firstly)
+              });
             });
           });
         },
