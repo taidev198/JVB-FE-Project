@@ -117,27 +117,29 @@ const ChatRight = () => {
       scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
     }
   };
-  // useEffect(() => {
-  //   scrollToBottom();
-  // }, [chats]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [chats]);
 
   const refetchMessage = () => {
-    setChats([]);
-    setPage(1);
-    setHasMore(true);
-    previousDataRef.current = undefined;
+    if (data?.data?.content) {
+      setChats(data.data.content);
+      setPage(1);
+      setHasMore(true);
+      previousDataRef.current = undefined;
+    }
   };
 
   useEffect(() => {
     refetchMessage();
-    if(chats?.length > 0 ) {
-      chats.forEach((chat) => {
-        console.log(chat);
-        console.log('chat', chat.sender.id);
-        console.log('idAccount', idAccount);
-      }
-      );
-    }
+    // if(chats?.length > 0 ) {
+    //   chats.forEach((chat) => {
+    //     console.log(chat);
+    //     console.log('chat', chat?.sender?.id);
+    //     console.log('idAccount', idAccount);
+    //   }
+    //   );
+    // }
   }, [idRoom]);
 
   useEffect(() => {
@@ -147,9 +149,10 @@ const ChatRight = () => {
         return;
       }
       previousDataRef.current = data;
+      // setChats(data.data.content);
       setChats(prevChats => [...prevChats, ...data.data.content]);
     }
-  }, [data, isSuccess, page]);
+  }, [data, isSuccess]);
 
   const handleScroll = useCallback(
     throttle(() => {
@@ -187,13 +190,22 @@ const ChatRight = () => {
         onConnect: () => {
           setStompClient(client);
           setIsConnected(true);
-          client.subscribe(`/topic/chatroom/${idRoom}`, () => {
-            refetchMessage();
-            refetch();
+          
+          // Subscribe to chat room messages
+          client.subscribe(`/topic/chatroom/${idRoom}`, (message) => {
+            const newMessage = JSON.parse(message.body);
+            console.log("Received new message:", newMessage);
+            // Add new message to the beginning of the array since we're displaying in reverse
+            setChats(prevChats => [newMessage, ...prevChats]);
+            // Scroll to bottom when new message arrives
+            if (bottomRef.current) {
+              bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+            }
           });
+
+          // Subscribe to message deletion
           client.subscribe(`/topic/chatroom/${idRoom}/delete-message`, () => {
             refetchMessage();
-            refetch();
           });
 
           // Subscribe to video call topic
@@ -212,7 +224,6 @@ const ChatRight = () => {
             try {
               if (payload.chatType === "offer") {
                 console.log("Received offer from peer");
-                // Ensure the SDP is properly formatted
                 if (!payload.sdp || typeof payload.sdp !== 'string') {
                   console.error("Invalid SDP in offer:", payload.sdp);
                   return;
@@ -282,21 +293,28 @@ const ChatRight = () => {
 
   const sendMessage = () => {
     if (stompClient && stompClient.connected) {
+      const message = {
+        chatRoomId: idRoom,
+        senderId: idAccount,
+        receiverId: receiverId,
+        content: inputValue,
+        referChatId: replyingTo?.id,
+        chatType: 'TEXT',
+        createAt: new Date().toISOString(),
+      };
+
       stompClient.publish({
         destination: `/app/chatroom/${idRoom}`,
-        body: JSON.stringify({
-          chatRoomId: idRoom,
-          senderId: idAccount,
-          receiverId: receiverId,
-          content: inputValue,
-          referChatId: replyingTo?.id,
-          chatType: 'TEXT',
-        }),
+        body: JSON.stringify(message),
       });
+
       setReplyingTo(null); // Clear the replyingTo state after sending the message
       setInputValue('');
-      refetchMessage();
-      refetch();
+      
+      // Scroll to bottom after sending message
+      if (bottomRef.current) {
+        bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
     } else {
       console.error('STOMP client is not connected!');
     }
@@ -794,7 +812,6 @@ const ChatRight = () => {
       console.log('Image message sent successfully');
       setSelectedImage(null);
       setImagePreview(null);
-      refetch();
     } catch (error) {
       console.error('Error in sendImage:', error);
     } finally {
@@ -881,7 +898,6 @@ const ChatRight = () => {
 
       setAudioBlob(null);
       setAudioUrl(null);
-      refetch();
     } catch (error) {
       console.error('Error sending audio:', error);
     } finally {
@@ -929,6 +945,18 @@ const ChatRight = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const formatMessageTime = (timestamp: string | undefined) => {
+    if (!timestamp) return '';
+    try {
+      const date = new Date(timestamp);
+      if (isNaN(date.getTime())) return '';
+      return formatDistanceToNow(date, { addSuffix: true, locale: vi });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return '';
+    }
+  };
+
   const renderMessageContent = (message: any) => {
     if (message.type === 'IMAGE') {
       const imageUrl = message.content?.startsWith('http') ? message.content : null;
@@ -956,7 +984,7 @@ const ChatRight = () => {
           <button
             onClick={() => handlePlayPause(message.id)}
             className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              message.sender.id === idAccount ? 'bg-white' : 'bg-gray-100'
+              message?.sender?.id === idAccount ? 'bg-white' : 'bg-gray-100'
             }`}
           >
             {playingAudio === message.id ? (
@@ -1076,7 +1104,6 @@ const ChatRight = () => {
       });
 
       setSelectedFile(null);
-      refetch();
     } catch (error) {
       console.error('Error sending file:', error);
     } finally {
@@ -1143,21 +1170,21 @@ const ChatRight = () => {
                 onTouchEnd={(e) => handleTouchEnd(e, message)}
                 >
                   <div
-                    className={`flex w-full ${message.sender.id === idAccount ? 'justify-end' : ''}`}
+                    className={`flex w-full ${message?.sender?.id === idAccount ? 'justify-end' : ''}`}
                     onMouseEnter={() => setHoveredMessage(message.id)}
                     onMouseLeave={() => setHoveredMessage(null)}>
-                    <div className={`flex max-w-[60%] ${message.sender.id === idAccount ? 'justify-end ' : ''}`}>
+                    <div className={`flex max-w-[60%] ${message?.sender?.id === idAccount ? 'justify-end ' : ''}`}>
                       <div className="relative my-1 flex flex-col">
                         <div className="relative flex justify-center gap-5">
                           {/* Replied to message block */}
                           {message.referChat && (
                             <div className="mb-1 rounded-md bg-gray-100 px-3 py-1 text-sm text-gray-600 shadow-inner">
-                              Đang trả lời: {message.referChat.content}
+                              Đang trả lời: {message?.referChat.content}
                             </div>
                           )}
                           <div
                             className={`flex rounded-bl-lg rounded-br-lg px-4 py-2 shadow-lg ${
-                              message.sender.id === idAccount 
+                              message?.sender?.id === idAccount 
                                 ? 'justify-end rounded-tl-lg bg-[#246AA3] text-white' 
                                 : 'rounded-tr-lg bg-white'
                             } ${message.chatType === 'IMAGE' ? 'p-2' : ''}`}>
@@ -1166,9 +1193,9 @@ const ChatRight = () => {
                           {hoveredMessage === message.id && (
                             <div
                               className={`absolute flex flex-row flex-nowrap gap-1 ${
-                                message.sender.id === idAccount ? 'right-full -translate-x-2' : 'left-full translate-x-2'
+                                message?.sender?.id === idAccount ? 'right-full -translate-x-2' : 'left-full translate-x-2'
                               }`}>
-                              {message.sender.id === idAccount && (
+                              {message?.sender?.id === idAccount && (
                                 <div
                                   className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
                                   onClick={() => {
@@ -1194,11 +1221,11 @@ const ChatRight = () => {
                             </div>
                           )}
                         </div>
-                        <div className={`flex items-center ${message.sender.id === idAccount ? 'justify-end' : 'justify-start'} gap-2`}>
-                          <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>
-                            {formatDistanceToNow(new Date(message?.createAt), { addSuffix: true, locale: vi })}
+                        <div className={`flex items-center ${message?.sender?.id === idAccount ? 'justify-end' : 'justify-start'} gap-2`}>
+                          <p className={`${message?.sender?.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>
+                            {formatMessageTime(message?.createAt)}
                           </p>
-                          <p className={`${message.sender.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>Đã xem</p>
+                          <p className={`${message?.sender?.id === idAccount ? 'text-right' : 'text-left'} mt-1 text-xs text-[#4B465C]`}>Đã xem</p>
                         </div>
                       </div>
                     </div>
