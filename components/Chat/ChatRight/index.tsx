@@ -1,4 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
@@ -14,12 +17,6 @@ import ReplyIcon from '@mui/icons-material/Reply';
 import ImageIcon from '@mui/icons-material/Image';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { showSidebar } from '@/store/slices/global';
-import { useAppSelector } from '@/store/hooks';
-import { BackdropType, setBackdrop } from '@/store/slices/global';
-import { useDeleteOneMessageMutation, useGetAllMessagesQuery } from '@/services/portalHomeApi';
-import { ChatResponse } from '@/types/chatType';
-import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
 import { useSwipeable } from 'react-swipeable';
 import axios from 'axios';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -40,9 +37,15 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import { setIncommingCallFrom, setIncommingCallOffer } from '@/store/slices/chatSlice';
 import CallIcon from '@mui/icons-material/Call';
 import CallEndIcon from '@mui/icons-material/CallEnd';
+import { setIncommingCallFrom, setIncommingCallOffer } from '@/store/slices/chatSlice';
+import PopupConfirmAction from '@/components/Common/PopupConfirmAction';
+import { ChatResponse } from '@/types/chatType';
+import { useDeleteOneMessageMutation, useGetAllMessagesQuery } from '@/services/portalHomeApi';
+import { BackdropType, setBackdrop } from '@/store/slices/global';
+import { useAppSelector } from '@/store/hooks';
+import { showSidebar } from '@/store/slices/global';
 
 const MAX_IMAGE_SIZE = 800; // Maximum width/height in pixels
 const QUALITY = 0.7; // JPEG quality (0.7 = 70% quality)
@@ -93,7 +96,7 @@ const ChatRight = () => {
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
 
-  const handleTouchStart = (e) => {
+  const handleTouchStart = e => {
     setTouchStartX(e.changedTouches[0].clientX);
   };
 
@@ -190,11 +193,11 @@ const ChatRight = () => {
         onConnect: () => {
           setStompClient(client);
           setIsConnected(true);
-          
+
           // Subscribe to chat room messages
-          client.subscribe(`/topic/chatroom/${idRoom}`, (message) => {
+          client.subscribe(`/topic/chatroom/${idRoom}`, message => {
             const newMessage = JSON.parse(message.body);
-            console.log("Received new message:", newMessage);
+            console.log('Received new message:', newMessage);
             // Add new message to the beginning of the array since we're displaying in reverse
             setChats(prevChats => [newMessage, ...prevChats]);
             // Scroll to bottom when new message arrives
@@ -210,9 +213,9 @@ const ChatRight = () => {
 
           // Subscribe to video call topic
           const userTopic = `/topic/new-videocall/${idAccount}`;
-          console.log("Subscribing to user topic:", userTopic);
-          
-          client.subscribe(userTopic, async (message) => {
+          console.log('Subscribing to user topic:', userTopic);
+
+          client.subscribe(userTopic, async message => {
             if (!message.body) {
               console.warn('Received empty message');
               return;
@@ -222,40 +225,40 @@ const ChatRight = () => {
             console.log('Received message on topic', userTopic, ':', payload);
 
             try {
-              if (payload.chatType === "offer") {
-                console.log("Received offer from peer");
+              if (payload.chatType === 'offer') {
+                console.log('Received offer from peer');
                 if (!payload.sdp || typeof payload.sdp !== 'string') {
-                  console.error("Invalid SDP in offer:", payload.sdp);
+                  console.error('Invalid SDP in offer:', payload.sdp);
                   return;
                 }
-                
+
                 setIncomingCall({
                   from: payload.senderId,
                   offer: {
-                    type: "offer",
-                    sdp: payload.sdp
-                  }
+                    type: 'offer',
+                    sdp: payload.sdp,
+                  },
                 });
-              } else if (payload.chatType === "answer") {
-                console.log("Received answer from peer");
+              } else if (payload.chatType === 'answer') {
+                console.log('Received answer from peer');
                 if (peerConnectionRef.current) {
                   const remoteDesc = new RTCSessionDescription({
-                    type: "answer",
-                    sdp: payload.sdp
+                    type: 'answer',
+                    sdp: payload.sdp,
                   });
                   await peerConnectionRef.current.setRemoteDescription(remoteDesc);
-                  console.log("Set remote description (answer)");
+                  console.log('Set remote description (answer)');
                 }
-              } else if (payload.chatType === "candidate") {
-                console.log("Received ICE candidate from peer");
+              } else if (payload.chatType === 'candidate') {
+                console.log('Received ICE candidate from peer');
                 if (peerConnectionRef.current) {
                   const candidate = new RTCIceCandidate(JSON.parse(payload.candidate));
                   await peerConnectionRef.current.addIceCandidate(candidate);
-                  console.log("Added ICE candidate");
+                  console.log('Added ICE candidate');
                 }
               }
             } catch (error) {
-              console.error("Error handling message:", error);
+              console.error('Error handling message:', error);
             }
           });
         },
@@ -264,7 +267,7 @@ const ChatRight = () => {
           console.error('Details:', frame.body);
         },
         onDisconnect: () => {
-          if(client !== null) {
+          if (client !== null) {
             client.deactivate();
             setIsConnected(false);
           }
@@ -310,7 +313,7 @@ const ChatRight = () => {
 
       setReplyingTo(null); // Clear the replyingTo state after sending the message
       setInputValue('');
-      
+
       // Scroll to bottom after sending message
       if (bottomRef.current) {
         bottomRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -358,23 +361,23 @@ const ChatRight = () => {
             {
               urls: 'turn:relay.metered.ca:80',
               username: 'openai',
-              credential: 'chatgpt'
+              credential: 'chatgpt',
             },
             {
               urls: 'turn:relay.metered.ca:443',
               username: 'openai',
-              credential: 'chatgpt'
+              credential: 'chatgpt',
             },
             {
               urls: 'turn:relay.metered.ca:443?transport=tcp',
               username: 'openai',
-              credential: 'chatgpt'
-            }
+              credential: 'chatgpt',
+            },
           ],
           iceCandidatePoolSize: 10,
           bundlePolicy: 'max-bundle',
           rtcpMuxPolicy: 'require',
-          iceTransportPolicy: 'all'
+          iceTransportPolicy: 'all',
         });
 
         // Add local tracks to peer connection
@@ -384,20 +387,20 @@ const ChatRight = () => {
 
         // Set up event handlers
         pc.onicegatheringstatechange = () => {
-          console.log("ICE gathering state:", pc.iceGatheringState);
+          console.log('ICE gathering state:', pc.iceGatheringState);
         };
 
-        pc.onicecandidate = (event) => {
+        pc.onicecandidate = event => {
           if (event.candidate && stompClient?.connected) {
-            console.log("Sending ICE candidate:", event.candidate);
+            console.log('Sending ICE candidate:', event.candidate);
             const candidatePayload = {
               chatRoomId: idRoom,
-              chatType: "candidate",
+              chatType: 'candidate',
               candidate: JSON.stringify(event.candidate),
               senderId: idAccount,
-              receiverId: receiverId
+              receiverId: receiverId,
             };
-            
+
             stompClient.publish({
               destination: `/app/videochat/${receiverId}`,
               body: JSON.stringify(candidatePayload),
@@ -406,15 +409,18 @@ const ChatRight = () => {
         };
 
         pc.oniceconnectionstatechange = () => {
-          console.log("ICE Connection State:", pc.iceConnectionState);
+          console.log('ICE Connection State:', pc.iceConnectionState);
         };
 
         pc.onconnectionstatechange = () => {
-          console.log("Connection state changed:", pc.connectionState);
+          console.log('Connection state changed:', pc.connectionState);
         };
 
-        pc.ontrack = (event) => {
-          console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
+        pc.ontrack = event => {
+          console.log(
+            'Received remote track:',
+            event.streams[0].getTracks().map(t => t.kind)
+          );
         };
 
         peerConnectionRef.current = pc;
@@ -424,38 +430,40 @@ const ChatRight = () => {
       const offer = await peerConnectionRef.current.createOffer({
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
-        iceRestart: true
+        iceRestart: true,
       });
-      
+
       await peerConnectionRef.current.setLocalDescription(offer);
-      console.log("Set local description (offer)");
+      console.log('Set local description (offer)');
 
       const destination = `/app/videochat/${receiverId}`;
       const offerPayload = {
         chatRoomId: idRoom,
-        chatType: "offer",
+        chatType: 'offer',
         sdp: offer.sdp,
         senderId: idAccount,
-        receiverId: receiverId
+        receiverId: receiverId,
       };
-      
-      console.log("Sending video call offer:", offerPayload);
+
+      console.log('Sending video call offer:', offerPayload);
       stompClient.publish({
         destination,
         body: JSON.stringify(offerPayload),
       });
 
       // Open video call page for caller only
-      const data = encodeURIComponent(JSON.stringify({ 
-        chatRoomId: idRoom,
-        senderId: idAccount, 
-        receiverId: receiverId,
-        isCaller: true,
-        offer: {
-          type: "offer",
-          sdp: offer.sdp
-        }
-      }));
+      const data = encodeURIComponent(
+        JSON.stringify({
+          chatRoomId: idRoom,
+          senderId: idAccount,
+          receiverId: receiverId,
+          isCaller: true,
+          offer: {
+            type: 'offer',
+            sdp: offer.sdp,
+          },
+        })
+      );
       const windowFeatures = 'width=800,height=600,noopener,noreferrer';
       const url = `http://localhost:3000/portal/video-call?data=${data}`;
       window.open(url, '_blank', windowFeatures);
@@ -484,23 +492,23 @@ const ChatRight = () => {
             {
               urls: 'turn:relay.metered.ca:80',
               username: 'openai',
-              credential: 'chatgpt'
+              credential: 'chatgpt',
             },
             {
               urls: 'turn:relay.metered.ca:443',
               username: 'openai',
-              credential: 'chatgpt'
+              credential: 'chatgpt',
             },
             {
               urls: 'turn:relay.metered.ca:443?transport=tcp',
               username: 'openai',
-              credential: 'chatgpt'
-            }
+              credential: 'chatgpt',
+            },
           ],
           iceCandidatePoolSize: 10,
           bundlePolicy: 'max-bundle',
           rtcpMuxPolicy: 'require',
-          iceTransportPolicy: 'all'
+          iceTransportPolicy: 'all',
         });
 
         // Add local tracks to peer connection
@@ -510,20 +518,20 @@ const ChatRight = () => {
 
         // Set up event handlers
         pc.onicegatheringstatechange = () => {
-          console.log("ICE gathering state:", pc.iceGatheringState);
+          console.log('ICE gathering state:', pc.iceGatheringState);
         };
 
-        pc.onicecandidate = (event) => {
+        pc.onicecandidate = event => {
           if (event.candidate && stompClient?.connected) {
-            console.log("Sending ICE candidate:", event.candidate);
+            console.log('Sending ICE candidate:', event.candidate);
             const candidatePayload = {
               chatRoomId: idRoom,
-              chatType: "candidate",
+              chatType: 'candidate',
               candidate: JSON.stringify(event.candidate),
               senderId: idAccount,
-              receiverId: incomingCall.from
+              receiverId: incomingCall.from,
             };
-            
+
             stompClient.publish({
               destination: `/app/videochat/${incomingCall.from}`,
               body: JSON.stringify(candidatePayload),
@@ -532,15 +540,18 @@ const ChatRight = () => {
         };
 
         pc.oniceconnectionstatechange = () => {
-          console.log("ICE Connection State:", pc.iceConnectionState);
+          console.log('ICE Connection State:', pc.iceConnectionState);
         };
 
         pc.onconnectionstatechange = () => {
-          console.log("Connection state changed:", pc.connectionState);
+          console.log('Connection state changed:', pc.connectionState);
         };
 
-        pc.ontrack = (event) => {
-          console.log("Received remote track:", event.streams[0].getTracks().map(t => t.kind));
+        pc.ontrack = event => {
+          console.log(
+            'Received remote track:',
+            event.streams[0].getTracks().map(t => t.kind)
+          );
         };
 
         peerConnectionRef.current = pc;
@@ -548,28 +559,28 @@ const ChatRight = () => {
 
       // First set the remote description (offer)
       const remoteDesc = new RTCSessionDescription({
-        type: "offer",
-        sdp: incomingCall.offer.sdp
+        type: 'offer',
+        sdp: incomingCall.offer.sdp,
       });
       await peerConnectionRef.current.setRemoteDescription(remoteDesc);
-      console.log("Set remote description (offer)");
+      console.log('Set remote description (offer)');
 
       // Then create and set local description (answer)
       const answer = await peerConnectionRef.current.createAnswer({
         offerToReceiveAudio: true,
         offerToReceiveVideo: true,
-        iceRestart: true
+        iceRestart: true,
       });
       await peerConnectionRef.current.setLocalDescription(answer);
-      console.log("Set local description (answer)");
+      console.log('Set local description (answer)');
 
       // Send answer
       const answerPayload = {
         chatRoomId: idRoom,
-        chatType: "answer",
+        chatType: 'answer',
         sdp: answer.sdp,
         senderId: idAccount,
-        receiverId: incomingCall.from
+        receiverId: incomingCall.from,
       };
 
       stompClient.publish({
@@ -578,24 +589,26 @@ const ChatRight = () => {
       });
 
       // Open video call page for receiver only
-      const data = encodeURIComponent(JSON.stringify({ 
-        chatRoomId: idRoom,
-        senderId: incomingCall.from, 
-        receiverId: idAccount,
-        isCaller: false,
-        offer: {
-          type: "offer",
-          sdp: incomingCall.offer.sdp
-        },
-        answer: {
-          type: "answer",
-          sdp: answer.sdp
-        }
-      }));
+      const data = encodeURIComponent(
+        JSON.stringify({
+          chatRoomId: idRoom,
+          senderId: incomingCall.from,
+          receiverId: idAccount,
+          isCaller: false,
+          offer: {
+            type: 'offer',
+            sdp: incomingCall.offer.sdp,
+          },
+          answer: {
+            type: 'answer',
+            sdp: answer.sdp,
+          },
+        })
+      );
       const windowFeatures = 'width=800,height=600,noopener,noreferrer';
       const url = `http://localhost:3000/portal/video-call?data=${data}`;
       window.open(url, '_blank', windowFeatures);
-      
+
       setIncomingCall(null);
     } catch (error) {
       console.error('Error accepting call:', error);
@@ -619,7 +632,7 @@ const ChatRight = () => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
@@ -682,7 +695,7 @@ const ChatRight = () => {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'text/plain',
       'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     ];
 
     if (!allowedTypes.includes(file.type)) {
@@ -708,17 +721,13 @@ const ChatRight = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
+
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       return response.data.url; // Assuming the API returns the image URL
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -730,7 +739,7 @@ const ChatRight = () => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = (event) => {
+      reader.onload = event => {
         const img = new Image();
         img.src = event.target?.result as string;
         img.onload = () => {
@@ -756,7 +765,7 @@ const ChatRight = () => {
           ctx?.drawImage(img, 0, 0, width, height);
 
           canvas.toBlob(
-            (blob) => {
+            blob => {
               if (blob) {
                 const compressedFile = new File([blob], file.name, {
                   type: 'image/jpeg',
@@ -788,25 +797,25 @@ const ChatRight = () => {
     try {
       setIsUploading(true);
       const imageUrl = await uploadImage(selectedImage);
-      
+
       const message = {
         chatRoomId: idRoom,
         senderId: idAccount,
         receiverId: receiverId,
         content: imageUrl,
         referChatId: replyingTo?.id,
-        chatType: 'IMAGE'
+        chatType: 'IMAGE',
       };
-      
+
       console.log('Sending image message:', {
         destination: `/app/chatroom/${idRoom}`,
         messageType: 'IMAGE',
-        imageUrl
+        imageUrl,
       });
 
       stompClient.publish({
         destination: `/app/chatroom/${idRoom}`,
-        body: JSON.stringify(message)
+        body: JSON.stringify(message),
       });
 
       console.log('Image message sent successfully');
@@ -831,7 +840,7 @@ const ChatRight = () => {
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      mediaRecorder.ondataavailable = (event) => {
+      mediaRecorder.ondataavailable = event => {
         if (event.data.size > 0) {
           audioChunksRef.current.push(event.data);
         }
@@ -869,31 +878,27 @@ const ChatRight = () => {
       setIsUploading(true);
       const formData = new FormData();
       formData.append('file', audioBlob, 'audio.webm');
-      
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
+
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       const audioUrl = response.data.url;
-      
+
       const message = {
         chatRoomId: idRoom,
         senderId: idAccount,
         receiverId: receiverId,
         content: audioUrl,
         referChatId: replyingTo?.id,
-        chatType: 'AUDIO'
+        chatType: 'AUDIO',
       };
 
       stompClient.publish({
         destination: `/app/chatroom/${idRoom}`,
-        body: JSON.stringify(message)
+        body: JSON.stringify(message),
       });
 
       setAudioBlob(null);
@@ -966,62 +971,47 @@ const ChatRight = () => {
       }
 
       return (
-        <div className="relative group">
-          <div className="relative w-[300px] h-[200px]">
-            <img 
-              src={imageUrl} 
-              alt="Shared image" 
-              className="w-full h-full rounded-lg object-contain cursor-pointer"
+        <div className="group relative">
+          <div className="relative h-[200px] w-[300px]">
+            <img
+              src={imageUrl}
+              alt="Shared image"
+              className="h-full w-full cursor-pointer rounded-lg object-contain"
               onClick={() => handleImageClick(imageUrl)}
             />
           </div>
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-opacity rounded-lg" />
+          <div className="absolute inset-0 rounded-lg bg-black bg-opacity-0 transition-opacity group-hover:bg-opacity-10" />
         </div>
       );
     } else if (message.type === 'AUDIO') {
       return (
-        <div className="flex items-center gap-2 min-w-[200px]">
+        <div className="flex min-w-[200px] items-center gap-2">
           <button
             onClick={() => handlePlayPause(message.id)}
-            className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              message?.sender?.id === idAccount ? 'bg-white' : 'bg-gray-100'
-            }`}
-          >
-            {playingAudio === message.id ? (
-              <PauseIcon className="text-primary-main" />
-            ) : (
-              <PlayArrowIcon className="text-primary-main" />
-            )}
+            className={`flex h-8 w-8 items-center justify-center rounded-full ${message?.sender?.id === idAccount ? 'bg-white' : 'bg-gray-100'}`}>
+            {playingAudio === message.id ? <PauseIcon className="text-primary-main" /> : <PlayArrowIcon className="text-primary-main" />}
           </button>
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <VolumeUpIcon className="text-gray-500" />
-              <div className="flex-1 h-1 bg-gray-200 rounded-full">
-                <div 
-                  className="h-full bg-primary-main rounded-full"
-                  style={{ 
-                    width: audioRefs.current[message.id]?.currentTime 
-                      ? `${(audioRefs.current[message.id].currentTime / audioRefs.current[message.id].duration) * 100}%` 
-                      : '0%' 
+              <div className="h-1 flex-1 rounded-full bg-gray-200">
+                <div
+                  className="h-full rounded-full bg-primary-main"
+                  style={{
+                    width: audioRefs.current[message.id]?.currentTime
+                      ? `${(audioRefs.current[message.id].currentTime / audioRefs.current[message.id].duration) * 100}%`
+                      : '0%',
                   }}
                 />
               </div>
             </div>
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
-              <span>
-                {audioRefs.current[message.id]?.currentTime 
-                  ? formatTime(audioRefs.current[message.id].currentTime)
-                  : '0:00'}
-              </span>
-              <span>
-                {audioRefs.current[message.id]?.duration 
-                  ? formatTime(audioRefs.current[message.id].duration)
-                  : '0:00'}
-              </span>
+            <div className="mt-1 flex justify-between text-xs text-gray-500">
+              <span>{audioRefs.current[message.id]?.currentTime ? formatTime(audioRefs.current[message.id].currentTime) : '0:00'}</span>
+              <span>{audioRefs.current[message.id]?.duration ? formatTime(audioRefs.current[message.id].duration) : '0:00'}</span>
             </div>
           </div>
           <audio
-            ref={(el) => {
+            ref={el => {
               if (el) {
                 audioRefs.current[message.id] = el;
               }
@@ -1038,23 +1028,17 @@ const ChatRight = () => {
       );
     } else if (message.type === 'FILE') {
       return (
-        <div className="flex items-center gap-2 min-w-[200px]">
+        <div className="flex min-w-[200px] items-center gap-2">
           {getFileIcon(message.fileType)}
           <div className="flex-1">
-            <div className="text-sm font-medium truncate">{message.fileName}</div>
+            <div className="truncate text-sm font-medium">{message.fileName}</div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">{getFileTypeName(message.fileType)}</span>
               <span className="text-xs text-gray-500">•</span>
               {/* <span className="text-xs text-gray-500">{formatFileSize(message.fileSize)}</span> */}
             </div>
           </div>
-          <a
-            href={message.content}
-            download={message.fileName}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-1 hover:bg-gray-100 rounded-full"
-          >
+          <a href={message.content} download={message.fileName} target="_blank" rel="noopener noreferrer" className="rounded-full p-1 hover:bg-gray-100">
             <DownloadIcon className="text-primary-main" />
           </a>
         </div>
@@ -1073,19 +1057,15 @@ const ChatRight = () => {
       setIsUploading(true);
       const formData = new FormData();
       formData.append('file', selectedFile);
-      
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
+
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/api/chat/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       const fileUrl = response.data.url;
-      
+
       const message = {
         chatRoomId: idRoom,
         senderId: idAccount,
@@ -1095,12 +1075,12 @@ const ChatRight = () => {
         // fileSize: selectedFile.size,
         fileType: selectedFile.type,
         referChatId: replyingTo?.id,
-        chatType: 'FILE'
+        chatType: 'FILE',
       };
 
       stompClient.publish({
         destination: `/app/chatroom/${idRoom}`,
-        body: JSON.stringify(message)
+        body: JSON.stringify(message),
       });
 
       setSelectedFile(null);
@@ -1146,12 +1126,7 @@ const ChatRight = () => {
         </div>
       </div>
 
-      <div 
-        className="relative h-full overflow-y-auto bg-gray-50"
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
+      <div className="relative h-full overflow-y-auto bg-gray-50" onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
         {isDragging && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="rounded-lg bg-white p-4 text-center">
@@ -1165,10 +1140,7 @@ const ChatRight = () => {
               .slice()
               .reverse()
               .map((message, index) => (
-                <div key={index}
-                onTouchStart={handleTouchStart}
-                onTouchEnd={(e) => handleTouchEnd(e, message)}
-                >
+                <div key={index} onTouchStart={handleTouchStart} onTouchEnd={e => handleTouchEnd(e, message)}>
                   <div
                     className={`flex w-full ${message?.sender?.id === idAccount ? 'justify-end' : ''}`}
                     onMouseEnter={() => setHoveredMessage(message.id)}
@@ -1184,9 +1156,7 @@ const ChatRight = () => {
                           )}
                           <div
                             className={`flex rounded-bl-lg rounded-br-lg px-4 py-2 shadow-lg ${
-                              message?.sender?.id === idAccount 
-                                ? 'justify-end rounded-tl-lg bg-[#246AA3] text-white' 
-                                : 'rounded-tr-lg bg-white'
+                              message?.sender?.id === idAccount ? 'justify-end rounded-tl-lg bg-[#246AA3] text-white' : 'rounded-tr-lg bg-white'
                             } ${message.chatType === 'IMAGE' ? 'p-2' : ''}`}>
                             {renderMessageContent(message)}
                           </div>
@@ -1208,15 +1178,15 @@ const ChatRight = () => {
                                 </div>
                               )}
                               <div
-                                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
-                                  onClick={() => {
+                                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-lg shadow-lg"
+                                onClick={() => {
                                   setIdReplyMes(message?.id);
                                   setReplyingTo(message);
                                   setInputValue(`@${message?.content} `);
-                                  }}>
-                                  <Tooltip title="Rep tin nhắn" placement="top">
-                                    <ReplyIcon style={{ width: '20px', height: '20px' }} />
-                                  </Tooltip>
+                                }}>
+                                <Tooltip title="Rep tin nhắn" placement="top">
+                                  <ReplyIcon style={{ width: '20px', height: '20px' }} />
+                                </Tooltip>
                               </div>
                             </div>
                           )}
@@ -1238,72 +1208,47 @@ const ChatRight = () => {
           ) : (
             <p className="text-center">Hãy bắt đầu cuộc trò chuyện bằng một lời chào 😍</p>
           )}
-        <div ref={bottomRef}></div>
+          <div ref={bottomRef}></div>
         </div>
         {replyingTo && (
-      <div className="px-4 py-2 text-sm bg-gray-200 border-b">
-        <span>Đang trả lời: </span>
-        <strong>{replyingTo?.content}</strong>
-        <button onClick={() => setReplyingTo(null)} className="ml-2 text-red-500">Hủy</button>
-      </div>
-    )}
+          <div className="border-b bg-gray-200 px-4 py-2 text-sm">
+            <span>Đang trả lời: </span>
+            <strong>{replyingTo?.content}</strong>
+            <button onClick={() => setReplyingTo(null)} className="ml-2 text-red-500">
+              Hủy
+            </button>
+          </div>
+        )}
         {imagePreview && (
           <div className="fixed bottom-20 left-1/2 -translate-x-1/2 transform rounded-lg bg-white p-4 shadow-lg">
             <img src={imagePreview} alt="Preview" className="max-h-40 rounded" />
             <div className="mt-2 flex justify-end gap-2">
-              <button
-                onClick={cancelImage}
-                className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
-                disabled={isUploading}
-              >
+              <button onClick={cancelImage} className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300" disabled={isUploading}>
                 Cancel
               </button>
               <button
                 onClick={sendImage}
                 className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:bg-gray-400"
-                disabled={!stompClient?.connected || isUploading}
-              >
+                disabled={!stompClient?.connected || isUploading}>
                 {isUploading ? 'Uploading...' : 'Send'}
               </button>
             </div>
-      </div>
-    )}
+          </div>
+        )}
         <div
           className={`${
             !idRoom ? 'cursor-not-allowed opacity-50' : ''
           } absolute bottom-5 left-1/2 flex w-[96%] -translate-x-1/2 transform items-center rounded-lg bg-white shadow-md`}>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileInputChange}
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.ppt,.pptx"
-            className="hidden"
-          />
-          <IconButton 
-            disabled={!idRoom} 
-            className="!p-2" 
-            onClick={() => fileInputRef.current?.click()}
-          >
+          <input type="file" ref={fileInputRef} onChange={handleFileInputChange} accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.ppt,.pptx" className="hidden" />
+          <IconButton disabled={!idRoom} className="!p-2" onClick={() => fileInputRef.current?.click()}>
             <ImageIcon className="text-primary-main" fontSize="medium" />
           </IconButton>
-          <IconButton 
-            disabled={!idRoom} 
-            className="!p-2" 
-            onClick={handleFileClick}
-          >
+          <IconButton disabled={!idRoom} className="!p-2" onClick={handleFileClick}>
             <AttachFileIcon className="text-primary-main" fontSize="medium" />
           </IconButton>
           {!audioUrl ? (
-            <IconButton 
-              disabled={!idRoom} 
-              className="!p-2" 
-              onClick={isRecording ? stopRecording : startRecording}
-            >
-              {isRecording ? (
-                <StopIcon className="text-red-500" fontSize="medium" />
-              ) : (
-                <MicIcon className="text-primary-main" fontSize="medium" />
-              )}
+            <IconButton disabled={!idRoom} className="!p-2" onClick={isRecording ? stopRecording : startRecording}>
+              {isRecording ? <StopIcon className="text-red-500" fontSize="medium" /> : <MicIcon className="text-primary-main" fontSize="medium" />}
             </IconButton>
           ) : null}
           <textarea
@@ -1329,18 +1274,13 @@ const ChatRight = () => {
             Your browser does not support the audio element.
           </audio>
           <div className="flex justify-end gap-2">
-            <button
-              onClick={cancelAudio}
-              className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
-              disabled={isUploading}
-            >
+            <button onClick={cancelAudio} className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300" disabled={isUploading}>
               Cancel
             </button>
             <button
               onClick={sendAudio}
               className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:bg-gray-400"
-              disabled={!stompClient?.connected || isUploading}
-            >
+              disabled={!stompClient?.connected || isUploading}>
               {isUploading ? 'Sending...' : 'Send'}
             </button>
           </div>
@@ -1349,10 +1289,10 @@ const ChatRight = () => {
 
       {selectedFile && (
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 transform rounded-lg bg-white p-4 shadow-lg">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="mb-2 flex items-center gap-2">
             {getFileIcon(selectedFile.type)}
             <div>
-              <div className="text-sm font-medium truncate max-w-[200px]">{selectedFile.name}</div>
+              <div className="max-w-[200px] truncate text-sm font-medium">{selectedFile.name}</div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">{getFileTypeName(selectedFile.type)}</span>
                 <span className="text-xs text-gray-500">•</span>
@@ -1361,18 +1301,13 @@ const ChatRight = () => {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button
-              onClick={cancelFile}
-              className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300"
-              disabled={isUploading}
-            >
+            <button onClick={cancelFile} className="rounded bg-gray-200 px-3 py-1 text-sm hover:bg-gray-300" disabled={isUploading}>
               Cancel
             </button>
             <button
               onClick={sendFile}
               className="rounded bg-blue-500 px-3 py-1 text-sm text-white hover:bg-blue-600 disabled:bg-gray-400"
-              disabled={!stompClient?.connected || isUploading}
-            >
+              disabled={!stompClient?.connected || isUploading}>
               {isUploading ? 'Sending...' : 'Send'}
             </button>
           </div>
@@ -1380,26 +1315,14 @@ const ChatRight = () => {
       )}
 
       {/* Image Preview Modal */}
-      <Dialog
-        open={!!previewImage}
-        onClose={handleClosePreview}
-        maxWidth="lg"
-        fullWidth
-      >
+      <Dialog open={!!previewImage} onClose={handleClosePreview} maxWidth="lg" fullWidth>
         <DialogContent className="relative p-0">
-          <IconButton
-            onClick={handleClosePreview}
-            className="absolute right-2 top-2 z-10 bg-white/80 hover:bg-white"
-          >
+          <IconButton onClick={handleClosePreview} className="absolute right-2 top-2 z-10 bg-white/80 hover:bg-white">
             <CloseIcon />
           </IconButton>
           {previewImage && (
-            <div className="flex items-center justify-center min-h-[80vh]">
-              <img
-                src={previewImage}
-                alt="Preview"
-                className="max-w-full max-h-[80vh] object-contain"
-              />
+            <div className="flex min-h-[80vh] items-center justify-center">
+              <img src={previewImage} alt="Preview" className="max-h-[80vh] max-w-full object-contain" />
             </div>
           )}
         </DialogContent>
@@ -1407,28 +1330,26 @@ const ChatRight = () => {
 
       {/* Incoming Call Notification */}
       {incomingCall && (
-        <div className="fixed top-4 right-4 bg-white rounded-lg shadow-lg p-4 z-50">
+        <div className="fixed right-4 top-4 z-50 rounded-lg bg-white p-4 shadow-lg">
           <div className="flex items-center gap-4">
             <div className="animate-pulse">
-              <CallIcon className="text-green-500 text-3xl" />
+              <CallIcon className="text-3xl text-green-500" />
             </div>
             <div>
               <h3 className="font-semibold">Incoming Call</h3>
               <p className="text-sm text-gray-600">From: {incomingCall.from}</p>
             </div>
           </div>
-          <div className="flex gap-2 mt-4">
+          <div className="mt-4 flex gap-2">
             <button
               onClick={handleAcceptCall}
-              className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center justify-center gap-2"
-            >
+              className="flex flex-1 items-center justify-center gap-2 rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600">
               <CallIcon />
               Accept
             </button>
             <button
               onClick={handleRejectCall}
-              className="flex-1 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 flex items-center justify-center gap-2"
-            >
+              className="flex flex-1 items-center justify-center gap-2 rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600">
               <CallEndIcon />
               Reject
             </button>

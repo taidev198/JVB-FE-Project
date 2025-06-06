@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Development service
+  app-dev:
+    build:
+      context: .
+      target: deps
+    command: npm run dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    networks:
+      - app-network
+
+  # Production service
+  app-prod:
+    build:
+      context: .
+      target: runner
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://localhost
+    restart: unless-stopped
+    networks:
+      - app-network
+
+  # Nginx reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - app-prod
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge 

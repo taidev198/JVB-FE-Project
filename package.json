@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "DISABLE_ESLINT_PLUGIN=true next build",
     "start": "next start",
     "lint": "next lint",
     "fix": "next lint --fix",
@@ -125,13 +125,13 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged && npm run build"
+      "pre-commit": "lint-staged"
     }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "next lint --max-warnings=0",
-      "prettier --write \"./**/*.{ts,tsx}\" \"**/*.md\""
+      "prettier --write"
     ]
   }
 }

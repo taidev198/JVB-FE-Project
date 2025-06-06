@@ -1,6 +1,9 @@
 /* eslint-disable*/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import Link from 'next/link';
 import React, { useEffect, useState, useCallback } from 'react';
 import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback

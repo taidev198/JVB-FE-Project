@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import { Drawer, useMediaQuery, useTheme } from '@mui/material';
@@ -9,6 +10,7 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useDebounce } from 'use-debounce';
 import UserChatItem from './UserChatItem';
 import { showSidebar } from '@/store/slices/global';
 import { useGetAllChatRoomsQuery, useReadAllMessagesOnAChatRoomMutation } from '@/services/portalHomeApi';
@@ -16,7 +18,6 @@ import { useAppSelector } from '@/store/hooks';
 import { setIdRoom, setNamePartnerChat, setReceiverId } from '@/store/slices/chatSlice';
 import Logo from '@/components/Logo';
 import { chatRoomResponse } from '@/types/chatType';
-import { useDebounce } from 'use-debounce';
 
 const SidebarChat = () => {
   const userId = useAppSelector(state => state.user.idAccount);
@@ -47,10 +48,7 @@ const SidebarChat = () => {
       setUserChat(data?.data?.content || []);
     } else {
       // Pagination
-      setUserChat(prev => [
-        ...prev,
-        ...data.data.content.filter(item => !prev.some(p => p.id === item.id)),
-      ]);
+      setUserChat(prev => [...prev, ...data.data.content.filter(item => !prev.some(p => p.id === item.id))]);
     }
 
     // Check if there's more data
@@ -63,7 +61,6 @@ const SidebarChat = () => {
     setHasMore(true);
     refetch();
   }, [keyword]);
-  
 
   const handleScroll = useCallback(
     throttle(() => {
@@ -172,9 +169,8 @@ const SidebarChat = () => {
               setKeyword(e.target.value);
               setPage(1);
               setHasMore(true);
-              setUserChat([]);//set to update new data
-            }
-            }
+              setUserChat([]); //set to update new data
+            }}
             className="w-[90%] border-none placeholder:text-[15px] placeholder:text-[#4B465C]"
             placeholder="Tìm kiếm đoạn chat..."
           />

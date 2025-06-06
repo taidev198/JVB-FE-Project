@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface ChatState {
-  idRoom: string;
+  idRoom: number;
   namePartnerChat: string;
-  receiverId: string;
+  receiverId: number;
   incommingCallFrom: string;
   incommingCallOffer: any;
   isVideoCallActive: boolean;
@@ -11,9 +11,9 @@ interface ChatState {
 }
 
 const initialState: ChatState = {
-  idRoom: '',
+  idRoom: undefined,
   namePartnerChat: '',
-  receiverId: '',
+  receiverId: undefined,
   incommingCallFrom: '',
   incommingCallOffer: null,
   isVideoCallActive: false,
@@ -24,13 +24,13 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setIdRoom: (state, action: PayloadAction<string>) => {
+    setIdRoom: (state, action: PayloadAction<number>) => {
       state.idRoom = action.payload;
     },
     setNamePartnerChat: (state, action: PayloadAction<string>) => {
       state.namePartnerChat = action.payload;
     },
-    setReceiverId: (state, action: PayloadAction<string>) => {
+    setReceiverId: (state, action: PayloadAction<number>) => {
       state.receiverId = action.payload;
     },
     setIncommingCallFrom: (state, action: PayloadAction<string>) => {
