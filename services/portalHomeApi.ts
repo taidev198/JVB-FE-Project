@@ -9,6 +9,7 @@ import { UniversityDetailResponse, UniversityResponse } from '@/types/university
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
 import { ChatResponse, chatRoomResponse, CheckChatResponse } from '@/types/chatType';
+import { TextQuestion } from '@/types/textQuestion';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -23,7 +24,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat'],
+  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
     // Fetch all jobs with pagination and additional filters
@@ -261,6 +262,40 @@ export const portalHomeApi = createApi({
         params: { userId },
       }),
     }),
+
+    // Text Questions
+    getTextQuestions: builder.query<{ data: TextQuestion[] }, void>({
+      query: () => '/text-questions',
+      providesTags: ['TextQuestions'],
+    }),
+
+    // Audio endpoints
+    getAudioFile: builder.query<Blob, string>({
+      query: (filename) => ({
+        url: `/audio/${filename}`,
+        responseHandler: async (response) => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch audio file');
+          }
+          return response.blob();
+        },
+      }),
+    }),
+
+    uploadAudioFile: builder.mutation<string, FormData>({
+      query: (formData) => ({
+        url: '/api/audio/upload',
+        method: 'POST',
+        body: formData,
+      }),
+    }),
+
+    deleteAudioFile: builder.mutation<void, string>({
+      query: (filename) => ({
+        url: `/api/audio/${filename}`,
+        method: 'DELETE',
+      }),
+    }),
   }),
 });
 
@@ -287,4 +322,8 @@ export const {
   useReadAllMessagesOnAChatRoomMutation,
   useDeleteOneMessageMutation,
   useGetAllCountUnreadChatQuery,
+  useGetTextQuestionsQuery,
+  useGetAudioFileQuery,
+  useUploadAudioFileMutation,
+  useDeleteAudioFileMutation,
 } = portalHomeApi;
