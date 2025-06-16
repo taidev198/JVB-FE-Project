@@ -9,7 +9,7 @@ import { UniversityDetailResponse, UniversityResponse } from '@/types/university
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
 import { ChatResponse, chatRoomResponse, CheckChatResponse } from '@/types/chatType';
-import { TextQuestion } from '@/types/textQuestion';
+import { TextQuestion, IeltsCategory, IeltsCategoryResponse } from '@/types/textQuestion';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -24,7 +24,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions'],
+  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions', 'IeltsCategories'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
     // Fetch all jobs with pagination and additional filters
@@ -296,6 +296,20 @@ export const portalHomeApi = createApi({
         method: 'DELETE',
       }),
     }),
+
+    // Get IELTS Categories
+    getIeltsCategories: builder.query<IeltsCategoryResponse, void>({
+      query: () => '/ielts-categories',
+      providesTags: ['IeltsCategories'],
+    }),
+
+    // Get Text Questions by Category
+    getTextQuestionsByCategory: builder.query<{ data: TextQuestion[] }, number>({
+      query: (categoryId) => `/text-questions/category/${categoryId}`,
+      providesTags: (result, error, categoryId) => [
+        { type: 'TextQuestions', id: categoryId }
+      ],
+    }),
   }),
 });
 
@@ -326,4 +340,6 @@ export const {
   useGetAudioFileQuery,
   useUploadAudioFileMutation,
   useDeleteAudioFileMutation,
+  useGetIeltsCategoriesQuery,
+  useGetTextQuestionsByCategoryQuery,
 } = portalHomeApi;

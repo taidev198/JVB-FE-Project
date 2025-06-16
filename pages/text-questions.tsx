@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Card, Typography, Button, Space, message, Collapse } from 'antd';
 import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
-import { useGetTextQuestionsQuery, useGetAudioFileQuery } from '@/services/portalHomeApi';
+import { useGetTextQuestionsQuery, useGetAudioFileQuery, useGetTextQuestionsByCategoryQuery } from '@/services/portalHomeApi';
 import { BiMicrophone, BiPlay, BiPause, BiRefresh } from 'react-icons/bi';
 import Container from '@/components/Container';
+import { useRouter } from 'next/router';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -31,6 +32,8 @@ interface ScoreResult {
 }
 
 const TextQuestionsPage: React.FC = () => {
+  const router = useRouter();
+  const { categoryId } = router.query;
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioBlobs, setAudioBlobs] = useState<{ [key: string]: Blob }>({});
@@ -51,7 +54,10 @@ const TextQuestionsPage: React.FC = () => {
   const recognitionRef = useRef<any>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  const { data: questions, isLoading, error } = useGetTextQuestionsQuery();
+  const { data: questions, isLoading, error } = useGetTextQuestionsByCategoryQuery(
+    Number(categoryId),
+    { skip: !categoryId }
+  );
   const { data: audioBlob, error: audioError } = useGetAudioFileQuery(currentAudioPath || '', {
     skip: !currentAudioPath,
   });
@@ -398,7 +404,12 @@ const TextQuestionsPage: React.FC = () => {
     <Container>
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
-          <Title level={2} className="text-center mb-8">IELTS Speaking Questions</Title>
+          <div className="flex justify-between items-center mb-8">
+            <Title level={2}>IELTS Speaking Questions</Title>
+            <Button onClick={() => router.push('/ielts-categories')}>
+              Back to Categories
+            </Button>
+          </div>
           
           {questionsList.length === 0 ? (
             <div>No questions available</div>
