@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Card, Typography, Button, Space, message, Collapse } from 'antd';
+import { Card, Typography, Button, Space, message, Collapse, Progress } from 'antd';
 import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
 import { useGetTextQuestionsQuery, useGetAudioFileQuery, useGetTextQuestionsByCategoryQuery } from '@/services/portalHomeApi';
 import { BiMicrophone, BiPlay, BiPause, BiRefresh } from 'react-icons/bi';
@@ -17,6 +17,8 @@ interface TextQuestion {
   questionAudioPath: string;
   answer1AudioPath: string;
   answer2AudioPath: string;
+  score1: number;
+  score2: number;
 }
 
 interface ScoreResult {
@@ -400,6 +402,12 @@ const TextQuestionsPage: React.FC = () => {
     ? questions.data 
     : [];
 
+  const calculateTotalScore = (question: TextQuestion) => {
+    const scores = [question.score1, question.score2].filter(score => score !== undefined && score !== null);
+    if (scores.length === 0) return 0;
+    return scores.reduce((sum, score) => sum + score, 0) / scores.length;
+  };
+
   return (
     <Container>
       <div className="min-h-screen bg-gray-50 py-8">
@@ -417,9 +425,24 @@ const TextQuestionsPage: React.FC = () => {
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {questionsList.map((question) => (
                 <Card key={question.id} className="w-full">
-                  <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                    <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex-1">
                       <Text strong>{question.question}</Text>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-center">
+                        <Progress
+                          type="circle"
+                          percent={calculateTotalScore(question)}
+                          format={(percent) => `${percent?.toFixed(1)}%`}
+                          width={70}
+                          strokeColor={{
+                            '0%': '#108ee9',
+                            '100%': '#87d068',
+                          }}
+                        />
+                        <div className="text-sm text-gray-500 mt-1">Total Score</div>
+                      </div>
                       <Button
                         type="primary"
                         icon={playingId === `question-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
@@ -429,19 +452,37 @@ const TextQuestionsPage: React.FC = () => {
                         {playingId === `question-${question.id}` ? 'Pause Question' : 'Play Question'}
                       </Button>
                     </div>
-
+                  </div>
+                  <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                     <Collapse defaultActiveKey={[]}>
                       <Panel header="Sample Answer 1" key="1">
                         <div className="flex items-center justify-between mb-2">
-                          <Text>{question.sampleAnswer1}</Text>
-                          <Button
-                            type="primary"
-                            icon={playingId === `answer1-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                            onClick={() => handlePlayAudio(question.answer1AudioPath, `answer1-${question.id}`)}
-                            disabled={!question.answer1AudioPath}
-                          >
-                            {playingId === `answer1-${question.id}` ? 'Pause Answer' : 'Play Answer'}
-                          </Button>
+                          <div className="flex-1">
+                            <Text>{question.sampleAnswer1}</Text>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-center">
+                              <Progress
+                                type="circle"
+                                percent={question.score1 || 0}
+                                format={(percent) => `${percent?.toFixed(1)}%`}
+                                width={60}
+                                strokeColor={{
+                                  '0%': '#108ee9',
+                                  '100%': '#87d068',
+                                }}
+                              />
+                              <div className="text-sm text-gray-500 mt-1">Score</div>
+                            </div>
+                            <Button
+                              type="primary"
+                              icon={playingId === `answer1-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                              onClick={() => handlePlayAudio(question.answer1AudioPath, `answer1-${question.id}`)}
+                              disabled={!question.answer1AudioPath}
+                            >
+                              {playingId === `answer1-${question.id}` ? 'Pause Answer' : 'Play Answer'}
+                            </Button>
+                          </div>
                         </div>
                         <div className="mt-4 border-t pt-4">
                           <div className="space-y-4">
@@ -538,15 +579,32 @@ const TextQuestionsPage: React.FC = () => {
                       </Panel>
                       <Panel header="Sample Answer 2" key="2">
                         <div className="flex items-center justify-between mb-2">
-                          <Text>{question.sampleAnswer2}</Text>
-                          <Button
-                            type="primary"
-                            icon={playingId === `answer2-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                            onClick={() => handlePlayAudio(question.answer2AudioPath, `answer2-${question.id}`)}
-                            disabled={!question.answer2AudioPath}
-                          >
-                            {playingId === `answer2-${question.id}` ? 'Pause Answer' : 'Play Answer'}
-                          </Button>
+                          <div className="flex-1">
+                            <Text>{question.sampleAnswer2}</Text>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-center">
+                              <Progress
+                                type="circle"
+                                percent={question.score2 || 0}
+                                format={(percent) => `${percent?.toFixed(1)}%`}
+                                width={60}
+                                strokeColor={{
+                                  '0%': '#108ee9',
+                                  '100%': '#87d068',
+                                }}
+                              />
+                              <div className="text-sm text-gray-500 mt-1">Score</div>
+                            </div>
+                            <Button
+                              type="primary"
+                              icon={playingId === `answer2-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                              onClick={() => handlePlayAudio(question.answer2AudioPath, `answer2-${question.id}`)}
+                              disabled={!question.answer2AudioPath}
+                            >
+                              {playingId === `answer2-${question.id}` ? 'Pause Answer' : 'Play Answer'}
+                            </Button>
+                          </div>
                         </div>
                         <div className="mt-4 border-t pt-4">
                           <div className="space-y-4">
