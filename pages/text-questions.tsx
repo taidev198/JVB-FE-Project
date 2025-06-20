@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Card, Typography, Button, Space, message, Collapse, Progress } from 'antd';
 import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
-import { useGetTextQuestionsQuery, useGetAudioFileQuery, useGetTextQuestionsByCategoryQuery } from '@/services/portalHomeApi';
+import { useGetTextQuestionsQuery, useGetAudioFileQuery, useGetTextQuestionsByCategoryQuery, useSaveUserAnswerMutation } from '@/services/portalHomeApi';
 import { BiMicrophone, BiPlay, BiPause, BiRefresh } from 'react-icons/bi';
 import Container from '@/components/Container';
 import { useRouter } from 'next/router';
@@ -63,6 +63,7 @@ const TextQuestionsPage: React.FC = () => {
   const { data: audioBlob, error: audioError } = useGetAudioFileQuery(currentAudioPath || '', {
     skip: !currentAudioPath,
   });
+  const [saveUserAnswerMutation] = useSaveUserAnswerMutation();
 
   useEffect(() => {
     if (error) {
@@ -256,6 +257,25 @@ const TextQuestionsPage: React.FC = () => {
     }
   };
 
+  const saveUserAnswer = async (questionId: number, transcript: string, score: number, audioBlob: Blob) => {
+    const formData = new FormData();
+    const requestDto = {
+      speakingPracticeId: questionId,
+      userId: 1, // TODO: Replace with actual userId if available
+      speakingText: transcript,
+      speakingScore: Math.round(score),
+    };
+    formData.append('requestDto', new Blob([JSON.stringify(requestDto)], { type: 'application/json' }));
+    formData.append('answerFile', audioBlob, 'answer.webm');
+
+    try {
+      await saveUserAnswerMutation(formData).unwrap();
+      message.success('Your answer has been saved!');
+    } catch (error) {
+      message.error('Failed to save your answer.');
+    }
+  };
+
   const startRecording = async (questionId: number) => {
     try {
       setCurrentQuestionId(questionId);
@@ -310,6 +330,11 @@ const TextQuestionsPage: React.FC = () => {
           
           if (recognitionRef.current) {
             recognitionRef.current.stop();
+          }
+
+          // Save the answer to backend
+          if (currentQuestionId !== null && transcript && score) {
+            await saveUserAnswer(currentQuestionId, transcript, score.accuracy, audioBlob);
           }
         } catch (error) {
           console.error('Error processing recorded audio:', error);

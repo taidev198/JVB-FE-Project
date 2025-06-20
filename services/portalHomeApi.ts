@@ -305,10 +305,20 @@ export const portalHomeApi = createApi({
 
     // Get Text Questions by Category
     getTextQuestionsByCategory: builder.query<{ data: TextQuestion[] }, number>({
-      query: (categoryId) => `/text-questions/category/${categoryId}`,
+      query: (categoryId) => `/ielts-categories/${categoryId}`,
       providesTags: (result, error, categoryId) => [
         { type: 'TextQuestions', id: categoryId }
       ],
+    }),
+
+    // Save User Answer
+    saveUserAnswer: builder.mutation<any, FormData>({
+      query: (formData) => ({
+        url: '/text-questions/saving-answer',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['TextQuestions'],
     }),
   }),
 });
@@ -342,4 +352,5 @@ export const {
   useDeleteAudioFileMutation,
   useGetIeltsCategoriesQuery,
   useGetTextQuestionsByCategoryQuery,
+  useSaveUserAnswerMutation,
 } = portalHomeApi;
