@@ -47,6 +47,7 @@ const TextQuestionsPage: React.FC = () => {
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [showOriginal, setShowOriginal] = useState(false);
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
+  const [currentSample, setCurrentSample] = useState<1 | 2 | null>(null);
   const [audioUrls, setAudioUrls] = useState<{ [key: string]: string }>({});
   const [isAudioError, setIsAudioError] = useState(false);
   
@@ -84,13 +85,13 @@ const TextQuestionsPage: React.FC = () => {
   }, [audioBlob, audioError, currentAudioPath]);
 
   useEffect(() => {
-    if (transcript && currentQuestionId !== null) {
-      const result = calculateScore(transcript, currentQuestionId);
+    if (!isRecording && transcript && currentQuestionId !== null && currentSample !== null) {
+      const result = calculateScore(transcript, currentQuestionId, currentSample);
       setScore(result);
     }
-  }, [transcript, currentQuestionId]);
+  }, [isRecording, transcript, currentQuestionId, currentSample]);
 
-  const calculateScore = (userText: string, questionId: number): ScoreResult => {
+  const calculateScore = (userText: string, questionId: number, sample: 1 | 2): ScoreResult => {
     const questionsList = Array.isArray(questions) 
       ? questions 
       : questions?.data 
@@ -108,8 +109,9 @@ const TextQuestionsPage: React.FC = () => {
       };
     }
 
-    const originalWords = currentQuestion.sampleAnswer1.toLowerCase().split(/\s+/) || [];
-    const userWords = userText.toLowerCase().split(/\s+/);
+    const originalText = sample === 1 ? currentQuestion.sampleAnswer1 : currentQuestion.sampleAnswer2;
+    const originalWords = (originalText || '').toLowerCase().replace(/[.,?]/g, '').split(/\s+/).filter(Boolean);
+    const userWords = userText.toLowerCase().replace(/[.,?]/g, '').split(/\s+/).filter(Boolean);
     const mistakes: string[] = [];
     let correctWords = 0;
     const wordResults: Array<{ word: string; isCorrect: boolean; expected?: string }> = [];
@@ -121,7 +123,7 @@ const TextQuestionsPage: React.FC = () => {
       } else if (i >= originalWords.length) {
         mistakes.push(`Extra: "${userWords[i]}"`);
         wordResults.push({ word: userWords[i], isCorrect: false });
-      } else if (userWords[i] !== originalWords[i]) {
+      } else if (userWords[i].replace(/[.,?]/g, '') !== originalWords[i].replace(/[.,?]/g, '')) {
         mistakes.push(`Expected: "${originalWords[i]}", Got: "${userWords[i]}"`);
         wordResults.push({ word: userWords[i], isCorrect: false, expected: originalWords[i] });
       } else {
@@ -257,13 +259,14 @@ const TextQuestionsPage: React.FC = () => {
     }
   };
 
-  const saveUserAnswer = async (questionId: number, transcript: string, score: number, audioBlob: Blob) => {
+  const saveUserAnswer = async (questionId: number, transcript: string, score: number, audioBlob: Blob, sample: 1 | 2) => {
     const formData = new FormData();
     const requestDto = {
       speakingPracticeId: questionId,
       userId: 1, // TODO: Replace with actual userId if available
       speakingText: transcript,
       speakingScore: Math.round(score),
+      sampleAnswerNumber: sample,
     };
     formData.append('requestDto', new Blob([JSON.stringify(requestDto)], { type: 'application/json' }));
     formData.append('answerFile', audioBlob, 'answer.webm');
@@ -276,9 +279,15 @@ const TextQuestionsPage: React.FC = () => {
     }
   };
 
-  const startRecording = async (questionId: number) => {
+  const startRecording = async (questionId: number, sample: 1 | 2) => {
     try {
+      if (isRecording) {
+        message.warning('A recording is already in progress. Please stop it first.');
+        return;
+      }
+      resetRecording();
       setCurrentQuestionId(questionId);
+      setCurrentSample(sample);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
         recognitionRef.current = new SpeechRecognition();
@@ -286,9 +295,10 @@ const TextQuestionsPage: React.FC = () => {
         recognitionRef.current.interimResults = true;
 
         recognitionRef.current.onresult = (event: any) => {
-          const current = event.resultIndex;
-          const transcript = event.results[current][0].transcript;
-          setTranscript(transcript);
+          const fullTranscript = Array.from(event.results)
+            .map((result: any) => result[0].transcript)
+            .join('');
+          setTranscript(fullTranscript);
         };
 
         recognitionRef.current.start();
@@ -333,8 +343,8 @@ const TextQuestionsPage: React.FC = () => {
           }
 
           // Save the answer to backend
-          if (currentQuestionId !== null && transcript && score) {
-            await saveUserAnswer(currentQuestionId, transcript, score.accuracy, audioBlob);
+          if (currentQuestionId !== null && transcript && score && currentSample !== null) {
+            await saveUserAnswer(currentQuestionId, transcript, score.accuracy, audioBlob, currentSample);
           }
         } catch (error) {
           console.error('Error processing recorded audio:', error);
@@ -377,6 +387,7 @@ const TextQuestionsPage: React.FC = () => {
     setRecordedAudio(null);
     setScore(null);
     setCurrentQuestionId(null);
+    setCurrentSample(null);
     if (recordedAudioRef.current) {
       recordedAudioRef.current.pause();
       setIsPlaying(false);
@@ -513,17 +524,18 @@ const TextQuestionsPage: React.FC = () => {
                           <div className="space-y-4">
                             <div className="flex items-center space-x-4">
                               <button
-                                onClick={() => isRecording ? stopRecording() : startRecording(question.id)}
+                                onClick={() => (isRecording && currentQuestionId === question.id && currentSample === 1) ? stopRecording() : startRecording(question.id, 1)}
                                 className={`p-4 rounded-full ${
-                                  isRecording 
+                                  (isRecording && currentQuestionId === question.id && currentSample === 1)
                                     ? 'bg-red-500 hover:bg-red-600' 
                                     : 'bg-blue-500 hover:bg-blue-600'
                                 } text-white transition-colors duration-200`}
+                                disabled={isRecording && !(currentQuestionId === question.id && currentSample === 1)}
                               >
                                 <BiMicrophone size={32} />
                               </button>
 
-                              {recordedAudio && currentQuestionId === question.id && (
+                              {recordedAudio && currentQuestionId === question.id && currentSample === 1 && (
                                 <>
                                   <button
                                     onClick={togglePlayback}
@@ -546,7 +558,7 @@ const TextQuestionsPage: React.FC = () => {
                               )}
                             </div>
 
-                            {recordedAudio && currentQuestionId === question.id && (
+                            {recordedAudio && currentQuestionId === question.id && currentSample === 1 && (
                               <audio 
                                 ref={recordedAudioRef}
                                 src={recordedAudio}
@@ -555,25 +567,27 @@ const TextQuestionsPage: React.FC = () => {
                               />
                             )}
 
-                            <div className="flex justify-between items-center mb-2">
-                              <h2 className="text-xl font-semibold">Your Answer:</h2>
-                              <button
-                                onClick={() => setShowOriginal(!showOriginal)}
-                                className="text-blue-500 hover:text-blue-600"
-                              >
-                                {showOriginal ? 'Hide Original' : 'Show Original'}
-                              </button>
-                            </div>
-
-                            {recordedAudio && currentQuestionId === question.id && (
-                              <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-gray-700">{transcript}</p>
+                            {(isRecording || (transcript && currentQuestionId === question.id && currentSample === 1)) && (
+                              <>
+                                <div className="flex justify-between items-center mb-2">
+                                  <h2 className="text-xl font-semibold">Your Answer:</h2>
+                                  <button
+                                    onClick={() => setShowOriginal(!showOriginal)}
+                                    className="text-blue-500 hover:text-blue-600"
+                                  >
+                                    {showOriginal ? 'Hide Original' : 'Show Original'}
+                                  </button>
                                 </div>
-                              </div>
+
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-gray-700">{transcript || '...'}</p>
+                                  </div>
+                                </div>
+                              </>
                             )}
 
-                            {score && currentQuestionId === question.id && (
+                            {score && currentQuestionId === question.id && currentSample === 1 && (
                               <div className="space-y-4">
                                 <div className="bg-gray-50 p-4 rounded-lg">
                                   <h3 className="text-lg font-semibold mb-2">Score:</h3>
@@ -635,17 +649,18 @@ const TextQuestionsPage: React.FC = () => {
                           <div className="space-y-4">
                             <div className="flex items-center space-x-4">
                               <button
-                                onClick={() => isRecording ? stopRecording() : startRecording(question.id)}
+                                onClick={() => (isRecording && currentQuestionId === question.id && currentSample === 2) ? stopRecording() : startRecording(question.id, 2)}
                                 className={`p-4 rounded-full ${
-                                  isRecording 
+                                  (isRecording && currentQuestionId === question.id && currentSample === 2) 
                                     ? 'bg-red-500 hover:bg-red-600' 
                                     : 'bg-blue-500 hover:bg-blue-600'
                                 } text-white transition-colors duration-200`}
+                                disabled={isRecording && !(currentQuestionId === question.id && currentSample === 2)}
                               >
                                 <BiMicrophone size={32} />
                               </button>
 
-                              {recordedAudio && currentQuestionId === question.id && (
+                              {recordedAudio && currentQuestionId === question.id && currentSample === 2 && (
                                 <>
                                   <button
                                     onClick={togglePlayback}
@@ -668,7 +683,7 @@ const TextQuestionsPage: React.FC = () => {
                               )}
                             </div>
 
-                            {recordedAudio && currentQuestionId === question.id && (
+                            {recordedAudio && currentQuestionId === question.id && currentSample === 2 && (
                               <audio 
                                 ref={recordedAudioRef}
                                 src={recordedAudio}
@@ -677,25 +692,26 @@ const TextQuestionsPage: React.FC = () => {
                               />
                             )}
 
-                            <div className="flex justify-between items-center mb-2">
-                              <h2 className="text-xl font-semibold">Your Answer:</h2>
-                              <button
-                                onClick={() => setShowOriginal(!showOriginal)}
-                                className="text-blue-500 hover:text-blue-600"
-                              >
-                                {showOriginal ? 'Hide Original' : 'Show Original'}
-                              </button>
-                            </div>
-
-                            {recordedAudio && currentQuestionId === question.id && (
-                              <div className="bg-gray-50 p-4 rounded-lg">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-gray-700">{transcript}</p>
+                            {(isRecording || (transcript && currentQuestionId === question.id && currentSample === 2)) && (
+                              <>
+                                <div className="flex justify-between items-center mb-2">
+                                  <h2 className="text-xl font-semibold">Your Answer:</h2>
+                                  <button
+                                    onClick={() => setShowOriginal(!showOriginal)}
+                                    className="text-blue-500 hover:text-blue-600"
+                                  >
+                                    {showOriginal ? 'Hide Original' : 'Show Original'}
+                                  </button>
                                 </div>
-                              </div>
+                                <div className="bg-gray-50 p-4 rounded-lg">
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-gray-700">{transcript || '...'}</p>
+                                    </div>
+                                </div>
+                              </>
                             )}
-
-                            {score && currentQuestionId === question.id && (
+                            
+                            {score && currentQuestionId === question.id && currentSample === 2 && (
                               <div className="space-y-4">
                                 <div className="bg-gray-50 p-4 rounded-lg">
                                   <h3 className="text-lg font-semibold mb-2">Score:</h3>
