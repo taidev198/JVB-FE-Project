@@ -7,7 +7,7 @@ export const SocketContext = createContext(null);
 const SocketProvider = ({ children }) => {
   const idAccount = useAppSelector(state => state.user.idAccount);
   const token = useAppSelector(state => state.user?.token);
-  const wsUrl = `ws://192.168.0.152:8082/ws/raw/notifications?accountId=${idAccount}`;
+  const wsUrl = `ws://${process.env.NEXT_PUBLIC_API_URL_NOTIFY}/ws/raw/notifications?accountId=${idAccount}`;
 
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [isConnected, setIsConnected] = useState(false);

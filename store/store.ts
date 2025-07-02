@@ -13,6 +13,7 @@ import { portalHomeApi } from '@/services/portalHomeApi';
 import { adminSystemApi } from '@/services/adminSystemApi';
 import { adminSchoolApi } from '@/services/adminSchoolApi';
 import { adminCompanyApi } from '@/services/adminCompanyApi';
+import { listeningPracticeApi } from '@/services/listeningPracticeApi';
 import roleRestrictionPortalMiddleware from '@/middlewares/roleRestrictionPortalMiddleware';
 
 const PERSIST_CONFIG = {
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
   [adminSchoolApi.reducerPath]: adminSchoolApi.reducer,
   [adminCompanyApi.reducerPath]: adminCompanyApi.reducer,
   [portalHomeApi.reducerPath]: portalHomeApi.reducer,
+  [listeningPracticeApi.reducerPath]: listeningPracticeApi.reducer,
 });
 
 const persistedReducer = persistReducer(PERSIST_CONFIG.root, rootReducer);
@@ -50,7 +52,8 @@ export const store = configureStore({
       adminSystemApi.middleware,
       adminSchoolApi.middleware,
       adminCompanyApi.middleware,
-      portalHomeApi.middleware
+      portalHomeApi.middleware,
+      listeningPracticeApi.middleware
     ),
 });
 

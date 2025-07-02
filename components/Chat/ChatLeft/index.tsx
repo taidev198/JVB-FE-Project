@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { throttle } from 'lodash';
 import { Drawer, useMediaQuery, useTheme } from '@mui/material';
@@ -9,6 +10,7 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useDebounce } from 'use-debounce';
 import UserChatItem from './UserChatItem';
 import { showSidebar } from '@/store/slices/global';
 import { useGetAllChatRoomsQuery, useReadAllMessagesOnAChatRoomMutation } from '@/services/portalHomeApi';
@@ -39,19 +41,26 @@ const SidebarChat = () => {
   const previousDataRef = useRef<chatRoomResponse>();
 
   useEffect(() => {
-    if (data && isSuccess && previousDataRef.current !== data) {
-      if (data?.data?.content.length === 0) {
-        setHasMore(false);
-        return;
-      }
-      previousDataRef.current = data;
+    previousDataRef.current = data;
 
-      // Avoid adding duplicate chat rooms
-      const newChats = data.data.content.filter(newChat => !userChat.some(existingChat => existingChat.id === newChat.id));
-
-      setUserChat(prevChats => [...prevChats, ...newChats]);
+    if (page === 1) {
+      // New search or reset
+      setUserChat(data?.data?.content || []);
+    } else {
+      // Pagination
+      setUserChat(prev => [...prev, ...data.data.content.filter(item => !prev.some(p => p.id === item.id))]);
     }
+
+    // Check if there's more data
+    setHasMore((data?.data.content?.length || 0) === size);
   }, [data, isSuccess, page, userChat, userChat.length]);
+
+  useEffect(() => {
+    setPage(1);
+    setUserChat([]);
+    setHasMore(true);
+    refetch();
+  }, [keyword]);
 
   const handleScroll = useCallback(
     throttle(() => {
@@ -85,7 +94,7 @@ const SidebarChat = () => {
   useEffect(() => {
     const connectToWebSocket = () => {
       const client = new Client({
-        webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
+        webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/ws/stomp`),
         onConnect: () => {
           client.subscribe(`/topic/new-chatroom`, () => {
             refetch(); // Lấy lại danh sách phòng chat khi có phòng chat mới
@@ -96,6 +105,7 @@ const SidebarChat = () => {
             const newMessage = JSON.parse(message.body);
 
             setUserChat(prevChats => {
+              console.log('setUserChat on new-message');
               // Update the specific chat room with the new message
               const updatedChats = prevChats.map(chat => (chat.id === newMessage.chatRoomId ? { ...chat, lastMessage: newMessage } : chat));
 
@@ -103,7 +113,7 @@ const SidebarChat = () => {
               return updatedChats.sort((a, b) => {
                 const dateA = new Date(a.lastMessage.createAt).getTime();
                 const dateB = new Date(b.lastMessage.createAt).getTime();
-                return dateB - dateA; // Sort in descending order (newest first)
+                return dateB - dateA; // Sort in descending order (newest message comes firstly)
               });
             });
           });
@@ -114,11 +124,18 @@ const SidebarChat = () => {
 
           client.subscribe(`/topic/chatroom/${idRoom}`, message => {
             const newMessage = JSON.parse(message.body);
-
+            refetch();
             setUserChat(prevChats => {
+              console.log('setUserChat on new-message');
+              // Update the specific chat room with the new message
               const updatedChats = prevChats.map(chat => (chat.id === newMessage.chatRoomId ? { ...chat, lastMessage: newMessage } : chat));
 
-              return updatedChats;
+              // Sort the chats by the createAt property of the lastMessage
+              return updatedChats.sort((a, b) => {
+                const dateA = new Date(a.lastMessage.createAt).getTime();
+                const dateB = new Date(b.lastMessage.createAt).getTime();
+                return dateB - dateA; // Sort in descending order (newest message comes firstly)
+              });
             });
           });
         },
@@ -150,8 +167,9 @@ const SidebarChat = () => {
             value={keyword}
             onChange={e => {
               setKeyword(e.target.value);
-              setPage(1); // Reset to page 1 when searching
-              refetch(); // Fetch new data based on the keyword
+              setPage(1);
+              setHasMore(true);
+              setUserChat([]); //set to update new data
             }}
             className="w-[90%] border-none placeholder:text-[15px] placeholder:text-[#4B465C]"
             placeholder="Tìm kiếm đoạn chat..."
@@ -173,7 +191,7 @@ const SidebarChat = () => {
                   dispatch(setReceiverId(user?.member.id !== userId ? user?.member.id : user?.owner.id));
                   readMessage({ chatRoomId: user?.id });
                 }}
-                lastMessage={user?.member.id !== userId ? 'Sent: ' + user?.lastMessage?.content : user?.lastMessage.content}
+                lastMessage={user?.lastMessage.sender.id === userId ? 'Sent: ' + user?.lastMessage?.content : user?.lastMessage.content}
                 time={formatDistanceToNow(new Date(user?.lastMessage?.createAt), { addSuffix: true, locale: vi })}
                 isRead={user?.lastMessage?.isRead}
               />

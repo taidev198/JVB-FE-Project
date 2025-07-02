@@ -9,6 +9,7 @@ import { UniversityDetailResponse, UniversityResponse } from '@/types/university
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
 import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
 import { ChatResponse, chatRoomResponse, CheckChatResponse } from '@/types/chatType';
+import { TextQuestion, IeltsCategory, IeltsCategoryResponse } from '@/types/textQuestion';
 
 export const portalHomeApi = createApi({
   reducerPath: 'portalHomeApi',
@@ -23,7 +24,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat'],
+  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions', 'IeltsCategories'],
   endpoints: builder => ({
     // Fetch all jobs with pagination
     // Fetch all jobs with pagination and additional filters
@@ -257,9 +258,67 @@ export const portalHomeApi = createApi({
 
     getAllCountUnreadChat: builder.query({
       query: ({ userId }) => ({
-        url: `/chat/chatroom/count-unread-chat?userId=2`,
+        url: `/chat/chatroom/count-unread-chat`,
         params: { userId },
       }),
+    }),
+
+    // Text Questions
+    getTextQuestions: builder.query<{ data: TextQuestion[] }, void>({
+      query: () => '/text-questions',
+      providesTags: ['TextQuestions'],
+    }),
+
+    // Audio endpoints
+    getAudioFile: builder.query<Blob, string>({
+      query: (filename) => ({
+        url: `/audio/${filename}`,
+        responseHandler: async (response) => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch audio file');
+          }
+          return response.blob();
+        },
+      }),
+    }),
+
+    uploadAudioFile: builder.mutation<string, FormData>({
+      query: (formData) => ({
+        url: '/api/audio/upload',
+        method: 'POST',
+        body: formData,
+      }),
+    }),
+
+    deleteAudioFile: builder.mutation<void, string>({
+      query: (filename) => ({
+        url: `/api/audio/${filename}`,
+        method: 'DELETE',
+      }),
+    }),
+
+    // Get IELTS Categories
+    getIeltsCategories: builder.query<IeltsCategoryResponse, void>({
+      query: () => '/ielts-categories',
+      providesTags: ['IeltsCategories'],
+    }),
+
+    // Get Text Questions by Category
+    getTextQuestionsByCategory: builder.query<{ data: TextQuestion[] }, number>({
+      query: (categoryId) => `/ielts-categories/${categoryId}`,
+      providesTags: (result, error, categoryId) => [
+        { type: 'TextQuestions', id: categoryId }
+      ],
+    }),
+
+    // Save User Answer
+    saveUserAnswer: builder.mutation<any, FormData>({
+      query: (formData) => ({
+        url: '/text-questions/saving-answer',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['TextQuestions'],
     }),
   }),
 });
@@ -287,4 +346,11 @@ export const {
   useReadAllMessagesOnAChatRoomMutation,
   useDeleteOneMessageMutation,
   useGetAllCountUnreadChatQuery,
+  useGetTextQuestionsQuery,
+  useGetAudioFileQuery,
+  useUploadAudioFileMutation,
+  useDeleteAudioFileMutation,
+  useGetIeltsCategoriesQuery,
+  useGetTextQuestionsByCategoryQuery,
+  useSaveUserAnswerMutation,
 } = portalHomeApi;

@@ -1,6 +1,9 @@
 /* eslint-disable*/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import Link from 'next/link';
 import React, { useEffect, useState, useCallback } from 'react';
 import SockJS from 'sockjs-client'; // Import SockJS for WebSocket fallback
@@ -38,7 +41,7 @@ const LinkCard: React.FC<LinkCardProps> = ({ logoUrl, name, shortDes, websiteUrl
 
   const connectToWebSocket = useCallback(() => {
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://192.168.0.152:8082/ws/stomp'),
+      webSocketFactory: () => new SockJS(`${process.env.NEXT_PUBLIC_API_URL_CHAT}/ws/stomp`),
       onConnect: () => {
         setStompClient(client);
         refetch();
