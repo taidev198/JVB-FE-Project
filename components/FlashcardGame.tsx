@@ -37,26 +37,25 @@ const FlashcardGame: React.FC<FlashcardGameProps> = ({ cards, onAnswer }) => {
   const playCorrectSound = () => {
     if (correctSound) {
       correctSound.currentTime = 0;
-      correctSound.play();
+      //correctSound.play();
     }
   };
   const playWrongSound = () => {
     if (wrongSound) {
       wrongSound.currentTime = 0;
-      wrongSound.play();
+      //wrongSound.play();
     }
   };
 
   const handleGuess = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault();    
     if (guess.trim().toLowerCase() === card.word.trim().toLowerCase()) {
       setFeedback('Correct!');
       setRevealed(true);
-      playCorrectSound();
-      if (onAnswer) onAnswer(true);
+      //playCorrectSound();
     } else {
       setFeedback('Try again!');
-      playWrongSound();
+      //playWrongSound();
     }
   };
 
