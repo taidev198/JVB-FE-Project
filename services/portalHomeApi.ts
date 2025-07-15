@@ -320,6 +320,24 @@ export const portalHomeApi = createApi({
       }),
       invalidatesTags: ['TextQuestions'],
     }),
+
+    // Fetch vocab cards for a specific day
+    getVocabCardsByDay: builder.query<any[], number>({
+      query: (day) => `/ipa-cards/day/${day}`,
+    }),
+
+    // Save user vocab practice result
+    saveUserVocabPractice: builder.mutation<any, any>({
+      query: (body) => ({
+        url: '/user-vocab-practice',
+        method: 'POST',
+        body,
+      }),
+    }),
+    // Get user vocab practice progress
+    getUserVocabPractice: builder.query<any[], number>({
+      query: (userId) => `/user-vocab-practice/${userId}`,
+    }),
   }),
 });
 
@@ -353,4 +371,7 @@ export const {
   useGetIeltsCategoriesQuery,
   useGetTextQuestionsByCategoryQuery,
   useSaveUserAnswerMutation,
+  useGetVocabCardsByDayQuery,
+  useSaveUserVocabPracticeMutation,
+  useGetUserVocabPracticeQuery,
 } = portalHomeApi;

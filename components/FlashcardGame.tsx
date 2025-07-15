@@ -12,24 +12,39 @@ export interface FlashcardGameCard {
 
 interface FlashcardGameProps {
   cards: FlashcardGameCard[];
+  onAnswer?: (isCorrect: boolean) => void;
 }
 
-const FlashcardGame: React.FC<FlashcardGameProps> = ({ cards }) => {
-  const [current, setCurrent] = useState(0);
+const correctSound = typeof window !== 'undefined' ? new Audio('/correct.mp3') : null;
+const wrongSound = typeof window !== 'undefined' ? new Audio('/wrong.mp3') : null;
+
+const FlashcardGame: React.FC<FlashcardGameProps> = ({ cards, onAnswer }) => {
   const [guess, setGuess] = useState('');
   const [revealed, setRevealed] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [completed, setCompleted] = useState(false);
 
   if (!cards || cards.length === 0) {
     return <Alert severity="info">No cards available.</Alert>;
   }
 
-  const card = cards[current];
+  const card = cards[0];
 
   const playAudio = () => {
     const audio = new Audio(card.audioUrl);
     audio.play();
+  };
+
+  const playCorrectSound = () => {
+    if (correctSound) {
+      correctSound.currentTime = 0;
+      correctSound.play();
+    }
+  };
+  const playWrongSound = () => {
+    if (wrongSound) {
+      wrongSound.currentTime = 0;
+      wrongSound.play();
+    }
   };
 
   const handleGuess = (e: React.FormEvent) => {
@@ -37,31 +52,20 @@ const FlashcardGame: React.FC<FlashcardGameProps> = ({ cards }) => {
     if (guess.trim().toLowerCase() === card.word.trim().toLowerCase()) {
       setFeedback('Correct!');
       setRevealed(true);
+      playCorrectSound();
+      if (onAnswer) onAnswer(true);
     } else {
       setFeedback('Try again!');
+      playWrongSound();
     }
   };
 
   const handleNext = () => {
-    if (current < cards.length - 1) {
-      setCurrent(current + 1);
-      setGuess('');
-      setRevealed(false);
-      setFeedback(null);
-    } else {
-      setCompleted(true);
-    }
+    setGuess('');
+    setRevealed(false);
+    setFeedback(null);
+    if (onAnswer) onAnswer(false);
   };
-
-  if (completed) {
-    return (
-      <Card sx={{ maxWidth: 500, margin: '24px auto', p: 2 }}>
-        <CardContent>
-          <Alert severity="success">Congratulations! You have completed all the words!</Alert>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card sx={{ maxWidth: 500, margin: '24px auto', p: 2 }}>
@@ -103,7 +107,7 @@ const FlashcardGame: React.FC<FlashcardGameProps> = ({ cards }) => {
               Example: {card.example}
             </Typography>
             <Button variant="contained" color="primary" onClick={handleNext} sx={{ mt: 3 }}>
-              {current < cards.length - 1 ? 'Next Word' : 'Finish'}
+              Next
             </Button>
           </Box>
         )}
