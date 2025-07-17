@@ -18,6 +18,7 @@ import AdminCompanyLayout from '@/layouts/Admin/AdminCompanyLayout';
 import ToastNotification from '@/components/Common/ToastNotification';
 import SocketProvider from '@/context/SoketProvider';
 import SocketMessagesProvider from '@/context/SocketMessagesProvider';
+import IELTSSystemLayout from '@/layouts/Admin/IELTSSystemLayout';
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -34,6 +35,9 @@ const getLayout = (pathname: string) => {
     return AdminCompanyLayout;
   } else if (pathname.startsWith('/wallet')) {
     return AdminCompanyLayout;
+  } else if (pathname.startsWith('/admin/ielts')) {
+    // Assuming you have a specific layout for IELTS admin pages
+    return IELTSSystemLayout; // or a specific IELTS layout if you have one
   }
   {
     // Default layout (or no layout if desired)
