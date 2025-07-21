@@ -66,7 +66,13 @@ const Header = memo(({ isAdmin = false }: { isAdmin?: boolean }) => {
     <header className={`fixed z-50 w-full border-b border-gray-400 border-opacity-20 bg-primary-white py-5 ${isAdmin ? 'px-[20px]' : ''}`}>
       <div className="flex items-center justify-between">
         {!isMobileAndTablet ? (
-          <Logo />
+          <>
+            <Logo />
+            <nav className="flex gap-6 ml-8">
+              <Link href="/admin/ielts/tutorial" className="font-semibold text-lg hover:text-primary-main transition-colors">Tutorial</Link>
+              {/* Add more nav links here if needed */}
+            </nav>
+          </>
         ) : (
           <IconButton onClick={() => dispatch(showSidebar())}>
             <MenuIcon />

@@ -338,6 +338,11 @@ export const portalHomeApi = createApi({
     getUserVocabPractice: builder.query<any[], number>({
       query: (userId) => `/user-vocab-practice/${userId}`,
     }),
+
+    // Fetch IELTS video tutorial URL
+    getIeltsVideoTutorial: builder.query<{ url: string }, void>({
+      query: () => '/ielts/video-tutorial',
+    }),
   }),
 });
 
@@ -374,4 +379,5 @@ export const {
   useGetVocabCardsByDayQuery,
   useSaveUserVocabPracticeMutation,
   useGetUserVocabPracticeQuery,
+  useGetIeltsVideoTutorialQuery,
 } = portalHomeApi;
