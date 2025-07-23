@@ -34,7 +34,7 @@ async function crawlGemini(prompt) {
     console.error('Puppeteer error:', err);
     await browser.close();
     throw err;
-  }
+}
 }
 
 module.exports = { crawlGemini };

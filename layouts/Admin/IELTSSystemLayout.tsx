@@ -2,7 +2,7 @@ import React, { memo, ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useMediaQuery, useTheme } from '@mui/material';
 import Navbar from './Sidebar';
-import Header from '@/components/Header/Header';
+import HeaderIelts from '@/components/Header/HeaderIelts';
 import { litsNavbarIELTSSystemAdmin } from '@/router/admin/navbarIELTSSystemRouter';
 import { useAppSelector } from '@/store/hooks';
 import { Loading } from '@/components/Common/Loading';
@@ -23,10 +23,8 @@ const IELTSSystemLayout = memo(({ children }: { children: ReactNode }) => {
       {/* Loading Overlay */}
       {isLoading && <Loading />}
 
-      {/* Header */}
-      <Header 
-      // isAdmin={true}
-       />
+      {/* IELTS Custom Header */}
+      <HeaderIelts />
 
       {/* Main Layout */}
       <div className="flex h-screen pt-[100px]">

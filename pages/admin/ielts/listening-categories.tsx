@@ -13,7 +13,7 @@ const IeltsCategoriesPage: React.FC = () => {
 
   const handleCategoryClick = (categoryId: number) => {
     router.push({
-      pathname: '/listening-practice',
+      pathname: '/admin/ielts/listening-practice',
       query: { categoryId },
     });
   };

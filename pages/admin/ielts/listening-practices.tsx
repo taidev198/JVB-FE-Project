@@ -26,7 +26,7 @@ const ListeningPracticesPage: React.FC = () => {
 
   const handlePracticeClick = (practice: ListeningPracticeResponseDto) => {
     router.push({
-      pathname: '/listening-practice',
+      pathname: '/admin/ielts/listening-practice',
       query: { 
         categoryId: practice.id, // Using id as categoryId for now
         practiceId: practice.practiceId 
@@ -35,7 +35,7 @@ const ListeningPracticesPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    router.push('/listening-categories');
+    router.push('/admin/ielts/listening-categories');
   };
 
   // Filter practices based on search term
