@@ -343,6 +343,10 @@ export const portalHomeApi = createApi({
     getIeltsVideoTutorial: builder.query<{ url: string }, void>({
       query: () => '/ielts/video-tutorial',
     }),
+
+    getIpaData: builder.query<{ bookContent: string; audioFiles: string[] }, { symbol: string }>({
+      query: ({ symbol }) => `/ipa/${encodeURIComponent(symbol)}`,
+    }),
   }),
 });
 
@@ -380,4 +384,5 @@ export const {
   useSaveUserVocabPracticeMutation,
   useGetUserVocabPracticeQuery,
   useGetIeltsVideoTutorialQuery,
+  useGetIpaDataQuery,
 } = portalHomeApi;

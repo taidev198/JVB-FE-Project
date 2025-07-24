@@ -16,7 +16,7 @@ export const litsNavbarIELTSSystemAdmin = [
   {
     id: 2,
     icon: <IconGroup />,
-    url: '/admin/system/company',
+    url: '/admin/ielts/speaking',
     label: 'Speaking',
   },
   {
@@ -66,5 +66,68 @@ export const litsNavbarIELTSSystemAdmin = [
     icon: <IconChangePassword />,
     url: '/admin/system/change-password',
     label: 'Mock Test',
+  },
+];
+
+export const litsNavbarIELTSConnectedSpeech = [
+  {
+    id: 1,
+    label: 'Introduction',
+    url: '/admin/ielts/connected-speech',
+    progress: 100,
+  },
+  {
+    id: 2,
+    label: 'Linking',
+    url: '/admin/ielts/connected-speech/linking',
+    progress: 60,
+    children: [
+      {
+        id: 21,
+        label: 'Consonant Linking',
+        url: '/admin/ielts/connected-speech/linking/consonant',
+        progress: 80,
+        children: [
+          {
+            id: 211,
+            label: 'T Linking',
+            url: '/admin/ielts/connected-speech/linking/consonant/t-linking',
+            progress: 90,
+          },
+          {
+            id: 212,
+            label: 'R Linking',
+            url: '/admin/ielts/connected-speech/linking/consonant/r-linking',
+            progress: 70,
+          },
+        ],
+      },
+      {
+        id: 22,
+        label: 'Vowel Linking',
+        url: '/admin/ielts/connected-speech/linking/vowel',
+        progress: 50,
+      },
+    ],
+  },
+  {
+    id: 3,
+    label: 'Assimilation',
+    url: '/admin/ielts/connected-speech/assimilation',
+    progress: 40,
+    children: [
+      {
+        id: 31,
+        label: 'Nasal Assimilation',
+        url: '/admin/ielts/connected-speech/assimilation/nasal',
+        progress: 30,
+      },
+    ],
+  },
+  {
+    id: 4,
+    label: 'Elision',
+    url: '/admin/ielts/connected-speech/elision',
+    progress: 20,
   },
 ];

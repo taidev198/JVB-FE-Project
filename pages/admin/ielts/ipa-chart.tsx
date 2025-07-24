@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Breadcrumbs from '@/components/Common/Breadcrumbs';
 
 const ipaData = [
   // Vowels
@@ -60,6 +61,7 @@ const getColor = (type: string) => {
 export default function IPAChartPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-10">
+      <Breadcrumbs parentLabel="IELTS Intensive Speaking" parentHref="/admin/ielts/speaking" currentLabel="IPA Chart" />
       <h1 className="text-3xl font-bold text-center mb-8">IPA Phonemic Chart</h1>
       <div className="max-w-4xl mx-auto grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-4">
         {ipaData.map((item) => (
