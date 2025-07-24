@@ -22,7 +22,7 @@ export default function VocabProgressPage() {
   const handleDayClick = (day: number) => {
     setClickedDay(day);
     setTimeout(() => setClickedDay(null), 400);
-    router.push(`/flashcard-game?day=${day}`);
+    router.push(`/admin/ielts/flashcard-game?day=${day}`);
   };
 
   return (

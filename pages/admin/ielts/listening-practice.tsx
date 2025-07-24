@@ -27,7 +27,7 @@ const ListeningPracticePage: React.FC = () => {
   const practices = apiResponse?.data || [];
 
   const handleBack = () => {
-    router.push('/listening-categories');
+    router.push('/admin/ielts/listening-categories');
   };
 
   if (isLoading) {
