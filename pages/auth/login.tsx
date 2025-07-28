@@ -17,6 +17,7 @@ import { useAppDispatch } from '@/store/hooks';
 import { logIn } from '@/store/slices/user';
 import { setLoading } from '@/store/slices/global';
 import { roles } from '@/utils/app/const';
+import GoogleLoginButton from '@/components/GoogleLoginButton';
 
 interface FormDataLogin {
   email: string;
@@ -119,6 +120,10 @@ const Login = () => {
               </Link>
             </div>
             <Button text="Đăng nhập" full={true} type="submit" />
+            <div className="flex items-center justify-center gap-2">
+            </div> {/* Closing the div for "Bạn chưa có tài khoản ?" */}
+            <GoogleLoginButton /> 
+            {/* Moved outside the inner div */}
           </div>
         </div>
       </form>

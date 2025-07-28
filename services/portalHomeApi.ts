@@ -7,7 +7,7 @@ import { FieldsResponse } from '@/types/fields';
 import { IJobAllResponsePortal, IJobDetailResponse, IJobsData } from '@/types/jobCompany';
 import { UniversityDetailResponse, UniversityResponse } from '@/types/university';
 import { WorkshopDetailResponse, WorkshopResponsePortal } from '@/types/workshop';
-import { FieldsResponsePortal } from '@/types/fieldPortalHomeTypes';
+import { FieldsResponsePortalHomeTypes } from '@/types/fieldPortalHomeTypes';
 import { ChatResponse, chatRoomResponse, CheckChatResponse } from '@/types/chatType';
 import { TextQuestion, IeltsCategory, IeltsCategoryResponse } from '@/types/textQuestion';
 
@@ -24,8 +24,28 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions', 'IeltsCategories'],
+  tagTypes: ['GoogleLogin', 'OtherTags', 'WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions', 'IeltsCategories'],
   endpoints: builder => ({
+    // Endpoint to send Google credential to backend
+    sendGoogleCredential: builder.mutation<any, { loginType: string; token: string }>({
+      query: ({ loginType, token }) => ({
+        url: '/auth/login/social?login_type=google',
+        method: 'POST',
+        body: { login_type: loginType, token },
+      }),
+      invalidatesTags: ['GoogleLogin'],
+    }),
+
+    // Endpoint to process redirect URL
+    processRedirectUrl: builder.mutation<any, { redirectUri: string; idTokenString: string }>({
+      query: ({ redirectUri, idTokenString }) => ({
+        url: `${redirectUri}?login_type=google&idTokenString=${idTokenString}`,
+        method: 'POST',
+        body: { token: idTokenString },
+      }),
+      invalidatesTags: ['GoogleLogin'],
+    }),
+
     // Fetch all jobs with pagination
     // Fetch all jobs with pagination and additional filters
     getJobs: builder.query<
@@ -167,7 +187,7 @@ export const portalHomeApi = createApi({
     }),
 
     // Fetch fields count job
-    getFieldsCountJob: builder.query<FieldsResponsePortal, void>({
+    getFieldsCountJob: builder.query<FieldsResponsePortalHomeTypes, void>({
       query: () => `/portal/field/jobs`,
     }),
 
@@ -351,6 +371,8 @@ export const portalHomeApi = createApi({
 });
 
 export const {
+  useSendGoogleCredentialMutation,
+  useProcessRedirectUrlMutation,
   useGetJobsQuery,
   useGetJobDetailsQuery,
   useGetWorkshopsQuery,
