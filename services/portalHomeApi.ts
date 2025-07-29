@@ -24,7 +24,7 @@ export const portalHomeApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['GoogleLogin', 'OtherTags', 'WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions', 'IeltsCategories'],
+  tagTypes: ['GoogleLogin', 'OtherTags', 'WorkshopDetail', 'JobDetail', 'CompanyDetail', 'SchoolDetail', 'Chat', 'MessagesChat', 'TextQuestions', 'IeltsCategories', 'Logout'],
   endpoints: builder => ({
     // Endpoint to send Google credential to backend
     sendGoogleCredential: builder.mutation<any, { loginType: string; token: string }>({
@@ -36,10 +36,19 @@ export const portalHomeApi = createApi({
       invalidatesTags: ['GoogleLogin'],
     }),
 
+    // Logout endpoint
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
+      invalidatesTags: ['Logout'],
+    }),
+
     // Endpoint to process redirect URL
     processRedirectUrl: builder.mutation<any, { redirectUri: string; idTokenString: string }>({
       query: ({ redirectUri, idTokenString }) => ({
-        url: `${redirectUri}?login_type=google&idTokenString=${idTokenString}`,
+        url: `${redirectUri}?&login_type=google&idTokenString=${idTokenString}`,
         method: 'POST',
         body: { token: idTokenString },
       }),
@@ -371,6 +380,7 @@ export const portalHomeApi = createApi({
 });
 
 export const {
+  useLogoutMutation,
   useSendGoogleCredentialMutation,
   useProcessRedirectUrlMutation,
   useGetJobsQuery,
