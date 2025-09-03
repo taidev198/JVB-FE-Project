@@ -338,6 +338,10 @@ export const portalHomeApi = createApi({
       providesTags: (result, error, categoryId) => [
         { type: 'TextQuestions', id: categoryId }
       ],
+      keepUnusedDataFor: 0,
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,  // optional: when browser reconnects
+      refetchOnFocus: true,      // optional: when tab regains focus
     }),
 
     // Save User Answer

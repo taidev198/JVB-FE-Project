@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Card, Typography, Button, Space, message, Collapse, Progress } from 'antd';
-import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
+import { Card, Typography, Button, Space, message, Progress, Row, Col } from 'antd';
+import { PlayCircleOutlined, PauseCircleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useGetTextQuestionsQuery, useGetAudioFileQuery, useGetTextQuestionsByCategoryQuery, useSaveUserAnswerMutation } from '@/services/portalHomeApi';
 import { BiMicrophone, BiPlay, BiPause, BiRefresh } from 'react-icons/bi';
 import Container from '@/components/Container';
 import { useRouter } from 'next/router';
 
 const { Title, Text } = Typography;
-const { Panel } = Collapse;
 
 interface TextQuestion {
   id: number;
@@ -36,6 +35,9 @@ interface ScoreResult {
 const TextQuestionsPage: React.FC = () => {
   const router = useRouter();
   const { categoryId } = router.query;
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [currentSample, setCurrentSample] = useState<1 | 2 | null>(null);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioBlobs, setAudioBlobs] = useState<{ [key: string]: Blob }>({});
@@ -45,9 +47,6 @@ const TextQuestionsPage: React.FC = () => {
   const [recordedAudio, setRecordedAudio] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [score, setScore] = useState<ScoreResult | null>(null);
-  const [showOriginal, setShowOriginal] = useState(false);
-  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
-  const [currentSample, setCurrentSample] = useState<1 | 2 | null>(null);
   const [audioUrls, setAudioUrls] = useState<{ [key: string]: string }>({});
   const [isAudioError, setIsAudioError] = useState(false);
   
@@ -70,8 +69,7 @@ const TextQuestionsPage: React.FC = () => {
     if (error) {
       message.error('Failed to fetch questions');
     }
-    console.log('API Response:', questions);
-  }, [error, questions]);
+  }, [error]);
 
   useEffect(() => {
     if (audioError) {
@@ -85,20 +83,26 @@ const TextQuestionsPage: React.FC = () => {
   }, [audioBlob, audioError, currentAudioPath]);
 
   useEffect(() => {
-    if (!isRecording && transcript && currentQuestionId !== null && currentSample !== null) {
-      const result = calculateScore(transcript, currentQuestionId, currentSample);
-      setScore(result);
+    if (!isRecording && transcript && currentSample !== null) {
+      const currentQuestion = getCurrentQuestion();
+      if (currentQuestion) {
+        const result = calculateScore(transcript, currentQuestion.id, currentSample);
+        setScore(result);
+      }
     }
-  }, [isRecording, transcript, currentQuestionId, currentSample]);
+  }, [isRecording, transcript, currentSample]);
 
-  const calculateScore = (userText: string, questionId: number, sample: 1 | 2): ScoreResult => {
+  const getCurrentQuestion = (): TextQuestion | null => {
     const questionsList = Array.isArray(questions) 
       ? questions 
       : questions?.data 
       ? questions.data 
       : [];
+    return questionsList[currentQuestionIndex] || null;
+  };
 
-    const currentQuestion = questionsList.find(q => q.id === questionId);
+  const calculateScore = (userText: string, questionId: number, sample: 1 | 2): ScoreResult => {
+    const currentQuestion = getCurrentQuestion();
     if (!currentQuestion) {
       return {
         accuracy: 0,
@@ -254,7 +258,6 @@ const TextQuestionsPage: React.FC = () => {
     if (cachedBlob) {
       playAudioFromBlob(cachedBlob, audioId);
     } else {
-      console.log('Fetching audio:', audioPath);
       setCurrentAudioPath(audioPath);
     }
   };
@@ -263,7 +266,7 @@ const TextQuestionsPage: React.FC = () => {
     const formData = new FormData();
     const requestDto = {
       speakingPracticeId: questionId,
-      userId: 1, // TODO: Replace with actual userId if available
+      userId: 1,
       speakingText: transcript,
       speakingScore: Math.round(score),
       sampleAnswerNumber: sample,
@@ -279,14 +282,16 @@ const TextQuestionsPage: React.FC = () => {
     }
   };
 
-  const startRecording = async (questionId: number, sample: 1 | 2) => {
+  const startRecording = async (sample: 1 | 2) => {
+    const currentQuestion = getCurrentQuestion();
+    if (!currentQuestion) return;
+
     try {
       if (isRecording) {
         message.warning('A recording is already in progress. Please stop it first.');
         return;
       }
       resetRecording();
-      setCurrentQuestionId(questionId);
       setCurrentSample(sample);
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
@@ -342,9 +347,8 @@ const TextQuestionsPage: React.FC = () => {
             recognitionRef.current.stop();
           }
 
-          // Save the answer to backend
-          if (currentQuestionId !== null && transcript && score && currentSample !== null) {
-            await saveUserAnswer(currentQuestionId, transcript, score.accuracy, audioBlob, currentSample);
+          if (transcript && score && currentSample !== null) {
+            await saveUserAnswer(currentQuestion.id, transcript, score.accuracy, audioBlob, currentSample);
           }
         } catch (error) {
           console.error('Error processing recorded audio:', error);
@@ -386,7 +390,6 @@ const TextQuestionsPage: React.FC = () => {
     setTranscript('');
     setRecordedAudio(null);
     setScore(null);
-    setCurrentQuestionId(null);
     setCurrentSample(null);
     if (recordedAudioRef.current) {
       recordedAudioRef.current.pause();
@@ -394,6 +397,28 @@ const TextQuestionsPage: React.FC = () => {
     }
     if (playingId) {
       cleanupAudio(playingId);
+    }
+  };
+
+  const nextQuestion = () => {
+    const questionsList = Array.isArray(questions) 
+      ? questions 
+      : questions?.data 
+      ? questions.data 
+      : [];
+    
+    if (currentQuestionIndex < questionsList.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setShowAnswer(false);
+      resetRecording();
+    }
+  };
+
+  const prevQuestion = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setShowAnswer(false);
+      resetRecording();
     }
   };
 
@@ -429,7 +454,16 @@ const TextQuestionsPage: React.FC = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <Container>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-600">Loading questions...</p>
+          </div>
+        </div>
+      </Container>
+    );
   }
 
   const questionsList = Array.isArray(questions) 
@@ -438,318 +472,344 @@ const TextQuestionsPage: React.FC = () => {
     ? questions.data 
     : [];
 
-  const calculateTotalScore = (question: TextQuestion) => {
-    const scores = [question.score1, question.score2].filter(score => score !== undefined && score !== null);
-    if (scores.length === 0) return 0;
-    return scores.reduce((sum, score) => sum + score, 0) / scores.length;
-  };
+  const currentQuestion = getCurrentQuestion();
 
-  return (
-    <Container>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex justify-between items-center mb-8">
-            <Title level={2}>IELTS Speaking Questions</Title>
-            <Button onClick={() => router.push('/ielts-categories')}>
+  if (!currentQuestion) {
+    return (
+      <Container>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <Title level={2}>No questions available</Title>
+            <Button onClick={() => router.push('/ielts-categories')} className="mt-4">
               Back to Categories
             </Button>
           </div>
-          
-          {questionsList.length === 0 ? (
-            <div>No questions available</div>
-          ) : (
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {questionsList.map((question) => (
-                <Card key={question.id} className="w-full">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex-1">
-                      <Text strong>{question.question}</Text>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-center">
-                        <Progress
-                          type="circle"
-                          percent={calculateTotalScore(question)}
-                          format={(percent) => `${percent?.toFixed(1)}%`}
-                          width={70}
-                          strokeColor={{
-                            '0%': '#108ee9',
-                            '100%': '#87d068',
-                          }}
-                        />
-                        <div className="text-sm text-gray-500 mt-1">Total Score</div>
-                      </div>
+        </div>
+      </Container>
+    );
+  }
+
+  return (
+    <Container>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <Title level={2} className="text-gray-800">IELTS Speaking Practice</Title>
+              <Text className="text-gray-600">
+                Question {currentQuestionIndex + 1} of {questionsList.length}
+              </Text>
+            </div>
+            <Button onClick={() => router.push('/ielts-categories')} icon={<LeftOutlined />}>
+              Back to Categories
+            </Button>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <Progress 
+              percent={((currentQuestionIndex + 1) / questionsList.length) * 100} 
+              strokeColor={{
+                '0%': '#108ee9',
+                '100%': '#87d068',
+              }}
+              showInfo={false}
+            />
+          </div>
+
+          {/* Flashcard */}
+          <div className="flex justify-center mb-8">
+            <Card 
+              className="w-full max-w-3xl shadow-2xl border-0"
+              style={{ 
+                minHeight: '500px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white'
+              }}
+            >
+              <div className="text-center h-full flex flex-col justify-center">
+                {/* Question Side */}
+                {!showAnswer ? (
+                  <div className="space-y-6">
+                    <div className="flex justify-center mb-6">
                       <Button
                         type="primary"
-                        icon={playingId === `question-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                        onClick={() => handlePlayAudio(question.questionAudioPath, `question-${question.id}`)}
-                        disabled={!question.questionAudioPath}
+                        size="large"
+                        icon={playingId === `question-${currentQuestion.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                        onClick={() => handlePlayAudio(currentQuestion.questionAudioPath, `question-${currentQuestion.id}`)}
+                        disabled={!currentQuestion.questionAudioPath}
+                        className="bg-white text-blue-600 border-white hover:bg-gray-100"
                       >
-                        {playingId === `question-${question.id}` ? 'Pause Question' : 'Play Question'}
+                        {playingId === `question-${currentQuestion.id}` ? 'Pause Question' : 'Play Question'}
                       </Button>
                     </div>
+                    
+                    <Title level={3} className="text-white mb-6">
+                      {currentQuestion.question}
+                    </Title>
+                    
+                    <Button 
+                      type="primary" 
+                      size="large"
+                      onClick={() => setShowAnswer(true)}
+                      className="bg-white text-blue-600 border-white hover:bg-gray-100 px-8 py-4 h-auto text-lg"
+                    >
+                      Show Sample Answers
+                    </Button>
                   </div>
-                  <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                    <Collapse defaultActiveKey={[]}>
-                      <Panel header="Sample Answer 1" key="1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex-1">
-                            <Text>{question.sampleAnswer1}</Text>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-center">
-                              <Progress
-                                type="circle"
-                                percent={question.score1 || 0}
-                                format={(percent) => `${percent?.toFixed(1)}%`}
-                                width={60}
-                                strokeColor={{
-                                  '0%': '#108ee9',
-                                  '100%': '#87d068',
-                                }}
-                              />
-                              <div className="text-sm text-gray-500 mt-1">Score</div>
-                            </div>
-                            <Button
-                              type="primary"
-                              icon={playingId === `answer1-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                              onClick={() => handlePlayAudio(question.answer1AudioPath, `answer1-${question.id}`)}
-                              disabled={!question.answer1AudioPath}
-                            >
-                              {playingId === `answer1-${question.id}` ? 'Pause Answer' : 'Play Answer'}
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="mt-4 border-t pt-4">
+                ) : (
+                  /* Answer Side */
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <Title level={3} className="text-white mb-0">Sample Answers</Title>
+                      <Button 
+                        type="primary" 
+                        onClick={() => setShowAnswer(false)}
+                        className="bg-white text-blue-600 border-white hover:bg-gray-100"
+                      >
+                        Hide Answers
+                      </Button>
+                    </div>
+
+                    <Row gutter={[16, 16]}>
+                      {/* Sample Answer 1 */}
+                      <Col xs={24} lg={12}>
+                        <Card className="bg-white bg-opacity-20 border-white border-opacity-30">
                           <div className="space-y-4">
-                            <div className="flex items-center space-x-4">
-                              <button
-                                onClick={() => (isRecording && currentQuestionId === question.id && currentSample === 1) ? stopRecording() : startRecording(question.id, 1)}
-                                className={`p-4 rounded-full ${
-                                  (isRecording && currentQuestionId === question.id && currentSample === 1)
-                                    ? 'bg-red-500 hover:bg-red-600' 
-                                    : 'bg-blue-500 hover:bg-blue-600'
-                                } text-white transition-colors duration-200`}
-                                disabled={isRecording && !(currentQuestionId === question.id && currentSample === 1)}
-                              >
-                                <BiMicrophone size={32} />
-                              </button>
-
-                              {recordedAudio && currentQuestionId === question.id && currentSample === 1 && (
-                                <>
-                                  <button
-                                    onClick={togglePlayback}
-                                    className={`p-4 rounded-full ${
-                                      isPlaying 
-                                        ? 'bg-red-500 hover:bg-red-600' 
-                                        : 'bg-green-500 hover:bg-green-600'
-                                    } text-white transition-colors duration-200`}
-                                  >
-                                    {isPlaying ? <BiPause size={32} /> : <BiPlay size={32} />}
-                                  </button>
-
-                                  <button
-                                    onClick={resetRecording}
-                                    className="p-4 rounded-full bg-gray-500 hover:bg-gray-600 text-white transition-colors duration-200"
-                                  >
-                                    <BiRefresh size={32} />
-                                  </button>
-                                </>
-                              )}
-                            </div>
-
-                            {recordedAudio && currentQuestionId === question.id && currentSample === 1 && (
-                              <audio 
-                                ref={recordedAudioRef}
-                                src={recordedAudio}
-                                className="hidden"
-                                onEnded={() => setIsPlaying(false)}
-                              />
-                            )}
-
-                            {(isRecording || (transcript && currentQuestionId === question.id && currentSample === 1)) && (
-                              <>
-                                <div className="flex justify-between items-center mb-2">
-                                  <h2 className="text-xl font-semibold">Your Answer:</h2>
-                                  <button
-                                    onClick={() => setShowOriginal(!showOriginal)}
-                                    className="text-blue-500 hover:text-blue-600"
-                                  >
-                                    {showOriginal ? 'Hide Original' : 'Show Original'}
-                                  </button>
-                                </div>
-
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                  <div className="flex items-center justify-between">
-                                    <p className="text-gray-700">{transcript || '...'}</p>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-
-                            {score && currentQuestionId === question.id && currentSample === 1 && (
-                              <div className="space-y-4">
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                  <h3 className="text-lg font-semibold mb-2">Score:</h3>
-                                  <div className="space-y-2">
-                                    <p className="text-gray-700">
-                                      Accuracy: <span className="font-semibold">{score.accuracy.toFixed(1)}%</span>
-                                    </p>
-                                    <p className="text-gray-700">
-                                      Correct Words: <span className="font-semibold">{score.correctWords}</span> / {score.totalWords}
-                                    </p>
-                                    {score.mistakes.length > 0 && (
-                                      <div>
-                                        <p className="text-gray-700 font-semibold mb-1">Mistakes:</p>
-                                        <ul className="list-disc list-inside text-gray-600">
-                                          {score.mistakes.map((mistake, index) => (
-                                            <li key={index}>{mistake}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                {renderColoredText()}
+                            <div className="flex justify-between items-center">
+                              <Text strong className="text-white">Sample Answer 1</Text>
+                              <div className="flex items-center gap-2">
+                                <Progress
+                                  type="circle"
+                                  percent={currentQuestion.score1 || 0}
+                                  format={(percent) => `${percent?.toFixed(1)}%`}
+                                  width={50}
+                                  strokeColor="#87d068"
+                                />
+                                <Button
+                                  type="primary"
+                                  size="small"
+                                  icon={playingId === `answer1-${currentQuestion.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                                  onClick={() => handlePlayAudio(currentQuestion.answer1AudioPath, `answer1-${currentQuestion.id}`)}
+                                  disabled={!currentQuestion.answer1AudioPath}
+                                  className="bg-white text-blue-600 border-white hover:bg-gray-100"
+                                >
+                                  {playingId === `answer1-${currentQuestion.id}` ? 'Pause' : 'Play'}
+                                </Button>
                               </div>
-                            )}
-                          </div>
-                        </div>
-                      </Panel>
-                      <Panel header="Sample Answer 2" key="2">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex-1">
-                            <Text>{question.sampleAnswer2}</Text>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-center">
-                              <Progress
-                                type="circle"
-                                percent={question.score2 || 0}
-                                format={(percent) => `${percent?.toFixed(1)}%`}
-                                width={60}
-                                strokeColor={{
-                                  '0%': '#108ee9',
-                                  '100%': '#87d068',
-                                }}
-                              />
-                              <div className="text-sm text-gray-500 mt-1">Score</div>
                             </div>
-                            <Button
-                              type="primary"
-                              icon={playingId === `answer2-${question.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                              onClick={() => handlePlayAudio(question.answer2AudioPath, `answer2-${question.id}`)}
-                              disabled={!question.answer2AudioPath}
-                            >
-                              {playingId === `answer2-${question.id}` ? 'Pause Answer' : 'Play Answer'}
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="mt-4 border-t pt-4">
-                          <div className="space-y-4">
-                            <div className="flex items-center space-x-4">
-                              <button
-                                onClick={() => (isRecording && currentQuestionId === question.id && currentSample === 2) ? stopRecording() : startRecording(question.id, 2)}
-                                className={`p-4 rounded-full ${
-                                  (isRecording && currentQuestionId === question.id && currentSample === 2) 
-                                    ? 'bg-red-500 hover:bg-red-600' 
-                                    : 'bg-blue-500 hover:bg-blue-600'
-                                } text-white transition-colors duration-200`}
-                                disabled={isRecording && !(currentQuestionId === question.id && currentSample === 2)}
-                              >
-                                <BiMicrophone size={32} />
-                              </button>
-
-                              {recordedAudio && currentQuestionId === question.id && currentSample === 2 && (
-                                <>
-                                  <button
-                                    onClick={togglePlayback}
-                                    className={`p-4 rounded-full ${
-                                      isPlaying 
-                                        ? 'bg-red-500 hover:bg-red-600' 
-                                        : 'bg-green-500 hover:bg-green-600'
-                                    } text-white transition-colors duration-200`}
-                                  >
-                                    {isPlaying ? <BiPause size={32} /> : <BiPlay size={32} />}
-                                  </button>
-
-                                  <button
-                                    onClick={resetRecording}
-                                    className="p-4 rounded-full bg-gray-500 hover:bg-gray-600 text-white transition-colors duration-200"
-                                  >
-                                    <BiRefresh size={32} />
-                                  </button>
-                                </>
-                              )}
-                            </div>
-
-                            {recordedAudio && currentQuestionId === question.id && currentSample === 2 && (
-                              <audio 
-                                ref={recordedAudioRef}
-                                src={recordedAudio}
-                                className="hidden"
-                                onEnded={() => setIsPlaying(false)}
-                              />
-                            )}
-
-                            {(isRecording || (transcript && currentQuestionId === question.id && currentSample === 2)) && (
-                              <>
-                                <div className="flex justify-between items-center mb-2">
-                                  <h2 className="text-xl font-semibold">Your Answer:</h2>
-                                  <button
-                                    onClick={() => setShowOriginal(!showOriginal)}
-                                    className="text-blue-500 hover:text-blue-600"
-                                  >
-                                    {showOriginal ? 'Hide Original' : 'Show Original'}
-                                  </button>
-                                </div>
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-gray-700">{transcript || '...'}</p>
-                                    </div>
-                                </div>
-                              </>
-                            )}
+                            <Text className="text-white">{currentQuestion.sampleAnswer1}</Text>
                             
-                            {score && currentQuestionId === question.id && currentSample === 2 && (
-                              <div className="space-y-4">
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                  <h3 className="text-lg font-semibold mb-2">Score:</h3>
-                                  <div className="space-y-2">
-                                    <p className="text-gray-700">
-                                      Accuracy: <span className="font-semibold">{score.accuracy.toFixed(1)}%</span>
-                                    </p>
-                                    <p className="text-gray-700">
-                                      Correct Words: <span className="font-semibold">{score.correctWords}</span> / {score.totalWords}
-                                    </p>
-                                    {score.mistakes.length > 0 && (
-                                      <div>
-                                        <p className="text-gray-700 font-semibold mb-1">Mistakes:</p>
-                                        <ul className="list-disc list-inside text-gray-600">
-                                          {score.mistakes.map((mistake, index) => (
-                                            <li key={index}>{mistake}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                {renderColoredText()}
+                            {/* Recording Section for Answer 1 */}
+                            <div className="mt-4 pt-4 border-t border-white border-opacity-30">
+                              <div className="flex items-center justify-center space-x-4 mb-4">
+                                <button
+                                  onClick={() => (isRecording && currentSample === 1) ? stopRecording() : startRecording(1)}
+                                  className={`p-3 rounded-full ${
+                                    (isRecording && currentSample === 1)
+                                      ? 'bg-red-500 hover:bg-red-600' 
+                                      : 'bg-blue-500 hover:bg-blue-600'
+                                  } text-white transition-colors duration-200`}
+                                  disabled={isRecording && currentSample !== 1}
+                                >
+                                  <BiMicrophone size={24} />
+                                </button>
+
+                                {recordedAudio && currentSample === 1 && (
+                                  <>
+                                    <button
+                                      onClick={togglePlayback}
+                                      className={`p-3 rounded-full ${
+                                        isPlaying 
+                                          ? 'bg-red-500 hover:bg-red-600' 
+                                          : 'bg-green-500 hover:bg-green-600'
+                                      } text-white transition-colors duration-200`}
+                                    >
+                                      {isPlaying ? <BiPause size={24} /> : <BiPlay size={24} />}
+                                    </button>
+
+                                    <button
+                                      onClick={resetRecording}
+                                      className="p-3 rounded-full bg-gray-500 hover:bg-gray-600 text-white transition-colors duration-200"
+                                    >
+                                      <BiRefresh size={24} />
+                                    </button>
+                                  </>
+                                )}
                               </div>
-                            )}
+
+                              {recordedAudio && currentSample === 1 && (
+                                <audio 
+                                  ref={recordedAudioRef}
+                                  src={recordedAudio}
+                                  className="hidden"
+                                  onEnded={() => setIsPlaying(false)}
+                                />
+                              )}
+
+                              {(isRecording || (transcript && currentSample === 1)) && (
+                                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+                                  <Text className="text-white">{transcript || '...'}</Text>
+                                </div>
+                              )}
+
+                              {score && currentSample === 1 && (
+                                <div className="mt-4 space-y-3">
+                                  <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+                                    <Text className="text-white">
+                                      Accuracy: <span className="font-semibold">{score.accuracy.toFixed(1)}%</span>
+                                    </Text>
+                                    <br />
+                                    <Text className="text-white">
+                                      Correct Words: <span className="font-semibold">{score.correctWords}</span> / {score.totalWords}
+                                    </Text>
+                                  </div>
+                                  {renderColoredText()}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </Panel>
-                    </Collapse>
-                  </Space>
-                </Card>
-              ))}
-            </Space>
-          )}
+                        </Card>
+                      </Col>
+
+                      {/* Sample Answer 2 */}
+                      <Col xs={24} lg={12}>
+                        <Card className="bg-white bg-opacity-20 border-white border-opacity-30">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                              <Text strong className="text-white">Sample Answer 2</Text>
+                              <div className="flex items-center gap-2">
+                                <Progress
+                                  type="circle"
+                                  percent={currentQuestion.score2 || 0}
+                                  format={(percent) => `${percent?.toFixed(1)}%`}
+                                  width={50}
+                                  strokeColor="#87d068"
+                                />
+                                <Button
+                                  type="primary"
+                                  size="small"
+                                  icon={playingId === `answer2-${currentQuestion.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                                  onClick={() => handlePlayAudio(currentQuestion.answer2AudioPath, `answer2-${currentQuestion.id}`)}
+                                  disabled={!currentQuestion.answer2AudioPath}
+                                  className="bg-white text-blue-600 border-white hover:bg-gray-100"
+                                >
+                                  {playingId === `answer2-${currentQuestion.id}` ? 'Pause' : 'Play'}
+                                </Button>
+                              </div>
+                            </div>
+                            <Text className="text-white">{currentQuestion.sampleAnswer2}</Text>
+                            
+                            {/* Recording Section for Answer 2 */}
+                            <div className="mt-4 pt-4 border-t border-white border-opacity-30">
+                              <div className="flex items-center justify-center space-x-4 mb-4">
+                                <button
+                                  onClick={() => (isRecording && currentSample === 2) ? stopRecording() : startRecording(2)}
+                                  className={`p-3 rounded-full ${
+                                    (isRecording && currentSample === 2)
+                                      ? 'bg-red-500 hover:bg-red-600' 
+                                      : 'bg-blue-500 hover:bg-blue-600'
+                                  } text-white transition-colors duration-200`}
+                                  disabled={isRecording && currentSample !== 2}
+                                >
+                                  <BiMicrophone size={24} />
+                                </button>
+
+                                {recordedAudio && currentSample === 2 && (
+                                  <>
+                                    <button
+                                      onClick={togglePlayback}
+                                      className={`p-3 rounded-full ${
+                                        isPlaying 
+                                          ? 'bg-red-500 hover:bg-red-600' 
+                                          : 'bg-green-500 hover:bg-green-600'
+                                      } text-white transition-colors duration-200`}
+                                    >
+                                      {isPlaying ? <BiPause size={24} /> : <BiPlay size={24} />}
+                                    </button>
+
+                                    <button
+                                      onClick={resetRecording}
+                                      className="p-3 rounded-full bg-gray-500 hover:bg-gray-600 text-white transition-colors duration-200"
+                                    >
+                                      <BiRefresh size={24} />
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+
+                              {recordedAudio && currentSample === 2 && (
+                                <audio 
+                                  ref={recordedAudioRef}
+                                  src={recordedAudio}
+                                  className="hidden"
+                                  onEnded={() => setIsPlaying(false)}
+                                />
+                              )}
+
+                              {(isRecording || (transcript && currentSample === 2)) && (
+                                <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+                                  <Text className="text-white">{transcript || '...'}</Text>
+                                </div>
+                              )}
+
+                              {score && currentSample === 2 && (
+                                <div className="mt-4 space-y-3">
+                                  <div className="bg-white bg-opacity-20 p-3 rounded-lg">
+                                    <Text className="text-white">
+                                      Accuracy: <span className="font-semibold">{score.accuracy.toFixed(1)}%</span>
+                                    </Text>
+                                    <br />
+                                    <Text className="text-white">
+                                      Correct Words: <span className="font-semibold">{score.correctWords}</span> / {score.totalWords}
+                                    </Text>
+                                  </div>
+                                  {renderColoredText()}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between items-center">
+            <Button 
+              onClick={prevQuestion}
+              disabled={currentQuestionIndex === 0}
+              icon={<LeftOutlined />}
+              size="large"
+            >
+              Previous
+            </Button>
+            
+            <div className="text-center">
+              <Text className="text-lg font-semibold text-gray-700">
+                {currentQuestionIndex + 1} / {questionsList.length}
+              </Text>
+            </div>
+            
+            <Button 
+              onClick={nextQuestion}
+              disabled={currentQuestionIndex === questionsList.length - 1}
+              icon={<RightOutlined />}
+              size="large"
+              type="primary"
+            >
+              Next
+            </Button>
+          </div>
         </div>
       </div>
     </Container>
   );
 };
 
-export default TextQuestionsPage; 
+export default TextQuestionsPage;
