@@ -49,6 +49,7 @@ const TextQuestionsPage: React.FC = () => {
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [audioUrls, setAudioUrls] = useState<{ [key: string]: string }>({});
   const [isAudioError, setIsAudioError] = useState(false);
+  const [isQuestionTextVisible, setIsQuestionTextVisible] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -539,7 +540,7 @@ const TextQuestionsPage: React.FC = () => {
                 {/* Question Side */}
                 {!showAnswer ? (
                   <div className="space-y-6">
-                    <div className="flex justify-center mb-6">
+                    {/* <div className="flex justify-center mb-6">
                       <Button
                         type="primary"
                         size="large"
@@ -554,8 +555,36 @@ const TextQuestionsPage: React.FC = () => {
                     
                     <Title level={3} className="text-white mb-6">
                       {currentQuestion.question}
-                    </Title>
-                    
+                    </Title> */}
+                    {/* Button to Hide/Show Question Text */}
+                <Button 
+                  onClick={() => setIsQuestionTextVisible(!isQuestionTextVisible)} 
+                  type="primary" 
+                  className="mb-4"
+                >
+                  {isQuestionTextVisible ? 'Hide Question Text' : 'Show Question Text'}
+                </Button>
+
+                {/* Play Button */}
+                <div className="flex justify-center mb-6">
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={playingId === currentQuestion.questionAudioPath ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                    onClick={() => handlePlayAudio(currentQuestion.questionAudioPath, currentQuestion.questionAudioPath)}
+                    disabled={!currentQuestion.questionAudioPath}
+                    className="bg-white text-blue-600 border-white hover:bg-gray-100"
+                  >
+                    {playingId === currentQuestion.questionAudioPath ? 'Pause Question' : 'Play Question'}
+                  </Button>
+                </div>
+                
+                {/* Question Text */}
+                {isQuestionTextVisible && (
+                  <Title level={3} className="text-white mb-6">
+                    {currentQuestion.question}
+                  </Title>
+                )}
                     <Button 
                       type="primary" 
                       size="large"
