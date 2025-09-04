@@ -49,11 +49,14 @@ const TextQuestionsPage: React.FC = () => {
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [audioUrls, setAudioUrls] = useState<{ [key: string]: string }>({});
   const [isAudioError, setIsAudioError] = useState(false);
+  const [isQuestionTextVisible, setIsQuestionTextVisible] = useState(false);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recordedAudioRef = useRef<HTMLAudioElement>(null);
   const recognitionRef = useRef<any>(null);
+  
+  // Single audio ref that we'll manage properly
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const { data: questions, isLoading, error } = useGetTextQuestionsByCategoryQuery(
@@ -76,8 +79,13 @@ const TextQuestionsPage: React.FC = () => {
       message.error('Failed to fetch audio file');
       setCurrentAudioPath(null);
     } else if (audioBlob && currentAudioPath) {
-      const audioId = currentAudioPath.split('/').pop() || '';
+      // Use the full audio path as the unique ID to avoid conflicts
+      const audioId = currentAudioPath;
+
+      // Update the cache with the new blob
       setAudioBlobs(prev => ({ ...prev, [audioId]: audioBlob }));
+
+      // Play the newly fetched audio
       playAudioFromBlob(audioBlob, audioId);
     }
   }, [audioBlob, audioError, currentAudioPath]);
@@ -146,31 +154,17 @@ const TextQuestionsPage: React.FC = () => {
     };
   };
 
-  const cleanupAudio = (audioId: string) => {
-    if (audioUrls[audioId]) {
-      URL.revokeObjectURL(audioUrls[audioId]);
-      setAudioUrls(prev => {
-        const newUrls = { ...prev };
-        delete newUrls[audioId];
-        return newUrls;
-      });
-    }
-    if (audioRef.current) {
+  let isAudioPlaying = false;
+
+  const stopCurrentAudio = () => {
+    if (audioRef.current && isAudioPlaying) {
       audioRef.current.pause();
-      audioRef.current.src = '';
-      audioRef.current.onerror = null;
-      audioRef.current.onended = null;
+      audioRef.current.currentTime = 0;
+      isAudioPlaying = false;
     }
     setPlayingId(null);
     setIsAudioError(false);
   };
-
-  useEffect(() => {
-    return () => {
-      setIsAudioError(false);
-      cleanupAudio(playingId || '');
-    };
-  }, []);
 
   const playAudioFromBlob = (blob: Blob, audioId: string) => {
     if (!blob || !(blob instanceof Blob)) {
@@ -183,62 +177,56 @@ const TextQuestionsPage: React.FC = () => {
       return;
     }
 
+    // Stop current audio if it's different
     if (playingId && playingId !== audioId) {
-      cleanupAudio(playingId);
+      stopCurrentAudio();
     }
 
     try {
-      if (!blob.type.startsWith('audio/')) {
-        blob = new Blob([blob], { type: 'audio/webm' });
-      }
-
+      // Always create a new URL for the blob
       const audioUrl = URL.createObjectURL(blob);
-      if (!audioUrl) {
-        message.error('Failed to create audio URL');
-        return;
-      }
 
+      // Update the cache with the new URL
       setAudioUrls(prev => ({ ...prev, [audioId]: audioUrl }));
 
       if (!audioRef.current) {
         audioRef.current = new Audio();
       }
 
+      // Reset the audio element
+      audioRef.current.pause();
       audioRef.current.src = audioUrl;
-      audioRef.current.onerror = null;
-      audioRef.current.onended = null;
+      audioRef.current.currentTime = 0;
 
       audioRef.current.onerror = () => {
-        if (!isAudioError) {
-          setIsAudioError(true);
-          message.error('Failed to play audio');
-          cleanupAudio(audioId);
-        }
+        setIsAudioError(true);
+        message.error('Failed to play audio');
+        stopCurrentAudio();
       };
 
       audioRef.current.onended = () => {
-        cleanupAudio(audioId);
+        stopCurrentAudio();
       };
 
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         playPromise.catch(error => {
-          console.error('Error playing audio:', error);
-          if (!isAudioError) {
-            setIsAudioError(true);
-            message.error('Failed to play audio');
-            cleanupAudio(audioId);
+          if (error.name === 'AbortError') {
+            console.warn('Audio play aborted');
+            return;
           }
+          console.error('Error playing audio:', error);
+          setIsAudioError(true);
+          message.error('Failed to play audio');
+          stopCurrentAudio();
         });
       }
 
       setPlayingId(audioId);
     } catch (error) {
       console.error('Error creating audio element:', error);
-      if (!isAudioError) {
-        setIsAudioError(true);
-        message.error('Failed to create audio element');
-      }
+      setIsAudioError(true);
+      message.error('Failed to create audio element');
     }
   };
 
@@ -248,8 +236,16 @@ const TextQuestionsPage: React.FC = () => {
       return;
     }
 
-    if (playingId === audioId) {
-      cleanupAudio(audioId);
+    // If same audio is paused, resume it
+    if (playingId === audioId && audioRef.current && audioRef.current.paused) {
+      audioRef.current.play();
+      setIsAudioError(false);
+      return;
+    }
+
+    // If same audio is playing, pause it
+    if (playingId === audioId && audioRef.current && !audioRef.current.paused) {
+      stopCurrentAudio();
       return;
     }
 
@@ -396,7 +392,7 @@ const TextQuestionsPage: React.FC = () => {
       setIsPlaying(false);
     }
     if (playingId) {
-      cleanupAudio(playingId);
+      stopCurrentAudio();
     }
   };
 
@@ -452,6 +448,18 @@ const TextQuestionsPage: React.FC = () => {
       </div>
     );
   };
+
+  const cleanupAudio = (audioId: string) => {
+  if (audioUrls[audioId]) {
+    URL.revokeObjectURL(audioUrls[audioId]);
+    setAudioUrls(prev => {
+      const newUrls = { ...prev };
+      delete newUrls[audioId];
+      return newUrls;
+    });
+  }
+  stopCurrentAudio();
+};
 
   if (isLoading) {
     return (
@@ -532,23 +540,51 @@ const TextQuestionsPage: React.FC = () => {
                 {/* Question Side */}
                 {!showAnswer ? (
                   <div className="space-y-6">
-                    <div className="flex justify-center mb-6">
+                    {/* <div className="flex justify-center mb-6">
                       <Button
                         type="primary"
                         size="large"
-                        icon={playingId === `question-${currentQuestion.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                        onClick={() => handlePlayAudio(currentQuestion.questionAudioPath, `question-${currentQuestion.id}`)}
+                        icon={playingId === currentQuestion.questionAudioPath ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                        onClick={() => handlePlayAudio(currentQuestion.questionAudioPath, currentQuestion.questionAudioPath)}
                         disabled={!currentQuestion.questionAudioPath}
                         className="bg-white text-blue-600 border-white hover:bg-gray-100"
                       >
-                        {playingId === `question-${currentQuestion.id}` ? 'Pause Question' : 'Play Question'}
+                        {playingId === currentQuestion.questionAudioPath ? 'Pause Question' : 'Play Question'}
                       </Button>
                     </div>
                     
                     <Title level={3} className="text-white mb-6">
                       {currentQuestion.question}
-                    </Title>
-                    
+                    </Title> */}
+                    {/* Button to Hide/Show Question Text */}
+                <Button 
+                  onClick={() => setIsQuestionTextVisible(!isQuestionTextVisible)} 
+                  type="primary" 
+                  className="mb-4"
+                >
+                  {isQuestionTextVisible ? 'Hide Question Text' : 'Show Question Text'}
+                </Button>
+
+                {/* Play Button */}
+                <div className="flex justify-center mb-6">
+                  <Button
+                    type="primary"
+                    size="large"
+                    icon={playingId === currentQuestion.questionAudioPath ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                    onClick={() => handlePlayAudio(currentQuestion.questionAudioPath, currentQuestion.questionAudioPath)}
+                    disabled={!currentQuestion.questionAudioPath}
+                    className="bg-white text-blue-600 border-white hover:bg-gray-100"
+                  >
+                    {playingId === currentQuestion.questionAudioPath ? 'Pause Question' : 'Play Question'}
+                  </Button>
+                </div>
+                
+                {/* Question Text */}
+                {isQuestionTextVisible && (
+                  <Title level={3} className="text-white mb-6">
+                    {currentQuestion.question}
+                  </Title>
+                )}
                     <Button 
                       type="primary" 
                       size="large"
@@ -590,12 +626,12 @@ const TextQuestionsPage: React.FC = () => {
                                 <Button
                                   type="primary"
                                   size="small"
-                                  icon={playingId === `answer1-${currentQuestion.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                                  onClick={() => handlePlayAudio(currentQuestion.answer1AudioPath, `answer1-${currentQuestion.id}`)}
+                                  icon={playingId === currentQuestion.answer1AudioPath ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                                  onClick={() => handlePlayAudio(currentQuestion.answer1AudioPath, currentQuestion.answer1AudioPath)}
                                   disabled={!currentQuestion.answer1AudioPath}
                                   className="bg-white text-blue-600 border-white hover:bg-gray-100"
                                 >
-                                  {playingId === `answer1-${currentQuestion.id}` ? 'Pause' : 'Play'}
+                                  {playingId === currentQuestion.answer1AudioPath ? 'Pause' : 'Play'}
                                 </Button>
                               </div>
                             </div>
@@ -690,12 +726,12 @@ const TextQuestionsPage: React.FC = () => {
                                 <Button
                                   type="primary"
                                   size="small"
-                                  icon={playingId === `answer2-${currentQuestion.id}` ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-                                  onClick={() => handlePlayAudio(currentQuestion.answer2AudioPath, `answer2-${currentQuestion.id}`)}
+                                  icon={playingId === currentQuestion.answer2AudioPath ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                                  onClick={() => handlePlayAudio(currentQuestion.answer2AudioPath, currentQuestion.answer2AudioPath)}
                                   disabled={!currentQuestion.answer2AudioPath}
                                   className="bg-white text-blue-600 border-white hover:bg-gray-100"
                                 >
-                                  {playingId === `answer2-${currentQuestion.id}` ? 'Pause' : 'Play'}
+                                  {playingId === currentQuestion.answer2AudioPath ? 'Pause' : 'Play'}
                                 </Button>
                               </div>
                             </div>
