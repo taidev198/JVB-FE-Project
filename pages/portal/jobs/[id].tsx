@@ -72,7 +72,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
   }
 
   const jobDetails = data?.data;
-  const address = `${jobDetails?.company?.address?.houseNumber}, ${jobDetails?.company?.address?.ward.wardName}, ${jobDetails?.company?.address?.district.districtName}, ${jobDetails?.company?.address?.province.provinceName}`;
+  const address = `${jobDetails?.company?.address?.houseNumber}, ${jobDetails?.company?.address?.ward?.wardName}, ${jobDetails?.company?.address?.district?.districtName}, ${jobDetails?.company?.address?.province?.provinceName}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=20&output=embed`;
 
   return (
@@ -90,7 +90,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
           <BreadCrumbHeaderDetail
             title={jobDetails?.jobTitle || 'Tên công việc'}
             schoolType={jobDetails?.jobType ? formatJobType(jobDetails?.jobType) : 'Chưa xác định'}
-            address={`${jobDetails?.company?.address?.houseNumber},${jobDetails?.company?.address?.ward.wardName}, ${jobDetails?.company?.address?.district.districtName}, ${jobDetails?.company?.address?.province.provinceName}`}
+            address={`${jobDetails?.company?.address?.houseNumber},${jobDetails?.company?.address?.ward?.wardName}, ${jobDetails?.company?.address?.district?.districtName}, ${jobDetails?.company?.address?.province?.provinceName}`}
             logo={jobDetails?.company?.logoUrl}
             currentPage="Chi tiết công việc"
             buttonText={`${statusUniversityApplyJob(data.data.statusUnviersityApply)}`}
@@ -190,6 +190,7 @@ const JobDetails: React.FC<JobDetailsProps> = () => {
                   name={jobDetails.company.companyName}
                   shortDes={jobDetails.company.companyShortDescription}
                   websiteUrl={jobDetails.company.linkWebsite}
+                  receiverId={jobDetails.company.id}
                 />
               </div>
             </div>
