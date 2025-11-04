@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Card, Typography, Button, Space, message, Progress, Row, Col } from 'antd';
-import { PlayCircleOutlined, PauseCircleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, PauseCircleOutlined, LeftOutlined, RightOutlined, LoadingOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useGetTextQuestionsQuery, useGetAudioFileQuery, useGetTextQuestionsByCategoryQuery, useSaveUserAnswerMutation } from '@/services/portalHomeApi';
 import { BiMicrophone, BiPlay, BiPause, BiRefresh } from 'react-icons/bi';
 import Container from '@/components/Container';
@@ -50,6 +50,9 @@ const TextQuestionsPage: React.FC = () => {
   const [audioUrls, setAudioUrls] = useState<{ [key: string]: string }>({});
   const [isAudioError, setIsAudioError] = useState(false);
   const [isQuestionTextVisible, setIsQuestionTextVisible] = useState(false);
+  const [isFetchingAudio, setIsFetchingAudio] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -59,12 +62,22 @@ const TextQuestionsPage: React.FC = () => {
   // Single audio ref that we'll manage properly
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
-  const { data: questions, isLoading, error } = useGetTextQuestionsByCategoryQuery(
-    Number(categoryId),
-    { skip: !categoryId }
+  const { data: questions, isLoading, error, refetch: refetchQuestions } = useGetTextQuestionsByCategoryQuery(
+    Number(categoryId), // Keep as number for the API
+    { 
+      skip: !categoryId,
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+      // Force refetch by adding a timestamp to bust cache
+      pollingInterval: 0
+    }
   );
-  const { data: audioBlob, error: audioError } = useGetAudioFileQuery(currentAudioPath || '', {
+  const { data: audioBlob, error: audioError, refetch: refetchAudio } = useGetAudioFileQuery(currentAudioPath || '', {
     skip: !currentAudioPath,
+    refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
+    refetchOnReconnect: true
   });
   const [saveUserAnswerMutation] = useSaveUserAnswerMutation();
 
@@ -73,6 +86,83 @@ const TextQuestionsPage: React.FC = () => {
       message.error('Failed to fetch questions');
     }
   }, [error]);
+
+  // Handle page refresh and router changes - refetch data when component mounts or categoryId changes
+  useEffect(() => {
+    const questionsList = Array.isArray(questions) 
+      ? questions 
+      : questions?.data 
+      ? questions.data 
+      : [];
+    console.log('useEffect triggered:', { categoryId, routerReady: router.isReady, questionsLength: questionsList.length });
+    if (categoryId && router.isReady) {
+      console.log('Refetching questions...');
+      refetchQuestions();
+    }
+  }, [categoryId, refetchQuestions, router.isReady]);
+
+  // Additional effect to handle page refresh specifically
+  useEffect(() => {
+    const handlePageLoad = () => {
+      console.log('Page loaded, categoryId:', categoryId);
+      if (categoryId) {
+        // Increment refresh key to force new query
+        setRefreshKey(prev => prev + 1);
+        setTimeout(() => {
+          console.log('Delayed refetch triggered');
+          refetchQuestions();
+        }, 100);
+      }
+    };
+
+    // Check if this is a page refresh
+    if (performance.navigation.type === 1) { // TYPE_RELOAD
+      console.log('Page refresh detected');
+      handlePageLoad();
+    }
+
+    // Also handle when component mounts
+    handlePageLoad();
+  }, [categoryId, refetchQuestions]);
+
+  // Manual refresh function
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      // Increment refresh key to force new query
+      setRefreshKey(prev => prev + 1);
+      await refetchQuestions();
+      message.success('Data refreshed successfully');
+    } catch (error) {
+      message.error('Failed to refresh data');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Reset state on page refresh
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Reset all state when page is about to refresh
+      setCurrentQuestionIndex(0);
+      setShowAnswer(false);
+      setCurrentSample(null);
+      setTranscript('');
+      setRecordedAudio(null);
+      setScore(null);
+      setIsRecording(false);
+      setIsPlaying(false);
+      setCurrentAudioPath(null);
+      setAudioBlobs({});
+      setAudioUrls({});
+      setIsAudioError(false);
+      setIsQuestionTextVisible(false);
+      setIsFetchingAudio(false);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
 
   useEffect(() => {
     if (audioError) {
@@ -89,6 +179,15 @@ const TextQuestionsPage: React.FC = () => {
       playAudioFromBlob(audioBlob, audioId);
     }
   }, [audioBlob, audioError, currentAudioPath]);
+
+  useEffect(() => {
+    if (audioBlob && currentAudioPath) {
+      const audioId = currentAudioPath;
+      setAudioBlobs(prev => ({ ...prev, [audioId]: audioBlob }));
+      playAudioFromBlob(audioBlob, audioId);
+      setIsFetchingAudio(false); // Stop loading
+    }
+  }, [audioBlob, currentAudioPath]);
 
   useEffect(() => {
     if (!isRecording && transcript && currentSample !== null) {
@@ -236,23 +335,26 @@ const TextQuestionsPage: React.FC = () => {
       return;
     }
 
-    // If same audio is paused, resume it
+    // If the same audio is paused, resume it
     if (playingId === audioId && audioRef.current && audioRef.current.paused) {
       audioRef.current.play();
       setIsAudioError(false);
       return;
     }
 
-    // If same audio is playing, pause it
+    // If the same audio is playing, pause it
     if (playingId === audioId && audioRef.current && !audioRef.current.paused) {
       stopCurrentAudio();
       return;
     }
 
+    setIsFetchingAudio(true); // Start loading
     setIsAudioError(false);
+
     const cachedBlob = audioBlobs[audioId];
     if (cachedBlob) {
       playAudioFromBlob(cachedBlob, audioId);
+      setIsFetchingAudio(false); // Stop loading
     } else {
       setCurrentAudioPath(audioPath);
     }
@@ -509,9 +611,19 @@ const TextQuestionsPage: React.FC = () => {
                 Question {currentQuestionIndex + 1} of {questionsList.length}
               </Text>
             </div>
-            <Button onClick={() => router.push('/ielts-categories')} icon={<LeftOutlined />}>
-              Back to Categories
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleRefresh} 
+                icon={<ReloadOutlined />}
+                loading={isRefreshing}
+                type="default"
+              >
+                Refresh
+              </Button>
+              <Button onClick={() => router.push('/ielts-categories')} icon={<LeftOutlined />}>
+                Back to Categories
+              </Button>
+            </div>
           </div>
 
           {/* Progress Bar */}
@@ -626,12 +738,24 @@ const TextQuestionsPage: React.FC = () => {
                                 <Button
                                   type="primary"
                                   size="small"
-                                  icon={playingId === currentQuestion.answer1AudioPath ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+                                  icon={
+                                    isFetchingAudio && playingId === currentQuestion.answer1AudioPath ? (
+                                      <LoadingOutlined />
+                                    ) : playingId === currentQuestion.answer1AudioPath ? (
+                                      <PauseCircleOutlined />
+                                    ) : (
+                                      <PlayCircleOutlined />
+                                    )
+                                  }
                                   onClick={() => handlePlayAudio(currentQuestion.answer1AudioPath, currentQuestion.answer1AudioPath)}
-                                  disabled={!currentQuestion.answer1AudioPath}
+                                  disabled={!currentQuestion.answer1AudioPath || isFetchingAudio}
                                   className="bg-white text-blue-600 border-white hover:bg-gray-100"
                                 >
-                                  {playingId === currentQuestion.answer1AudioPath ? 'Pause' : 'Play'}
+                                  {isFetchingAudio && playingId === currentQuestion.answer1AudioPath
+                                    ? 'Loading...'
+                                    : playingId === currentQuestion.answer1AudioPath
+                                    ? 'Pause'
+                                    : 'Play'}
                                 </Button>
                               </div>
                             </div>
